@@ -1,0 +1,7 @@
+# Dependencies
+node_modules
+.next
+out
+
+# Ignore package lock (optional, remove if you want to format it)
+# package-lock.json

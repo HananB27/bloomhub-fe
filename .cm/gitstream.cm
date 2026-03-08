@@ -1,0 +1,20 @@
+# -*- mode: yaml -*-
+manifest:
+  version: 1.0
+
+automations:
+  # Enforce PR title format: [BHB-XX] description
+  enforce_pr_title_bhb:
+    if:
+      - {{ not (pr.title | match(regex=r/^\[BHB-\d+\]\s+.+$/)) }}
+    run:
+      - action: add-comment@v1
+        args:
+          comment: |
+            **PR title must follow the convention:** `[BHB-XX] description`
+            Example: `[BHB-42] Add login page`
+            Please update the PR title.
+      - action: add-label@v1
+        args:
+          label: "invalid-pr-title"
+          color: "b60205"
