@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Badge } from "./ui/badge";
+import { QuickActionButton } from "./QuickActionButton";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Separator } from "./ui/separator";
 import { Progress } from "./ui/progress";
@@ -42,6 +43,10 @@ import {
   TrendingDown,
   AlertCircle,
   CheckCircle,
+  Check,
+  X,
+  CircleDot,
+  HelpCircle,
   Clock,
   MapPin,
   Building,
@@ -63,6 +68,8 @@ import {
   GraduationCap,
   Baby,
 } from "lucide-react";
+import { formatDate } from "@/utils";
+import type { LucideIcon } from "lucide-react";
 
 type LeaveType =
   | "vacation"
@@ -118,8 +125,10 @@ type RechartsTooltipProps = TooltipProps<number, string>;
 function AnalyticsTooltip({ active, payload, label }: RechartsTooltipProps) {
   if (active && payload && payload.length) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
-        <p className="mb-2 font-medium text-gray-900">{label}</p>
+      <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 shadow-lg">
+        <p className="mb-2 font-medium text-gray-900 dark:text-gray-100">
+          {label}
+        </p>
         {payload.map((entry, index) => {
           if (!entry) return null;
           const color = entry.color ?? "#0f172a";
@@ -144,173 +153,11 @@ export function AnalyticsModule() {
   const [selectedLeaveType, setSelectedLeaveType] = useState("all");
   const [isHRUser] = useState(true); // Mock HR permission
 
-  // Mock leave data
-  const leaveRecords: LeaveRecord[] = [
-    {
-      id: 1,
-      employeeId: "emp-001",
-      employeeName: "Alex Thompson",
-      department: "Engineering",
-      leaveType: "vacation",
-      startDate: "2025-01-15",
-      endDate: "2025-01-19",
-      days: 5,
-      status: "approved",
-      createdAt: "2025-01-01",
-    },
-    {
-      id: 2,
-      employeeId: "emp-002",
-      employeeName: "Sarah Johnson",
-      department: "Human Resources",
-      leaveType: "sick",
-      startDate: "2025-02-10",
-      endDate: "2025-02-12",
-      days: 3,
-      status: "approved",
-      createdAt: "2025-02-09",
-    },
-    {
-      id: 3,
-      employeeId: "emp-003",
-      employeeName: "Michael Chen",
-      department: "Finance",
-      leaveType: "vacation",
-      startDate: "2025-03-20",
-      endDate: "2025-03-27",
-      days: 6,
-      status: "approved",
-      createdAt: "2025-03-05",
-    },
-    {
-      id: 4,
-      employeeId: "emp-004",
-      employeeName: "Emily Rodriguez",
-      department: "Marketing",
-      leaveType: "personal",
-      startDate: "2025-04-05",
-      endDate: "2025-04-05",
-      days: 1,
-      status: "approved",
-      createdAt: "2025-04-01",
-    },
-    {
-      id: 5,
-      employeeId: "emp-005",
-      employeeName: "David Kim",
-      department: "Engineering",
-      leaveType: "vacation",
-      startDate: "2025-05-15",
-      endDate: "2025-05-22",
-      days: 6,
-      status: "approved",
-      createdAt: "2025-05-01",
-    },
-    {
-      id: 6,
-      employeeId: "emp-006",
-      employeeName: "Lisa Wong",
-      department: "Engineering",
-      leaveType: "sick",
-      startDate: "2025-06-08",
-      endDate: "2025-06-10",
-      days: 3,
-      status: "approved",
-      createdAt: "2025-06-07",
-    },
-    {
-      id: 7,
-      employeeId: "emp-007",
-      employeeName: "James Wilson",
-      department: "Operations",
-      leaveType: "vacation",
-      startDate: "2025-07-10",
-      endDate: "2025-07-17",
-      days: 6,
-      status: "approved",
-      createdAt: "2025-06-25",
-    },
-    {
-      id: 8,
-      employeeId: "emp-008",
-      employeeName: "Rachel Green",
-      department: "Finance",
-      leaveType: "maternity",
-      startDate: "2025-08-01",
-      endDate: "2025-10-01",
-      days: 45,
-      status: "approved",
-      createdAt: "2025-07-15",
-    },
-  ];
+  // TODO: Implement - fetch leave records from API
+  const leaveRecords: LeaveRecord[] = [];
 
-  // Mock employee availability for heatmap
-  const employeeAvailability: EmployeeAvailability[] = [
-    {
-      employeeId: "emp-001",
-      employeeName: "Alex Thompson",
-      department: "Engineering",
-      avatar:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      availability: {
-        "2025-08-01": "available",
-        "2025-08-02": "available",
-        "2025-08-05": "leave",
-        "2025-08-06": "leave",
-        "2025-08-07": "available",
-        "2025-08-08": "available",
-        "2025-08-09": "available",
-      },
-    },
-    {
-      employeeId: "emp-002",
-      employeeName: "Sarah Johnson",
-      department: "Human Resources",
-      avatar:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b647?w=150&h=150&fit=crop&crop=face",
-      availability: {
-        "2025-08-01": "available",
-        "2025-08-02": "available",
-        "2025-08-05": "available",
-        "2025-08-06": "available",
-        "2025-08-07": "leave",
-        "2025-08-08": "available",
-        "2025-08-09": "available",
-      },
-    },
-    {
-      employeeId: "emp-003",
-      employeeName: "Michael Chen",
-      department: "Finance",
-      avatar:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-      availability: {
-        "2025-08-01": "available",
-        "2025-08-02": "available",
-        "2025-08-05": "available",
-        "2025-08-06": "available",
-        "2025-08-07": "available",
-        "2025-08-08": "leave",
-        "2025-08-09": "leave",
-      },
-    },
-    {
-      employeeId: "emp-004",
-      employeeName: "Emily Rodriguez",
-      department: "Marketing",
-      avatar:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      availability: {
-        "2025-08-01": "available",
-        "2025-08-02": "available",
-        "2025-08-05": "available",
-        "2025-08-06": "partial",
-        "2025-08-07": "available",
-        "2025-08-08": "available",
-        "2025-08-09": "available",
-      },
-    },
-  ];
+  // TODO: Implement - fetch employee availability from API
+  const employeeAvailability: EmployeeAvailability[] = [];
 
   const departments = [
     "Engineering",
@@ -323,7 +170,7 @@ export function AnalyticsModule() {
   const leaveTypes: {
     value: LeaveType;
     label: string;
-    icon: any;
+    icon: LucideIcon;
     color: string;
   }[] = [
     { value: "vacation", label: "Vacation", icon: Plane, color: "#2563eb" },
@@ -459,20 +306,20 @@ export function AnalyticsModule() {
       case "partial":
         return "bg-amber-200";
       default:
-        return "bg-gray-100";
+        return "bg-gray-100 dark:bg-gray-700";
     }
   };
 
   const getAvailabilityIcon = (status: string) => {
     switch (status) {
       case "available":
-        return "✓";
+        return <Check className="h-4 w-4" />;
       case "leave":
-        return "✗";
+        return <X className="h-4 w-4" />;
       case "partial":
-        return "◐";
+        return <CircleDot className="h-4 w-4" />;
       default:
-        return "?";
+        return <HelpCircle className="h-4 w-4" />;
     }
   };
 
@@ -517,24 +364,16 @@ export function AnalyticsModule() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               Leave Analytics
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
               Insights into leave patterns, trends, and team availability
             </p>
           </div>
@@ -578,22 +417,28 @@ export function AnalyticsModule() {
 
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Calendar className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Total Leave Days</p>
+              <Calendar className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Total Leave Days
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {leaveRecords.reduce((sum, record) => sum + record.days, 0)}
             </p>
-            <p className="text-xs text-gray-500">This year</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              This year
+            </p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Employees on Leave</p>
+              <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Employees on Leave
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {
                 employeeAvailability.filter((emp) =>
                   Object.values(emp.availability).some(
@@ -602,27 +447,35 @@ export function AnalyticsModule() {
                 ).length
               }
             </p>
-            <p className="text-xs text-gray-500">Currently</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Currently
+            </p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Average Leave</p>
+              <TrendingUp className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Average Leave
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {Math.round(
                 leaveRecords.reduce((sum, record) => sum + record.days, 0) /
                   leaveRecords.length
               ) || 0}
             </p>
-            <p className="text-xs text-gray-500">Days per employee</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Days per employee
+            </p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Activity className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Team Availability</p>
+              <Activity className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Team Availability
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {Math.round(
                 ((employeeAvailability.length -
                   employeeAvailability.filter((emp) =>
@@ -635,7 +488,9 @@ export function AnalyticsModule() {
               )}
               %
             </p>
-            <p className="text-xs text-gray-500">Currently available</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Currently available
+            </p>
           </div>
         </div>
       </div>
@@ -643,7 +498,7 @@ export function AnalyticsModule() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-3">
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
@@ -663,7 +518,7 @@ export function AnalyticsModule() {
                   {/* Leave Trends Chart */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-gray-900">
+                      <h3 className="font-medium text-gray-900 dark:text-gray-100">
                         Leave Trends by Month
                       </h3>
                       <Select
@@ -760,16 +615,19 @@ export function AnalyticsModule() {
 
                   {/* Department Overview */}
                   <div className="space-y-4">
-                    <h3 className="font-medium text-gray-900">
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">
                       Department Overview
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {departmentStats.map((dept) => (
-                        <Card key={dept.department} className="border-gray-200">
+                        <Card
+                          key={dept.department}
+                          className="border-gray-200 dark:border-gray-700"
+                        >
                           <CardContent className="p-4">
                             <div className="space-y-3">
                               <div className="flex items-center justify-between">
-                                <h4 className="font-medium text-gray-900">
+                                <h4 className="font-medium text-gray-900 dark:text-gray-100">
                                   {dept.department}
                                 </h4>
                                 <Badge
@@ -788,7 +646,7 @@ export function AnalyticsModule() {
 
                               <div className="space-y-2">
                                 <div className="flex justify-between text-sm">
-                                  <span className="text-gray-600">
+                                  <span className="text-gray-600 dark:text-gray-400">
                                     Available:
                                   </span>
                                   <span className="font-medium">
@@ -802,9 +660,9 @@ export function AnalyticsModule() {
                                 />
                               </div>
 
-                              <div className="pt-2 border-t border-gray-100">
+                              <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
                                 <div className="flex justify-between text-sm">
-                                  <span className="text-gray-600">
+                                  <span className="text-gray-600 dark:text-gray-400">
                                     Avg Leave Days:
                                   </span>
                                   <span className="font-medium">
@@ -824,7 +682,7 @@ export function AnalyticsModule() {
                   {/* Detailed Trends Analysis */}
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-gray-900">
+                      <h3 className="font-medium text-gray-900 dark:text-gray-100">
                         Leave Patterns & Trends
                       </h3>
                       <div className="flex gap-2">
@@ -884,7 +742,7 @@ export function AnalyticsModule() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       {/* Leave Type Distribution */}
-                      <Card className="border-gray-200">
+                      <Card className="border-gray-200 dark:border-gray-700">
                         <CardHeader>
                           <CardTitle className="text-lg">
                             Leave Type Distribution
@@ -919,7 +777,7 @@ export function AnalyticsModule() {
                       </Card>
 
                       {/* Top Insights */}
-                      <Card className="border-gray-200">
+                      <Card className="border-gray-200 dark:border-gray-700">
                         <CardHeader>
                           <CardTitle className="text-lg">
                             Key Insights
@@ -973,32 +831,38 @@ export function AnalyticsModule() {
                   {/* Team Availability Heatmap */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-gray-900">
+                      <h3 className="font-medium text-gray-900 dark:text-gray-100">
                         Team Availability Heatmap
                       </h3>
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2 text-sm">
                           <div className="w-3 h-3 bg-green-100 rounded-sm"></div>
-                          <span className="text-gray-600">Available</span>
+                          <span className="text-gray-600 dark:text-gray-400">
+                            Available
+                          </span>
                         </div>
                         <div className="flex items-center gap-2 text-sm">
                           <div className="w-3 h-3 bg-amber-200 rounded-sm"></div>
-                          <span className="text-gray-600">Partial</span>
+                          <span className="text-gray-600 dark:text-gray-400">
+                            Partial
+                          </span>
                         </div>
                         <div className="flex items-center gap-2 text-sm">
                           <div className="w-3 h-3 bg-red-200 rounded-sm"></div>
-                          <span className="text-gray-600">On Leave</span>
+                          <span className="text-gray-600 dark:text-gray-400">
+                            On Leave
+                          </span>
                         </div>
                       </div>
                     </div>
 
                     {/* Heatmap Calendar */}
-                    <Card className="border-gray-200">
+                    <Card className="border-gray-200 dark:border-gray-700">
                       <CardContent className="p-6">
                         <div className="space-y-4">
                           {/* Calendar Header */}
                           <div className="grid grid-cols-8 gap-2">
-                            <div className="text-sm font-medium text-gray-600 p-2">
+                            <div className="text-sm font-medium text-gray-600 dark:text-gray-400 p-2">
                               Employee
                             </div>
                             {[
@@ -1012,7 +876,7 @@ export function AnalyticsModule() {
                             ].map((day) => (
                               <div
                                 key={day}
-                                className="text-sm font-medium text-gray-600 text-center p-2"
+                                className="text-sm font-medium text-gray-600 dark:text-gray-400 text-center p-2"
                               >
                                 {day}
                               </div>
@@ -1040,10 +904,10 @@ export function AnalyticsModule() {
                                   </AvatarFallback>
                                 </Avatar>
                                 <div>
-                                  <p className="text-sm font-medium text-gray-900">
+                                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {employee.employeeName}
                                   </p>
-                                  <p className="text-xs text-gray-500">
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
                                     {employee.department}
                                   </p>
                                 </div>
@@ -1079,16 +943,19 @@ export function AnalyticsModule() {
                     {/* Department Availability Summary */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       {departmentStats.map((dept) => (
-                        <Card key={dept.department} className="border-gray-200">
+                        <Card
+                          key={dept.department}
+                          className="border-gray-200 dark:border-gray-700"
+                        >
                           <CardContent className="p-4 text-center">
-                            <h4 className="font-medium text-gray-900 mb-2">
+                            <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">
                               {dept.department}
                             </h4>
                             <div className="space-y-1">
-                              <div className="text-2xl font-bold text-gray-900">
+                              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                                 {dept.totalEmployees - dept.onLeave}
                               </div>
-                              <div className="text-sm text-gray-600">
+                              <div className="text-sm text-gray-600 dark:text-gray-400">
                                 of {dept.totalEmployees} available
                               </div>
                               <Progress
@@ -1106,13 +973,13 @@ export function AnalyticsModule() {
                 <TabsContent value="reports" className="space-y-6 mt-0">
                   {/* Reports Section */}
                   <div className="space-y-6">
-                    <h3 className="font-medium text-gray-900">
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">
                       Generate Reports
                     </h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Quick Export Options */}
-                      <Card className="border-gray-200">
+                      <Card className="border-gray-200 dark:border-gray-700">
                         <CardHeader>
                           <CardTitle className="text-lg">
                             Quick Exports
@@ -1146,7 +1013,7 @@ export function AnalyticsModule() {
                       </Card>
 
                       {/* Custom Report Builder */}
-                      <Card className="border-gray-200">
+                      <Card className="border-gray-200 dark:border-gray-700">
                         <CardHeader>
                           <CardTitle className="text-lg">
                             Custom Report
@@ -1202,7 +1069,7 @@ export function AnalyticsModule() {
                             </Select>
                           </div>
 
-                          <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                          <Button variant="primary" className="w-full">
                             Generate Custom Report
                           </Button>
                         </CardContent>
@@ -1210,7 +1077,7 @@ export function AnalyticsModule() {
                     </div>
 
                     {/* Recent Reports */}
-                    <Card className="border-gray-200">
+                    <Card className="border-gray-200 dark:border-gray-700">
                       <CardHeader>
                         <CardTitle className="text-lg">
                           Recent Reports
@@ -1240,7 +1107,7 @@ export function AnalyticsModule() {
                           ].map((report, index) => (
                             <div
                               key={index}
-                              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                              className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg"
                             >
                               <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -1251,10 +1118,10 @@ export function AnalyticsModule() {
                                   )}
                                 </div>
                                 <div>
-                                  <p className="text-sm font-medium text-gray-900">
+                                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {report.name}
                                   </p>
-                                  <p className="text-xs text-gray-500">
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
                                     {formatDate(report.date)} • {report.size}
                                   </p>
                                 </div>
@@ -1282,36 +1149,37 @@ export function AnalyticsModule() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Quick Actions */}
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700">
-                <BarChart3 className="w-4 h-4" />
-                Generate Report
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start gap-2"
+              <QuickActionButton
+                label="Generate Report"
+                icon={BarChart3}
+                onClick={() => {}}
+                variant="primary"
+              />
+              <QuickActionButton
+                label="Export Data"
+                icon={Download}
                 onClick={() => exportData("csv")}
-              >
-                <Download className="w-4 h-4" />
-                Export Data
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Calendar className="w-4 h-4" />
-                View Calendar
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Settings className="w-4 h-4" />
-                Analytics Settings
-              </Button>
+              />
+              <QuickActionButton
+                label="View Calendar"
+                icon={Calendar}
+                onClick={() => {}}
+              />
+              <QuickActionButton
+                label="Analytics Settings"
+                icon={Settings}
+                onClick={() => {}}
+              />
             </CardContent>
           </Card>
 
           {/* Leave Type Legend */}
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="w-5 h-5" />
@@ -1334,12 +1202,12 @@ export function AnalyticsModule() {
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: type.color }}
                       ></div>
-                      <Icon className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm text-gray-700">
+                      <Icon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
                         {type.label}
                       </span>
                     </div>
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       {count}
                     </span>
                   </div>
@@ -1349,7 +1217,7 @@ export function AnalyticsModule() {
           </Card>
 
           {/* Quick Stats */}
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="w-5 h-5" />
@@ -1359,22 +1227,28 @@ export function AnalyticsModule() {
             <CardContent className="space-y-3">
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
                     Most Used Leave:
                   </span>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     Vacation
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Peak Month:</span>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    Peak Month:
+                  </span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     August
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Approval Rate:</span>
-                  <span className="text-sm font-medium text-gray-900">98%</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    Approval Rate:
+                  </span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    98%
+                  </span>
                 </div>
               </div>
             </CardContent>

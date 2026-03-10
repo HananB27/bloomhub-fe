@@ -8,7 +8,24 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
-    include: ["src/**/*.{test,spec}.{ts,tsx}"],
+    include: ["tests/**/*.{test,spec}.{ts,tsx}"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      include: [
+        "src/components/hr-dashboard/App.tsx",
+        "src/components/hr-dashboard/CollapsibleSidebar.tsx",
+        "src/components/hr-dashboard/hr-modules.ts",
+        "src/components/hr-dashboard/notifications.ts",
+      ],
+      exclude: ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"],
+      thresholds: {
+        statements: 85,
+        branches: 85,
+        functions: 85,
+        lines: 85,
+      },
+    },
   },
   resolve: {
     alias: {

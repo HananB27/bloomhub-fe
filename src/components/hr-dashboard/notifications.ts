@@ -13,53 +13,8 @@ export interface Notification {
   isRead: boolean;
 }
 
-export const DEFAULT_NOTIFICATIONS: Notification[] = [
-  {
-    id: "1",
-    module: "vacations",
-    type: "warning",
-    title: "Pending Vacation Approvals",
-    message: "5 vacation requests waiting for your approval",
-    timestamp: "2 hours ago",
-    isRead: false,
-  },
-  {
-    id: "2",
-    module: "announcements",
-    type: "info",
-    title: "New Company Announcement",
-    message: "New hybrid work policy has been published",
-    timestamp: "4 hours ago",
-    isRead: false,
-  },
-  {
-    id: "3",
-    module: "timetracking",
-    type: "alert",
-    title: "Missing Timesheets",
-    message: "3 employees haven't submitted this week's timesheet",
-    timestamp: "6 hours ago",
-    isRead: false,
-  },
-  {
-    id: "4",
-    module: "onboarding",
-    type: "success",
-    title: "Onboarding Complete",
-    message: "Lisa Chen has completed all onboarding tasks",
-    timestamp: "1 day ago",
-    isRead: true,
-  },
-  {
-    id: "5",
-    module: "reviews",
-    type: "warning",
-    title: "Performance Reviews Due",
-    message: "2 performance reviews are overdue",
-    timestamp: "1 day ago",
-    isRead: false,
-  },
-];
+// TODO: Implement - fetch notifications from API
+export const DEFAULT_NOTIFICATIONS: Notification[] = [];
 
 export function useNotifications(
   initialNotifications: Notification[] = DEFAULT_NOTIFICATIONS

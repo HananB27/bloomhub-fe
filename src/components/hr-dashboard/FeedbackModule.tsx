@@ -21,6 +21,7 @@ import {
   TableRow,
 } from "./ui/table";
 import { Badge } from "./ui/badge";
+import { QuickActionButton } from "./QuickActionButton";
 import { Progress } from "./ui/progress";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Separator } from "./ui/separator";
@@ -71,9 +72,92 @@ import {
   Smile,
   Meh,
   Frown,
+  Laugh,
   ThumbsUp,
   Heart,
 } from "lucide-react";
+
+interface FeedbackTooltipProps {
+  active?: boolean;
+  payload?: Array<{ color?: string; dataKey?: string; value?: number }>;
+  label?: string;
+}
+
+function FeedbackTooltip({ active, payload, label }: FeedbackTooltipProps) {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+        <p className="font-medium text-gray-900">{label}</p>
+        {payload.map(
+          (
+            entry: { color?: string; dataKey?: string; value?: number },
+            index: number
+          ) => (
+            <p key={index} style={{ color: entry.color }}>
+              {entry.dataKey}: {entry.value}
+            </p>
+          )
+        )}
+      </div>
+    );
+  }
+  return null;
+}
+
+function EmojiRating({
+  value,
+  onChange,
+  label,
+}: {
+  value: number;
+  onChange: (value: number) => void;
+  label: string;
+}) {
+  const ratingIcons = [
+    { Icon: Frown, label: "Poor" },
+    { Icon: Frown, label: "Fair" },
+    { Icon: Meh, label: "Okay" },
+    { Icon: Smile, label: "Good" },
+    { Icon: Laugh, label: "Excellent" },
+  ];
+  const colors = [
+    "text-red-500",
+    "text-orange-500",
+    "text-yellow-500",
+    "text-blue-500",
+    "text-green-500",
+  ];
+
+  return (
+    <div className="space-y-3">
+      <Label className="text-sm font-medium text-gray-700">{label}</Label>
+      <div className="flex justify-between items-center">
+        {ratingIcons.map(({ Icon }, index) => {
+          const rating = index + 1;
+          return (
+            <button
+              key={index}
+              type="button"
+              onClick={() => onChange(rating)}
+              className={`p-1 hover:scale-110 transition-transform ${
+                value === rating
+                  ? colors[index]
+                  : "text-gray-300 hover:text-gray-400"
+              }`}
+              title={ratingIcons[index].label}
+            >
+              <Icon className="h-7 w-7" />
+            </button>
+          );
+        })}
+      </div>
+      <div className="flex justify-between text-xs text-gray-500">
+        <span>Poor</span>
+        <span>Excellent</span>
+      </div>
+    </div>
+  );
+}
 
 type QuestionType = "text" | "multiple_choice" | "rating" | "yes_no";
 type SurveyStatus = "draft" | "active" | "closed" | "scheduled";
@@ -105,7 +189,7 @@ interface SurveyResponse {
   id: number;
   surveyId: number;
   respondentId?: string;
-  responses: { [questionId: number]: any };
+  responses: { [questionId: number]: unknown };
   submittedAt: string;
 }
 
@@ -528,70 +612,6 @@ export function FeedbackModule() {
     });
   };
 
-  const EmojiRating = ({
-    value,
-    onChange,
-    label,
-  }: {
-    value: number;
-    onChange: (value: number) => void;
-    label: string;
-  }) => {
-    const emojis = ["😢", "🙁", "😐", "🙂", "😊"];
-    const colors = [
-      "text-red-500",
-      "text-orange-500",
-      "text-yellow-500",
-      "text-blue-500",
-      "text-green-500",
-    ];
-
-    return (
-      <div className="space-y-3">
-        <Label className="text-sm font-medium text-gray-700">{label}</Label>
-        <div className="flex justify-between items-center">
-          {emojis.map((emoji, index) => {
-            const rating = index + 1;
-            return (
-              <button
-                key={index}
-                type="button"
-                onClick={() => onChange(rating)}
-                className={`text-2xl hover:scale-110 transition-transform ${
-                  value === rating
-                    ? colors[index]
-                    : "text-gray-300 hover:text-gray-400"
-                }`}
-              >
-                {emoji}
-              </button>
-            );
-          })}
-        </div>
-        <div className="flex justify-between text-xs text-gray-500">
-          <span>Poor</span>
-          <span>Excellent</span>
-        </div>
-      </div>
-    );
-  };
-
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium text-gray-900">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} style={{ color: entry.color }}>
-              {entry.dataKey}: {entry.value}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -615,7 +635,7 @@ export function FeedbackModule() {
               Export
             </Button>
             {isHRUser && (
-              <Button className="bg-blue-600 hover:bg-blue-700" size="sm">
+              <Button variant="primary" size="sm">
                 <Plus className="w-4 h-4 mr-2" />
                 Create Survey
               </Button>
@@ -758,7 +778,7 @@ export function FeedbackModule() {
                             disabled={Object.values(pulseRatings).some(
                               (rating) => rating === 0
                             )}
-                            className="bg-blue-600 hover:bg-blue-700"
+                            variant="primary"
                           >
                             <Send className="w-4 h-4 mr-2" />
                             Submit Pulse Check
@@ -854,7 +874,7 @@ export function FeedbackModule() {
                             tick={{ fill: "#64748b" }}
                             domain={[0, 5]}
                           />
-                          <Tooltip content={<CustomTooltip />} />
+                          <Tooltip content={<FeedbackTooltip />} />
                           <Line
                             type="monotone"
                             dataKey="overallSatisfaction"
@@ -1178,7 +1198,7 @@ export function FeedbackModule() {
                                   !newSurvey.title.trim() ||
                                   newSurvey.questions.length === 0
                                 }
-                                className="bg-blue-600 hover:bg-blue-700"
+                                variant="primary"
                               >
                                 <Save className="w-4 h-4 mr-2" />
                                 Save Survey
@@ -1449,7 +1469,7 @@ export function FeedbackModule() {
                               tick={{ fill: "#64748b" }}
                               domain={[0, 5]}
                             />
-                            <Tooltip content={<CustomTooltip />} />
+                            <Tooltip content={<FeedbackTooltip />} />
                             <Line
                               type="monotone"
                               dataKey="overallSatisfaction"
@@ -1584,7 +1604,7 @@ export function FeedbackModule() {
                               !newSuggestion.title.trim() ||
                               !newSuggestion.description.trim()
                             }
-                            className="bg-blue-600 hover:bg-blue-700"
+                            variant="primary"
                           >
                             <Send className="w-4 h-4 mr-2" />
                             Submit Suggestion
@@ -1747,36 +1767,36 @@ export function FeedbackModule() {
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700">
-                <Heart className="w-4 h-4" />
-                Quick Pulse Check
-              </Button>
+              <QuickActionButton
+                label="Quick Pulse Check"
+                icon={Heart}
+                onClick={() => {}}
+                variant="primary"
+              />
               {isHRUser && (
                 <>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start gap-2"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Create Survey
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start gap-2"
-                  >
-                    <BarChart3 className="w-4 h-4" />
-                    View Results
-                  </Button>
+                  <QuickActionButton
+                    label="Create Survey"
+                    icon={Plus}
+                    onClick={() => {}}
+                  />
+                  <QuickActionButton
+                    label="View Results"
+                    icon={BarChart3}
+                    onClick={() => {}}
+                  />
                 </>
               )}
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Lightbulb className="w-4 h-4" />
-                Submit Suggestion
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Download className="w-4 h-4" />
-                Export Report
-              </Button>
+              <QuickActionButton
+                label="Submit Suggestion"
+                icon={Lightbulb}
+                onClick={() => {}}
+              />
+              <QuickActionButton
+                label="Export Report"
+                icon={Download}
+                onClick={() => {}}
+              />
             </CardContent>
           </Card>
 

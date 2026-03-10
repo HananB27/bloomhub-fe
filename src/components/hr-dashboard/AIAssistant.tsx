@@ -38,7 +38,7 @@ interface ChatMessage {
   type: "user" | "assistant";
   content: string;
   timestamp: Date;
-  module?: string;
+  module?: HrModuleId;
   suggestions?: string[];
 }
 
@@ -201,7 +201,7 @@ export function AIAssistant({
       id: "welcome",
       type: "assistant",
       content:
-        "👋 Hi! I'm your AI HR Assistant. I can help you with all aspects of HR management across our 15 modules. What would you like to work on today?",
+        "Hi! I'm your AI HR Assistant. I can help you with all aspects of HR management across our 15 modules. What would you like to work on today?",
       timestamp: new Date(),
       suggestions: [
         "Show pending vacation requests",
@@ -243,7 +243,7 @@ export function AIAssistant({
   const generateAIResponse = (userMessage: string): ChatMessage => {
     const lowerMessage = userMessage.toLowerCase();
     let responseContent = "";
-    let relatedModule = "";
+    let relatedModule: HrModuleId | undefined = undefined;
     let suggestions: string[] = [];
 
     // Vacation/Leave related
@@ -484,7 +484,7 @@ export function AIAssistant({
       lowerMessage.includes("what can you do")
     ) {
       responseContent =
-        "I'm your comprehensive HR AI assistant! I can help you with all 15 HR modules:\n\n📊 Dashboard & Analytics\n🏖️ Vacation Management\n👥 Employee Profiles\n⭐ Performance Reviews\n🎯 Onboarding\n📚 Training & Development\n💰 Compensation\n💬 Feedback & Surveys\n⏰ Time Tracking\n🗺️ Internal Mobility\n📄 Document Management\n📦 Asset Management\n🏢 Org Chart\n📈 HR Analytics\n📢 Announcements\n\nJust tell me what you'd like to work on!";
+        "I'm your comprehensive HR AI assistant! I can help you with all 15 HR modules:\n\n• Dashboard & Analytics\n• Vacation Management\n• Employee Profiles\n• Performance Reviews\n• Onboarding\n• Training & Development\n• Compensation\n• Feedback & Surveys\n• Time Tracking\n• Internal Mobility\n• Document Management\n• Asset Management\n• Org Chart\n• HR Analytics\n• Announcements\n\nJust tell me what you'd like to work on!";
       suggestions = [
         "Show me pending tasks",
         "Generate monthly HR report",
@@ -498,6 +498,7 @@ export function AIAssistant({
       const targetModule: HrModuleId = hrModuleCapabilities[activeModule]
         ? activeModule
         : "dashboard";
+      relatedModule = targetModule;
       suggestions = [
         `Navigate to ${targetModule} module`,
         "Show me what I can do",
@@ -566,26 +567,28 @@ export function AIAssistant({
         <Button
           variant="ghost"
           size="icon"
-          className="relative hover:bg-gray-100 h-9 w-9 transition-colors rounded-lg"
+          className="relative hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-700 h-9 w-9 transition-colors rounded-lg"
         >
-          <Bot className="w-5 h-5 text-gray-600" />
+          <Bot className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-gray-700 to-gray-800 rounded-full flex items-center justify-center">
             <Sparkles className="w-2 h-2 text-white shrink-0" />
           </div>
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-4xl w-full h-[85vh] max-h-[700px] p-0 gap-0 rounded-xl shadow-2xl border border-gray-200">
-        <DialogHeader className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 shrink-0">
+      <DialogContent className="max-w-4xl w-full h-[85vh] max-h-[700px] p-0 gap-0 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700">
+        <DialogHeader className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 shrink-0">
           <DialogTitle className="flex items-center gap-3 text-xl">
             <div className="w-10 h-10 bg-gradient-to-r from-gray-700 to-gray-800 rounded-xl flex items-center justify-center">
               <Bot className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="text-gray-900">AI HR Assistant</span>
+              <span className="text-gray-900 dark:text-gray-100">
+                AI HR Assistant
+              </span>
               <div className="flex items-center gap-2 mt-1">
-                <Sparkles className="w-4 h-4 text-gray-500 shrink-0" />
-                <span className="text-sm text-gray-500">
+                <Sparkles className="w-4 h-4 text-gray-500 dark:text-gray-400 shrink-0" />
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   Powered by Bloomteq AI
                 </span>
               </div>
@@ -593,7 +596,9 @@ export function AIAssistant({
             <div className="flex items-center gap-3 ml-auto">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-sm text-gray-500">Online</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  Online
+                </span>
               </div>
             </div>
           </DialogTitle>
@@ -602,7 +607,7 @@ export function AIAssistant({
           {hrModuleCapabilities[
             activeModule as keyof typeof hrModuleCapabilities
           ] && (
-            <div className="mt-3 p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+            <div className="mt-3 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
               <div className="flex items-center gap-3">
                 {(() => {
                   const Icon =
@@ -610,16 +615,16 @@ export function AIAssistant({
                       activeModule as keyof typeof hrModuleCapabilities
                     ].icon;
                   return (
-                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <Icon className="w-4 h-4 text-gray-600" />
+                    <div className="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                      <Icon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                     </div>
                   );
                 })()}
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     Currently in: {activeModule}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     I can help you with tasks specific to this module
                   </p>
                 </div>
@@ -659,7 +664,7 @@ export function AIAssistant({
                           ${
                             message.type === "user"
                               ? "bg-gray-900 text-white rounded-br-sm shadow-sm"
-                              : "bg-gray-100 text-gray-900 rounded-bl-sm border border-gray-200"
+                              : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-bl-sm border border-gray-200 dark:border-gray-700"
                           }
                         `}
                         >
@@ -675,7 +680,7 @@ export function AIAssistant({
                                 onClick={() =>
                                   handleModuleNavigation(message.module!)
                                 }
-                                className="text-xs bg-white/10 border-white/20 text-gray-800 hover:bg-white/20"
+                                className="text-xs bg-white/10 border-white/20 text-gray-800 dark:text-gray-200 hover:bg-white/20"
                               >
                                 Navigate to {message.module}
                               </Button>
@@ -686,7 +691,7 @@ export function AIAssistant({
                         {message.suggestions &&
                           message.suggestions.length > 0 && (
                             <div className="mt-3 space-y-2">
-                              <p className="text-xs text-gray-500 px-1">
+                              <p className="text-xs text-gray-500 dark:text-gray-400 px-1">
                                 Suggested actions:
                               </p>
                               <div className="flex flex-wrap gap-2">
@@ -699,7 +704,7 @@ export function AIAssistant({
                                       onClick={() =>
                                         handleSuggestionClick(suggestion)
                                       }
-                                      className="text-xs rounded-full border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-colors"
+                                      className="text-xs rounded-full border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-900 hover:border-gray-400 transition-colors"
                                     >
                                       {suggestion}
                                     </Button>
@@ -709,7 +714,7 @@ export function AIAssistant({
                             </div>
                           )}
 
-                        <div className="text-xs text-gray-400 mt-2 px-1">
+                        <div className="text-xs text-gray-400 dark:text-gray-500 mt-2 px-1">
                           {formatTime(message.timestamp)}
                         </div>
                       </div>
@@ -718,7 +723,7 @@ export function AIAssistant({
 
                   {isTyping && (
                     <div className="flex justify-start">
-                      <div className="bg-gray-100 px-4 py-3 rounded-xl rounded-bl-sm max-w-[75%] border border-gray-200">
+                      <div className="bg-gray-100 dark:bg-gray-700 px-4 py-3 rounded-xl rounded-bl-sm max-w-[75%] border border-gray-200 dark:border-gray-700">
                         <div className="flex items-center gap-1">
                           <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
                           <div
@@ -742,13 +747,13 @@ export function AIAssistant({
           </div>
 
           {/* Input Area - Fixed at Bottom */}
-          <div className="border-t border-gray-200 bg-gray-50 shrink-0">
+          <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 shrink-0">
             <div className="p-6">
               {/* Quick Actions */}
               <div className="flex flex-wrap gap-2 mb-4">
                 <Badge
                   variant="outline"
-                  className="cursor-pointer hover:bg-gray-100 transition-colors"
+                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-700 transition-colors"
                   onClick={() => handleSuggestionClick("Show pending tasks")}
                 >
                   <Lightbulb className="w-3 h-3 mr-1" />
@@ -756,7 +761,7 @@ export function AIAssistant({
                 </Badge>
                 <Badge
                   variant="outline"
-                  className="cursor-pointer hover:bg-gray-100 transition-colors"
+                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-700 transition-colors"
                   onClick={() => handleSuggestionClick("Generate HR report")}
                 >
                   <BarChart3 className="w-3 h-3 mr-1" />
@@ -764,7 +769,7 @@ export function AIAssistant({
                 </Badge>
                 <Badge
                   variant="outline"
-                  className="cursor-pointer hover:bg-gray-100 transition-colors"
+                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-700 transition-colors"
                   onClick={() =>
                     handleSuggestionClick("Help with employee onboarding")
                   }
@@ -774,7 +779,7 @@ export function AIAssistant({
                 </Badge>
                 <Badge
                   variant="outline"
-                  className="cursor-pointer hover:bg-gray-100 transition-colors"
+                  className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-700 transition-colors"
                   onClick={() =>
                     handleSuggestionClick("What can you help me with?")
                   }
@@ -795,19 +800,20 @@ export function AIAssistant({
                     }
                   }}
                   placeholder="Ask me anything about HR management..."
-                  className="flex-1 bg-white border-gray-300 focus:border-gray-500 rounded-xl px-4 py-3 focus:ring-2 focus:ring-gray-200"
+                  className="flex-1 bg-white dark:bg-gray-800 border-gray-300 focus:border-gray-500 rounded-xl px-4 py-3 focus:ring-2 focus:ring-gray-200"
                   disabled={isTyping}
                 />
                 <Button
+                  variant="primary"
                   onClick={handleSendMessage}
                   disabled={!inputValue.trim() || isTyping}
-                  className="bg-gray-900 hover:bg-gray-800 text-white rounded-xl px-6 py-3 transition-all duration-200 shadow-sm"
+                  className="rounded-xl px-6 py-3 shadow-sm"
                 >
                   <Send className="w-4 h-4" />
                 </Button>
               </div>
 
-              <p className="text-xs text-gray-500 mt-3 text-center">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 text-center">
                 AI Assistant can help with all 15 HR modules. Press Enter to
                 send, Shift+Enter for new line.
               </p>

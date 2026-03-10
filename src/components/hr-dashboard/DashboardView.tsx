@@ -1,25 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Avatar, AvatarFallback } from "./ui/avatar";
-import { Progress } from "./ui/progress";
 import {
   Users,
   Calendar,
-  Clock,
-  TrendingUp,
-  CheckCircle,
-  AlertCircle,
   Star,
   UserPlus,
   MessageSquare,
   FileText,
   Activity,
-  DollarSign,
-  MapPin,
-  BarChart3,
-  Plus,
+  CheckCircle,
+  Hand,
 } from "lucide-react";
+import { QuickActionButton } from "./QuickActionButton";
 
 // Import all modules
 import { VacationsModule } from "./VacationsModule";
@@ -152,53 +145,61 @@ function DashboardOverview() {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high":
-        return "border-red-200 bg-red-50";
+        return "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/40";
       case "medium":
-        return "border-amber-200 bg-amber-50";
+        return "border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40";
       case "low":
-        return "border-green-200 bg-green-50";
+        return "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/40";
       default:
-        return "border-gray-200 bg-gray-50";
+        return "border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50";
+    }
+  };
+
+  const getPriorityBadgeClass = (priority: string) => {
+    switch (priority) {
+      case "high":
+        return "border-red-300 bg-red-100 text-red-800 dark:border-red-700 dark:bg-red-900/50 dark:text-red-200";
+      case "medium":
+        return "border-amber-300 bg-amber-100 text-amber-800 dark:border-amber-700 dark:bg-amber-900/50 dark:text-amber-200";
+      case "low":
+        return "border-green-300 bg-green-100 text-green-800 dark:border-green-700 dark:bg-green-900/50 dark:text-green-200";
+      default:
+        return "border-gray-300 bg-gray-100 text-gray-800 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200";
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex h-full w-full min-h-0 flex-col gap-4">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold mb-2">Welcome back, John! 👋</h1>
-            <p className="text-gray-200">
-              Here&apos;s what&apos;s happening with your team today. You have{" "}
-              {pendingTasks.reduce((sum, task) => sum + task.count, 0)} pending
-              tasks.
-            </p>
-          </div>
-          <div className="hidden md:flex items-center gap-4">
-            <Button className="bg-white text-gray-800 hover:bg-gray-100">
-              <Plus className="w-4 h-4 mr-2" />
-              Quick Action
-            </Button>
-          </div>
+      <div className="shrink-0 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-100">
+        <div>
+          <h1 className="flex items-center gap-2 text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
+            <Hand className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+            Welcome back, John!
+          </h1>
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            Here&apos;s what&apos;s happening with your team today. You have{" "}
+            {pendingTasks.reduce((sum, task) => sum + task.count, 0)} pending
+            tasks.
+          </p>
         </div>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid shrink-0 grid-cols-2 gap-3 lg:grid-cols-4">
         {kpiData.map((kpi, index) => {
           const Icon = kpi.icon;
           return (
             <Card
               key={index}
-              className="border-gray-200 hover:shadow-md transition-shadow"
+              className="border-gray-200 transition-shadow hover:shadow-md"
             >
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between gap-2">
                   <div
-                    className={`w-12 h-12 ${kpi.bgColor} rounded-lg flex items-center justify-center`}
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${kpi.bgColor}`}
                   >
-                    <Icon className={`w-6 h-6 ${kpi.color}`} />
+                    <Icon className={`h-5 w-5 ${kpi.color}`} />
                   </div>
                   <Badge
                     variant="outline"
@@ -211,61 +212,61 @@ function DashboardOverview() {
                     {kpi.change}
                   </Badge>
                 </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-1">
-                    {kpi.value}
-                  </h3>
-                  <p className="text-sm text-gray-600">{kpi.title}</p>
-                </div>
+                <h3 className="mt-2 text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
+                  {kpi.value}
+                </h3>
+                <p className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                  {kpi.title}
+                </p>
               </CardContent>
             </Card>
           );
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2">
-          <Card className="border-gray-200">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="w-5 h-5 text-gray-600" />
+      <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-1 items-start gap-4 sm:grid-cols-3">
+        {/* Recent Activity */}
+        <div className="min-h-0 w-full">
+          <Card className="flex h-full min-h-[280px] flex-col gap-0 border-gray-200">
+            <CardHeader className="shrink-0 px-4 pb-2 pt-4">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Activity className="h-4 w-4 shrink-0 text-gray-600" />
                 Recent Activity
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+            <CardContent className="min-h-0 flex-1 px-4 pt-0">
+              <div className="space-y-2">
                 {recentActivity.map((activity) => (
                   <div
                     key={activity.id}
-                    className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                    className="flex items-start gap-2 rounded-lg p-2 transition-colors hover:bg-gray-50"
                   >
-                    <Avatar className="w-10 h-10">
+                    <Avatar className="h-8 w-8 shrink-0">
                       <img
                         src={activity.avatar}
                         alt={activity.user}
                         className="object-cover"
                       />
-                      <AvatarFallback>
+                      <AvatarFallback className="text-xs">
                         {activity.user
                           .split(" ")
                           .map((n) => n[0])
                           .join("")}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-900">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm text-gray-900 dark:text-gray-100">
                         <span className="font-medium">{activity.user}</span>{" "}
                         {activity.action}
                       </p>
-                      <div className="flex items-center gap-2 mt-1">
+                      <div className="mt-0.5 flex items-center gap-2">
                         <Badge
                           variant="outline"
                           className={`text-xs ${getStatusColor(activity.status)}`}
                         >
                           {activity.status}
                         </Badge>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
                           {activity.time}
                         </span>
                       </div>
@@ -277,14 +278,13 @@ function DashboardOverview() {
           </Card>
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Pending Tasks */}
-          <Card className="border-gray-200">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
+        {/* Pending Tasks */}
+        <div className="min-h-0 w-full">
+          <Card className="flex h-full min-h-[280px] flex-col gap-0 border-gray-200">
+            <CardHeader className="shrink-0 px-4 pb-2 pt-4">
+              <CardTitle className="flex items-center justify-between gap-2 text-base">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-gray-600" />
+                  <CheckCircle className="h-4 w-4 shrink-0 text-gray-600" />
                   Pending Tasks
                 </div>
                 <Badge className="bg-gray-600 text-white">
@@ -292,26 +292,34 @@ function DashboardOverview() {
                 </Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="min-h-0 flex-1 space-y-2 px-4 pt-0">
               {pendingTasks.map((task) => (
                 <div
                   key={task.id}
-                  className={`p-3 border rounded-lg ${getPriorityColor(task.priority)}`}
+                  className={`rounded-lg border p-2 ${getPriorityColor(task.priority)}`}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-sm font-medium text-gray-900">
+                  <div className="flex items-center justify-between gap-2">
+                    <h4 className="min-w-0 truncate text-sm font-medium text-gray-900 dark:text-white">
                       {task.title}
                     </h4>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge
+                      variant="outline"
+                      className="shrink-0 text-xs font-medium border-gray-300 bg-gray-200 text-gray-800 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-100"
+                    >
                       {task.count}
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs capitalize">
+                  <div className="mt-1 flex items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      className={`shrink-0 text-xs capitalize ${getPriorityBadgeClass(task.priority)}`}
+                    >
                       {task.priority}
                     </Badge>
-                    <span className="text-xs text-gray-500">•</span>
-                    <span className="text-xs text-gray-500 capitalize">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      •
+                    </span>
+                    <span className="truncate text-xs text-gray-500 dark:text-gray-400 capitalize">
                       {task.module}
                     </span>
                   </div>
@@ -319,41 +327,39 @@ function DashboardOverview() {
               ))}
             </CardContent>
           </Card>
+        </div>
 
-          {/* Quick Actions */}
-          <Card className="border-gray-200">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="w-5 h-5 text-gray-600" />
+        {/* Quick Actions */}
+        <div className="min-h-0 w-full">
+          <Card className="flex h-full min-h-[280px] flex-col gap-0 border-gray-200">
+            <CardHeader className="shrink-0 px-4 pb-2 pt-4">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Activity className="h-4 w-4 shrink-0 text-gray-600" />
                 Quick Actions
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <Button className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700">
-                <UserPlus className="w-4 h-4" />
-                Add New Employee
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start gap-2 border-gray-200 hover:bg-gray-50"
-              >
-                <MessageSquare className="w-4 h-4" />
-                Send Announcement
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start gap-2 border-gray-200 hover:bg-gray-50"
-              >
-                <Calendar className="w-4 h-4" />
-                Schedule Review
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start gap-2 border-gray-200 hover:bg-gray-50"
-              >
-                <FileText className="w-4 h-4" />
-                Generate Report
-              </Button>
+            <CardContent className="flex flex-1 flex-col justify-start gap-1.5 px-4 pt-0">
+              <QuickActionButton
+                label="Add New Employee"
+                icon={UserPlus}
+                onClick={() => {}}
+                variant="primary"
+              />
+              <QuickActionButton
+                label="Send Announcement"
+                icon={MessageSquare}
+                onClick={() => {}}
+              />
+              <QuickActionButton
+                label="Schedule Review"
+                icon={Calendar}
+                onClick={() => {}}
+              />
+              <QuickActionButton
+                label="Generate Report"
+                icon={FileText}
+                onClick={() => {}}
+              />
             </CardContent>
           </Card>
         </div>

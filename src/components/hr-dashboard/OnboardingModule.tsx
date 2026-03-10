@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Badge } from "./ui/badge";
+import { QuickActionButton } from "./QuickActionButton";
 import { Progress } from "./ui/progress";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Separator } from "./ui/separator";
@@ -408,7 +409,7 @@ export function OnboardingModule() {
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
-            <Button className="bg-blue-600 hover:bg-blue-700" size="sm">
+            <Button variant="primary" size="sm">
               <Plus className="w-4 h-4 mr-2" />
               New Process
             </Button>
@@ -911,22 +912,27 @@ export function OnboardingModule() {
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700">
-                <Plus className="w-4 h-4" />
-                Add Task
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Edit3 className="w-4 h-4" />
-                Edit Template
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Calendar className="w-4 h-4" />
-                Schedule Review
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Download className="w-4 h-4" />
-                Export Report
-              </Button>
+              <QuickActionButton
+                label="Add Task"
+                icon={Plus}
+                onClick={() => {}}
+                variant="primary"
+              />
+              <QuickActionButton
+                label="Edit Template"
+                icon={Edit3}
+                onClick={() => {}}
+              />
+              <QuickActionButton
+                label="Schedule Review"
+                icon={Calendar}
+                onClick={() => {}}
+              />
+              <QuickActionButton
+                label="Export Report"
+                icon={Download}
+                onClick={() => {}}
+              />
             </CardContent>
           </Card>
 

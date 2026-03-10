@@ -21,6 +21,7 @@ import {
   TableRow,
 } from "./ui/table";
 import { Badge } from "./ui/badge";
+import { QuickActionButton } from "./QuickActionButton";
 import { Progress } from "./ui/progress";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Separator } from "./ui/separator";
@@ -368,7 +369,7 @@ export function TrainingModule() {
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
-            <Button className="bg-blue-600 hover:bg-blue-700" size="sm">
+            <Button variant="primary" size="sm">
               <Plus className="w-4 h-4 mr-2" />
               Add Training
             </Button>
@@ -1018,8 +1019,8 @@ export function TrainingModule() {
 
                         <div className="flex gap-2">
                           <Button
+                            variant="primary"
                             onClick={handleAddPeerSession}
-                            className="bg-blue-600 hover:bg-blue-700"
                           >
                             <Plus className="w-4 h-4 mr-2" />
                             Schedule Session
@@ -1183,22 +1184,27 @@ export function TrainingModule() {
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700">
-                <Plus className="w-4 h-4" />
-                Enroll in Course
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Upload className="w-4 h-4" />
-                Upload Certificate
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Users className="w-4 h-4" />
-                Schedule Session
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Download className="w-4 h-4" />
-                Export Report
-              </Button>
+              <QuickActionButton
+                label="Enroll in Course"
+                icon={Plus}
+                onClick={() => {}}
+                variant="primary"
+              />
+              <QuickActionButton
+                label="Upload Certificate"
+                icon={Upload}
+                onClick={() => {}}
+              />
+              <QuickActionButton
+                label="Schedule Session"
+                icon={Users}
+                onClick={() => {}}
+              />
+              <QuickActionButton
+                label="Export Report"
+                icon={Download}
+                onClick={() => {}}
+              />
             </CardContent>
           </Card>
 
@@ -1212,8 +1218,8 @@ export function TrainingModule() {
                     Budget Alert
                   </p>
                   <p className="text-xs text-amber-700 mt-1">
-                    You've used {Math.round(budgetProgress)}% of your annual
-                    training budget.
+                    You&apos;ve used {Math.round(budgetProgress)}% of your
+                    annual training budget.
                   </p>
                   <p className="text-xs text-amber-600 mt-1">
                     ${budgetData.remaining.toLocaleString()} remaining for this

@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Badge } from "./ui/badge";
+import { QuickActionButton } from "./QuickActionButton";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Separator } from "./ui/separator";
 import {
@@ -70,7 +71,13 @@ import {
   Settings,
   Archive,
   Volume2,
+  HandMetal,
+  Flame,
+  Award,
+  CircleAlert,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { formatRelativeTimestamp } from "@/utils";
 
 type PostType =
   | "announcement"
@@ -103,7 +110,7 @@ interface Post {
   link?: string;
   eventDate?: string;
   tags: string[];
-  reactions: { [emoji: string]: { count: number; users: string[] } };
+  reactions: { [reactionId: string]: { count: number; users: string[] } };
   comments: Comment[];
   isArchived: boolean;
 }
@@ -115,10 +122,19 @@ interface Comment {
   authorAvatar: string;
   content: string;
   createdAt: string;
-  reactions: { [emoji: string]: { count: number; users: string[] } };
+  reactions: { [reactionId: string]: { count: number; users: string[] } };
 }
 
-const emojiOptions = ["👍", "❤️", "😊", "🎉", "👏", "🔥", "💯", "😮"];
+const reactionOptions: { id: string; Icon: LucideIcon }[] = [
+  { id: "thumbsup", Icon: ThumbsUp },
+  { id: "heart", Icon: Heart },
+  { id: "smile", Icon: Smile },
+  { id: "party", Icon: PartyPopper },
+  { id: "clap", Icon: HandMetal },
+  { id: "flame", Icon: Flame },
+  { id: "award", Icon: Award },
+  { id: "alert", Icon: CircleAlert },
+];
 
 export function AnnouncementsModule() {
   const [activeTab, setActiveTab] = useState("feed");
@@ -142,209 +158,13 @@ export function AnnouncementsModule() {
     tags: "",
   });
 
-  // Mock posts data
-  const [posts, setPosts] = useState<Post[]>([
-    {
-      id: 1,
-      type: "announcement",
-      priority: "high",
-      title: "New Company Policy: Hybrid Work Guidelines",
-      content:
-        "We're excited to announce our new hybrid work policy that allows for greater flexibility while maintaining team collaboration. Effective Monday, all employees can work remotely up to 3 days per week with manager approval. Please review the full guidelines in the employee handbook.",
-      author: "Sarah Johnson",
-      authorAvatar:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b647?w=150&h=150&fit=crop&crop=face",
-      authorRole: "HR Director",
-      createdAt: "2025-08-07T09:00:00Z",
-      isPinned: true,
-      isRead: false,
-      audience: "all",
-      image:
-        "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&h=400&fit=crop",
-      tags: ["policy", "remote work", "important"],
-      reactions: {
-        "👍": { count: 24, users: ["alex-thompson", "michael-chen"] },
-        "❤️": { count: 8, users: ["emily-rodriguez"] },
-        "🎉": { count: 12, users: ["david-kim"] },
-      },
-      comments: [
-        {
-          id: 1,
-          postId: 1,
-          author: "Alex Thompson",
-          authorAvatar:
-            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-          content:
-            "This is fantastic! Really appreciate the flexibility. When will the manager approval process be finalized?",
-          createdAt: "2025-08-07T10:30:00Z",
-          reactions: {
-            "👍": { count: 5, users: ["sarah-johnson", "michael-chen"] },
-          },
-        },
-        {
-          id: 2,
-          postId: 1,
-          author: "Michael Chen",
-          authorAvatar:
-            "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-          content:
-            "Great policy! This will really help with work-life balance.",
-          createdAt: "2025-08-07T11:15:00Z",
-          reactions: {},
-        },
-      ],
-      isArchived: false,
-    },
-    {
-      id: 2,
-      type: "birthday",
-      priority: "normal",
-      title: "🎂 Happy Birthday Emily Rodriguez!",
-      content:
-        "Join us in wishing Emily from the Marketing team a very happy birthday! Emily has been an incredible asset to our team with her creative campaigns and positive energy. Hope you have a wonderful day, Emily! 🎉",
-      author: "HR Team",
-      authorAvatar:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      authorRole: "System",
-      createdAt: "2025-08-06T08:00:00Z",
-      isPinned: true,
-      isRead: true,
-      audience: "all",
-      department: "Marketing",
-      image:
-        "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=600&h=400&fit=crop",
-      tags: ["birthday", "celebration", "marketing"],
-      reactions: {
-        "🎉": { count: 18, users: ["alex-thompson", "sarah-johnson"] },
-        "❤️": { count: 12, users: ["michael-chen"] },
-        "🎂": { count: 8, users: ["david-kim"] },
-      },
-      comments: [
-        {
-          id: 3,
-          postId: 2,
-          author: "Alex Thompson",
-          authorAvatar:
-            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-          content: "Happy birthday Emily! 🎉 Hope you have an amazing day!",
-          createdAt: "2025-08-06T09:30:00Z",
-          reactions: {
-            "❤️": { count: 3, users: ["emily-rodriguez"] },
-          },
-        },
-      ],
-      isArchived: false,
-    },
-    {
-      id: 3,
-      type: "new_hire",
-      priority: "normal",
-      title: "Welcome Our New Software Engineer - Lisa Chen!",
-      content:
-        "We're thrilled to welcome Lisa Chen to our Engineering team! Lisa joins us with 5 years of experience in full-stack development and a passion for building scalable applications. She'll be working on our core platform features. Please join me in giving Lisa a warm welcome! 👋",
-      author: "Alex Thompson",
-      authorAvatar:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      authorRole: "Engineering Manager",
-      createdAt: "2025-08-05T14:30:00Z",
-      isPinned: false,
-      isRead: true,
-      audience: "all",
-      department: "Engineering",
-      image:
-        "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&h=400&fit=crop",
-      tags: ["new hire", "engineering", "welcome"],
-      reactions: {
-        "👋": { count: 15, users: ["sarah-johnson"] },
-        "👍": { count: 20, users: ["michael-chen", "emily-rodriguez"] },
-        "🎉": { count: 10, users: ["david-kim"] },
-      },
-      comments: [
-        {
-          id: 4,
-          postId: 3,
-          author: "Sarah Johnson",
-          authorAvatar:
-            "https://images.unsplash.com/photo-1494790108755-2616b612b647?w=150&h=150&fit=crop&crop=face",
-          content: "Welcome to the team Lisa! Excited to work with you.",
-          createdAt: "2025-08-05T15:00:00Z",
-          reactions: {},
-        },
-      ],
-      isArchived: false,
-    },
-    {
-      id: 4,
-      type: "achievement",
-      priority: "normal",
-      title: "🏆 Q2 Sales Team Exceeded Targets by 150%!",
-      content:
-        "Incredible news! Our Sales team has exceeded their Q2 targets by 150%, marking our best quarter yet. Special recognition goes to Michael Chen for landing three major enterprise deals. This achievement reflects our team's dedication and hard work. Let's keep this momentum going! 🚀",
-      author: "David Kim",
-      authorAvatar:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-      authorRole: "Sales Director",
-      createdAt: "2025-08-04T16:45:00Z",
-      isPinned: false,
-      isRead: true,
-      audience: "all",
-      department: "Sales",
-      tags: ["achievement", "sales", "milestone"],
-      reactions: {
-        "🏆": { count: 25, users: ["sarah-johnson", "alex-thompson"] },
-        "🎉": { count: 18, users: ["emily-rodriguez"] },
-        "🚀": { count: 12, users: ["michael-chen"] },
-      },
-      comments: [],
-      isArchived: false,
-    },
-    {
-      id: 5,
-      type: "event",
-      priority: "normal",
-      title: "📅 Company All-Hands Meeting - August 15th",
-      content:
-        "Save the date! Join us for our quarterly All-Hands meeting on Thursday, August 15th at 2:00 PM PST. We'll be sharing exciting updates about our product roadmap, new partnerships, and team achievements. Lunch will be provided for in-office attendees. Remote employees will receive catering vouchers.",
-      author: "Sarah Johnson",
-      authorAvatar:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b647?w=150&h=150&fit=crop&crop=face",
-      authorRole: "HR Director",
-      createdAt: "2025-08-03T11:00:00Z",
-      isPinned: false,
-      isRead: false,
-      audience: "all",
-      eventDate: "2025-08-15T14:00:00Z",
-      tags: ["event", "all-hands", "important"],
-      reactions: {
-        "📅": {
-          count: 30,
-          users: ["alex-thompson", "michael-chen", "emily-rodriguez"],
-        },
-        "👍": { count: 22, users: ["david-kim"] },
-      },
-      comments: [
-        {
-          id: 5,
-          postId: 5,
-          author: "Emily Rodriguez",
-          authorAvatar:
-            "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-          content:
-            "Will the recording be available for those who can't attend live?",
-          createdAt: "2025-08-03T12:30:00Z",
-          reactions: {
-            "👍": { count: 8, users: ["alex-thompson"] },
-          },
-        },
-      ],
-      isArchived: false,
-    },
-  ]);
+  // TODO: Implement - fetch announcements and posts from API
+  const [posts, setPosts] = useState<Post[]>([]);
 
   const postTypes: {
     value: PostType;
     label: string;
-    icon: any;
+    icon: LucideIcon;
     color: string;
   }[] = [
     {
@@ -403,15 +223,15 @@ export function AnnouncementsModule() {
       case "normal":
         return "bg-blue-100 text-blue-800 border-blue-200";
       case "low":
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700";
     }
   };
 
   const addReaction = (
     postId: number,
-    emoji: string,
+    reactionId: string,
     isComment = false,
     commentId?: number
   ) => {
@@ -424,26 +244,27 @@ export function AnnouncementsModule() {
               const reactions = { ...comment.reactions };
               const currentUser = "john-doe"; // Current user ID
 
-              if (reactions[emoji]) {
-                const userIndex = reactions[emoji].users.indexOf(currentUser);
+              if (reactions[reactionId]) {
+                const userIndex =
+                  reactions[reactionId].users.indexOf(currentUser);
                 if (userIndex > -1) {
                   // Remove reaction
-                  reactions[emoji].users.splice(userIndex, 1);
-                  reactions[emoji].count = Math.max(
+                  reactions[reactionId].users.splice(userIndex, 1);
+                  reactions[reactionId].count = Math.max(
                     0,
-                    reactions[emoji].count - 1
+                    reactions[reactionId].count - 1
                   );
-                  if (reactions[emoji].count === 0) {
-                    delete reactions[emoji];
+                  if (reactions[reactionId].count === 0) {
+                    delete reactions[reactionId];
                   }
                 } else {
                   // Add reaction
-                  reactions[emoji].users.push(currentUser);
-                  reactions[emoji].count++;
+                  reactions[reactionId].users.push(currentUser);
+                  reactions[reactionId].count++;
                 }
               } else {
                 // New reaction
-                reactions[emoji] = { count: 1, users: [currentUser] };
+                reactions[reactionId] = { count: 1, users: [currentUser] };
               }
 
               return { ...comment, reactions };
@@ -459,26 +280,27 @@ export function AnnouncementsModule() {
             const reactions = { ...post.reactions };
             const currentUser = "john-doe"; // Current user ID
 
-            if (reactions[emoji]) {
-              const userIndex = reactions[emoji].users.indexOf(currentUser);
+            if (reactions[reactionId]) {
+              const userIndex =
+                reactions[reactionId].users.indexOf(currentUser);
               if (userIndex > -1) {
                 // Remove reaction
-                reactions[emoji].users.splice(userIndex, 1);
-                reactions[emoji].count = Math.max(
+                reactions[reactionId].users.splice(userIndex, 1);
+                reactions[reactionId].count = Math.max(
                   0,
-                  reactions[emoji].count - 1
+                  reactions[reactionId].count - 1
                 );
-                if (reactions[emoji].count === 0) {
-                  delete reactions[emoji];
+                if (reactions[reactionId].count === 0) {
+                  delete reactions[reactionId];
                 }
               } else {
                 // Add reaction
-                reactions[emoji].users.push(currentUser);
-                reactions[emoji].count++;
+                reactions[reactionId].users.push(currentUser);
+                reactions[reactionId].count++;
               }
             } else {
               // New reaction
-              reactions[emoji] = { count: 1, users: [currentUser] };
+              reactions[reactionId] = { count: 1, users: [currentUser] };
             }
 
             return { ...post, reactions };
@@ -530,7 +352,7 @@ export function AnnouncementsModule() {
       createdAt: new Date().toISOString(),
       isPinned: newPost.priority === "urgent",
       isRead: false,
-      audience: newPost.audience as any,
+      audience: newPost.audience as Post["audience"],
       targetDepartment: newPost.department || undefined,
       eventDate: newPost.eventDate || undefined,
       tags: newPost.tags
@@ -578,31 +400,13 @@ export function AnnouncementsModule() {
     setPosts((prev) => prev.filter((post) => post.id !== postId));
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffHours < 1) return "Just now";
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
   const PostCard = ({ post }: { post: Post }) => {
     const typeConfig = getPostTypeConfig(post.type);
     const TypeIcon = typeConfig.icon;
 
     return (
       <Card
-        className={`border-gray-200 hover:shadow-sm transition-shadow ${!post.isRead ? "border-l-4 border-l-blue-500" : ""}`}
+        className={`border-gray-200 dark:border-gray-700 hover:shadow-sm transition-shadow ${!post.isRead ? "border-l-4 border-l-blue-500" : ""}`}
       >
         <CardContent className="p-6">
           {/* Post Header */}
@@ -624,13 +428,17 @@ export function AnnouncementsModule() {
 
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <p className="font-medium text-gray-900">{post.author}</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">
+                    {post.author}
+                  </p>
                   <Badge variant="outline" className="text-xs">
                     {post.authorRole}
                   </Badge>
-                  <span className="text-xs text-gray-500">•</span>
-                  <span className="text-xs text-gray-500">
-                    {formatDate(post.createdAt)}
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    •
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {formatRelativeTimestamp(post.createdAt)}
                   </span>
                   {!post.isRead && (
                     <Badge className="bg-blue-500 text-white text-xs ml-2">
@@ -710,8 +518,12 @@ export function AnnouncementsModule() {
           {/* Post Content */}
           <div className="space-y-4">
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">{post.title}</h3>
-              <p className="text-gray-600 leading-relaxed">{post.content}</p>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                {post.title}
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                {post.content}
+              </p>
             </div>
 
             {/* Post Image */}
@@ -759,18 +571,26 @@ export function AnnouncementsModule() {
             {/* Reactions */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                {Object.entries(post.reactions).map(([emoji, data]) => (
-                  <Button
-                    key={emoji}
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 px-2 hover:bg-gray-100"
-                    onClick={() => addReaction(post.id, emoji)}
-                  >
-                    <span className="text-base mr-1">{emoji}</span>
-                    <span className="text-sm text-gray-600">{data.count}</span>
-                  </Button>
-                ))}
+                {Object.entries(post.reactions).map(([reactionId, data]) => {
+                  const option = reactionOptions.find(
+                    (o) => o.id === reactionId
+                  );
+                  const Icon = option?.Icon ?? CircleAlert;
+                  return (
+                    <Button
+                      key={reactionId}
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-700"
+                      onClick={() => addReaction(post.id, reactionId)}
+                    >
+                      <Icon className="h-4 w-4 mr-1" />
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {data.count}
+                      </span>
+                    </Button>
+                  );
+                })}
 
                 {/* Add Reaction Dropdown */}
                 <DropdownMenu>
@@ -781,15 +601,15 @@ export function AnnouncementsModule() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
                     <div className="grid grid-cols-4 gap-1 p-2">
-                      {emojiOptions.map((emoji) => (
+                      {reactionOptions.map(({ id, Icon }) => (
                         <Button
-                          key={emoji}
+                          key={id}
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0 text-lg hover:bg-gray-100"
-                          onClick={() => addReaction(post.id, emoji)}
+                          className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-700"
+                          onClick={() => addReaction(post.id, id)}
                         >
-                          {emoji}
+                          <Icon className="h-4 w-4" />
                         </Button>
                       ))}
                     </div>
@@ -809,7 +629,7 @@ export function AnnouncementsModule() {
                   className="h-8 px-2"
                 >
                   <MessageCircle className="w-4 h-4 mr-1" />
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
                     {post.comments.length}
                   </span>
                 </Button>
@@ -821,11 +641,11 @@ export function AnnouncementsModule() {
 
             {/* Comments Section */}
             {showCommentsFor === post.id && (
-              <div className="mt-4 space-y-4 border-t border-gray-100 pt-4">
+              <div className="mt-4 space-y-4 border-t border-gray-100 dark:border-gray-700 pt-4">
                 {/* Comment Input */}
                 <div className="flex gap-3">
                   <Avatar className="w-8 h-8">
-                    <AvatarFallback className="bg-gray-100 text-gray-600 text-xs">
+                    <AvatarFallback className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs">
                       JD
                     </AvatarFallback>
                   </Avatar>
@@ -848,7 +668,7 @@ export function AnnouncementsModule() {
                         size="sm"
                         onClick={() => addComment(post.id)}
                         disabled={!newComment.trim()}
-                        className="bg-blue-600 hover:bg-blue-700"
+                        variant="primary"
                       >
                         <Send className="w-4 h-4 mr-1" />
                         Comment
@@ -875,16 +695,16 @@ export function AnnouncementsModule() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <div className="bg-gray-50 rounded-lg p-3">
+                        <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
                           <div className="flex items-center gap-2 mb-1">
-                            <p className="font-medium text-gray-900 text-sm">
+                            <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
                               {comment.author}
                             </p>
-                            <span className="text-xs text-gray-500">
-                              {formatDate(comment.createdAt)}
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {formatRelativeTimestamp(comment.createdAt)}
                             </span>
                           </div>
-                          <p className="text-gray-700 text-sm">
+                          <p className="text-gray-700 dark:text-gray-300 text-sm">
                             {comment.content}
                           </p>
                         </div>
@@ -892,22 +712,33 @@ export function AnnouncementsModule() {
                         {/* Comment Reactions */}
                         <div className="flex items-center gap-1 mt-1">
                           {Object.entries(comment.reactions).map(
-                            ([emoji, data]) => (
-                              <Button
-                                key={emoji}
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 px-1 text-xs hover:bg-gray-100"
-                                onClick={() =>
-                                  addReaction(post.id, emoji, true, comment.id)
-                                }
-                              >
-                                <span className="text-sm mr-1">{emoji}</span>
-                                <span className="text-xs text-gray-600">
-                                  {data.count}
-                                </span>
-                              </Button>
-                            )
+                            ([reactionId, data]) => {
+                              const option = reactionOptions.find(
+                                (o) => o.id === reactionId
+                              );
+                              const Icon = option?.Icon ?? CircleAlert;
+                              return (
+                                <Button
+                                  key={reactionId}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 px-1 text-xs hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-700"
+                                  onClick={() =>
+                                    addReaction(
+                                      post.id,
+                                      reactionId,
+                                      true,
+                                      comment.id
+                                    )
+                                  }
+                                >
+                                  <Icon className="h-3 w-3 mr-1" />
+                                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                                    {data.count}
+                                  </span>
+                                </Button>
+                              );
+                            }
                           )}
 
                           <DropdownMenu>
@@ -922,22 +753,17 @@ export function AnnouncementsModule() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
                               <div className="grid grid-cols-4 gap-1 p-2">
-                                {emojiOptions.map((emoji) => (
+                                {reactionOptions.map(({ id, Icon }) => (
                                   <Button
-                                    key={emoji}
+                                    key={id}
                                     variant="ghost"
                                     size="sm"
-                                    className="h-6 w-6 p-0 text-sm hover:bg-gray-100"
+                                    className="h-6 w-6 p-0 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-700"
                                     onClick={() =>
-                                      addReaction(
-                                        post.id,
-                                        emoji,
-                                        true,
-                                        comment.id
-                                      )
+                                      addReaction(post.id, id, true, comment.id)
                                     }
                                   >
-                                    {emoji}
+                                    <Icon className="h-3 w-3" />
                                   </Button>
                                 ))}
                               </div>
@@ -959,13 +785,13 @@ export function AnnouncementsModule() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               Announcements & Celebrations
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
               Stay connected with company news, birthdays, and achievements
             </p>
           </div>
@@ -980,7 +806,7 @@ export function AnnouncementsModule() {
             </Button>
             {isHRUser && (
               <Button
-                className="bg-blue-600 hover:bg-blue-700"
+                variant="primary"
                 size="sm"
                 onClick={() => setIsCreateDialogOpen(true)}
               >
@@ -993,47 +819,59 @@ export function AnnouncementsModule() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Megaphone className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Total Posts</p>
+              <Megaphone className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Total Posts
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {posts.filter((p) => !p.isArchived).length}
             </p>
-            <p className="text-xs text-gray-500">This month</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              This month
+            </p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Bell className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Unread</p>
+              <Bell className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">Unread</p>
             </div>
             <div className="flex items-center gap-2">
-              <p className="text-2xl font-bold text-gray-900">{unreadCount}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {unreadCount}
+              </p>
               {unreadCount > 0 && (
                 <Badge className="bg-red-500 text-white text-xs">
                   {unreadCount}
                 </Badge>
               )}
             </div>
-            <p className="text-xs text-gray-500">Need attention</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Need attention
+            </p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Pin className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Pinned</p>
+              <Pin className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">Pinned</p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {pinnedPosts.length}
             </p>
-            <p className="text-xs text-gray-500">Important posts</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Important posts
+            </p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Activity className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Engagement</p>
+              <Activity className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Engagement
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {posts.reduce(
                 (total, post) =>
                   total +
@@ -1044,7 +882,9 @@ export function AnnouncementsModule() {
                 0
               )}
             </p>
-            <p className="text-xs text-gray-500">Total reactions</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Total reactions
+            </p>
           </div>
         </div>
       </div>
@@ -1052,7 +892,7 @@ export function AnnouncementsModule() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-3">
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
@@ -1078,7 +918,7 @@ export function AnnouncementsModule() {
                   {/* Search and Filters */}
                   <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1 relative">
-                      <Search className="absolute left-3 top-1/2 transform -trangray-y-1/2 w-4 h-4 text-gray-400" />
+                      <Search className="absolute left-3 top-1/2 transform -trangray-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
                       <Input
                         placeholder="Search posts..."
                         value={searchTerm}
@@ -1108,7 +948,7 @@ export function AnnouncementsModule() {
                       <div className="space-y-4">
                         <div className="flex items-center gap-2">
                           <Pin className="w-4 h-4 text-amber-500" />
-                          <h3 className="font-medium text-gray-900">
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100">
                             Pinned Posts
                           </h3>
                         </div>
@@ -1128,11 +968,11 @@ export function AnnouncementsModule() {
                       </div>
                     ) : (
                       <div className="text-center py-8">
-                        <Megaphone className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        <Megaphone className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                           No posts found
                         </h3>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-gray-400">
                           Try adjusting your search criteria or check back
                           later.
                         </p>
@@ -1143,7 +983,9 @@ export function AnnouncementsModule() {
 
                 <TabsContent value="pinned" className="space-y-6 mt-0">
                   <div className="space-y-4">
-                    <h3 className="font-medium text-gray-900">Pinned Posts</h3>
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                      Pinned Posts
+                    </h3>
 
                     {pinnedPosts.length > 0 ? (
                       <div className="space-y-4">
@@ -1153,11 +995,11 @@ export function AnnouncementsModule() {
                       </div>
                     ) : (
                       <div className="text-center py-8">
-                        <Pin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        <Pin className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                           No pinned posts
                         </h3>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-gray-400">
                           Important announcements will appear here when pinned.
                         </p>
                       </div>
@@ -1167,7 +1009,7 @@ export function AnnouncementsModule() {
 
                 <TabsContent value="celebrations" className="space-y-6 mt-0">
                   <div className="space-y-4">
-                    <h3 className="font-medium text-gray-900">
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">
                       Celebrations & Milestones
                     </h3>
 
@@ -1195,11 +1037,11 @@ export function AnnouncementsModule() {
                       </div>
                     ) : (
                       <div className="text-center py-8">
-                        <PartyPopper className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        <PartyPopper className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                           No celebrations yet
                         </h3>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-gray-400">
                           Birthdays, achievements, and celebrations will appear
                           here.
                         </p>
@@ -1215,35 +1057,37 @@ export function AnnouncementsModule() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Quick Actions */}
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button
-                className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700"
+              <QuickActionButton
+                label="Create Post"
+                icon={Plus}
                 onClick={() => setIsCreateDialogOpen(true)}
-              >
-                <Plus className="w-4 h-4" />
-                Create Post
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Bell className="w-4 h-4" />
-                Manage Notifications
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Eye className="w-4 h-4" />
-                Mark All Read
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Archive className="w-4 h-4" />
-                View Archive
-              </Button>
+                variant="primary"
+              />
+              <QuickActionButton
+                label="Manage Notifications"
+                icon={Bell}
+                onClick={() => {}}
+              />
+              <QuickActionButton
+                label="Mark All Read"
+                icon={Eye}
+                onClick={() => {}}
+              />
+              <QuickActionButton
+                label="View Archive"
+                icon={Archive}
+                onClick={() => {}}
+              />
             </CardContent>
           </Card>
 
           {/* Post Types */}
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Megaphone className="w-5 h-5" />
@@ -1266,12 +1110,12 @@ export function AnnouncementsModule() {
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: type.color }}
                       ></div>
-                      <Icon className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm text-gray-700">
+                      <Icon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
                         {type.label}
                       </span>
                     </div>
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       {count}
                     </span>
                   </div>
@@ -1281,7 +1125,7 @@ export function AnnouncementsModule() {
           </Card>
 
           {/* Upcoming Events */}
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
@@ -1296,11 +1140,14 @@ export function AnnouncementsModule() {
                 )
                 .slice(0, 3)
                 .map((event) => (
-                  <div key={event.id} className="p-3 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-gray-900 text-sm mb-1">
+                  <div
+                    key={event.id}
+                    className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg"
+                  >
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1">
                       {event.title}
                     </h4>
-                    <p className="text-xs text-gray-600">
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
                       {event.eventDate
                         ? new Date(event.eventDate).toLocaleDateString(
                             "en-US",
@@ -1320,7 +1167,7 @@ export function AnnouncementsModule() {
                 (post) =>
                   post.eventDate && new Date(post.eventDate) > new Date()
               ).length === 0 && (
-                <p className="text-sm text-gray-500 text-center py-4">
+                <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
                   No upcoming events
                 </p>
               )}
@@ -1328,7 +1175,7 @@ export function AnnouncementsModule() {
           </Card>
 
           {/* Recent Activity */}
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="w-5 h-5" />
@@ -1340,26 +1187,34 @@ export function AnnouncementsModule() {
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-gray-900">
+                    <p className="text-sm text-gray-900 dark:text-gray-100">
                       New birthday celebration
                     </p>
-                    <p className="text-xs text-gray-500">2 hours ago</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      2 hours ago
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-gray-900">
+                    <p className="text-sm text-gray-900 dark:text-gray-100">
                       Company announcement posted
                     </p>
-                    <p className="text-xs text-gray-500">5 hours ago</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      5 hours ago
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-amber-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-gray-900">Achievement shared</p>
-                    <p className="text-xs text-gray-500">1 day ago</p>
+                    <p className="text-sm text-gray-900 dark:text-gray-100">
+                      Achievement shared
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      1 day ago
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1537,7 +1392,7 @@ export function AnnouncementsModule() {
               <Button
                 onClick={createPost}
                 disabled={!newPost.title.trim() || !newPost.content.trim()}
-                className="bg-blue-600 hover:bg-blue-700"
+                variant="primary"
               >
                 <Send className="w-4 h-4 mr-2" />
                 Publish Post

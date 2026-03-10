@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Badge } from "./ui/badge";
+import { QuickActionButton } from "./QuickActionButton";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Separator } from "./ui/separator";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
@@ -66,6 +67,7 @@ import {
   UserPlus,
   Settings,
 } from "lucide-react";
+import { formatDate } from "@/utils";
 
 interface Employee {
   id: string;
@@ -94,6 +96,313 @@ interface Department {
   isExpanded: boolean;
 }
 
+function getStatusColor(status: string) {
+  switch (status) {
+    case "active":
+      return "bg-green-100 text-green-800";
+    case "onLeave":
+      return "bg-amber-100 text-amber-800";
+    case "remote":
+      return "bg-blue-100 text-blue-800";
+    default:
+      return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200";
+  }
+}
+
+function getStatusIcon(status: string) {
+  const classes = "inline-block w-2.5 h-2.5 rounded-full";
+  switch (status) {
+    case "active":
+      return <span className={`${classes} bg-green-500`} title="Active" />;
+    case "onLeave":
+      return <span className={`${classes} bg-amber-500`} title="On leave" />;
+    case "remote":
+      return <span className={`${classes} bg-blue-500`} title="Remote" />;
+    default:
+      return <span className={`${classes} bg-gray-300`} title="Unknown" />;
+  }
+}
+
+function OrgChartEmployeeCard({
+  employee,
+  isCompact = false,
+  getDepartmentByName,
+  onSelectEmployee,
+}: {
+  employee: Employee;
+  isCompact?: boolean;
+  getDepartmentByName: (name: string) => Department | undefined;
+  onSelectEmployee: (employee: Employee) => void;
+}) {
+  const department = getDepartmentByName(employee.department);
+  const directReportCount = employee.directReports.length;
+
+  return (
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        <div
+          className={`relative bg-white dark:bg-gray-800 border-2 rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer ${
+            isCompact ? "p-3 min-w-[200px]" : "p-4 min-w-[240px]"
+          }`}
+          style={{ borderColor: department?.color || "#e2e8f0" }}
+          onClick={() => onSelectEmployee(employee)}
+        >
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Avatar className={isCompact ? "w-10 h-10" : "w-12 h-12"}>
+                <img
+                  src={employee.avatar}
+                  alt={employee.name}
+                  className="object-cover"
+                />
+                <AvatarFallback className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
+                  {employee.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
+                </AvatarFallback>
+              </Avatar>
+              <div
+                className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center text-xs"
+                title={employee.status}
+              >
+                {getStatusIcon(employee.status)}
+              </div>
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <h4
+                  className={`font-medium text-gray-900 dark:text-gray-100 truncate ${isCompact ? "text-sm" : ""}`}
+                >
+                  {employee.name}
+                </h4>
+                {employee.isManager && (
+                  <Crown className="w-3 h-3 text-amber-500" />
+                )}
+              </div>
+              <p
+                className={`text-gray-600 dark:text-gray-400 truncate ${isCompact ? "text-xs" : "text-sm"}`}
+              >
+                {employee.role}
+              </p>
+              {!isCompact && (
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge
+                    variant="outline"
+                    className="text-xs"
+                    style={{
+                      borderColor: department?.color,
+                      color: department?.color,
+                    }}
+                  >
+                    {employee.department}
+                  </Badge>
+                  {directReportCount > 0 && (
+                    <Badge
+                      variant="outline"
+                      className="text-xs bg-gray-50 dark:bg-gray-900"
+                    >
+                      {directReportCount} reports
+                    </Badge>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {employee.isManager && employee.directReports.length > 0 && (
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
+              <div className="w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center">
+                <ChevronDown className="w-2 h-2 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+          )}
+        </div>
+      </HoverCardTrigger>
+
+      <HoverCardContent className="w-80 p-4" side="right">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <Avatar className="w-16 h-16">
+              <img
+                src={employee.avatar}
+                alt={employee.name}
+                className="object-cover"
+              />
+              <AvatarFallback>
+                {employee.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                {employee.name}
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                {employee.role}
+              </p>
+              <Badge
+                variant="outline"
+                className={getStatusColor(employee.status)}
+              >
+                {employee.status}
+              </Badge>
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm">
+              <Building className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+              <span className="text-gray-600 dark:text-gray-400">
+                {employee.department}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Mail className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+              <span className="text-gray-600 dark:text-gray-400">
+                {employee.email}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Phone className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+              <span className="text-gray-600 dark:text-gray-400">
+                {employee.phone}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <MapPin className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+              <span className="text-gray-600 dark:text-gray-400">
+                {employee.location}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+              <span className="text-gray-600 dark:text-gray-400">
+                Started {new Date(employee.startDate).toLocaleDateString()}
+              </span>
+            </div>
+          </div>
+
+          {employee.skills.length > 0 && (
+            <>
+              <Separator />
+              <div>
+                <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                  Skills
+                </h4>
+                <div className="flex flex-wrap gap-1">
+                  {employee.skills.slice(0, 5).map((skill) => (
+                    <Badge key={skill} variant="outline" className="text-xs">
+                      {skill}
+                    </Badge>
+                  ))}
+                  {employee.skills.length > 5 && (
+                    <Badge variant="outline" className="text-xs">
+                      +{employee.skills.length - 5} more
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+
+          <div className="flex gap-2 pt-2">
+            <Button size="sm" variant="outline" className="flex-1">
+              <Eye className="w-3 h-3 mr-1" />
+              View Profile
+            </Button>
+            <Button size="sm" variant="outline">
+              <Mail className="w-3 h-3" />
+            </Button>
+          </div>
+        </div>
+      </HoverCardContent>
+    </HoverCard>
+  );
+}
+
+function OrgChartDepartmentNode({
+  department,
+  level,
+  employees,
+  getDepartmentByName,
+  onSelectEmployee,
+}: {
+  department: Department;
+  level: number;
+  employees: Employee[];
+  getDepartmentByName: (name: string) => Department | undefined;
+  onSelectEmployee: (employee: Employee) => void;
+}) {
+  const departmentEmployees = employees.filter(
+    (emp) =>
+      emp.department.toLowerCase() === department.name.toLowerCase() &&
+      emp.level === level
+  );
+
+  if (departmentEmployees.length === 0) return null;
+
+  return (
+    <div className="flex flex-col items-center space-y-4">
+      {departmentEmployees.map((employee) => (
+        <div key={employee.id} className="flex flex-col items-center">
+          <OrgChartEmployeeCard
+            employee={employee}
+            getDepartmentByName={getDepartmentByName}
+            onSelectEmployee={onSelectEmployee}
+          />
+
+          {/* Connection lines and subordinates */}
+          {employee.isManager &&
+            employee.directReports.length > 0 &&
+            department.isExpanded && (
+              <div className="flex flex-col items-center mt-4">
+                {/* Vertical line down */}
+                <div className="w-0.5 h-6 bg-gray-300"></div>
+
+                {/* Horizontal line and subordinates */}
+                <div className="flex items-start">
+                  <div className="flex flex-col space-y-4">
+                    {employee.directReports.map((reportId, index) => {
+                      const subordinate = employees.find(
+                        (emp) => emp.id === reportId
+                      );
+                      if (!subordinate) return null;
+
+                      return (
+                        <div key={reportId} className="flex items-center">
+                          {/* Horizontal line to subordinate */}
+                          <div className="w-8 h-0.5 bg-gray-300"></div>
+                          <div className="relative">
+                            {/* Vertical line connection */}
+                            {index > 0 && (
+                              <div className="absolute -left-8 -top-6 w-0.5 h-6 bg-gray-300"></div>
+                            )}
+                            <OrgChartEmployeeCard
+                              employee={subordinate}
+                              isCompact
+                              getDepartmentByName={getDepartmentByName}
+                              onSelectEmployee={onSelectEmployee}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function OrgChartModule() {
   const [activeTab, setActiveTab] = useState("chart");
   const [searchTerm, setSearchTerm] = useState("");
@@ -105,297 +414,11 @@ export function OrgChartModule() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const chartRef = useRef<HTMLDivElement>(null);
 
-  // Mock employee data
-  const [employees, setEmployees] = useState<Employee[]>([
-    {
-      id: "ceo-001",
-      name: "Sarah Johnson",
-      role: "Chief Executive Officer",
-      department: "Executive",
-      email: "sarah.johnson@bloomteq.com",
-      phone: "+1 (555) 123-4567",
-      location: "San Francisco, CA",
-      avatar:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b647?w=150&h=150&fit=crop&crop=face",
-      startDate: "2020-01-15",
-      level: 1,
-      skills: ["Leadership", "Strategy", "Business Development"],
-      directReports: ["cto-001", "cfo-001", "chro-001"],
-      isManager: true,
-      status: "active",
-    },
-    {
-      id: "cto-001",
-      name: "Alex Thompson",
-      role: "Chief Technology Officer",
-      department: "Engineering",
-      email: "alex.thompson@bloomteq.com",
-      phone: "+1 (555) 234-5678",
-      location: "San Francisco, CA",
-      avatar:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      managerId: "ceo-001",
-      startDate: "2020-03-01",
-      level: 2,
-      skills: ["Software Architecture", "Team Leadership", "DevOps"],
-      directReports: ["eng-001", "eng-002", "eng-003"],
-      isManager: true,
-      status: "active",
-    },
-    {
-      id: "cfo-001",
-      name: "Michael Chen",
-      role: "Chief Financial Officer",
-      department: "Finance",
-      email: "michael.chen@bloomteq.com",
-      phone: "+1 (555) 345-6789",
-      location: "New York, NY",
-      avatar:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-      managerId: "ceo-001",
-      startDate: "2020-05-15",
-      level: 2,
-      skills: ["Financial Planning", "Budget Management", "Risk Analysis"],
-      directReports: ["fin-001", "fin-002"],
-      isManager: true,
-      status: "active",
-    },
-    {
-      id: "chro-001",
-      name: "Emily Rodriguez",
-      role: "Chief Human Resources Officer",
-      department: "Human Resources",
-      email: "emily.rodriguez@bloomteq.com",
-      phone: "+1 (555) 456-7890",
-      location: "Austin, TX",
-      avatar:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      managerId: "ceo-001",
-      startDate: "2020-02-20",
-      level: 2,
-      skills: ["Talent Management", "Organizational Development", "Culture"],
-      directReports: ["hr-001", "hr-002"],
-      isManager: true,
-      status: "active",
-    },
-    {
-      id: "eng-001",
-      name: "David Kim",
-      role: "Senior Engineering Manager",
-      department: "Engineering",
-      email: "david.kim@bloomteq.com",
-      phone: "+1 (555) 567-8901",
-      location: "Seattle, WA",
-      avatar:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-      managerId: "cto-001",
-      startDate: "2021-01-10",
-      level: 3,
-      skills: ["Full Stack Development", "Team Management", "Agile"],
-      directReports: ["eng-004", "eng-005", "eng-006"],
-      isManager: true,
-      status: "active",
-    },
-    {
-      id: "eng-002",
-      name: "Lisa Wong",
-      role: "Product Engineering Manager",
-      department: "Engineering",
-      email: "lisa.wong@bloomteq.com",
-      phone: "+1 (555) 678-9012",
-      location: "San Francisco, CA",
-      avatar:
-        "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face",
-      managerId: "cto-001",
-      startDate: "2021-03-15",
-      level: 3,
-      skills: ["Product Development", "React", "Node.js"],
-      directReports: ["eng-007", "eng-008"],
-      isManager: true,
-      status: "active",
-    },
-    {
-      id: "eng-003",
-      name: "James Wilson",
-      role: "DevOps Manager",
-      department: "Engineering",
-      email: "james.wilson@bloomteq.com",
-      phone: "+1 (555) 789-0123",
-      location: "Remote",
-      avatar:
-        "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face",
-      managerId: "cto-001",
-      startDate: "2021-06-01",
-      level: 3,
-      skills: ["AWS", "Kubernetes", "CI/CD"],
-      directReports: ["eng-009", "eng-010"],
-      isManager: true,
-      status: "remote",
-    },
-    {
-      id: "fin-001",
-      name: "Rachel Green",
-      role: "Finance Manager",
-      department: "Finance",
-      email: "rachel.green@bloomteq.com",
-      phone: "+1 (555) 890-1234",
-      location: "New York, NY",
-      avatar:
-        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
-      managerId: "cfo-001",
-      startDate: "2021-08-20",
-      level: 3,
-      skills: ["Financial Analysis", "Reporting", "Excel"],
-      directReports: ["fin-003"],
-      isManager: true,
-      status: "active",
-    },
-    {
-      id: "fin-002",
-      name: "Robert Taylor",
-      role: "Accounting Manager",
-      department: "Finance",
-      email: "robert.taylor@bloomteq.com",
-      phone: "+1 (555) 901-2345",
-      location: "New York, NY",
-      avatar:
-        "https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?w=150&h=150&fit=crop&crop=face",
-      managerId: "cfo-001",
-      startDate: "2021-09-10",
-      level: 3,
-      skills: ["Accounting", "Compliance", "Auditing"],
-      directReports: [],
-      isManager: false,
-      status: "active",
-    },
-    {
-      id: "hr-001",
-      name: "Maria Garcia",
-      role: "HR Manager",
-      department: "Human Resources",
-      email: "maria.garcia@bloomteq.com",
-      phone: "+1 (555) 012-3456",
-      location: "Austin, TX",
-      avatar:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b647?w=150&h=150&fit=crop&crop=face",
-      managerId: "chro-001",
-      startDate: "2021-11-05",
-      level: 3,
-      skills: ["Recruitment", "Employee Relations", "Training"],
-      directReports: ["hr-003"],
-      isManager: true,
-      status: "active",
-    },
-    {
-      id: "hr-002",
-      name: "Kevin Brown",
-      role: "People Operations Manager",
-      department: "Human Resources",
-      email: "kevin.brown@bloomteq.com",
-      phone: "+1 (555) 123-4567",
-      location: "Remote",
-      avatar:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      managerId: "chro-001",
-      startDate: "2022-01-12",
-      level: 3,
-      skills: ["Operations", "Process Improvement", "Analytics"],
-      directReports: [],
-      isManager: false,
-      status: "remote",
-    },
-    // Individual Contributors
-    {
-      id: "eng-004",
-      name: "Anna Mitchell",
-      role: "Senior Software Engineer",
-      department: "Engineering",
-      email: "anna.mitchell@bloomteq.com",
-      phone: "+1 (555) 234-5678",
-      location: "Seattle, WA",
-      avatar:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      managerId: "eng-001",
-      startDate: "2022-03-01",
-      level: 4,
-      skills: ["React", "TypeScript", "GraphQL"],
-      directReports: [],
-      isManager: false,
-      status: "active",
-    },
-    {
-      id: "eng-005",
-      name: "Tom Anderson",
-      role: "Software Engineer",
-      department: "Engineering",
-      email: "tom.anderson@bloomteq.com",
-      phone: "+1 (555) 345-6789",
-      location: "Seattle, WA",
-      avatar:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-      managerId: "eng-001",
-      startDate: "2022-06-15",
-      level: 4,
-      skills: ["Python", "Django", "PostgreSQL"],
-      directReports: [],
-      isManager: false,
-      status: "active",
-    },
-    {
-      id: "eng-006",
-      name: "Sophie Clark",
-      role: "Junior Software Engineer",
-      department: "Engineering",
-      email: "sophie.clark@bloomteq.com",
-      phone: "+1 (555) 456-7890",
-      location: "Remote",
-      avatar:
-        "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face",
-      managerId: "eng-001",
-      startDate: "2023-01-20",
-      level: 4,
-      skills: ["JavaScript", "HTML/CSS", "Git"],
-      directReports: [],
-      isManager: false,
-      status: "remote",
-    },
-  ]);
+  // TODO: Implement - fetch employees from API and set via setEmployees(...)
+  const [employees, setEmployees] = useState<Employee[]>([]);
 
-  // Mock department data
-  const [departments, setDepartments] = useState<Department[]>([
-    {
-      id: "executive",
-      name: "Executive",
-      color: "#8b5cf6",
-      headId: "ceo-001",
-      employeeCount: 1,
-      isExpanded: true,
-    },
-    {
-      id: "engineering",
-      name: "Engineering",
-      color: "#2563eb",
-      headId: "cto-001",
-      employeeCount: 9,
-      isExpanded: true,
-    },
-    {
-      id: "finance",
-      name: "Finance",
-      color: "#10b981",
-      headId: "cfo-001",
-      employeeCount: 3,
-      isExpanded: true,
-    },
-    {
-      id: "hr",
-      name: "Human Resources",
-      color: "#f59e0b",
-      headId: "chro-001",
-      employeeCount: 3,
-      isExpanded: true,
-    },
-  ]);
+  // TODO: Implement - fetch departments from API and set via setDepartments(...)
+  const [departments, setDepartments] = useState<Department[]>([]);
 
   const filteredEmployees = employees.filter((employee) => {
     const matchesSearch =
@@ -422,32 +445,6 @@ export function OrgChartModule() {
     );
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800";
-      case "onLeave":
-        return "bg-amber-100 text-amber-800";
-      case "remote":
-        return "bg-blue-100 text-blue-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "active":
-        return "🟢";
-      case "onLeave":
-        return "🟡";
-      case "remote":
-        return "🔵";
-      default:
-        return "⚪";
-    }
-  };
-
   const toggleDepartmentExpansion = (departmentId: string) => {
     setDepartments((prev) =>
       prev.map((dept) =>
@@ -470,270 +467,16 @@ export function OrgChartModule() {
     setZoomLevel(1);
   };
 
-  const EmployeeCard = ({
-    employee,
-    isCompact = false,
-  }: {
-    employee: Employee;
-    isCompact?: boolean;
-  }) => {
-    const department = getDepartmentByName(employee.department);
-    const directReportCount = employee.directReports.length;
-
-    return (
-      <HoverCard>
-        <HoverCardTrigger asChild>
-          <div
-            className={`relative bg-white border-2 rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer ${
-              isCompact ? "p-3 min-w-[200px]" : "p-4 min-w-[240px]"
-            }`}
-            style={{ borderColor: department?.color || "#e2e8f0" }}
-            onClick={() => setSelectedEmployee(employee)}
-          >
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <Avatar className={isCompact ? "w-10 h-10" : "w-12 h-12"}>
-                  <img
-                    src={employee.avatar}
-                    alt={employee.name}
-                    className="object-cover"
-                  />
-                  <AvatarFallback className="bg-gray-100 text-gray-600">
-                    {employee.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div
-                  className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center text-xs"
-                  title={employee.status}
-                >
-                  {getStatusIcon(employee.status)}
-                </div>
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h4
-                    className={`font-medium text-gray-900 truncate ${isCompact ? "text-sm" : ""}`}
-                  >
-                    {employee.name}
-                  </h4>
-                  {employee.isManager && (
-                    <Crown className="w-3 h-3 text-amber-500" />
-                  )}
-                </div>
-                <p
-                  className={`text-gray-600 truncate ${isCompact ? "text-xs" : "text-sm"}`}
-                >
-                  {employee.role}
-                </p>
-                {!isCompact && (
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge
-                      variant="outline"
-                      className="text-xs"
-                      style={{
-                        borderColor: department?.color,
-                        color: department?.color,
-                      }}
-                    >
-                      {employee.department}
-                    </Badge>
-                    {directReportCount > 0 && (
-                      <Badge variant="outline" className="text-xs bg-gray-50">
-                        {directReportCount} reports
-                      </Badge>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {employee.isManager && employee.directReports.length > 0 && (
-              <div className="absolute -bottom-2 left-1/2 transform -trangray-x-1/2">
-                <div className="w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center">
-                  <ChevronDown className="w-2 h-2 text-gray-600" />
-                </div>
-              </div>
-            )}
-          </div>
-        </HoverCardTrigger>
-
-        <HoverCardContent className="w-80 p-4" side="right">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <Avatar className="w-16 h-16">
-                <img
-                  src={employee.avatar}
-                  alt={employee.name}
-                  className="object-cover"
-                />
-                <AvatarFallback>
-                  {employee.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h3 className="font-medium text-gray-900">{employee.name}</h3>
-                <p className="text-gray-600">{employee.role}</p>
-                <Badge
-                  variant="outline"
-                  className={getStatusColor(employee.status)}
-                >
-                  {employee.status}
-                </Badge>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm">
-                <Building className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-600">{employee.department}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Mail className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-600">{employee.email}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Phone className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-600">{employee.phone}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <MapPin className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-600">{employee.location}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-600">
-                  Started {new Date(employee.startDate).toLocaleDateString()}
-                </span>
-              </div>
-            </div>
-
-            {employee.skills.length > 0 && (
-              <>
-                <Separator />
-                <div>
-                  <h4 className="text-sm font-medium text-gray-900 mb-2">
-                    Skills
-                  </h4>
-                  <div className="flex flex-wrap gap-1">
-                    {employee.skills.slice(0, 5).map((skill) => (
-                      <Badge key={skill} variant="outline" className="text-xs">
-                        {skill}
-                      </Badge>
-                    ))}
-                    {employee.skills.length > 5 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{employee.skills.length - 5} more
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
-
-            <div className="flex gap-2 pt-2">
-              <Button size="sm" variant="outline" className="flex-1">
-                <Eye className="w-3 h-3 mr-1" />
-                View Profile
-              </Button>
-              <Button size="sm" variant="outline">
-                <Mail className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
-        </HoverCardContent>
-      </HoverCard>
-    );
-  };
-
-  const DepartmentNode = ({
-    department,
-    level,
-  }: {
-    department: Department;
-    level: number;
-  }) => {
-    const departmentEmployees = employees.filter(
-      (emp) =>
-        emp.department.toLowerCase() === department.name.toLowerCase() &&
-        emp.level === level
-    );
-
-    if (departmentEmployees.length === 0) return null;
-
-    return (
-      <div className="flex flex-col items-center space-y-4">
-        {departmentEmployees.map((employee) => (
-          <div key={employee.id} className="flex flex-col items-center">
-            <EmployeeCard employee={employee} />
-
-            {/* Connection lines and subordinates */}
-            {employee.isManager &&
-              employee.directReports.length > 0 &&
-              department.isExpanded && (
-                <div className="flex flex-col items-center mt-4">
-                  {/* Vertical line down */}
-                  <div className="w-0.5 h-6 bg-gray-300"></div>
-
-                  {/* Horizontal line and subordinates */}
-                  <div className="flex items-start">
-                    <div className="flex flex-col space-y-4">
-                      {employee.directReports.map((reportId, index) => {
-                        const subordinate = employees.find(
-                          (emp) => emp.id === reportId
-                        );
-                        if (!subordinate) return null;
-
-                        return (
-                          <div key={reportId} className="flex items-center">
-                            {/* Horizontal line to subordinate */}
-                            <div className="w-8 h-0.5 bg-gray-300"></div>
-                            <div className="relative">
-                              {/* Vertical line connection */}
-                              {index > 0 && (
-                                <div className="absolute -left-8 -top-6 w-0.5 h-6 bg-gray-300"></div>
-                              )}
-                              <EmployeeCard employee={subordinate} isCompact />
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              )}
-          </div>
-        ))}
-      </div>
-    );
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               Organization Chart
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
               Interactive team structure and employee directory
             </p>
           </div>
@@ -759,45 +502,61 @@ export function OrgChartModule() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Total Employees</p>
+              <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Total Employees
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {employees.length}
             </p>
-            <p className="text-xs text-gray-500">Active workforce</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Active workforce
+            </p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Building className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Departments</p>
+              <Building className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Departments
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {departments.length}
             </p>
-            <p className="text-xs text-gray-500">Business units</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Business units
+            </p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Crown className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Managers</p>
+              <Crown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Managers
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {employees.filter((emp) => emp.isManager).length}
             </p>
-            <p className="text-xs text-gray-500">Leadership roles</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Leadership roles
+            </p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <MapPin className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Remote Workers</p>
+              <MapPin className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Remote Workers
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {employees.filter((emp) => emp.status === "remote").length}
             </p>
-            <p className="text-xs text-gray-500">Working remotely</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Working remotely
+            </p>
           </div>
         </div>
       </div>
@@ -805,7 +564,7 @@ export function OrgChartModule() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-3">
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
@@ -828,7 +587,7 @@ export function OrgChartModule() {
                       >
                         <ZoomOut className="w-4 h-4" />
                       </Button>
-                      <span className="text-sm text-gray-600 min-w-[4rem] text-center">
+                      <span className="text-sm text-gray-600 dark:text-gray-400 min-w-16 text-center">
                         {Math.round(zoomLevel * 100)}%
                       </span>
                       <Button
@@ -851,7 +610,7 @@ export function OrgChartModule() {
                   {/* Search and Filters */}
                   <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1 relative">
-                      <Search className="absolute left-3 top-1/2 transform -trangray-y-1/2 w-4 h-4 text-gray-400" />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
                       <Input
                         placeholder="Search employees..."
                         value={searchTerm}
@@ -880,7 +639,7 @@ export function OrgChartModule() {
                   {/* Interactive Org Chart */}
                   <div
                     ref={chartRef}
-                    className="relative overflow-auto bg-gray-50 rounded-lg border border-gray-200 p-8 min-h-[600px]"
+                    className="relative overflow-auto bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-8 min-h-[600px]"
                     style={{
                       transform: `scale(${zoomLevel})`,
                       transformOrigin: "top left",
@@ -888,10 +647,18 @@ export function OrgChartModule() {
                     }}
                   >
                     <div className="flex flex-col items-center space-y-8">
-                      {/* CEO Level */}
-                      <DepartmentNode department={departments[0]} level={1} />
+                      {/* CEO Level - data: first department from API (departments[0]) */}
+                      {departments.length > 0 && (
+                        <OrgChartDepartmentNode
+                          department={departments[0]}
+                          level={1}
+                          employees={employees}
+                          getDepartmentByName={getDepartmentByName}
+                          onSelectEmployee={setSelectedEmployee}
+                        />
+                      )}
 
-                      {/* C-Level */}
+                      {/* C-Level - data: employees with level 2 from API */}
                       <div className="flex items-start justify-center space-x-8">
                         {getEmployeesByLevel(2).map((cLevel) => {
                           const dept = getDepartmentByName(cLevel.department);
@@ -902,7 +669,11 @@ export function OrgChartModule() {
                               key={cLevel.id}
                               className="flex flex-col items-center space-y-4"
                             >
-                              <EmployeeCard employee={cLevel} />
+                              <OrgChartEmployeeCard
+                                employee={cLevel}
+                                getDepartmentByName={getDepartmentByName}
+                                onSelectEmployee={setSelectedEmployee}
+                              />
 
                               {/* Department subordinates */}
                               {cLevel.directReports.length > 0 && (
@@ -920,9 +691,15 @@ export function OrgChartModule() {
                                           key={reportId}
                                           className="flex flex-col items-center"
                                         >
-                                          <EmployeeCard
+                                          <OrgChartEmployeeCard
                                             employee={subordinate}
                                             isCompact
+                                            getDepartmentByName={
+                                              getDepartmentByName
+                                            }
+                                            onSelectEmployee={
+                                              setSelectedEmployee
+                                            }
                                           />
 
                                           {/* Individual contributors under managers */}
@@ -938,10 +715,16 @@ export function OrgChartModule() {
                                                     );
                                                     if (!ic) return null;
                                                     return (
-                                                      <EmployeeCard
+                                                      <OrgChartEmployeeCard
                                                         key={icId}
                                                         employee={ic}
                                                         isCompact
+                                                        getDepartmentByName={
+                                                          getDepartmentByName
+                                                        }
+                                                        onSelectEmployee={
+                                                          setSelectedEmployee
+                                                        }
                                                       />
                                                     );
                                                   }
@@ -966,7 +749,7 @@ export function OrgChartModule() {
                 <TabsContent value="directory" className="space-y-6 mt-0">
                   {/* Search */}
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -trangray-y-1/2 w-4 h-4 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
                     <Input
                       placeholder="Search employees..."
                       value={searchTerm}
@@ -980,7 +763,7 @@ export function OrgChartModule() {
                     {filteredEmployees.map((employee) => (
                       <Card
                         key={employee.id}
-                        className="border-gray-200 hover:shadow-sm transition-shadow"
+                        className="border-gray-200 dark:border-gray-700 hover:shadow-sm transition-shadow"
                       >
                         <CardContent className="p-4">
                           <div className="flex items-center gap-3">
@@ -999,14 +782,14 @@ export function OrgChartModule() {
                             </Avatar>
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
-                                <h3 className="font-medium text-gray-900">
+                                <h3 className="font-medium text-gray-900 dark:text-gray-100">
                                   {employee.name}
                                 </h3>
                                 {employee.isManager && (
                                   <Crown className="w-3 h-3 text-amber-500" />
                                 )}
                               </div>
-                              <p className="text-sm text-gray-600">
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
                                 {employee.role}
                               </p>
                               <div className="flex items-center gap-2 mt-1">
@@ -1053,14 +836,14 @@ export function OrgChartModule() {
                           <Separator className="my-3" />
                           <div className="space-y-1 text-sm">
                             <div className="flex items-center gap-2">
-                              <Mail className="w-3 h-3 text-gray-400" />
-                              <span className="text-gray-600">
+                              <Mail className="w-3 h-3 text-gray-400 dark:text-gray-500" />
+                              <span className="text-gray-600 dark:text-gray-400">
                                 {employee.email}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <MapPin className="w-3 h-3 text-gray-400" />
-                              <span className="text-gray-600">
+                              <MapPin className="w-3 h-3 text-gray-400 dark:text-gray-500" />
+                              <span className="text-gray-600 dark:text-gray-400">
                                 {employee.location}
                               </span>
                             </div>
@@ -1072,11 +855,11 @@ export function OrgChartModule() {
 
                   {filteredEmployees.length === 0 && (
                     <div className="text-center py-8">
-                      <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      <Users className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                         No employees found
                       </h3>
-                      <p className="text-gray-600">
+                      <p className="text-gray-600 dark:text-gray-400">
                         Try adjusting your search criteria.
                       </p>
                     </div>
@@ -1085,7 +868,7 @@ export function OrgChartModule() {
 
                 <TabsContent value="teams" className="space-y-6 mt-0">
                   <div className="space-y-4">
-                    <h3 className="font-medium text-gray-900">
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">
                       Department Overview
                     </h3>
 
@@ -1104,7 +887,10 @@ export function OrgChartModule() {
                         );
 
                         return (
-                          <Card key={department.id} className="border-gray-200">
+                          <Card
+                            key={department.id}
+                            className="border-gray-200 dark:border-gray-700"
+                          >
                             <CardContent className="p-6">
                               <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
@@ -1114,7 +900,7 @@ export function OrgChartModule() {
                                       backgroundColor: department.color,
                                     }}
                                   ></div>
-                                  <h3 className="font-medium text-gray-900">
+                                  <h3 className="font-medium text-gray-900 dark:text-gray-100">
                                     {department.name}
                                   </h3>
                                 </div>
@@ -1136,37 +922,37 @@ export function OrgChartModule() {
                               <div className="space-y-3">
                                 <div className="grid grid-cols-3 gap-4 text-center">
                                   <div>
-                                    <p className="text-2xl font-bold text-gray-900">
+                                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                                       {deptEmployees.length}
                                     </p>
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
                                       Total
                                     </p>
                                   </div>
                                   <div>
-                                    <p className="text-2xl font-bold text-gray-900">
+                                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                                       {managers.length}
                                     </p>
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
                                       Managers
                                     </p>
                                   </div>
                                   <div>
-                                    <p className="text-2xl font-bold text-gray-900">
+                                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                                       {
                                         deptEmployees.filter(
                                           (emp) => emp.status === "remote"
                                         ).length
                                       }
                                     </p>
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
                                       Remote
                                     </p>
                                   </div>
                                 </div>
 
                                 {deptHead && (
-                                  <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                                  <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
                                     <Avatar className="w-8 h-8">
                                       <img
                                         src={deptHead.avatar}
@@ -1181,10 +967,10 @@ export function OrgChartModule() {
                                       </AvatarFallback>
                                     </Avatar>
                                     <div>
-                                      <p className="text-sm font-medium text-gray-900">
+                                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                         {deptHead.name}
                                       </p>
-                                      <p className="text-xs text-gray-500">
+                                      <p className="text-xs text-gray-500 dark:text-gray-400">
                                         Department Head
                                       </p>
                                     </div>
@@ -1193,7 +979,7 @@ export function OrgChartModule() {
 
                                 {department.isExpanded && (
                                   <div className="space-y-2">
-                                    <h4 className="text-sm font-medium text-gray-700">
+                                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                       Team Members
                                     </h4>
                                     <div className="grid grid-cols-2 gap-2">
@@ -1202,7 +988,7 @@ export function OrgChartModule() {
                                         .map((employee) => (
                                           <div
                                             key={employee.id}
-                                            className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded"
+                                            className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-900 rounded"
                                           >
                                             <Avatar className="w-6 h-6">
                                               <img
@@ -1218,7 +1004,7 @@ export function OrgChartModule() {
                                               </AvatarFallback>
                                             </Avatar>
                                             <div className="flex-1 min-w-0">
-                                              <p className="text-xs font-medium text-gray-900 truncate">
+                                              <p className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
                                                 {employee.name}
                                               </p>
                                             </div>
@@ -1257,32 +1043,37 @@ export function OrgChartModule() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Quick Actions */}
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700">
-                <UserPlus className="w-4 h-4" />
-                Add Employee
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Building className="w-4 h-4" />
-                Manage Departments
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Network className="w-4 h-4" />
-                Export Org Chart
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Settings className="w-4 h-4" />
-                Chart Settings
-              </Button>
+              <QuickActionButton
+                label="Add Employee"
+                icon={UserPlus}
+                onClick={() => {}}
+                variant="primary"
+              />
+              <QuickActionButton
+                label="Manage Departments"
+                icon={Building}
+                onClick={() => {}}
+              />
+              <QuickActionButton
+                label="Export Org Chart"
+                icon={Network}
+                onClick={() => {}}
+              />
+              <QuickActionButton
+                label="Chart Settings"
+                icon={Settings}
+                onClick={() => {}}
+              />
             </CardContent>
           </Card>
 
-          {/* Department Legend */}
-          <Card className="border-gray-200">
+          {/* Department Legend - data: departments from API (id, name, color, employeeCount) */}
+          <Card className="border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Layers className="w-5 h-5" />
@@ -1300,9 +1091,11 @@ export function OrgChartModule() {
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: dept.color }}
                     ></div>
-                    <span className="text-sm text-gray-700">{dept.name}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      {dept.name}
+                    </span>
                   </div>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     {dept.employeeCount}
                   </span>
                 </div>
@@ -1310,8 +1103,8 @@ export function OrgChartModule() {
             </CardContent>
           </Card>
 
-          {/* Quick Stats */}
-          <Card className="border-gray-200">
+          {/* Quick Stats - derived from employees/departments (data: same API as above) */}
+          <Card className="border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="w-5 h-5" />
@@ -1321,41 +1114,50 @@ export function OrgChartModule() {
             <CardContent className="space-y-3">
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Avg Team Size:</span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {Math.round(employees.length / departments.length)}
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    Avg Team Size:
+                  </span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {departments.length > 0
+                      ? Math.round(employees.length / departments.length)
+                      : "—"}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
                     Management Ratio:
                   </span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {Math.round(
-                      (employees.filter((e) => e.isManager).length /
-                        employees.length) *
-                        100
-                    )}
-                    %
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {employees.length > 0
+                      ? `${Math.round(
+                          (employees.filter((e) => e.isManager).length /
+                            employees.length) *
+                            100
+                        )}%`
+                      : "—"}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Remote Workers:</span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {Math.round(
-                      (employees.filter((e) => e.status === "remote").length /
-                        employees.length) *
-                        100
-                    )}
-                    %
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    Remote Workers:
+                  </span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {employees.length > 0
+                      ? `${Math.round(
+                          (employees.filter((e) => e.status === "remote")
+                            .length /
+                            employees.length) *
+                            100
+                        )}%`
+                      : "—"}
                   </span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Recent Updates */}
-          <Card className="border-gray-200">
+          {/* Recent Updates - data: feed from API (e.g. org changes, new hires, promotions) */}
+          <Card className="border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="w-5 h-5" />
@@ -1364,32 +1166,9 @@ export function OrgChartModule() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                  <div>
-                    <p className="text-sm text-gray-900">
-                      New hire: Sophie Clark
-                    </p>
-                    <p className="text-xs text-gray-500">2 days ago</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                  <div>
-                    <p className="text-sm text-gray-900">
-                      Promotion: David Kim
-                    </p>
-                    <p className="text-xs text-gray-500">1 week ago</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-amber-500 rounded-full mt-2"></div>
-                  <div>
-                    <p className="text-sm text-gray-900">
-                      Department restructure
-                    </p>
-                    <p className="text-xs text-gray-500">2 weeks ago</p>
-                  </div>
+                {/* TODO: Replace with API data - e.g. GET /api/org-chart/recent-updates */}
+                <div className="text-center py-4 text-sm text-gray-500 dark:text-gray-400">
+                  No recent updates. Load feed from API.
                 </div>
               </div>
             </CardContent>
@@ -1427,10 +1206,12 @@ export function OrgChartModule() {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="text-xl font-medium text-gray-900">
+                  <h3 className="text-xl font-medium text-gray-900 dark:text-gray-100">
                     {selectedEmployee.name}
                   </h3>
-                  <p className="text-gray-600">{selectedEmployee.role}</p>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    {selectedEmployee.role}
+                  </p>
                   <div className="flex items-center gap-2 mt-2">
                     <Badge
                       variant="outline"
@@ -1467,31 +1248,31 @@ export function OrgChartModule() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100">
                     Contact Information
                   </h4>
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-600">
+                      <Mail className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                      <span className="text-gray-600 dark:text-gray-400">
                         {selectedEmployee.email}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Phone className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-600">
+                      <Phone className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                      <span className="text-gray-600 dark:text-gray-400">
                         {selectedEmployee.phone}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-600">
+                      <MapPin className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                      <span className="text-gray-600 dark:text-gray-400">
                         {selectedEmployee.location}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-600">
+                      <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                      <span className="text-gray-600 dark:text-gray-400">
                         Started {formatDate(selectedEmployee.startDate)}
                       </span>
                     </div>
@@ -1499,13 +1280,13 @@ export function OrgChartModule() {
                 </div>
 
                 <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100">
                     Reporting Structure
                   </h4>
                   <div className="space-y-3">
                     {selectedEmployee.managerId && (
                       <div>
-                        <p className="text-sm text-gray-500 mb-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
                           Reports to:
                         </p>
                         {(() => {
@@ -1527,7 +1308,7 @@ export function OrgChartModule() {
                                     .join("")}
                                 </AvatarFallback>
                               </Avatar>
-                              <span className="text-gray-900">
+                              <span className="text-gray-900 dark:text-gray-100">
                                 {manager.name}
                               </span>
                             </div>
@@ -1538,7 +1319,7 @@ export function OrgChartModule() {
 
                     {selectedEmployee.directReports.length > 0 && (
                       <div>
-                        <p className="text-sm text-gray-500 mb-2">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
                           Direct Reports (
                           {selectedEmployee.directReports.length}):
                         </p>
@@ -1567,14 +1348,14 @@ export function OrgChartModule() {
                                         .join("")}
                                     </AvatarFallback>
                                   </Avatar>
-                                  <span className="text-gray-900 text-sm">
+                                  <span className="text-gray-900 dark:text-gray-100 text-sm">
                                     {report.name}
                                   </span>
                                 </div>
                               ) : null;
                             })}
                           {selectedEmployee.directReports.length > 3 && (
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
                               +{selectedEmployee.directReports.length - 3} more
                             </p>
                           )}
@@ -1589,7 +1370,7 @@ export function OrgChartModule() {
                 <>
                   <Separator />
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-3">
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">
                       Skills & Expertise
                     </h4>
                     <div className="flex flex-wrap gap-2">
@@ -1604,7 +1385,7 @@ export function OrgChartModule() {
               )}
 
               <div className="flex gap-3 pt-4">
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <Button variant="primary">
                   <Mail className="w-4 h-4 mr-2" />
                   Send Email
                 </Button>

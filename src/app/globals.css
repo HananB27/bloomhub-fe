@@ -151,30 +151,37 @@
     h1 {
       font-size: 1.875rem;
       font-weight: var(--font-weight-medium);
-      line-height: 1.4;
+      line-height: 1.35;
       letter-spacing: -0.025em;
+      text-wrap: balance;
+      color: var(--foreground);
     }
     h2 {
       font-size: 1.5rem;
       font-weight: var(--font-weight-medium);
       line-height: 1.4;
       letter-spacing: -0.025em;
+      text-wrap: balance;
+      color: var(--foreground);
     }
     h3 {
       font-size: 1.25rem;
       font-weight: var(--font-weight-medium);
       line-height: 1.5;
       letter-spacing: -0.025em;
+      color: var(--foreground);
     }
     h4 {
       font-size: 1.125rem;
       font-weight: var(--font-weight-medium);
       line-height: 1.5;
+      color: var(--foreground);
     }
     p {
       font-size: 1rem;
       font-weight: var(--font-weight-normal);
       line-height: 1.6;
+      color: var(--foreground);
     }
     label {
       font-size: 0.875rem;
@@ -196,6 +203,28 @@
 
 html {
   font-size: var(--font-size);
+}
+
+/* Smooth primary/secondary buttons - use instead of strong blue/black */
+.btn-smooth-primary {
+  background-color: #475569;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+.btn-smooth-primary:hover {
+  background-color: #64748b;
+}
+.btn-smooth-outline {
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  background-color: transparent;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+.btn-smooth-outline:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
 }
 
 /* HR Dashboard / Bloomteq theme */
@@ -306,11 +335,14 @@ select:focus {
 }
 
 [data-sidebar] {
-  background-color: white;
-  border-right: 1px solid #e5e7eb;
-  box-shadow:
-    0 1px 3px 0 rgba(0, 0, 0, 0.05),
-    0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  background: #171717;
+  border-right: 1px solid #262626;
+  box-shadow: 2px 0 12px -4px rgba(0, 0, 0, 0.3);
+}
+.dark [data-sidebar] {
+  background: #0a0a0a;
+  border-right-color: #262626;
+  box-shadow: 2px 0 12px -4px rgba(0, 0, 0, 0.5);
 }
 
 table {

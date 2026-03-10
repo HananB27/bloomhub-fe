@@ -21,6 +21,7 @@ import {
   TableRow,
 } from "./ui/table";
 import { Badge } from "./ui/badge";
+import { QuickActionButton } from "./QuickActionButton";
 import { Progress } from "./ui/progress";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Separator } from "./ui/separator";
@@ -85,6 +86,8 @@ import {
   Package2,
   Zap,
 } from "lucide-react";
+import { formatDate, formatCurrency } from "@/utils";
+import type { LucideIcon } from "lucide-react";
 
 type AssetStatus =
   | "active"
@@ -231,204 +234,17 @@ export function AssetsModule() {
     specifications: "",
   });
 
-  // Mock assets data
-  const [assets, setAssets] = useState<Asset[]>([
-    {
-      id: 1,
-      name: "MacBook Pro 16-inch",
-      category: "laptops",
-      serialNumber: "C02YP1K0JGH6",
-      assetTag: "LT-001",
-      brand: "Apple",
-      model: "MacBook Pro 16-inch M2",
-      description: "High-performance laptop for development work",
-      image:
-        "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop",
-      purchaseDate: "2024-03-15",
-      purchasePrice: 2499,
-      warranty: "2026-03-15",
-      status: "active",
-      condition: "excellent",
-      location: "Office - Desk 12",
-      assignedTo: "alex-thompson",
-      assignedEmployeeName: "Alex Thompson",
-      assignedDate: "2024-03-20",
-      lastMaintenance: "2024-12-01",
-      nextMaintenance: "2025-06-01",
-      specifications: {
-        Processor: "Apple M2 Pro",
-        RAM: "16GB",
-        Storage: "512GB SSD",
-        Display: "16-inch Liquid Retina XDR",
-      },
-    },
-    {
-      id: 2,
-      name: "iPhone 15 Pro",
-      category: "phones",
-      serialNumber: "F2LW3J1NKPL",
-      assetTag: "PH-002",
-      brand: "Apple",
-      model: "iPhone 15 Pro",
-      description: "Company mobile phone for business communication",
-      image:
-        "https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=400&h=300&fit=crop",
-      purchaseDate: "2024-09-25",
-      purchasePrice: 999,
-      warranty: "2025-09-25",
-      status: "active",
-      condition: "excellent",
-      location: "Employee - Remote",
-      assignedTo: "sarah-johnson",
-      assignedEmployeeName: "Sarah Johnson",
-      assignedDate: "2024-09-25",
-      specifications: {
-        Storage: "256GB",
-        Color: "Natural Titanium",
-        Network: "5G",
-      },
-    },
-    {
-      id: 3,
-      name: "Dell UltraSharp 27 4K",
-      category: "monitors",
-      serialNumber: "CN-0P2715Q-74180",
-      assetTag: "MN-003",
-      brand: "Dell",
-      model: "P2715Q",
-      description: "27-inch 4K external monitor for workstation setup",
-      image:
-        "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400&h=300&fit=crop",
-      purchaseDate: "2024-01-10",
-      purchasePrice: 599,
-      warranty: "2027-01-10",
-      status: "available",
-      condition: "good",
-      location: "IT Storage Room",
-      specifications: {
-        Resolution: "3840 x 2160",
-        Size: "27 inches",
-        "Panel Type": "IPS",
-      },
-    },
-    {
-      id: 4,
-      name: "Sony WH-1000XM5",
-      category: "headphones",
-      serialNumber: "4-548-123-45",
-      assetTag: "HP-004",
-      brand: "Sony",
-      model: "WH-1000XM5",
-      description: "Noise-canceling headphones for focus work",
-      image:
-        "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&h=300&fit=crop",
-      purchaseDate: "2024-05-12",
-      purchasePrice: 399,
-      warranty: "2026-05-12",
-      status: "lost",
-      condition: "unknown",
-      location: "Unknown",
-      assignedTo: "michael-chen",
-      assignedEmployeeName: "Michael Chen",
-      assignedDate: "2024-05-15",
-      specifications: {
-        Type: "Over-ear",
-        Connectivity: "Bluetooth 5.2",
-        Battery: "30 hours",
-      },
-    },
-    {
-      id: 5,
-      name: "Canon EOS R5",
-      category: "cameras",
-      serialNumber: "053021000001",
-      assetTag: "CM-005",
-      brand: "Canon",
-      model: "EOS R5",
-      description: "Professional camera for marketing and events",
-      image:
-        "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=300&fit=crop",
-      purchaseDate: "2024-02-20",
-      purchasePrice: 3899,
-      warranty: "2026-02-20",
-      status: "damaged",
-      condition: "poor",
-      location: "IT Storage Room",
-      lastMaintenance: "2024-11-15",
-      specifications: {
-        Resolution: "45MP",
-        Video: "8K RAW",
-        Mount: "RF Mount",
-      },
-    },
-    {
-      id: 6,
-      name: "Herman Miller Aeron Chair",
-      category: "furniture",
-      serialNumber: "AE113AWB",
-      assetTag: "FR-006",
-      brand: "Herman Miller",
-      model: "Aeron Chair Size B",
-      description: "Ergonomic office chair for workstation",
-      image:
-        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop",
-      purchaseDate: "2023-11-01",
-      purchasePrice: 1395,
-      warranty: "2035-11-01",
-      status: "active",
-      condition: "good",
-      location: "Office - Desk 5",
-      assignedTo: "emily-rodriguez",
-      assignedEmployeeName: "Emily Rodriguez",
-      assignedDate: "2023-11-01",
-      specifications: {
-        Size: "B (Medium)",
-        Color: "Graphite",
-        Features: "PostureFit SL",
-      },
-    },
-  ]);
+  // TODO: Implement - fetch assets from API
+  const [assets, setAssets] = useState<Asset[]>([]);
 
-  // Mock assignment history data
-  const [assignments, setAssignments] = useState<Assignment[]>([
-    {
-      id: 1,
-      assetId: 1,
-      employeeId: "alex-thompson",
-      employeeName: "Alex Thompson",
-      assignedDate: "2024-03-20",
-      assignedBy: "Sarah Johnson",
-      notes: "Assigned for development work",
-      condition: "excellent",
-      isActive: true,
-    },
-    {
-      id: 2,
-      assetId: 1,
-      employeeId: "john-doe",
-      employeeName: "John Doe",
-      assignedDate: "2024-03-15",
-      returnedDate: "2024-03-19",
-      assignedBy: "Sarah Johnson",
-      notes: "Temporary assignment during laptop repair",
-      condition: "good",
-      isActive: false,
-    },
-    {
-      id: 3,
-      assetId: 3,
-      employeeId: "lisa-wong",
-      employeeName: "Lisa Wong",
-      assignedDate: "2024-01-15",
-      returnedDate: "2024-07-10",
-      assignedBy: "IT Department",
-      notes: "Office workstation setup",
-      condition: "good",
-      isActive: false,
-    },
-  ]);
+  // TODO: Implement - fetch assignment history from API
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
 
-  const categories: { value: AssetCategory; label: string; icon: any }[] = [
+  const categories: {
+    value: AssetCategory;
+    label: string;
+    icon: LucideIcon;
+  }[] = [
     { value: "laptops", label: "Laptops", icon: Laptop },
     { value: "phones", label: "Phones", icon: Smartphone },
     { value: "monitors", label: "Monitors", icon: Monitor },
@@ -467,9 +283,9 @@ export function AssetsModule() {
       case "maintenance":
         return "bg-purple-100 text-purple-800";
       case "retired":
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200";
     }
   };
 
@@ -505,7 +321,7 @@ export function AssetsModule() {
       case "damaged":
         return "bg-red-100 text-red-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200";
     }
   };
 
@@ -662,21 +478,6 @@ export function AssetsModule() {
     );
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
-  };
-
   const updateChecklistItem = (
     itemId: string,
     checked: boolean,
@@ -692,13 +493,13 @@ export function AssetsModule() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               Asset Management
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
               Track and manage company assets, assignments, and maintenance
             </p>
           </div>
@@ -717,7 +518,7 @@ export function AssetsModule() {
             </Button>
             {isHRUser && (
               <Button
-                className="bg-blue-600 hover:bg-blue-700"
+                variant="primary"
                 size="sm"
                 onClick={() => setIsAddAssetDialogOpen(true)}
               >
@@ -730,30 +531,38 @@ export function AssetsModule() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Package className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Total Assets</p>
+              <Package className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Total Assets
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{assets.length}</p>
-            <p className="text-xs text-gray-500">All categories</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {assets.length}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              All categories
+            </p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Active</p>
+              <CheckCircle className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">Active</p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {assets.filter((asset) => asset.status === "active").length}
             </p>
-            <p className="text-xs text-gray-500">Currently assigned</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Currently assigned
+            </p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Issues</p>
+              <AlertTriangle className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">Issues</p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {
                 assets.filter(
                   (asset) =>
@@ -761,19 +570,25 @@ export function AssetsModule() {
                 ).length
               }
             </p>
-            <p className="text-xs text-gray-500">Lost or damaged</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Lost or damaged
+            </p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Total Value</p>
+              <TrendingUp className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Total Value
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {formatCurrency(
                 assets.reduce((sum, asset) => sum + asset.purchasePrice, 0)
               )}
             </p>
-            <p className="text-xs text-gray-500">Asset portfolio</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Asset portfolio
+            </p>
           </div>
         </div>
       </div>
@@ -781,7 +596,7 @@ export function AssetsModule() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-3">
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
@@ -802,7 +617,7 @@ export function AssetsModule() {
                   {/* Search and Filters */}
                   <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1 relative">
-                      <Search className="absolute left-3 top-1/2 transform -trangray-y-1/2 w-4 h-4 text-gray-400" />
+                      <Search className="absolute left-3 top-1/2 transform -trangray-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
                       <Input
                         placeholder="Search assets..."
                         value={searchTerm}
@@ -853,14 +668,14 @@ export function AssetsModule() {
                       return (
                         <Card
                           key={asset.id}
-                          className="border-gray-200 hover:shadow-sm transition-shadow"
+                          className="border-gray-200 dark:border-gray-700 hover:shadow-sm transition-shadow"
                         >
                           <CardContent className="p-4">
                             <div className="relative mb-3">
                               <ImageWithFallback
                                 src={asset.image}
                                 alt={asset.name}
-                                className="w-full h-32 object-cover rounded-lg bg-gray-100"
+                                className="w-full h-32 object-cover rounded-lg bg-gray-100 dark:bg-gray-700"
                               />
                               <div className="absolute top-2 right-2 flex gap-1">
                                 <Badge
@@ -874,7 +689,7 @@ export function AssetsModule() {
                               <div className="absolute bottom-2 left-2">
                                 <Badge
                                   variant="outline"
-                                  className="bg-white/90 text-gray-700"
+                                  className="bg-white dark:bg-gray-800/90 text-gray-700 dark:text-gray-300"
                                 >
                                   {asset.assetTag}
                                 </Badge>
@@ -884,21 +699,23 @@ export function AssetsModule() {
                             <div className="space-y-3">
                               <div>
                                 <div className="flex items-center gap-2 mb-1">
-                                  <CategoryIcon className="w-4 h-4 text-gray-500" />
-                                  <h3 className="font-medium text-gray-900 truncate">
+                                  <CategoryIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                                  <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
                                     {asset.name}
                                   </h3>
                                 </div>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
                                   {asset.brand} {asset.model}
                                 </p>
                               </div>
 
                               <div className="space-y-2">
                                 <div className="flex items-center gap-2 text-sm">
-                                  <Hash className="w-3 h-3 text-gray-400" />
-                                  <span className="text-gray-600">Serial:</span>
-                                  <span className="font-mono text-gray-900 text-xs">
+                                  <Hash className="w-3 h-3 text-gray-400 dark:text-gray-500" />
+                                  <span className="text-gray-600 dark:text-gray-400">
+                                    Serial:
+                                  </span>
+                                  <span className="font-mono text-gray-900 dark:text-gray-100 text-xs">
                                     {asset.serialNumber}
                                   </span>
                                 </div>
@@ -912,29 +729,29 @@ export function AssetsModule() {
                                   >
                                     {asset.condition}
                                   </Badge>
-                                  <span className="text-sm font-medium text-gray-900">
+                                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {formatCurrency(asset.purchasePrice)}
                                   </span>
                                 </div>
 
                                 {asset.assignedTo && (
                                   <div className="flex items-center gap-2 text-sm">
-                                    <User className="w-3 h-3 text-gray-400" />
-                                    <span className="text-gray-600">
+                                    <User className="w-3 h-3 text-gray-400 dark:text-gray-500" />
+                                    <span className="text-gray-600 dark:text-gray-400">
                                       Assigned to:
                                     </span>
-                                    <span className="text-gray-900">
+                                    <span className="text-gray-900 dark:text-gray-100">
                                       {asset.assignedEmployeeName}
                                     </span>
                                   </div>
                                 )}
 
                                 <div className="flex items-center gap-2 text-sm">
-                                  <MapPin className="w-3 h-3 text-gray-400" />
-                                  <span className="text-gray-600">
+                                  <MapPin className="w-3 h-3 text-gray-400 dark:text-gray-500" />
+                                  <span className="text-gray-600 dark:text-gray-400">
                                     Location:
                                   </span>
-                                  <span className="text-gray-900 truncate">
+                                  <span className="text-gray-900 dark:text-gray-100 truncate">
                                     {asset.location}
                                   </span>
                                 </div>
@@ -1006,11 +823,11 @@ export function AssetsModule() {
 
                   {filteredAssets.length === 0 && (
                     <div className="text-center py-8">
-                      <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      <Package className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                         No assets found
                       </h3>
-                      <p className="text-gray-600">
+                      <p className="text-gray-600 dark:text-gray-400">
                         Try adjusting your search criteria or add a new asset.
                       </p>
                     </div>
@@ -1019,14 +836,14 @@ export function AssetsModule() {
 
                 <TabsContent value="assignments" className="space-y-6 mt-0">
                   <div className="space-y-4">
-                    <h3 className="font-medium text-gray-900">
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">
                       Assignment History
                     </h3>
 
-                    <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                       <Table>
                         <TableHeader>
-                          <TableRow className="bg-gray-50">
+                          <TableRow className="bg-gray-50 dark:bg-gray-900">
                             <TableHead>Asset</TableHead>
                             <TableHead>Employee</TableHead>
                             <TableHead>Assigned Date</TableHead>
@@ -1063,7 +880,7 @@ export function AssetsModule() {
                             return (
                               <TableRow
                                 key={assignment.id}
-                                className="hover:bg-gray-50"
+                                className="hover:bg-gray-50 dark:hover:bg-gray-800"
                               >
                                 <TableCell>
                                   <div className="flex items-center gap-3">
@@ -1071,10 +888,10 @@ export function AssetsModule() {
                                       <Package className="w-4 h-4 text-blue-600" />
                                     </div>
                                     <div>
-                                      <p className="font-medium text-gray-900">
+                                      <p className="font-medium text-gray-900 dark:text-gray-100">
                                         {asset?.name}
                                       </p>
-                                      <p className="text-sm text-gray-500">
+                                      <p className="text-sm text-gray-500 dark:text-gray-400">
                                         {asset?.assetTag}
                                       </p>
                                     </div>
@@ -1083,26 +900,26 @@ export function AssetsModule() {
                                 <TableCell>
                                   <div className="flex items-center gap-2">
                                     <Avatar className="w-6 h-6">
-                                      <AvatarFallback className="bg-gray-100 text-gray-600 text-xs">
+                                      <AvatarFallback className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs">
                                         {assignment.employeeName
                                           .split(" ")
                                           .map((n) => n[0])
                                           .join("")}
                                       </AvatarFallback>
                                     </Avatar>
-                                    <span className="text-gray-900">
+                                    <span className="text-gray-900 dark:text-gray-100">
                                       {assignment.employeeName}
                                     </span>
                                   </div>
                                 </TableCell>
                                 <TableCell>
-                                  <span className="text-gray-900">
+                                  <span className="text-gray-900 dark:text-gray-100">
                                     {formatDate(assignment.assignedDate)}
                                   </span>
                                 </TableCell>
                                 <TableCell>
                                   {assignment.returnedDate ? (
-                                    <span className="text-gray-900">
+                                    <span className="text-gray-900 dark:text-gray-100">
                                       {formatDate(assignment.returnedDate)}
                                     </span>
                                   ) : (
@@ -1115,7 +932,7 @@ export function AssetsModule() {
                                   )}
                                 </TableCell>
                                 <TableCell>
-                                  <span className="text-gray-900">
+                                  <span className="text-gray-900 dark:text-gray-100">
                                     {duration} days
                                   </span>
                                 </TableCell>
@@ -1135,7 +952,7 @@ export function AssetsModule() {
                                     className={
                                       assignment.isActive
                                         ? "bg-green-100 text-green-800"
-                                        : "bg-gray-100 text-gray-800"
+                                        : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
                                     }
                                   >
                                     {assignment.isActive
@@ -1177,11 +994,11 @@ export function AssetsModule() {
 
                     {assignments.length === 0 && (
                       <div className="text-center py-8">
-                        <History className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        <History className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                           No assignment history
                         </h3>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-gray-400">
                           Assignment records will appear here as assets are
                           assigned to employees.
                         </p>
@@ -1192,7 +1009,7 @@ export function AssetsModule() {
 
                 <TabsContent value="maintenance" className="space-y-6 mt-0">
                   <div className="space-y-4">
-                    <h3 className="font-medium text-gray-900">
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">
                       Maintenance Schedule
                     </h3>
 
@@ -1200,7 +1017,10 @@ export function AssetsModule() {
                       {assets
                         .filter((asset) => asset.nextMaintenance)
                         .map((asset) => (
-                          <Card key={asset.id} className="border-gray-200">
+                          <Card
+                            key={asset.id}
+                            className="border-gray-200 dark:border-gray-700"
+                          >
                             <CardContent className="p-4">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
@@ -1208,23 +1028,23 @@ export function AssetsModule() {
                                     <Wrench className="w-5 h-5 text-blue-600" />
                                   </div>
                                   <div>
-                                    <h4 className="font-medium text-gray-900">
+                                    <h4 className="font-medium text-gray-900 dark:text-gray-100">
                                       {asset.name}
                                     </h4>
-                                    <p className="text-sm text-gray-600">
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">
                                       {asset.assetTag} • {asset.brand}{" "}
                                       {asset.model}
                                     </p>
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <p className="text-sm font-medium text-gray-900">
+                                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     Next:{" "}
                                     {asset.nextMaintenance
                                       ? formatDate(asset.nextMaintenance)
                                       : "Not scheduled"}
                                   </p>
-                                  <p className="text-xs text-gray-500">
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
                                     Last:{" "}
                                     {asset.lastMaintenance
                                       ? formatDate(asset.lastMaintenance)
@@ -1240,11 +1060,11 @@ export function AssetsModule() {
                     {assets.filter((asset) => asset.nextMaintenance).length ===
                       0 && (
                       <div className="text-center py-8">
-                        <Wrench className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        <Wrench className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                           No maintenance scheduled
                         </h3>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-gray-400">
                           Maintenance schedules will appear here when assets
                           require service.
                         </p>
@@ -1260,53 +1080,51 @@ export function AssetsModule() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Quick Actions */}
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button
-                className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700"
+              <QuickActionButton
+                label="Add Asset"
+                icon={Plus}
                 onClick={() => setIsAddAssetDialogOpen(true)}
-              >
-                <Plus className="w-4 h-4" />
-                Add Asset
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <QrCode className="w-4 h-4" />
-                Scan QR Code
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <UserCheck className="w-4 h-4" />
-                Assign Asset
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Wrench className="w-4 h-4" />
-                Schedule Maintenance
-              </Button>
+                variant="primary"
+              />
+              <QuickActionButton
+                label="Scan QR Code"
+                icon={QrCode}
+                onClick={() => {}}
+              />
+              <QuickActionButton
+                label="Assign Asset"
+                icon={UserCheck}
+                onClick={() => {}}
+              />
+              <QuickActionButton
+                label="Schedule Maintenance"
+                icon={Wrench}
+                onClick={() => {}}
+              />
               {isHRUser && (
                 <>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start gap-2"
-                  >
-                    <FileText className="w-4 h-4" />
-                    Generate Report
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start gap-2"
-                  >
-                    <Settings className="w-4 h-4" />
-                    Asset Settings
-                  </Button>
+                  <QuickActionButton
+                    label="Generate Report"
+                    icon={FileText}
+                    onClick={() => {}}
+                  />
+                  <QuickActionButton
+                    label="Asset Settings"
+                    icon={Settings}
+                    onClick={() => {}}
+                  />
                 </>
               )}
             </CardContent>
           </Card>
 
           {/* Category Breakdown */}
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Package className="w-5 h-5" />
@@ -1325,12 +1143,12 @@ export function AssetsModule() {
                     className="flex items-center justify-between"
                   >
                     <div className="flex items-center gap-2">
-                      <Icon className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm text-gray-700">
+                      <Icon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
                         {category.label}
                       </span>
                     </div>
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       {count}
                     </span>
                   </div>
@@ -1370,7 +1188,7 @@ export function AssetsModule() {
           </Card>
 
           {/* Recent Activity */}
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="w-5 h-5" />
@@ -1382,22 +1200,34 @@ export function AssetsModule() {
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-gray-900">Asset assigned</p>
-                    <p className="text-xs text-gray-500">2 hours ago</p>
+                    <p className="text-sm text-gray-900 dark:text-gray-100">
+                      Asset assigned
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      2 hours ago
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-gray-900">New asset added</p>
-                    <p className="text-xs text-gray-500">5 hours ago</p>
+                    <p className="text-sm text-gray-900 dark:text-gray-100">
+                      New asset added
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      5 hours ago
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-amber-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-gray-900">Asset returned</p>
-                    <p className="text-xs text-gray-500">1 day ago</p>
+                    <p className="text-sm text-gray-900 dark:text-gray-100">
+                      Asset returned
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      1 day ago
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1420,7 +1250,7 @@ export function AssetsModule() {
           <div className="space-y-6">
             {/* Asset Info */}
             {selectedAsset && (
-              <div className="p-4 bg-gray-50 rounded-lg">
+              <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
                 <div className="flex items-center gap-3">
                   <ImageWithFallback
                     src={selectedAsset.image}
@@ -1428,13 +1258,13 @@ export function AssetsModule() {
                     className="w-16 h-16 object-cover rounded-lg"
                   />
                   <div>
-                    <h4 className="font-medium text-gray-900">
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100">
                       {selectedAsset.name}
                     </h4>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                       {selectedAsset.assetTag} • {selectedAsset.serialNumber}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       Assigned to {selectedAsset.assignedEmployeeName}
                     </p>
                   </div>
@@ -1444,12 +1274,14 @@ export function AssetsModule() {
 
             {/* Return Checklist */}
             <div className="space-y-4">
-              <h4 className="font-medium text-gray-900">Return Checklist</h4>
+              <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                Return Checklist
+              </h4>
               <div className="space-y-3">
                 {returnChecklist.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg"
+                    className="flex items-start gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg"
                   >
                     <Checkbox
                       checked={item.checked}
@@ -1460,7 +1292,7 @@ export function AssetsModule() {
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-gray-900">
+                        <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
                           {item.label}
                         </label>
                         {item.required && (
@@ -1523,7 +1355,7 @@ export function AssetsModule() {
             <div className="flex gap-3">
               <Button
                 onClick={returnAsset}
-                className="bg-blue-600 hover:bg-blue-700"
+                variant="primary"
                 disabled={
                   !returnChecklist
                     .filter((item) => item.required)
@@ -1748,7 +1580,7 @@ export function AssetsModule() {
                 disabled={
                   !newAsset.name || !newAsset.category || !newAsset.serialNumber
                 }
-                className="bg-blue-600 hover:bg-blue-700"
+                variant="primary"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Asset

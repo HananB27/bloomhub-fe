@@ -65,6 +65,7 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+import { formatDate, formatCurrency } from "@/utils";
 
 interface Employee {
   id: string;
@@ -376,21 +377,6 @@ export function ProfilesModule() {
     }
   };
 
-  const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat("de-DE", {
-      style: "currency",
-      currency: currency,
-    }).format(amount);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
   const EmployeeCard = ({ employee }: { employee: Employee }) => (
     <Card
       className="border-gray-200 hover:shadow-md transition-all cursor-pointer"
@@ -568,7 +554,7 @@ export function ProfilesModule() {
               </div>
 
               <div className="flex gap-2 pt-4">
-                <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
+                <Button variant="primary" className="flex-1">
                   <Download className="w-4 h-4 mr-2" />
                   Export Data
                 </Button>
@@ -641,7 +627,7 @@ export function ProfilesModule() {
               </div>
 
               <div className="flex gap-2 pt-4">
-                <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
+                <Button variant="primary" className="flex-1">
                   Apply Filters
                 </Button>
                 <Button variant="outline">Clear All</Button>
@@ -649,7 +635,7 @@ export function ProfilesModule() {
             </DialogContent>
           </Dialog>
           {isHRUser && (
-            <Button className="bg-blue-600 hover:bg-blue-700">
+            <Button variant="primary">
               <Plus className="w-4 h-4 mr-2" />
               Add Employee
             </Button>
@@ -734,7 +720,7 @@ export function ProfilesModule() {
                 <div className="flex gap-2">
                   {isHRUser && (
                     <Button
-                      variant={isEditMode ? "default" : "outline"}
+                      variant={isEditMode ? "primary" : "outline"}
                       onClick={() => setIsEditMode(!isEditMode)}
                     >
                       <Edit className="w-4 h-4 mr-2" />
@@ -1142,7 +1128,8 @@ export function ProfilesModule() {
                                   selectedEmployee.salaryHistory[0]?.amount ||
                                     0,
                                   selectedEmployee.salaryHistory[0]?.currency ||
-                                    "BAM"
+                                    "BAM",
+                                  "de-DE"
                                 )}
                               </p>
                             </div>
@@ -1166,7 +1153,8 @@ export function ProfilesModule() {
                                     <TableCell className="font-medium">
                                       {formatCurrency(
                                         entry.amount,
-                                        entry.currency
+                                        entry.currency,
+                                        "de-DE"
                                       )}
                                     </TableCell>
                                     <TableCell>{entry.notes}</TableCell>

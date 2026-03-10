@@ -21,6 +21,7 @@ import {
   TableRow,
 } from "./ui/table";
 import { Badge } from "./ui/badge";
+import { QuickActionButton } from "./QuickActionButton";
 import { Switch } from "./ui/switch";
 import { Separator } from "./ui/separator";
 import { Progress } from "./ui/progress";
@@ -263,7 +264,7 @@ export function ReviewsModule() {
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
-            <Button className="bg-blue-600 hover:bg-blue-700" size="sm">
+            <Button variant="primary" size="sm">
               <Plus className="w-4 h-4 mr-2" />
               Schedule Review
             </Button>
@@ -483,10 +484,7 @@ export function ReviewsModule() {
                           </Label>
                         </div>
                       </div>
-                      <Button
-                        size="sm"
-                        className="bg-blue-600 hover:bg-blue-700"
-                      >
+                      <Button size="sm" variant="primary">
                         <Save className="w-4 h-4 mr-2" />
                         Save Notes
                       </Button>
@@ -937,22 +935,27 @@ export function ReviewsModule() {
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700">
-                <Edit3 className="w-4 h-4" />
-                Edit Review
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Calendar className="w-4 h-4" />
-                Schedule Meeting
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Download className="w-4 h-4" />
-                Export Review
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Plus className="w-4 h-4" />
-                Add Goal
-              </Button>
+              <QuickActionButton
+                label="Edit Review"
+                icon={Edit3}
+                onClick={() => {}}
+                variant="primary"
+              />
+              <QuickActionButton
+                label="Schedule Meeting"
+                icon={Calendar}
+                onClick={() => {}}
+              />
+              <QuickActionButton
+                label="Export Review"
+                icon={Download}
+                onClick={() => {}}
+              />
+              <QuickActionButton
+                label="Add Goal"
+                icon={Plus}
+                onClick={() => {}}
+              />
             </CardContent>
           </Card>
         </div>

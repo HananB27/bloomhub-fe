@@ -21,6 +21,7 @@ import {
   TableRow,
 } from "./ui/table";
 import { Badge } from "./ui/badge";
+import { QuickActionButton } from "./QuickActionButton";
 import { Progress } from "./ui/progress";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Separator } from "./ui/separator";
@@ -77,6 +78,7 @@ import {
   Lock,
   Unlock,
 } from "lucide-react";
+import { formatDate, isExpiringNext30Days } from "@/utils";
 
 type DocumentCategory =
   | "contracts"
@@ -163,202 +165,11 @@ export function DocumentsModule() {
     file: null as File | null,
   });
 
-  // Mock documents data
-  const [documents, setDocuments] = useState<Document[]>([
-    {
-      id: 1,
-      name: "Employee Handbook 2025",
-      category: "policies",
-      type: "pdf",
-      description:
-        "Updated employee handbook with new policies and procedures for 2025",
-      fileName: "employee_handbook_2025.pdf",
-      fileSize: "2.4 MB",
-      uploadedBy: "Sarah Johnson",
-      uploadedAt: "2025-01-15",
-      lastModified: "2025-01-15",
-      expiryDate: "2025-12-31",
-      signatureStatus: "not_required",
-      isConfidential: false,
-      permissions: ["all_employees"],
-      tags: ["policies", "handbook", "2025"],
-      versions: [
-        {
-          id: 1,
-          version: "1.0",
-          fileName: "employee_handbook_2025.pdf",
-          uploadedBy: "Sarah Johnson",
-          uploadedAt: "2025-01-15",
-          fileSize: "2.4 MB",
-          changes: "Initial version for 2025",
-          isActive: true,
-        },
-      ],
-      currentVersion: "1.0",
-    },
-    {
-      id: 2,
-      name: "Software License Agreement",
-      category: "agreements",
-      type: "pdf",
-      description:
-        "Software licensing agreement for development tools and platforms",
-      fileName: "software_license_agreement.pdf",
-      fileSize: "1.8 MB",
-      uploadedBy: "Michael Chen",
-      uploadedAt: "2025-07-20",
-      lastModified: "2025-07-25",
-      expiryDate: "2026-07-20",
-      signatureStatus: "pending",
-      isConfidential: true,
-      permissions: ["hr", "legal", "engineering_leads"],
-      tags: ["license", "software", "legal"],
-      versions: [
-        {
-          id: 2,
-          version: "2.1",
-          fileName: "software_license_agreement_v2.1.pdf",
-          uploadedBy: "Legal Team",
-          uploadedAt: "2025-07-25",
-          fileSize: "1.8 MB",
-          changes: "Updated terms and pricing structure",
-          isActive: true,
-        },
-        {
-          id: 3,
-          version: "2.0",
-          fileName: "software_license_agreement_v2.0.pdf",
-          uploadedBy: "Michael Chen",
-          uploadedAt: "2025-07-20",
-          fileSize: "1.7 MB",
-          changes: "Major revision with new vendor terms",
-          isActive: false,
-        },
-      ],
-      currentVersion: "2.1",
-    },
-    {
-      id: 3,
-      name: "NDA Template",
-      category: "contracts",
-      type: "docx",
-      description:
-        "Standard non-disclosure agreement template for new hires and contractors",
-      fileName: "nda_template.docx",
-      fileSize: "156 KB",
-      uploadedBy: "Emily Rodriguez",
-      uploadedAt: "2025-06-10",
-      lastModified: "2025-06-10",
-      signatureStatus: "signed",
-      signedBy: ["Alex Thompson", "Lisa Wong", "David Kim"],
-      signedAt: "2025-06-15",
-      isConfidential: true,
-      permissions: ["hr", "legal"],
-      tags: ["nda", "confidentiality", "template"],
-      versions: [
-        {
-          id: 4,
-          version: "1.2",
-          fileName: "nda_template_v1.2.docx",
-          uploadedBy: "Emily Rodriguez",
-          uploadedAt: "2025-06-10",
-          fileSize: "156 KB",
-          changes: "Updated clauses for remote work",
-          isActive: true,
-        },
-      ],
-      currentVersion: "1.2",
-    },
-    {
-      id: 4,
-      name: "Benefits Overview 2025",
-      category: "benefits",
-      type: "pdf",
-      description:
-        "Comprehensive overview of employee benefits including health, dental, and retirement plans",
-      fileName: "benefits_overview_2025.pdf",
-      fileSize: "3.2 MB",
-      uploadedBy: "HR Department",
-      uploadedAt: "2025-01-01",
-      lastModified: "2025-03-15",
-      expiryDate: "2025-12-31",
-      signatureStatus: "not_required",
-      isConfidential: false,
-      permissions: ["all_employees"],
-      tags: ["benefits", "health", "retirement"],
-      versions: [
-        {
-          id: 5,
-          version: "1.1",
-          fileName: "benefits_overview_2025_v1.1.pdf",
-          uploadedBy: "HR Department",
-          uploadedAt: "2025-03-15",
-          fileSize: "3.2 MB",
-          changes: "Updated dental plan options",
-          isActive: true,
-        },
-      ],
-      currentVersion: "1.1",
-    },
-    {
-      id: 5,
-      name: "Code of Conduct",
-      category: "compliance",
-      type: "pdf",
-      description: "Company code of conduct and ethics policy",
-      fileName: "code_of_conduct.pdf",
-      fileSize: "1.1 MB",
-      uploadedBy: "Legal Team",
-      uploadedAt: "2024-12-01",
-      lastModified: "2024-12-01",
-      expiryDate: "2026-12-01",
-      signatureStatus: "expired",
-      isConfidential: false,
-      permissions: ["all_employees"],
-      tags: ["ethics", "conduct", "compliance"],
-      versions: [
-        {
-          id: 6,
-          version: "3.0",
-          fileName: "code_of_conduct_v3.0.pdf",
-          uploadedBy: "Legal Team",
-          uploadedAt: "2024-12-01",
-          fileSize: "1.1 MB",
-          changes: "Annual review and updates",
-          isActive: true,
-        },
-      ],
-      currentVersion: "3.0",
-    },
-  ]);
+  // TODO: Implement - fetch documents from API
+  const [documents, setDocuments] = useState<Document[]>([]);
 
-  // Mock signatures data
-  const [signatures, setSignatures] = useState<Signature[]>([
-    {
-      id: 1,
-      documentId: 2,
-      signerName: "Alex Thompson",
-      signerEmail: "alex@bloomteq.com",
-      status: "pending",
-      notes: "Awaiting signature from Engineering Lead",
-    },
-    {
-      id: 2,
-      documentId: 2,
-      signerName: "Sarah Johnson",
-      signerEmail: "sarah@bloomteq.com",
-      status: "signed",
-      signedAt: "2025-07-25T14:30:00Z",
-    },
-    {
-      id: 3,
-      documentId: 3,
-      signerName: "Alex Thompson",
-      signerEmail: "alex@bloomteq.com",
-      status: "signed",
-      signedAt: "2025-06-15T10:15:00Z",
-    },
-  ]);
+  // TODO: Implement - fetch signatures from API
+  const [signatures, setSignatures] = useState<Signature[]>([]);
 
   const categories: { value: DocumentCategory; label: string }[] = [
     { value: "contracts", label: "Contracts" },
@@ -406,11 +217,11 @@ export function DocumentsModule() {
       case "rejected":
         return "bg-red-100 text-red-800";
       case "expired":
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200";
       case "not_required":
         return "bg-blue-100 text-blue-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200";
     }
   };
 
@@ -448,7 +259,7 @@ export function DocumentsModule() {
       case "benefits":
         return "bg-emerald-100 text-emerald-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200";
     }
   };
 
@@ -582,22 +393,6 @@ export function DocumentsModule() {
     );
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const isExpiringNext30Days = (expiryDate?: string) => {
-    if (!expiryDate) return false;
-    const expiry = new Date(expiryDate);
-    const thirtyDaysFromNow = new Date();
-    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-    return expiry <= thirtyDaysFromNow && expiry >= new Date();
-  };
-
   const isExpired = (expiryDate?: string) => {
     if (!expiryDate) return false;
     return new Date(expiryDate) < new Date();
@@ -606,13 +401,13 @@ export function DocumentsModule() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               Documents & Agreements
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
               Manage company documents, contracts, and signature workflows
             </p>
           </div>
@@ -626,7 +421,7 @@ export function DocumentsModule() {
               Export
             </Button>
             <Button
-              className="bg-blue-600 hover:bg-blue-700"
+              variant="primary"
               size="sm"
               onClick={() => setIsUploadDialogOpen(true)}
             >
@@ -638,51 +433,67 @@ export function DocumentsModule() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <FileText className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Total Documents</p>
+              <FileText className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Total Documents
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {documents.length}
             </p>
-            <p className="text-xs text-gray-500">All categories</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              All categories
+            </p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Pending Signatures</p>
+              <Clock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Pending Signatures
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {
                 documents.filter((doc) => doc.signatureStatus === "pending")
                   .length
               }
             </p>
-            <p className="text-xs text-gray-500">Require attention</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Require attention
+            </p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Expiring Soon</p>
+              <AlertTriangle className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Expiring Soon
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {
                 documents.filter((doc) => isExpiringNext30Days(doc.expiryDate))
                   .length
               }
             </p>
-            <p className="text-xs text-gray-500">Next 30 days</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Next 30 days
+            </p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Shield className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Confidential</p>
+              <Shield className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Confidential
+              </p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {documents.filter((doc) => doc.isConfidential).length}
             </p>
-            <p className="text-xs text-gray-500">Restricted access</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Restricted access
+            </p>
           </div>
         </div>
       </div>
@@ -690,7 +501,7 @@ export function DocumentsModule() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-3">
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
@@ -709,7 +520,7 @@ export function DocumentsModule() {
                   {/* Search and Filters */}
                   <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1 relative">
-                      <Search className="absolute left-3 top-1/2 transform -trangray-y-1/2 w-4 h-4 text-gray-400" />
+                      <Search className="absolute left-3 top-1/2 transform -trangray-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
                       <Input
                         placeholder="Search documents..."
                         value={searchTerm}
@@ -768,10 +579,10 @@ export function DocumentsModule() {
                   </div>
 
                   {/* Documents Table */}
-                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                     <Table>
                       <TableHeader>
-                        <TableRow className="bg-gray-50">
+                        <TableRow className="bg-gray-50 dark:bg-gray-900">
                           <TableHead>Document</TableHead>
                           <TableHead>Category</TableHead>
                           <TableHead>Modified</TableHead>
@@ -791,7 +602,7 @@ export function DocumentsModule() {
                           return (
                             <TableRow
                               key={document.id}
-                              className="hover:bg-gray-50"
+                              className="hover:bg-gray-50 dark:hover:bg-gray-800"
                             >
                               <TableCell>
                                 <div className="flex items-start gap-3">
@@ -800,24 +611,24 @@ export function DocumentsModule() {
                                   </div>
                                   <div>
                                     <div className="flex items-center gap-2">
-                                      <p className="font-medium text-gray-900">
+                                      <p className="font-medium text-gray-900 dark:text-gray-100">
                                         {document.name}
                                       </p>
                                       {document.isConfidential && (
                                         <Lock className="w-3 h-3 text-amber-600" />
                                       )}
                                     </div>
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
                                       {document.description}
                                     </p>
                                     <div className="flex items-center gap-2 mt-1">
-                                      <span className="text-xs text-gray-400">
+                                      <span className="text-xs text-gray-400 dark:text-gray-500">
                                         {document.fileSize}
                                       </span>
-                                      <span className="text-xs text-gray-400">
+                                      <span className="text-xs text-gray-400 dark:text-gray-500">
                                         •
                                       </span>
-                                      <span className="text-xs text-gray-400">
+                                      <span className="text-xs text-gray-400 dark:text-gray-500">
                                         by {document.uploadedBy}
                                       </span>
                                     </div>
@@ -863,10 +674,10 @@ export function DocumentsModule() {
                               </TableCell>
                               <TableCell>
                                 <div>
-                                  <p className="text-sm text-gray-900">
+                                  <p className="text-sm text-gray-900 dark:text-gray-100">
                                     {formatDate(document.lastModified)}
                                   </p>
-                                  <p className="text-xs text-gray-500">
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
                                     Uploaded {formatDate(document.uploadedAt)}
                                   </p>
                                 </div>
@@ -882,7 +693,7 @@ export function DocumentsModule() {
                                                 document.expiryDate
                                               )
                                             ? "text-amber-600"
-                                            : "text-gray-900"
+                                            : "text-gray-900 dark:text-gray-100"
                                       }`}
                                     >
                                       {formatDate(document.expiryDate)}
@@ -895,7 +706,7 @@ export function DocumentsModule() {
                                     )}
                                   </div>
                                 ) : (
-                                  <span className="text-sm text-gray-400">
+                                  <span className="text-sm text-gray-400 dark:text-gray-500">
                                     No expiry
                                   </span>
                                 )}
@@ -912,7 +723,7 @@ export function DocumentsModule() {
                                 </Badge>
                                 {document.signedBy &&
                                   document.signedBy.length > 0 && (
-                                    <p className="text-xs text-gray-500 mt-1">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                       {document.signedBy.length} signers
                                     </p>
                                   )}
@@ -956,10 +767,10 @@ export function DocumentsModule() {
                                             </Badge>
                                           )}
                                         </div>
-                                        <p className="text-xs text-gray-500 mb-1">
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                                           {version.changes}
                                         </p>
-                                        <div className="flex items-center gap-2 text-xs text-gray-400">
+                                        <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
                                           <span>
                                             {formatDate(version.uploadedAt)}
                                           </span>
@@ -1043,11 +854,11 @@ export function DocumentsModule() {
 
                   {filteredDocuments.length === 0 && (
                     <div className="text-center py-8">
-                      <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      <FileText className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                         No documents found
                       </h3>
-                      <p className="text-gray-600">
+                      <p className="text-gray-600 dark:text-gray-400">
                         Try adjusting your search criteria or upload a new
                         document.
                       </p>
@@ -1057,13 +868,13 @@ export function DocumentsModule() {
 
                 <TabsContent value="signatures" className="space-y-6 mt-0">
                   <div className="space-y-4">
-                    <h3 className="font-medium text-gray-900">
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">
                       Signature Tracking
                     </h3>
 
                     {/* Pending Signatures */}
                     <div className="space-y-3">
-                      <h4 className="text-sm font-medium text-gray-700">
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Pending Signatures
                       </h4>
                       {signatures
@@ -1081,14 +892,14 @@ export function DocumentsModule() {
                               <CardContent className="p-4">
                                 <div className="flex items-start justify-between">
                                   <div className="flex-1">
-                                    <h4 className="font-medium text-gray-900">
+                                    <h4 className="font-medium text-gray-900 dark:text-gray-100">
                                       {document?.name}
                                     </h4>
-                                    <p className="text-sm text-gray-600 mb-2">
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                                       Awaiting signature from{" "}
                                       {signature.signerName}
                                     </p>
-                                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                                    <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                                       <span>{signature.signerEmail}</span>
                                       {signature.notes && (
                                         <>
@@ -1120,7 +931,7 @@ export function DocumentsModule() {
 
                     {/* Recent Signatures */}
                     <div className="space-y-3">
-                      <h4 className="text-sm font-medium text-gray-700">
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Recent Signatures
                       </h4>
                       {signatures
@@ -1138,10 +949,10 @@ export function DocumentsModule() {
                               <div className="flex items-center gap-3">
                                 <CheckCircle className="w-5 h-5 text-green-600" />
                                 <div>
-                                  <p className="text-sm font-medium text-gray-900">
+                                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {document?.name}
                                   </p>
-                                  <p className="text-xs text-gray-500">
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
                                     Signed by {signature.signerName} on{" "}
                                     {signature.signedAt
                                       ? formatDate(signature.signedAt)
@@ -1171,11 +982,11 @@ export function DocumentsModule() {
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                   >
-                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    <Upload className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                       Drop files here to upload
                     </h3>
-                    <p className="text-gray-600 mb-4">
+                    <p className="text-gray-600 dark:text-gray-400 mb-4">
                       or click to browse your computer
                     </p>
 
@@ -1189,13 +1000,13 @@ export function DocumentsModule() {
 
                     <Button
                       onClick={() => fileInputRef.current?.click()}
-                      className="bg-blue-600 hover:bg-blue-700"
+                      variant="primary"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Select Files
                     </Button>
 
-                    <p className="text-xs text-gray-500 mt-4">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
                       Supported formats: PDF, DOC, DOCX, TXT, PNG, JPG (max
                       50MB)
                     </p>
@@ -1203,24 +1014,24 @@ export function DocumentsModule() {
 
                   {/* Recent Uploads */}
                   <div className="space-y-4">
-                    <h3 className="font-medium text-gray-900">
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">
                       Recent Uploads
                     </h3>
                     <div className="space-y-2">
                       {documents.slice(0, 5).map((document) => (
                         <div
                           key={document.id}
-                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                          className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg"
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                               <FileText className="w-4 h-4 text-blue-600" />
                             </div>
                             <div>
-                              <p className="text-sm font-medium text-gray-900">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {document.name}
                               </p>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
                                 {document.fileSize} • Uploaded{" "}
                                 {formatDate(document.uploadedAt)}
                               </p>
@@ -1245,49 +1056,46 @@ export function DocumentsModule() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Quick Actions */}
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button
-                className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700"
+              <QuickActionButton
+                label="Upload Document"
+                icon={Upload}
                 onClick={() => setIsUploadDialogOpen(true)}
-              >
-                <Upload className="w-4 h-4" />
-                Upload Document
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <PenTool className="w-4 h-4" />
-                Request Signature
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <FolderOpen className="w-4 h-4" />
-                Browse Templates
-              </Button>
+                variant="primary"
+              />
+              <QuickActionButton
+                label="Request Signature"
+                icon={PenTool}
+                onClick={() => {}}
+              />
+              <QuickActionButton
+                label="Browse Templates"
+                icon={FolderOpen}
+                onClick={() => {}}
+              />
               {isHRUser && (
                 <>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start gap-2"
-                  >
-                    <Shield className="w-4 h-4" />
-                    Compliance Check
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start gap-2"
-                  >
-                    <Archive className="w-4 h-4" />
-                    Archive Old Docs
-                  </Button>
+                  <QuickActionButton
+                    label="Compliance Check"
+                    icon={Shield}
+                    onClick={() => {}}
+                  />
+                  <QuickActionButton
+                    label="Archive Old Docs"
+                    icon={Archive}
+                    onClick={() => {}}
+                  />
                 </>
               )}
             </CardContent>
           </Card>
 
           {/* Categories Overview */}
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Tag className="w-5 h-5" />
@@ -1304,10 +1112,10 @@ export function DocumentsModule() {
                     key={category.value}
                     className="flex items-center justify-between"
                   >
-                    <span className="text-sm text-gray-700">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
                       {category.label}
                     </span>
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       {count}
                     </span>
                   </div>
@@ -1346,7 +1154,7 @@ export function DocumentsModule() {
           </Card>
 
           {/* Recent Activity */}
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="w-5 h-5" />
@@ -1358,26 +1166,34 @@ export function DocumentsModule() {
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-gray-900">Document signed</p>
-                    <p className="text-xs text-gray-500">2 hours ago</p>
+                    <p className="text-sm text-gray-900 dark:text-gray-100">
+                      Document signed
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      2 hours ago
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-gray-900">
+                    <p className="text-sm text-gray-900 dark:text-gray-100">
                       New document uploaded
                     </p>
-                    <p className="text-xs text-gray-500">5 hours ago</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      5 hours ago
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-amber-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-gray-900">
+                    <p className="text-sm text-gray-900 dark:text-gray-100">
                       Signature reminder sent
                     </p>
-                    <p className="text-xs text-gray-500">1 day ago</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      1 day ago
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1400,14 +1216,14 @@ export function DocumentsModule() {
           <div className="space-y-6">
             {/* File Preview */}
             {uploadForm.file && (
-              <div className="p-4 bg-gray-50 rounded-lg">
+              <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
                 <div className="flex items-center gap-3">
                   <FileText className="w-8 h-8 text-blue-600" />
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
                       {uploadForm.file.name}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       {(uploadForm.file.size / 1024 / 1024).toFixed(1)} MB
                     </p>
                   </div>
@@ -1533,7 +1349,7 @@ export function DocumentsModule() {
                 disabled={
                   !uploadForm.file || !uploadForm.name || !uploadForm.category
                 }
-                className="bg-blue-600 hover:bg-blue-700"
+                variant="primary"
               >
                 <Upload className="w-4 h-4 mr-2" />
                 Upload Document

@@ -21,6 +21,7 @@ import {
   TableRow,
 } from "./ui/table";
 import { Badge } from "./ui/badge";
+import { QuickActionButton } from "./QuickActionButton";
 import { Progress } from "./ui/progress";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Separator } from "./ui/separator";
@@ -63,6 +64,33 @@ import {
   Save,
   Trash2,
 } from "lucide-react";
+
+interface CompensationTooltipProps {
+  active?: boolean;
+  payload?: Array<{ value?: number; payload?: { bonusCount?: number } }>;
+  label?: string;
+}
+
+function CompensationTooltip({
+  active,
+  payload,
+  label,
+}: CompensationTooltipProps) {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+        <p className="font-medium text-gray-900">{label}</p>
+        <p className="text-blue-600">
+          Total: ${payload[0].value?.toLocaleString()}
+        </p>
+        <p className="text-gray-600 text-sm">
+          {payload[0].payload?.bonusCount} bonuses
+        </p>
+      </div>
+    );
+  }
+  return null;
+}
 
 type BonusStatus = "pending" | "approved" | "rejected" | "paid";
 type BonusType =
@@ -395,23 +423,6 @@ export function CompensationModule() {
     );
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium text-gray-900">{label}</p>
-          <p className="text-blue-600">
-            Total: ${payload[0].value?.toLocaleString()}
-          </p>
-          <p className="text-gray-600 text-sm">
-            {payload[0].payload?.bonusCount} bonuses
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -435,7 +446,7 @@ export function CompensationModule() {
               Export
             </Button>
             {isHRUser && (
-              <Button className="bg-blue-600 hover:bg-blue-700" size="sm">
+              <Button variant="primary" size="sm">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Bonus
               </Button>
@@ -597,7 +608,7 @@ export function CompensationModule() {
                               `$${value.toLocaleString()}`
                             }
                           />
-                          <Tooltip content={<CustomTooltip />} />
+                          <Tooltip content={<CompensationTooltip />} />
                           <Area
                             type="monotone"
                             dataKey="totalPayout"
@@ -1218,7 +1229,7 @@ export function CompensationModule() {
                           <div className="flex gap-2">
                             <Button
                               onClick={handleAddBonus}
-                              className="bg-blue-600 hover:bg-blue-700"
+                              variant="primary"
                               disabled={
                                 !newBonus.employeeId ||
                                 !newBonus.type ||
@@ -1294,6 +1305,7 @@ export function CompensationModule() {
                                     </div>
                                     <div className="flex gap-2">
                                       <Button
+                                        variant="primary"
                                         size="sm"
                                         onClick={() =>
                                           handleUpdateBonusStatus(
@@ -1301,7 +1313,6 @@ export function CompensationModule() {
                                             "approved"
                                           )
                                         }
-                                        className="bg-green-600 hover:bg-green-700"
                                       >
                                         <CheckCircle className="w-4 h-4 mr-2" />
                                         Approve
@@ -1435,27 +1446,29 @@ export function CompensationModule() {
             <CardContent className="space-y-3">
               {isHRUser && (
                 <>
-                  <Button className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700">
-                    <Plus className="w-4 h-4" />
-                    Add Bonus
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start gap-2"
-                  >
-                    <CheckCircle className="w-4 h-4" />
-                    Review Approvals
-                  </Button>
+                  <QuickActionButton
+                    label="Add Bonus"
+                    icon={Plus}
+                    onClick={() => {}}
+                    variant="primary"
+                  />
+                  <QuickActionButton
+                    label="Review Approvals"
+                    icon={CheckCircle}
+                    onClick={() => {}}
+                  />
                 </>
               )}
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Download className="w-4 h-4" />
-                Export Report
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Calendar className="w-4 h-4" />
-                Schedule Review
-              </Button>
+              <QuickActionButton
+                label="Export Report"
+                icon={Download}
+                onClick={() => {}}
+              />
+              <QuickActionButton
+                label="Schedule Review"
+                icon={Calendar}
+                onClick={() => {}}
+              />
             </CardContent>
           </Card>
 

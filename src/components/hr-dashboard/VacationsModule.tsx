@@ -47,7 +47,13 @@ import {
   MapPin,
   AlertTriangle,
   Settings,
+  Umbrella,
+  Heart,
+  Home,
+  Baby,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { formatDate } from "@/utils";
 import { format } from "date-fns";
 
 interface LeaveRequest {
@@ -69,7 +75,7 @@ interface LeaveBalance {
   allocated: number;
   used: number;
   remaining: number;
-  icon: string;
+  Icon: LucideIcon;
   color: string;
 }
 
@@ -139,7 +145,7 @@ export function VacationsModule() {
       allocated: 25,
       used: 12,
       remaining: 13,
-      icon: "🏖️",
+      Icon: Umbrella,
       color: "bg-blue-100 text-blue-800 border-blue-200",
     },
     {
@@ -147,7 +153,7 @@ export function VacationsModule() {
       allocated: 10,
       used: 3,
       remaining: 7,
-      icon: "🏥",
+      Icon: Heart,
       color: "bg-red-100 text-red-800 border-red-200",
     },
     {
@@ -155,7 +161,7 @@ export function VacationsModule() {
       allocated: 12,
       used: 8,
       remaining: 4,
-      icon: "🏠",
+      Icon: Home,
       color: "bg-green-100 text-green-800 border-green-200",
     },
   ];
@@ -232,14 +238,6 @@ export function VacationsModule() {
           </Badge>
         );
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
   };
 
   return (
@@ -347,7 +345,7 @@ export function VacationsModule() {
               </div>
 
               <div className="flex gap-2 pt-4">
-                <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
+                <Button variant="primary" className="flex-1">
                   <Download className="w-4 h-4 mr-2" />
                   Export Data
                 </Button>
@@ -433,7 +431,7 @@ export function VacationsModule() {
               </div>
 
               <div className="flex gap-2 pt-4">
-                <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
+                <Button variant="primary" className="flex-1">
                   Apply Filters
                 </Button>
                 <Button variant="outline">Clear All</Button>
@@ -450,7 +448,7 @@ export function VacationsModule() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl">{balance.icon}</span>
+                  <balance.Icon className="h-6 w-6 text-gray-600" />
                   <h3 className="font-semibold text-gray-900">
                     {balance.type}
                   </h3>
@@ -492,10 +490,7 @@ export function VacationsModule() {
                       placeholder="Reason for change"
                       className="h-8 text-sm"
                     />
-                    <Button
-                      size="sm"
-                      className="w-full bg-blue-600 hover:bg-blue-700"
-                    >
+                    <Button variant="primary" size="sm" className="w-full">
                       Update Balance
                     </Button>
                   </div>
@@ -534,15 +529,41 @@ export function VacationsModule() {
                           <SelectValue placeholder="Select leave type" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="vacation">🏖️ Vacation</SelectItem>
-                          <SelectItem value="sick">🏥 Sick Leave</SelectItem>
-                          <SelectItem value="wfh">🏠 Work From Home</SelectItem>
-                          <SelectItem value="personal">👤 Personal</SelectItem>
+                          <SelectItem value="vacation">
+                            <span className="flex items-center gap-2">
+                              <Umbrella className="h-4 w-4" />
+                              Vacation
+                            </span>
+                          </SelectItem>
+                          <SelectItem value="sick">
+                            <span className="flex items-center gap-2">
+                              <Heart className="h-4 w-4" />
+                              Sick Leave
+                            </span>
+                          </SelectItem>
+                          <SelectItem value="wfh">
+                            <span className="flex items-center gap-2">
+                              <Home className="h-4 w-4" />
+                              Work From Home
+                            </span>
+                          </SelectItem>
+                          <SelectItem value="personal">
+                            <span className="flex items-center gap-2">
+                              <User className="h-4 w-4" />
+                              Personal
+                            </span>
+                          </SelectItem>
                           <SelectItem value="maternity">
-                            👶 Maternity
+                            <span className="flex items-center gap-2">
+                              <Baby className="h-4 w-4" />
+                              Maternity
+                            </span>
                           </SelectItem>
                           <SelectItem value="paternity">
-                            👨‍👶 Paternity
+                            <span className="flex items-center gap-2">
+                              <User className="h-4 w-4" />
+                              Paternity
+                            </span>
                           </SelectItem>
                         </SelectContent>
                       </Select>
@@ -632,7 +653,7 @@ export function VacationsModule() {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button className="bg-blue-600 hover:bg-blue-700">
+                    <Button variant="primary">
                       <Plus className="w-4 h-4 mr-2" />
                       Submit Request
                     </Button>
@@ -805,7 +826,7 @@ export function VacationsModule() {
             <div className="space-y-6">
               <Card className="border-gray-200">
                 <CardHeader>
-                  <CardTitle className="text-lg">Today's Leaves</CardTitle>
+                  <CardTitle className="text-lg">Today&apos;s Leaves</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
@@ -927,21 +948,20 @@ export function VacationsModule() {
                       {request.status === "pending" && (
                         <div className="flex gap-2">
                           <Button
+                            variant="primary"
                             size="sm"
                             onClick={() =>
                               handleApproval(request.id, "approved")
                             }
-                            className="bg-green-600 hover:bg-green-700"
                           >
                             <Check className="w-4 h-4" />
                           </Button>
                           <Button
                             size="sm"
-                            variant="outline"
+                            variant="destructive"
                             onClick={() =>
                               handleApproval(request.id, "rejected")
                             }
-                            className="border-red-200 text-red-600 hover:bg-red-50"
                           >
                             <X className="w-4 h-4" />
                           </Button>
