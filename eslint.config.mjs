@@ -9,6 +9,11 @@ const eslintConfig = defineConfig([
   prettier,
   // Override default ignores of eslint-config-next.
   globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  // Ignore generated HR dashboard UI from Figma Make (ui primitives, figma components only).
+  globalIgnores([
+    "src/components/hr-dashboard/ui/**",
+    "src/components/hr-dashboard/figma/**",
+  ]),
 ]);
 
 export default eslintConfig;
