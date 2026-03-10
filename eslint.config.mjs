@@ -9,6 +9,10 @@ const eslintConfig = defineConfig([
   prettier,
   // Override default ignores of eslint-config-next.
   globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  // Ignore generated HR dashboard code from Figma Make to keep lint noise low.
+  {
+    ignores: ["src/components/hr-dashboard/**"],
+  },
 ]);
 
 export default eslintConfig;
