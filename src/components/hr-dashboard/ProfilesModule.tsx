@@ -568,7 +568,7 @@ export function ProfilesModule() {
               </div>
 
               <div className="flex gap-2 pt-4">
-                <Button className="flex-1 bg-gray-800 hover:bg-gray-700">
+                <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
                   <Download className="w-4 h-4 mr-2" />
                   Export Data
                 </Button>
@@ -641,7 +641,7 @@ export function ProfilesModule() {
               </div>
 
               <div className="flex gap-2 pt-4">
-                <Button className="flex-1 bg-gray-800 hover:bg-gray-700">
+                <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
                   Apply Filters
                 </Button>
                 <Button variant="outline">Clear All</Button>
@@ -649,7 +649,7 @@ export function ProfilesModule() {
             </DialogContent>
           </Dialog>
           {isHRUser && (
-            <Button className="bg-gray-800 hover:bg-gray-700">
+            <Button className="bg-blue-600 hover:bg-blue-700">
               <Plus className="w-4 h-4 mr-2" />
               Add Employee
             </Button>
@@ -889,7 +889,18 @@ export function ProfilesModule() {
                     <div className="space-y-2">
                       <Label>CPF Level</Label>
                       {isEditMode && isHRUser ? (
-                        <Select value={selectedEmployee.professional.cpfLevel}>
+                        <Select
+                          value={selectedEmployee.professional.cpfLevel}
+                          onValueChange={(value) =>
+                            setSelectedEmployee({
+                              ...selectedEmployee,
+                              professional: {
+                                ...selectedEmployee.professional,
+                                cpfLevel: value,
+                              },
+                            })
+                          }
+                        >
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>

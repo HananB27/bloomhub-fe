@@ -403,9 +403,9 @@ export function AnnouncementsModule() {
       case "normal":
         return "bg-blue-100 text-blue-800 border-blue-200";
       case "low":
-        return "bg-slate-100 text-slate-800 border-slate-200";
+        return "bg-gray-100 text-gray-800 border-gray-200";
       default:
-        return "bg-slate-100 text-slate-800 border-slate-200";
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
@@ -602,7 +602,7 @@ export function AnnouncementsModule() {
 
     return (
       <Card
-        className={`border-slate-200 hover:shadow-sm transition-shadow ${!post.isRead ? "border-l-4 border-l-blue-500" : ""}`}
+        className={`border-gray-200 hover:shadow-sm transition-shadow ${!post.isRead ? "border-l-4 border-l-blue-500" : ""}`}
       >
         <CardContent className="p-6">
           {/* Post Header */}
@@ -624,12 +624,12 @@ export function AnnouncementsModule() {
 
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <p className="font-medium text-slate-900">{post.author}</p>
+                  <p className="font-medium text-gray-900">{post.author}</p>
                   <Badge variant="outline" className="text-xs">
                     {post.authorRole}
                   </Badge>
-                  <span className="text-xs text-slate-500">•</span>
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-gray-500">•</span>
+                  <span className="text-xs text-gray-500">
                     {formatDate(post.createdAt)}
                   </span>
                   {!post.isRead && (
@@ -710,10 +710,8 @@ export function AnnouncementsModule() {
           {/* Post Content */}
           <div className="space-y-4">
             <div>
-              <h3 className="font-semibold text-slate-900 mb-2">
-                {post.title}
-              </h3>
-              <p className="text-slate-600 leading-relaxed">{post.content}</p>
+              <h3 className="font-semibold text-gray-900 mb-2">{post.title}</h3>
+              <p className="text-gray-600 leading-relaxed">{post.content}</p>
             </div>
 
             {/* Post Image */}
@@ -766,11 +764,11 @@ export function AnnouncementsModule() {
                     key={emoji}
                     variant="ghost"
                     size="sm"
-                    className="h-8 px-2 hover:bg-slate-100"
+                    className="h-8 px-2 hover:bg-gray-100"
                     onClick={() => addReaction(post.id, emoji)}
                   >
                     <span className="text-base mr-1">{emoji}</span>
-                    <span className="text-sm text-slate-600">{data.count}</span>
+                    <span className="text-sm text-gray-600">{data.count}</span>
                   </Button>
                 ))}
 
@@ -788,7 +786,7 @@ export function AnnouncementsModule() {
                           key={emoji}
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0 text-lg hover:bg-slate-100"
+                          className="h-8 w-8 p-0 text-lg hover:bg-gray-100"
                           onClick={() => addReaction(post.id, emoji)}
                         >
                           {emoji}
@@ -811,7 +809,7 @@ export function AnnouncementsModule() {
                   className="h-8 px-2"
                 >
                   <MessageCircle className="w-4 h-4 mr-1" />
-                  <span className="text-sm text-slate-600">
+                  <span className="text-sm text-gray-600">
                     {post.comments.length}
                   </span>
                 </Button>
@@ -823,11 +821,11 @@ export function AnnouncementsModule() {
 
             {/* Comments Section */}
             {showCommentsFor === post.id && (
-              <div className="mt-4 space-y-4 border-t border-slate-100 pt-4">
+              <div className="mt-4 space-y-4 border-t border-gray-100 pt-4">
                 {/* Comment Input */}
                 <div className="flex gap-3">
                   <Avatar className="w-8 h-8">
-                    <AvatarFallback className="bg-slate-100 text-slate-600 text-xs">
+                    <AvatarFallback className="bg-gray-100 text-gray-600 text-xs">
                       JD
                     </AvatarFallback>
                   </Avatar>
@@ -877,16 +875,16 @@ export function AnnouncementsModule() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <div className="bg-slate-50 rounded-lg p-3">
+                        <div className="bg-gray-50 rounded-lg p-3">
                           <div className="flex items-center gap-2 mb-1">
-                            <p className="font-medium text-slate-900 text-sm">
+                            <p className="font-medium text-gray-900 text-sm">
                               {comment.author}
                             </p>
-                            <span className="text-xs text-slate-500">
+                            <span className="text-xs text-gray-500">
                               {formatDate(comment.createdAt)}
                             </span>
                           </div>
-                          <p className="text-slate-700 text-sm">
+                          <p className="text-gray-700 text-sm">
                             {comment.content}
                           </p>
                         </div>
@@ -899,13 +897,13 @@ export function AnnouncementsModule() {
                                 key={emoji}
                                 variant="ghost"
                                 size="sm"
-                                className="h-6 px-1 text-xs hover:bg-slate-100"
+                                className="h-6 px-1 text-xs hover:bg-gray-100"
                                 onClick={() =>
                                   addReaction(post.id, emoji, true, comment.id)
                                 }
                               >
                                 <span className="text-sm mr-1">{emoji}</span>
-                                <span className="text-xs text-slate-600">
+                                <span className="text-xs text-gray-600">
                                   {data.count}
                                 </span>
                               </Button>
@@ -929,7 +927,7 @@ export function AnnouncementsModule() {
                                     key={emoji}
                                     variant="ghost"
                                     size="sm"
-                                    className="h-6 w-6 p-0 text-sm hover:bg-slate-100"
+                                    className="h-6 w-6 p-0 text-sm hover:bg-gray-100"
                                     onClick={() =>
                                       addReaction(
                                         post.id,
@@ -961,13 +959,13 @@ export function AnnouncementsModule() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">
+            <h1 className="text-2xl font-bold text-gray-900">
               Announcements & Celebrations
             </h1>
-            <p className="text-slate-600 mt-1">
+            <p className="text-gray-600 mt-1">
               Stay connected with company news, birthdays, and achievements
             </p>
           </div>
@@ -995,47 +993,47 @@ export function AnnouncementsModule() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Megaphone className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Total Posts</p>
+              <Megaphone className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Total Posts</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               {posts.filter((p) => !p.isArchived).length}
             </p>
-            <p className="text-xs text-slate-500">This month</p>
+            <p className="text-xs text-gray-500">This month</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Bell className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Unread</p>
+              <Bell className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Unread</p>
             </div>
             <div className="flex items-center gap-2">
-              <p className="text-2xl font-bold text-slate-900">{unreadCount}</p>
+              <p className="text-2xl font-bold text-gray-900">{unreadCount}</p>
               {unreadCount > 0 && (
                 <Badge className="bg-red-500 text-white text-xs">
                   {unreadCount}
                 </Badge>
               )}
             </div>
-            <p className="text-xs text-slate-500">Need attention</p>
+            <p className="text-xs text-gray-500">Need attention</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Pin className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Pinned</p>
+              <Pin className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Pinned</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               {pinnedPosts.length}
             </p>
-            <p className="text-xs text-slate-500">Important posts</p>
+            <p className="text-xs text-gray-500">Important posts</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Activity className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Engagement</p>
+              <Activity className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Engagement</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               {posts.reduce(
                 (total, post) =>
                   total +
@@ -1046,7 +1044,7 @@ export function AnnouncementsModule() {
                 0
               )}
             </p>
-            <p className="text-xs text-slate-500">Total reactions</p>
+            <p className="text-xs text-gray-500">Total reactions</p>
           </div>
         </div>
       </div>
@@ -1054,7 +1052,7 @@ export function AnnouncementsModule() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-3">
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
@@ -1080,7 +1078,7 @@ export function AnnouncementsModule() {
                   {/* Search and Filters */}
                   <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1 relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Search className="absolute left-3 top-1/2 transform -trangray-y-1/2 w-4 h-4 text-gray-400" />
                       <Input
                         placeholder="Search posts..."
                         value={searchTerm}
@@ -1110,7 +1108,7 @@ export function AnnouncementsModule() {
                       <div className="space-y-4">
                         <div className="flex items-center gap-2">
                           <Pin className="w-4 h-4 text-amber-500" />
-                          <h3 className="font-medium text-slate-900">
+                          <h3 className="font-medium text-gray-900">
                             Pinned Posts
                           </h3>
                         </div>
@@ -1130,11 +1128,11 @@ export function AnnouncementsModule() {
                       </div>
                     ) : (
                       <div className="text-center py-8">
-                        <Megaphone className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-slate-900 mb-2">
+                        <Megaphone className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
                           No posts found
                         </h3>
-                        <p className="text-slate-600">
+                        <p className="text-gray-600">
                           Try adjusting your search criteria or check back
                           later.
                         </p>
@@ -1145,7 +1143,7 @@ export function AnnouncementsModule() {
 
                 <TabsContent value="pinned" className="space-y-6 mt-0">
                   <div className="space-y-4">
-                    <h3 className="font-medium text-slate-900">Pinned Posts</h3>
+                    <h3 className="font-medium text-gray-900">Pinned Posts</h3>
 
                     {pinnedPosts.length > 0 ? (
                       <div className="space-y-4">
@@ -1155,11 +1153,11 @@ export function AnnouncementsModule() {
                       </div>
                     ) : (
                       <div className="text-center py-8">
-                        <Pin className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-slate-900 mb-2">
+                        <Pin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
                           No pinned posts
                         </h3>
-                        <p className="text-slate-600">
+                        <p className="text-gray-600">
                           Important announcements will appear here when pinned.
                         </p>
                       </div>
@@ -1169,7 +1167,7 @@ export function AnnouncementsModule() {
 
                 <TabsContent value="celebrations" className="space-y-6 mt-0">
                   <div className="space-y-4">
-                    <h3 className="font-medium text-slate-900">
+                    <h3 className="font-medium text-gray-900">
                       Celebrations & Milestones
                     </h3>
 
@@ -1197,11 +1195,11 @@ export function AnnouncementsModule() {
                       </div>
                     ) : (
                       <div className="text-center py-8">
-                        <PartyPopper className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-slate-900 mb-2">
+                        <PartyPopper className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
                           No celebrations yet
                         </h3>
-                        <p className="text-slate-600">
+                        <p className="text-gray-600">
                           Birthdays, achievements, and celebrations will appear
                           here.
                         </p>
@@ -1217,7 +1215,7 @@ export function AnnouncementsModule() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Quick Actions */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
@@ -1245,7 +1243,7 @@ export function AnnouncementsModule() {
           </Card>
 
           {/* Post Types */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Megaphone className="w-5 h-5" />
@@ -1268,12 +1266,12 @@ export function AnnouncementsModule() {
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: type.color }}
                       ></div>
-                      <Icon className="w-4 h-4 text-slate-500" />
-                      <span className="text-sm text-slate-700">
+                      <Icon className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm text-gray-700">
                         {type.label}
                       </span>
                     </div>
-                    <span className="text-sm font-medium text-slate-900">
+                    <span className="text-sm font-medium text-gray-900">
                       {count}
                     </span>
                   </div>
@@ -1283,7 +1281,7 @@ export function AnnouncementsModule() {
           </Card>
 
           {/* Upcoming Events */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
@@ -1298,11 +1296,11 @@ export function AnnouncementsModule() {
                 )
                 .slice(0, 3)
                 .map((event) => (
-                  <div key={event.id} className="p-3 bg-slate-50 rounded-lg">
-                    <h4 className="font-medium text-slate-900 text-sm mb-1">
+                  <div key={event.id} className="p-3 bg-gray-50 rounded-lg">
+                    <h4 className="font-medium text-gray-900 text-sm mb-1">
                       {event.title}
                     </h4>
-                    <p className="text-xs text-slate-600">
+                    <p className="text-xs text-gray-600">
                       {event.eventDate
                         ? new Date(event.eventDate).toLocaleDateString(
                             "en-US",
@@ -1322,7 +1320,7 @@ export function AnnouncementsModule() {
                 (post) =>
                   post.eventDate && new Date(post.eventDate) > new Date()
               ).length === 0 && (
-                <p className="text-sm text-slate-500 text-center py-4">
+                <p className="text-sm text-gray-500 text-center py-4">
                   No upcoming events
                 </p>
               )}
@@ -1330,7 +1328,7 @@ export function AnnouncementsModule() {
           </Card>
 
           {/* Recent Activity */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="w-5 h-5" />
@@ -1342,26 +1340,26 @@ export function AnnouncementsModule() {
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-slate-900">
+                    <p className="text-sm text-gray-900">
                       New birthday celebration
                     </p>
-                    <p className="text-xs text-slate-500">2 hours ago</p>
+                    <p className="text-xs text-gray-500">2 hours ago</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-slate-900">
+                    <p className="text-sm text-gray-900">
                       Company announcement posted
                     </p>
-                    <p className="text-xs text-slate-500">5 hours ago</p>
+                    <p className="text-xs text-gray-500">5 hours ago</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-amber-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-slate-900">Achievement shared</p>
-                    <p className="text-xs text-slate-500">1 day ago</p>
+                    <p className="text-sm text-gray-900">Achievement shared</p>
+                    <p className="text-xs text-gray-500">1 day ago</p>
                   </div>
                 </div>
               </div>

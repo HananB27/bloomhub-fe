@@ -165,7 +165,7 @@ function DashboardOverview() {
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div className="bg-linear-to-r from-gray-800 to-gray-700 rounded-xl p-6 text-white">
+      <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold mb-2">Welcome back, John! 👋</h1>
@@ -329,7 +329,7 @@ function DashboardOverview() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button className="w-full justify-start gap-2 bg-gray-800 hover:bg-gray-700">
+              <Button className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700">
                 <UserPlus className="w-4 h-4" />
                 Add New Employee
               </Button>

@@ -467,9 +467,9 @@ export function AssetsModule() {
       case "maintenance":
         return "bg-purple-100 text-purple-800";
       case "retired":
-        return "bg-slate-100 text-slate-800";
+        return "bg-gray-100 text-gray-800";
       default:
-        return "bg-slate-100 text-slate-800";
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -505,7 +505,7 @@ export function AssetsModule() {
       case "damaged":
         return "bg-red-100 text-red-800";
       default:
-        return "bg-slate-100 text-slate-800";
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -692,13 +692,13 @@ export function AssetsModule() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">
+            <h1 className="text-2xl font-bold text-gray-900">
               Asset Management
             </h1>
-            <p className="text-slate-600 mt-1">
+            <p className="text-gray-600 mt-1">
               Track and manage company assets, assignments, and maintenance
             </p>
           </div>
@@ -730,30 +730,30 @@ export function AssetsModule() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Package className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Total Assets</p>
+              <Package className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Total Assets</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">{assets.length}</p>
-            <p className="text-xs text-slate-500">All categories</p>
+            <p className="text-2xl font-bold text-gray-900">{assets.length}</p>
+            <p className="text-xs text-gray-500">All categories</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Active</p>
+              <CheckCircle className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Active</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               {assets.filter((asset) => asset.status === "active").length}
             </p>
-            <p className="text-xs text-slate-500">Currently assigned</p>
+            <p className="text-xs text-gray-500">Currently assigned</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Issues</p>
+              <AlertTriangle className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Issues</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               {
                 assets.filter(
                   (asset) =>
@@ -761,19 +761,19 @@ export function AssetsModule() {
                 ).length
               }
             </p>
-            <p className="text-xs text-slate-500">Lost or damaged</p>
+            <p className="text-xs text-gray-500">Lost or damaged</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Total Value</p>
+              <TrendingUp className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Total Value</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               {formatCurrency(
                 assets.reduce((sum, asset) => sum + asset.purchasePrice, 0)
               )}
             </p>
-            <p className="text-xs text-slate-500">Asset portfolio</p>
+            <p className="text-xs text-gray-500">Asset portfolio</p>
           </div>
         </div>
       </div>
@@ -781,7 +781,7 @@ export function AssetsModule() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-3">
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
@@ -802,7 +802,7 @@ export function AssetsModule() {
                   {/* Search and Filters */}
                   <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1 relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Search className="absolute left-3 top-1/2 transform -trangray-y-1/2 w-4 h-4 text-gray-400" />
                       <Input
                         placeholder="Search assets..."
                         value={searchTerm}
@@ -853,14 +853,14 @@ export function AssetsModule() {
                       return (
                         <Card
                           key={asset.id}
-                          className="border-slate-200 hover:shadow-sm transition-shadow"
+                          className="border-gray-200 hover:shadow-sm transition-shadow"
                         >
                           <CardContent className="p-4">
                             <div className="relative mb-3">
                               <ImageWithFallback
                                 src={asset.image}
                                 alt={asset.name}
-                                className="w-full h-32 object-cover rounded-lg bg-slate-100"
+                                className="w-full h-32 object-cover rounded-lg bg-gray-100"
                               />
                               <div className="absolute top-2 right-2 flex gap-1">
                                 <Badge
@@ -874,7 +874,7 @@ export function AssetsModule() {
                               <div className="absolute bottom-2 left-2">
                                 <Badge
                                   variant="outline"
-                                  className="bg-white/90 text-slate-700"
+                                  className="bg-white/90 text-gray-700"
                                 >
                                   {asset.assetTag}
                                 </Badge>
@@ -884,23 +884,21 @@ export function AssetsModule() {
                             <div className="space-y-3">
                               <div>
                                 <div className="flex items-center gap-2 mb-1">
-                                  <CategoryIcon className="w-4 h-4 text-slate-500" />
-                                  <h3 className="font-medium text-slate-900 truncate">
+                                  <CategoryIcon className="w-4 h-4 text-gray-500" />
+                                  <h3 className="font-medium text-gray-900 truncate">
                                     {asset.name}
                                   </h3>
                                 </div>
-                                <p className="text-sm text-slate-600">
+                                <p className="text-sm text-gray-600">
                                   {asset.brand} {asset.model}
                                 </p>
                               </div>
 
                               <div className="space-y-2">
                                 <div className="flex items-center gap-2 text-sm">
-                                  <Hash className="w-3 h-3 text-slate-400" />
-                                  <span className="text-slate-600">
-                                    Serial:
-                                  </span>
-                                  <span className="font-mono text-slate-900 text-xs">
+                                  <Hash className="w-3 h-3 text-gray-400" />
+                                  <span className="text-gray-600">Serial:</span>
+                                  <span className="font-mono text-gray-900 text-xs">
                                     {asset.serialNumber}
                                   </span>
                                 </div>
@@ -914,29 +912,29 @@ export function AssetsModule() {
                                   >
                                     {asset.condition}
                                   </Badge>
-                                  <span className="text-sm font-medium text-slate-900">
+                                  <span className="text-sm font-medium text-gray-900">
                                     {formatCurrency(asset.purchasePrice)}
                                   </span>
                                 </div>
 
                                 {asset.assignedTo && (
                                   <div className="flex items-center gap-2 text-sm">
-                                    <User className="w-3 h-3 text-slate-400" />
-                                    <span className="text-slate-600">
+                                    <User className="w-3 h-3 text-gray-400" />
+                                    <span className="text-gray-600">
                                       Assigned to:
                                     </span>
-                                    <span className="text-slate-900">
+                                    <span className="text-gray-900">
                                       {asset.assignedEmployeeName}
                                     </span>
                                   </div>
                                 )}
 
                                 <div className="flex items-center gap-2 text-sm">
-                                  <MapPin className="w-3 h-3 text-slate-400" />
-                                  <span className="text-slate-600">
+                                  <MapPin className="w-3 h-3 text-gray-400" />
+                                  <span className="text-gray-600">
                                     Location:
                                   </span>
-                                  <span className="text-slate-900 truncate">
+                                  <span className="text-gray-900 truncate">
                                     {asset.location}
                                   </span>
                                 </div>
@@ -1008,11 +1006,11 @@ export function AssetsModule() {
 
                   {filteredAssets.length === 0 && (
                     <div className="text-center py-8">
-                      <Package className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-slate-900 mb-2">
+                      <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
                         No assets found
                       </h3>
-                      <p className="text-slate-600">
+                      <p className="text-gray-600">
                         Try adjusting your search criteria or add a new asset.
                       </p>
                     </div>
@@ -1021,14 +1019,14 @@ export function AssetsModule() {
 
                 <TabsContent value="assignments" className="space-y-6 mt-0">
                   <div className="space-y-4">
-                    <h3 className="font-medium text-slate-900">
+                    <h3 className="font-medium text-gray-900">
                       Assignment History
                     </h3>
 
-                    <div className="border border-slate-200 rounded-lg overflow-hidden">
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
                       <Table>
                         <TableHeader>
-                          <TableRow className="bg-slate-50">
+                          <TableRow className="bg-gray-50">
                             <TableHead>Asset</TableHead>
                             <TableHead>Employee</TableHead>
                             <TableHead>Assigned Date</TableHead>
@@ -1065,7 +1063,7 @@ export function AssetsModule() {
                             return (
                               <TableRow
                                 key={assignment.id}
-                                className="hover:bg-slate-50"
+                                className="hover:bg-gray-50"
                               >
                                 <TableCell>
                                   <div className="flex items-center gap-3">
@@ -1073,10 +1071,10 @@ export function AssetsModule() {
                                       <Package className="w-4 h-4 text-blue-600" />
                                     </div>
                                     <div>
-                                      <p className="font-medium text-slate-900">
+                                      <p className="font-medium text-gray-900">
                                         {asset?.name}
                                       </p>
-                                      <p className="text-sm text-slate-500">
+                                      <p className="text-sm text-gray-500">
                                         {asset?.assetTag}
                                       </p>
                                     </div>
@@ -1085,26 +1083,26 @@ export function AssetsModule() {
                                 <TableCell>
                                   <div className="flex items-center gap-2">
                                     <Avatar className="w-6 h-6">
-                                      <AvatarFallback className="bg-slate-100 text-slate-600 text-xs">
+                                      <AvatarFallback className="bg-gray-100 text-gray-600 text-xs">
                                         {assignment.employeeName
                                           .split(" ")
                                           .map((n) => n[0])
                                           .join("")}
                                       </AvatarFallback>
                                     </Avatar>
-                                    <span className="text-slate-900">
+                                    <span className="text-gray-900">
                                       {assignment.employeeName}
                                     </span>
                                   </div>
                                 </TableCell>
                                 <TableCell>
-                                  <span className="text-slate-900">
+                                  <span className="text-gray-900">
                                     {formatDate(assignment.assignedDate)}
                                   </span>
                                 </TableCell>
                                 <TableCell>
                                   {assignment.returnedDate ? (
-                                    <span className="text-slate-900">
+                                    <span className="text-gray-900">
                                       {formatDate(assignment.returnedDate)}
                                     </span>
                                   ) : (
@@ -1117,7 +1115,7 @@ export function AssetsModule() {
                                   )}
                                 </TableCell>
                                 <TableCell>
-                                  <span className="text-slate-900">
+                                  <span className="text-gray-900">
                                     {duration} days
                                   </span>
                                 </TableCell>
@@ -1137,7 +1135,7 @@ export function AssetsModule() {
                                     className={
                                       assignment.isActive
                                         ? "bg-green-100 text-green-800"
-                                        : "bg-slate-100 text-slate-800"
+                                        : "bg-gray-100 text-gray-800"
                                     }
                                   >
                                     {assignment.isActive
@@ -1179,11 +1177,11 @@ export function AssetsModule() {
 
                     {assignments.length === 0 && (
                       <div className="text-center py-8">
-                        <History className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-slate-900 mb-2">
+                        <History className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
                           No assignment history
                         </h3>
-                        <p className="text-slate-600">
+                        <p className="text-gray-600">
                           Assignment records will appear here as assets are
                           assigned to employees.
                         </p>
@@ -1194,7 +1192,7 @@ export function AssetsModule() {
 
                 <TabsContent value="maintenance" className="space-y-6 mt-0">
                   <div className="space-y-4">
-                    <h3 className="font-medium text-slate-900">
+                    <h3 className="font-medium text-gray-900">
                       Maintenance Schedule
                     </h3>
 
@@ -1202,7 +1200,7 @@ export function AssetsModule() {
                       {assets
                         .filter((asset) => asset.nextMaintenance)
                         .map((asset) => (
-                          <Card key={asset.id} className="border-slate-200">
+                          <Card key={asset.id} className="border-gray-200">
                             <CardContent className="p-4">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
@@ -1210,23 +1208,23 @@ export function AssetsModule() {
                                     <Wrench className="w-5 h-5 text-blue-600" />
                                   </div>
                                   <div>
-                                    <h4 className="font-medium text-slate-900">
+                                    <h4 className="font-medium text-gray-900">
                                       {asset.name}
                                     </h4>
-                                    <p className="text-sm text-slate-600">
+                                    <p className="text-sm text-gray-600">
                                       {asset.assetTag} • {asset.brand}{" "}
                                       {asset.model}
                                     </p>
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <p className="text-sm font-medium text-slate-900">
+                                  <p className="text-sm font-medium text-gray-900">
                                     Next:{" "}
                                     {asset.nextMaintenance
                                       ? formatDate(asset.nextMaintenance)
                                       : "Not scheduled"}
                                   </p>
-                                  <p className="text-xs text-slate-500">
+                                  <p className="text-xs text-gray-500">
                                     Last:{" "}
                                     {asset.lastMaintenance
                                       ? formatDate(asset.lastMaintenance)
@@ -1242,11 +1240,11 @@ export function AssetsModule() {
                     {assets.filter((asset) => asset.nextMaintenance).length ===
                       0 && (
                       <div className="text-center py-8">
-                        <Wrench className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-slate-900 mb-2">
+                        <Wrench className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
                           No maintenance scheduled
                         </h3>
-                        <p className="text-slate-600">
+                        <p className="text-gray-600">
                           Maintenance schedules will appear here when assets
                           require service.
                         </p>
@@ -1262,7 +1260,7 @@ export function AssetsModule() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Quick Actions */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
@@ -1308,7 +1306,7 @@ export function AssetsModule() {
           </Card>
 
           {/* Category Breakdown */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Package className="w-5 h-5" />
@@ -1327,12 +1325,12 @@ export function AssetsModule() {
                     className="flex items-center justify-between"
                   >
                     <div className="flex items-center gap-2">
-                      <Icon className="w-4 h-4 text-slate-500" />
-                      <span className="text-sm text-slate-700">
+                      <Icon className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm text-gray-700">
                         {category.label}
                       </span>
                     </div>
-                    <span className="text-sm font-medium text-slate-900">
+                    <span className="text-sm font-medium text-gray-900">
                       {count}
                     </span>
                   </div>
@@ -1372,7 +1370,7 @@ export function AssetsModule() {
           </Card>
 
           {/* Recent Activity */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="w-5 h-5" />
@@ -1384,22 +1382,22 @@ export function AssetsModule() {
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-slate-900">Asset assigned</p>
-                    <p className="text-xs text-slate-500">2 hours ago</p>
+                    <p className="text-sm text-gray-900">Asset assigned</p>
+                    <p className="text-xs text-gray-500">2 hours ago</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-slate-900">New asset added</p>
-                    <p className="text-xs text-slate-500">5 hours ago</p>
+                    <p className="text-sm text-gray-900">New asset added</p>
+                    <p className="text-xs text-gray-500">5 hours ago</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-amber-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-slate-900">Asset returned</p>
-                    <p className="text-xs text-slate-500">1 day ago</p>
+                    <p className="text-sm text-gray-900">Asset returned</p>
+                    <p className="text-xs text-gray-500">1 day ago</p>
                   </div>
                 </div>
               </div>
@@ -1422,7 +1420,7 @@ export function AssetsModule() {
           <div className="space-y-6">
             {/* Asset Info */}
             {selectedAsset && (
-              <div className="p-4 bg-slate-50 rounded-lg">
+              <div className="p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-3">
                   <ImageWithFallback
                     src={selectedAsset.image}
@@ -1430,13 +1428,13 @@ export function AssetsModule() {
                     className="w-16 h-16 object-cover rounded-lg"
                   />
                   <div>
-                    <h4 className="font-medium text-slate-900">
+                    <h4 className="font-medium text-gray-900">
                       {selectedAsset.name}
                     </h4>
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-gray-600">
                       {selectedAsset.assetTag} • {selectedAsset.serialNumber}
                     </p>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-gray-500">
                       Assigned to {selectedAsset.assignedEmployeeName}
                     </p>
                   </div>
@@ -1446,12 +1444,12 @@ export function AssetsModule() {
 
             {/* Return Checklist */}
             <div className="space-y-4">
-              <h4 className="font-medium text-slate-900">Return Checklist</h4>
+              <h4 className="font-medium text-gray-900">Return Checklist</h4>
               <div className="space-y-3">
                 {returnChecklist.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-start gap-3 p-3 border border-slate-200 rounded-lg"
+                    className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg"
                   >
                     <Checkbox
                       checked={item.checked}
@@ -1462,7 +1460,7 @@ export function AssetsModule() {
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-slate-900">
+                        <label className="text-sm font-medium text-gray-900">
                           {item.label}
                         </label>
                         {item.required && (

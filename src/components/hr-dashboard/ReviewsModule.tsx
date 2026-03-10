@@ -244,13 +244,13 @@ export function ReviewsModule() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">
+            <h1 className="text-2xl font-bold text-gray-900">
               Performance Reviews
             </h1>
-            <p className="text-slate-600 mt-1">
+            <p className="text-gray-600 mt-1">
               Conduct and track employee performance evaluations
             </p>
           </div>
@@ -272,37 +272,37 @@ export function ReviewsModule() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Due This Week</p>
+              <Clock className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Due This Week</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">3</p>
-            <p className="text-xs text-slate-500">Reviews pending</p>
+            <p className="text-2xl font-bold text-gray-900">3</p>
+            <p className="text-xs text-gray-500">Reviews pending</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Star className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">In Progress</p>
+              <Star className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">In Progress</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">8</p>
-            <p className="text-xs text-slate-500">Active reviews</p>
+            <p className="text-2xl font-bold text-gray-900">8</p>
+            <p className="text-xs text-gray-500">Active reviews</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Completed</p>
+              <CheckCircle className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Completed</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">45</p>
-            <p className="text-xs text-slate-500">This quarter</p>
+            <p className="text-2xl font-bold text-gray-900">45</p>
+            <p className="text-xs text-gray-500">This quarter</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Avg Score</p>
+              <TrendingUp className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Avg Score</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">4.2</p>
-            <p className="text-xs text-slate-500">Out of 5.0</p>
+            <p className="text-2xl font-bold text-gray-900">4.2</p>
+            <p className="text-xs text-gray-500">Out of 5.0</p>
           </div>
         </div>
 
@@ -331,7 +331,7 @@ export function ReviewsModule() {
                       </Avatar>
                       <div>
                         <p className="font-medium">{employee.name}</p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-gray-500">
                           {employee.department} - {employee.role}
                         </p>
                       </div>
@@ -383,7 +383,7 @@ export function ReviewsModule() {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Scheduled Reviews List */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
@@ -430,7 +430,7 @@ export function ReviewsModule() {
                             value={review.progress}
                             className="w-16 h-2"
                           />
-                          <span className="text-sm text-slate-500">
+                          <span className="text-sm text-gray-500">
                             {review.progress}%
                           </span>
                         </div>
@@ -443,7 +443,7 @@ export function ReviewsModule() {
           </Card>
 
           {/* Review Content Tabs */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <Tabs defaultValue="notes" className="w-full">
               <CardHeader className="pb-3">
                 <TabsList className="grid w-full grid-cols-3">
@@ -459,7 +459,7 @@ export function ReviewsModule() {
                     {/* Notes Editor Header */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <h3 className="font-medium text-slate-900">
+                        <h3 className="font-medium text-gray-900">
                           Review Notes
                         </h3>
                         <div className="flex items-center gap-2">
@@ -501,7 +501,7 @@ export function ReviewsModule() {
                         rows={12}
                         className="resize-none"
                       />
-                      <div className="flex items-center gap-2 text-xs text-slate-500">
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
                         {isNotesPrivate ? (
                           <>
                             <EyeOff className="w-3 h-3" />
@@ -519,23 +519,23 @@ export function ReviewsModule() {
                     </div>
 
                     {/* Pre-filled Example Content */}
-                    <div className="bg-slate-50 rounded-lg p-4">
-                      <h4 className="font-medium text-slate-900 mb-2">
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <h4 className="font-medium text-gray-900 mb-2">
                         Previous Review Summary
                       </h4>
-                      <p className="text-sm text-slate-600 mb-2">
+                      <p className="text-sm text-gray-600 mb-2">
                         <strong>Strengths:</strong> Sarah consistently delivers
                         high-quality code and shows excellent problem-solving
                         skills. She has taken initiative in mentoring junior
                         developers and contributing to architectural decisions.
                       </p>
-                      <p className="text-sm text-slate-600 mb-2">
+                      <p className="text-sm text-gray-600 mb-2">
                         <strong>Areas for Improvement:</strong> Could benefit
                         from improving communication in cross-team
                         collaborations and taking on more leadership
                         responsibilities in project planning.
                       </p>
-                      <p className="text-sm text-slate-600">
+                      <p className="text-sm text-gray-600">
                         <strong>Next Quarter Focus:</strong> Lead the e-commerce
                         platform redesign project and establish mentorship
                         program for junior developers.
@@ -547,7 +547,7 @@ export function ReviewsModule() {
                 <TabsContent value="goals" className="space-y-4 mt-0">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-slate-900">
+                      <h3 className="font-medium text-gray-900">
                         Goals & Action Items
                       </h3>
                       <Button size="sm" variant="outline">
@@ -560,7 +560,7 @@ export function ReviewsModule() {
                       {goals.map((goal) => (
                         <div
                           key={goal.id}
-                          className="border border-slate-200 rounded-lg p-4"
+                          className="border border-gray-200 rounded-lg p-4"
                         >
                           <div className="flex items-start gap-3">
                             <Checkbox
@@ -576,7 +576,7 @@ export function ReviewsModule() {
                             <div className="flex-1 space-y-2">
                               <div className="flex items-center justify-between">
                                 <h4
-                                  className={`font-medium ${goal.status === "completed" ? "line-through text-slate-500" : "text-slate-900"}`}
+                                  className={`font-medium ${goal.status === "completed" ? "line-through text-gray-500" : "text-gray-900"}`}
                                 >
                                   {goal.title}
                                 </h4>
@@ -592,7 +592,7 @@ export function ReviewsModule() {
                                   {goal.category}
                                 </Badge>
                               </div>
-                              <p className="text-sm text-slate-600">
+                              <p className="text-sm text-gray-600">
                                 {goal.description}
                               </p>
 
@@ -602,11 +602,11 @@ export function ReviewsModule() {
                                     value={goal.progress}
                                     className="w-24 h-2"
                                   />
-                                  <span className="text-xs text-slate-500">
+                                  <span className="text-xs text-gray-500">
                                     {goal.progress}%
                                   </span>
                                 </div>
-                                <div className="flex items-center gap-2 text-xs text-slate-500">
+                                <div className="flex items-center gap-2 text-xs text-gray-500">
                                   <Calendar className="w-3 h-3" />
                                   <span>Due: {goal.dueDate}</span>
                                 </div>
@@ -655,7 +655,7 @@ export function ReviewsModule() {
                 <TabsContent value="files" className="space-y-4 mt-0">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-slate-900">
+                      <h3 className="font-medium text-gray-900">
                         Review Documents
                       </h3>
                       <div className="flex gap-2">
@@ -681,12 +681,12 @@ export function ReviewsModule() {
                     </div>
 
                     {/* File Upload Area */}
-                    <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center">
-                      <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                      <p className="text-sm text-slate-600 mb-1">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600 mb-1">
                         Drag and drop files here, or click to browse
                       </p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-gray-500">
                         Supports PDF, JPG, PNG, DOC files up to 10MB
                       </p>
                     </div>
@@ -694,17 +694,17 @@ export function ReviewsModule() {
                     {/* Uploaded Files */}
                     {uploadedFiles.length > 0 && (
                       <div className="space-y-2">
-                        <h4 className="font-medium text-slate-900">
+                        <h4 className="font-medium text-gray-900">
                           Uploaded Files
                         </h4>
                         {uploadedFiles.map((fileName, index) => (
                           <div
                             key={index}
-                            className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
+                            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                           >
                             <div className="flex items-center gap-3">
-                              <Paperclip className="w-4 h-4 text-slate-500" />
-                              <span className="text-sm font-medium text-slate-900">
+                              <Paperclip className="w-4 h-4 text-gray-500" />
+                              <span className="text-sm font-medium text-gray-900">
                                 {fileName}
                               </span>
                             </div>
@@ -727,7 +727,7 @@ export function ReviewsModule() {
 
                     {/* Example Files */}
                     <div className="space-y-2">
-                      <h4 className="font-medium text-slate-900">
+                      <h4 className="font-medium text-gray-900">
                         Previous Documents
                       </h4>
                       {[
@@ -749,15 +749,15 @@ export function ReviewsModule() {
                       ].map((file, index) => (
                         <div
                           key={index}
-                          className="flex items-center justify-between p-3 border border-slate-200 rounded-lg"
+                          className="flex items-center justify-between p-3 border border-gray-200 rounded-lg"
                         >
                           <div className="flex items-center gap-3">
-                            <FileText className="w-4 h-4 text-slate-500" />
+                            <FileText className="w-4 h-4 text-gray-500" />
                             <div>
-                              <p className="text-sm font-medium text-slate-900">
+                              <p className="text-sm font-medium text-gray-900">
                                 {file.name}
                               </p>
-                              <p className="text-xs text-slate-500">
+                              <p className="text-xs text-gray-500">
                                 Uploaded {file.date}
                               </p>
                             </div>
@@ -783,7 +783,7 @@ export function ReviewsModule() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Current Review Info */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="w-5 h-5" />
@@ -803,10 +803,10 @@ export function ReviewsModule() {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium text-slate-900">
+                      <p className="font-medium text-gray-900">
                         {selectedEmployeeData?.name}
                       </p>
-                      <p className="text-sm text-slate-500">
+                      <p className="text-sm text-gray-500">
                         {selectedEmployeeData?.role}
                       </p>
                     </div>
@@ -814,7 +814,7 @@ export function ReviewsModule() {
                   <Separator />
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-sm text-slate-600">
+                      <span className="text-sm text-gray-600">
                         Review Type:
                       </span>
                       <span className="text-sm font-medium">
@@ -822,19 +822,19 @@ export function ReviewsModule() {
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-slate-600">Reviewer:</span>
+                      <span className="text-sm text-gray-600">Reviewer:</span>
                       <span className="text-sm font-medium">
                         {currentReview.reviewer}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-slate-600">Due Date:</span>
+                      <span className="text-sm text-gray-600">Due Date:</span>
                       <span className="text-sm font-medium">
                         {currentReview.scheduledDate}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-slate-600">Status:</span>
+                      <span className="text-sm text-gray-600">Status:</span>
                       <Badge
                         variant={
                           currentReview.status === "Completed"
@@ -854,7 +854,7 @@ export function ReviewsModule() {
           </Card>
 
           {/* CPF Level Tracker */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="w-5 h-5" />
@@ -866,8 +866,8 @@ export function ReviewsModule() {
                 <div className="text-3xl font-bold text-blue-600 mb-1">
                   {currentLevel?.level}
                 </div>
-                <p className="text-sm text-slate-600">{currentLevel?.title}</p>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-sm text-gray-600">{currentLevel?.title}</p>
+                <p className="text-xs text-gray-500 mt-1">
                   {currentLevel?.description}
                 </p>
               </div>
@@ -893,15 +893,15 @@ export function ReviewsModule() {
                           {isAchieved ? (
                             <CheckCircle className="w-4 h-4 text-green-600" />
                           ) : (
-                            <Circle className="w-4 h-4 text-slate-400" />
+                            <Circle className="w-4 h-4 text-gray-400" />
                           )}
                           <span
-                            className={`text-sm font-medium ${isCurrentLevel ? "text-blue-600" : isAchieved ? "text-green-600" : "text-slate-500"}`}
+                            className={`text-sm font-medium ${isCurrentLevel ? "text-blue-600" : isAchieved ? "text-green-600" : "text-gray-500"}`}
                           >
                             {level.level}
                           </span>
                         </div>
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-gray-500">
                           {level.minScore}+ pts
                         </span>
                       </div>
@@ -909,7 +909,7 @@ export function ReviewsModule() {
                       {isCurrentLevel && nextLevel && (
                         <div className="space-y-1">
                           <Progress value={progressToNext} className="h-2" />
-                          <p className="text-xs text-slate-500">
+                          <p className="text-xs text-gray-500">
                             {Math.round(progressToNext)}% to {nextLevel.level} (
                             {nextLevel.minScore - currentCPFScore} pts needed)
                           </p>
@@ -932,7 +932,7 @@ export function ReviewsModule() {
           </Card>
 
           {/* Quick Actions */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>

@@ -338,7 +338,7 @@ export function TimeTrackingModule() {
       case "rejected":
         return "bg-red-100 text-red-800";
       default:
-        return "bg-slate-100 text-slate-800";
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -529,8 +529,8 @@ export function TimeTrackingModule() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border border-slate-200 rounded-lg shadow-lg">
-          <p className="font-medium text-slate-900">{label}</p>
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-medium text-gray-900">{label}</p>
           <p className="text-blue-600">Hours: {payload[0].value}</p>
         </div>
       );
@@ -541,11 +541,11 @@ export function TimeTrackingModule() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Time Tracking</h1>
-            <p className="text-slate-600 mt-1">
+            <h1 className="text-2xl font-bold text-gray-900">Time Tracking</h1>
+            <p className="text-gray-600 mt-1">
               Log hours, track projects, and manage timesheet approvals
             </p>
           </div>
@@ -571,45 +571,45 @@ export function TimeTrackingModule() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">This Week</p>
+              <Clock className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">This Week</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               {weeklySummary.totalHours}h
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-gray-500">
               {weeklySummary.regularHours}h regular +{" "}
               {weeklySummary.overtimeHours}h overtime
             </p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Target className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Weekly Goal</p>
+              <Target className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Weekly Goal</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               {Math.round((weeklySummary.totalHours / 40) * 100)}%
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-gray-500">
               {weeklySummary.totalHours}/40 hours
             </p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Building className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Active Projects</p>
+              <Building className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Active Projects</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               {Object.keys(weeklySummary.projects).length}
             </p>
-            <p className="text-xs text-slate-500">This week</p>
+            <p className="text-xs text-gray-500">This week</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Approval Status</p>
+              <Users className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Approval Status</p>
             </div>
             <div className="flex items-center gap-2">
               <Badge
@@ -619,7 +619,7 @@ export function TimeTrackingModule() {
                 {weeklySummary.status}
               </Badge>
             </div>
-            <p className="text-xs text-slate-500">Weekly timesheet</p>
+            <p className="text-xs text-gray-500">Weekly timesheet</p>
           </div>
         </div>
 
@@ -638,10 +638,10 @@ export function TimeTrackingModule() {
               Previous
             </Button>
             <div className="text-center">
-              <p className="font-medium text-slate-900">
+              <p className="font-medium text-gray-900">
                 {formatWeekRange(selectedWeek)}
               </p>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-gray-500">
                 Week of {formatDate(selectedWeek[0])}
               </p>
             </div>
@@ -670,7 +670,7 @@ export function TimeTrackingModule() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2">
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
@@ -694,9 +694,9 @@ export function TimeTrackingModule() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-3 h-3 rounded-full ${isTimerRunning ? "bg-green-500 animate-pulse" : "bg-slate-400"}`}
+                            className={`w-3 h-3 rounded-full ${isTimerRunning ? "bg-green-500 animate-pulse" : "bg-gray-400"}`}
                           ></div>
-                          <h4 className="font-medium text-slate-900">
+                          <h4 className="font-medium text-gray-900">
                             {isTimerRunning ? "Timer Running" : "Quick Timer"}
                           </h4>
                         </div>
@@ -778,7 +778,7 @@ export function TimeTrackingModule() {
 
                       {isTimerRunning && currentTimer.startTime && (
                         <div className="mt-4 text-center">
-                          <p className="text-sm text-slate-600 mb-2">
+                          <p className="text-sm text-gray-600 mb-2">
                             Working on: {currentTimer.taskDescription}
                           </p>
                           <p className="text-lg font-mono">
@@ -791,7 +791,7 @@ export function TimeTrackingModule() {
                   </Card>
 
                   {/* Add Time Entry Form */}
-                  <Card className="border-slate-200">
+                  <Card className="border-gray-200">
                     <CardHeader>
                       <CardTitle className="text-lg">Log Time Entry</CardTitle>
                     </CardHeader>
@@ -844,7 +844,7 @@ export function TimeTrackingModule() {
                                         <p className="font-medium">
                                           {project.name}
                                         </p>
-                                        <p className="text-xs text-slate-500">
+                                        <p className="text-xs text-gray-500">
                                           {project.client}
                                         </p>
                                       </div>
@@ -857,8 +857,8 @@ export function TimeTrackingModule() {
                         <div className="space-y-2">
                           <Label>Total Hours</Label>
                           <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-slate-500" />
-                            <span className="font-medium text-slate-900">
+                            <Clock className="w-4 h-4 text-gray-500" />
+                            <span className="font-medium text-gray-900">
                               {newEntry.totalHours}h
                             </span>
                           </div>
@@ -929,7 +929,7 @@ export function TimeTrackingModule() {
 
                   {/* Daily Time Entries */}
                   <div className="space-y-4">
-                    <h3 className="font-medium text-slate-900">
+                    <h3 className="font-medium text-gray-900">
                       This Week's Entries
                     </h3>
                     <div className="space-y-3">
@@ -943,25 +943,25 @@ export function TimeTrackingModule() {
                         );
 
                         return (
-                          <Card key={date} className="border-slate-200">
+                          <Card key={date} className="border-gray-200">
                             <CardContent className="p-4">
                               <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-3">
-                                  <Calendar className="w-4 h-4 text-slate-500" />
+                                  <Calendar className="w-4 h-4 text-gray-500" />
                                   <div>
-                                    <h4 className="font-medium text-slate-900">
+                                    <h4 className="font-medium text-gray-900">
                                       {formatDate(date)}
                                     </h4>
-                                    <p className="text-sm text-slate-500">
+                                    <p className="text-sm text-gray-500">
                                       {date}
                                     </p>
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <p className="font-medium text-slate-900">
+                                  <p className="font-medium text-gray-900">
                                     {dayTotal}h
                                   </p>
-                                  <p className="text-xs text-slate-500">
+                                  <p className="text-xs text-gray-500">
                                     {dayEntries.length} entries
                                   </p>
                                 </div>
@@ -980,7 +980,7 @@ export function TimeTrackingModule() {
                                     return (
                                       <div
                                         key={entry.id}
-                                        className="flex items-start justify-between p-3 bg-slate-50 rounded-lg"
+                                        className="flex items-start justify-between p-3 bg-gray-50 rounded-lg"
                                       >
                                         <div className="flex items-start gap-3 flex-1">
                                           <div
@@ -991,7 +991,7 @@ export function TimeTrackingModule() {
                                           ></div>
                                           <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-1">
-                                              <p className="font-medium text-slate-900">
+                                              <p className="font-medium text-gray-900">
                                                 {entry.projectName}
                                               </p>
                                               <Badge
@@ -1003,10 +1003,10 @@ export function TimeTrackingModule() {
                                                 {entry.status}
                                               </Badge>
                                             </div>
-                                            <p className="text-sm text-slate-600 mb-2">
+                                            <p className="text-sm text-gray-600 mb-2">
                                               {entry.taskDescription}
                                             </p>
-                                            <div className="flex items-center gap-4 text-xs text-slate-500">
+                                            <div className="flex items-center gap-4 text-xs text-gray-500">
                                               <span>
                                                 {entry.startTime} -{" "}
                                                 {entry.endTime}
@@ -1031,7 +1031,7 @@ export function TimeTrackingModule() {
                                                   ? "text-amber-600"
                                                   : entry.status === "rejected"
                                                     ? "text-red-600"
-                                                    : "text-slate-400"
+                                                    : "text-gray-400"
                                             }`}
                                           />
                                           {entry.status === "draft" && (
@@ -1057,7 +1057,7 @@ export function TimeTrackingModule() {
                                   })}
                                 </div>
                               ) : (
-                                <div className="text-center py-4 text-slate-500">
+                                <div className="text-center py-4 text-gray-500">
                                   <Clock className="w-8 h-8 mx-auto mb-2 opacity-50" />
                                   <p className="text-sm">
                                     No time entries for this day
@@ -1076,7 +1076,7 @@ export function TimeTrackingModule() {
                   {/* Weekly Summary */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-slate-900">
+                      <h3 className="font-medium text-gray-900">
                         Weekly Summary
                       </h3>
                       <div className="flex items-center gap-2">
@@ -1103,22 +1103,20 @@ export function TimeTrackingModule() {
                       </div>
                     </div>
 
-                    <Card className="border-slate-200">
+                    <Card className="border-gray-200">
                       <CardContent className="p-6">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                           <div className="text-center">
                             <div className="text-3xl font-bold text-blue-600 mb-1">
                               {weeklySummary.totalHours}h
                             </div>
-                            <p className="text-sm text-slate-600">
-                              Total Hours
-                            </p>
+                            <p className="text-sm text-gray-600">Total Hours</p>
                           </div>
                           <div className="text-center">
                             <div className="text-3xl font-bold text-green-600 mb-1">
                               {weeklySummary.regularHours}h
                             </div>
-                            <p className="text-sm text-slate-600">
+                            <p className="text-sm text-gray-600">
                               Regular Hours
                             </p>
                           </div>
@@ -1126,7 +1124,7 @@ export function TimeTrackingModule() {
                             <div className="text-3xl font-bold text-amber-600 mb-1">
                               {weeklySummary.overtimeHours}h
                             </div>
-                            <p className="text-sm text-slate-600">
+                            <p className="text-sm text-gray-600">
                               Overtime Hours
                             </p>
                           </div>
@@ -1135,7 +1133,7 @@ export function TimeTrackingModule() {
                         <Separator className="my-4" />
 
                         <div className="space-y-2">
-                          <p className="text-sm font-medium text-slate-700 mb-3">
+                          <p className="text-sm font-medium text-gray-700 mb-3">
                             Hours by Project
                           </p>
                           {Object.entries(weeklySummary.projects).map(
@@ -1158,15 +1156,15 @@ export function TimeTrackingModule() {
                                         backgroundColor: project?.color,
                                       }}
                                     ></div>
-                                    <span className="text-sm text-slate-700">
+                                    <span className="text-sm text-gray-700">
                                       {project?.name}
                                     </span>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-slate-900">
+                                    <span className="text-sm font-medium text-gray-900">
                                       {hours}h
                                     </span>
-                                    <span className="text-xs text-slate-500">
+                                    <span className="text-xs text-gray-500">
                                       ({Math.round(percentage)}%)
                                     </span>
                                   </div>
@@ -1181,7 +1179,7 @@ export function TimeTrackingModule() {
 
                   {/* Weekly Chart */}
                   <div className="space-y-4">
-                    <h4 className="font-medium text-slate-900">
+                    <h4 className="font-medium text-gray-900">
                       Daily Hours Breakdown
                     </h4>
                     <div className="h-64">
@@ -1217,14 +1215,14 @@ export function TimeTrackingModule() {
                   </div>
 
                   {/* Export Options */}
-                  <Card className="border-slate-200">
+                  <Card className="border-gray-200">
                     <CardHeader>
                       <CardTitle className="text-lg">
                         Export Weekly Report
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <p className="text-sm text-slate-600">
+                      <p className="text-sm text-gray-600">
                         Download your timesheet for the week of{" "}
                         {formatWeekRange(selectedWeek)}
                       </p>
@@ -1254,7 +1252,7 @@ export function TimeTrackingModule() {
                   <TabsContent value="approvals" className="space-y-6 mt-0">
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-medium text-slate-900">
+                        <h3 className="font-medium text-gray-900">
                           Pending Approvals
                         </h3>
                         <Badge
@@ -1289,19 +1287,19 @@ export function TimeTrackingModule() {
                                           }}
                                         ></div>
                                         <div>
-                                          <h4 className="font-medium text-slate-900">
+                                          <h4 className="font-medium text-gray-900">
                                             {entry.projectName}
                                           </h4>
-                                          <p className="text-sm text-slate-500">
+                                          <p className="text-sm text-gray-500">
                                             {formatDate(entry.date)} •{" "}
                                             {entry.totalHours}h
                                           </p>
                                         </div>
                                       </div>
-                                      <p className="text-sm text-slate-600 mb-2">
+                                      <p className="text-sm text-gray-600 mb-2">
                                         {entry.taskDescription}
                                       </p>
-                                      <div className="flex items-center gap-4 text-sm text-slate-500">
+                                      <div className="flex items-center gap-4 text-sm text-gray-500">
                                         <span>
                                           {entry.startTime} - {entry.endTime}
                                         </span>
@@ -1348,10 +1346,10 @@ export function TimeTrackingModule() {
                         .length === 0 && (
                         <div className="text-center py-8">
                           <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
-                          <h3 className="text-lg font-medium text-slate-900 mb-2">
+                          <h3 className="text-lg font-medium text-gray-900 mb-2">
                             All Caught Up!
                           </h3>
-                          <p className="text-slate-600">
+                          <p className="text-gray-600">
                             No pending time entries to review.
                           </p>
                         </div>
@@ -1359,7 +1357,7 @@ export function TimeTrackingModule() {
 
                       {/* Recently Approved */}
                       <div className="space-y-4">
-                        <h4 className="font-medium text-slate-900">
+                        <h4 className="font-medium text-gray-900">
                           Recently Approved
                         </h4>
                         <div className="space-y-2">
@@ -1384,10 +1382,10 @@ export function TimeTrackingModule() {
                                       }}
                                     ></div>
                                     <div>
-                                      <p className="text-sm font-medium text-slate-900">
+                                      <p className="text-sm font-medium text-gray-900">
                                         {entry.projectName}
                                       </p>
-                                      <p className="text-xs text-slate-500">
+                                      <p className="text-xs text-gray-500">
                                         {formatDate(entry.date)} •{" "}
                                         {entry.totalHours}h
                                       </p>
@@ -1395,7 +1393,7 @@ export function TimeTrackingModule() {
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <CheckCircle className="w-4 h-4 text-green-600" />
-                                    <span className="text-xs text-slate-500">
+                                    <span className="text-xs text-gray-500">
                                       {entry.approvedAt
                                         ? new Date(
                                             entry.approvedAt
@@ -1419,7 +1417,7 @@ export function TimeTrackingModule() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Weekly Progress */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="w-5 h-5" />
@@ -1429,7 +1427,7 @@ export function TimeTrackingModule() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-sm text-slate-600">
+                  <span className="text-sm text-gray-600">
                     Weekly Goal (40h):
                   </span>
                   <span className="font-medium">
@@ -1440,22 +1438,20 @@ export function TimeTrackingModule() {
                   value={(weeklySummary.totalHours / 40) * 100}
                   className="h-3"
                 />
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-gray-500">
                   {weeklySummary.totalHours}/40 hours logged
                 </p>
               </div>
               <Separator />
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-sm text-slate-600">Regular Hours:</span>
+                  <span className="text-sm text-gray-600">Regular Hours:</span>
                   <span className="font-medium">
                     {weeklySummary.regularHours}h
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-slate-600">
-                    Overtime Hours:
-                  </span>
+                  <span className="text-sm text-gray-600">Overtime Hours:</span>
                   <span className="font-medium text-amber-600">
                     {weeklySummary.overtimeHours}h
                   </span>
@@ -1465,7 +1461,7 @@ export function TimeTrackingModule() {
           </Card>
 
           {/* Active Projects */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building className="w-5 h-5" />
@@ -1487,10 +1483,10 @@ export function TimeTrackingModule() {
                         style={{ backgroundColor: project.color }}
                       ></div>
                       <div>
-                        <p className="text-sm font-medium text-slate-900">
+                        <p className="text-sm font-medium text-gray-900">
                           {project.name}
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-gray-500">
                           {project.client}
                         </p>
                       </div>
@@ -1504,7 +1500,7 @@ export function TimeTrackingModule() {
           </Card>
 
           {/* Quick Actions */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
@@ -1539,12 +1535,12 @@ export function TimeTrackingModule() {
 
           {/* Approval Status */}
           <Card
-            className={`border-slate-200 ${
+            className={`border-gray-200 ${
               weeklySummary.status === "approved"
                 ? "bg-green-50 border-green-200"
                 : weeklySummary.status === "pending"
                   ? "bg-amber-50 border-amber-200"
-                  : "bg-slate-50"
+                  : "bg-gray-50"
             }`}
           >
             <CardContent className="p-4">
@@ -1555,7 +1551,7 @@ export function TimeTrackingModule() {
                       ? "text-green-600"
                       : weeklySummary.status === "pending"
                         ? "text-amber-600"
-                        : "text-slate-500"
+                        : "text-gray-500"
                   }`}
                 >
                   {weeklySummary.status === "approved" ? (
@@ -1573,7 +1569,7 @@ export function TimeTrackingModule() {
                         ? "text-green-900"
                         : weeklySummary.status === "pending"
                           ? "text-amber-900"
-                          : "text-slate-900"
+                          : "text-gray-900"
                     }`}
                   >
                     {weeklySummary.status === "approved"
@@ -1588,7 +1584,7 @@ export function TimeTrackingModule() {
                         ? "text-green-700"
                         : weeklySummary.status === "pending"
                           ? "text-amber-700"
-                          : "text-slate-600"
+                          : "text-gray-600"
                     }`}
                   >
                     {weeklySummary.status === "approved"

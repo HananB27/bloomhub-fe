@@ -387,7 +387,7 @@ export function MobilityModule() {
       case "rejected":
         return "bg-red-100 text-red-800";
       default:
-        return "bg-slate-100 text-slate-800";
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -423,7 +423,7 @@ export function MobilityModule() {
       case "executive":
         return "bg-red-100 text-red-800";
       default:
-        return "bg-slate-100 text-slate-800";
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -489,13 +489,13 @@ export function MobilityModule() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">
+            <h1 className="text-2xl font-bold text-gray-900">
               Internal Mobility
             </h1>
-            <p className="text-slate-600 mt-1">
+            <p className="text-gray-600 mt-1">
               Explore career opportunities and track professional growth
             </p>
           </div>
@@ -519,43 +519,43 @@ export function MobilityModule() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Briefcase className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Open Positions</p>
+              <Briefcase className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Open Positions</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               {jobs.filter((j) => j.isActive).length}
             </p>
-            <p className="text-xs text-slate-500">Across all departments</p>
+            <p className="text-xs text-gray-500">Across all departments</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Total Applications</p>
+              <Users className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Total Applications</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               {applications.length}
             </p>
-            <p className="text-xs text-slate-500">This quarter</p>
+            <p className="text-xs text-gray-500">This quarter</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Promotions YTD</p>
+              <TrendingUp className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Promotions YTD</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               {promotionHistory.length}
             </p>
-            <p className="text-xs text-slate-500">Internal growth</p>
+            <p className="text-xs text-gray-500">Internal growth</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Target className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Success Rate</p>
+              <Target className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Success Rate</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">73%</p>
-            <p className="text-xs text-slate-500">Internal hiring</p>
+            <p className="text-2xl font-bold text-gray-900">73%</p>
+            <p className="text-xs text-gray-500">Internal hiring</p>
           </div>
         </div>
       </div>
@@ -563,7 +563,7 @@ export function MobilityModule() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2">
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
@@ -584,7 +584,7 @@ export function MobilityModule() {
                   {/* Search and Filters */}
                   <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1 relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Search className="absolute left-3 top-1/2 transform -trangray-y-1/2 w-4 h-4 text-gray-400" />
                       <Input
                         placeholder="Search positions..."
                         value={searchTerm}
@@ -615,18 +615,18 @@ export function MobilityModule() {
                     {filteredJobs.map((job) => (
                       <Card
                         key={job.id}
-                        className="border-slate-200 hover:shadow-sm transition-shadow"
+                        className="border-gray-200 hover:shadow-sm transition-shadow"
                       >
                         <CardContent className="p-6">
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex-1">
                               <div className="flex items-start gap-3 mb-3">
-                                <Building className="w-5 h-5 text-slate-500 mt-1" />
+                                <Building className="w-5 h-5 text-gray-500 mt-1" />
                                 <div>
-                                  <h3 className="font-semibold text-slate-900 mb-1">
+                                  <h3 className="font-semibold text-gray-900 mb-1">
                                     {job.title}
                                   </h3>
-                                  <div className="flex items-center gap-4 text-sm text-slate-600">
+                                  <div className="flex items-center gap-4 text-sm text-gray-600">
                                     <span>{job.department}</span>
                                     <span>•</span>
                                     <span>{job.location}</span>
@@ -635,7 +635,7 @@ export function MobilityModule() {
                                   </div>
                                 </div>
                               </div>
-                              <p className="text-slate-600 mb-4 line-clamp-2">
+                              <p className="text-gray-600 mb-4 line-clamp-2">
                                 {job.description}
                               </p>
 
@@ -649,7 +649,7 @@ export function MobilityModule() {
                                   {job.experienceLevel} level
                                 </Badge>
                                 <Badge variant="outline">{job.type}</Badge>
-                                <div className="flex items-center gap-1 text-sm text-slate-500">
+                                <div className="flex items-center gap-1 text-sm text-gray-500">
                                   <Users className="w-3 h-3" />
                                   <span>{job.applicantCount} applicants</span>
                                 </div>
@@ -657,10 +657,10 @@ export function MobilityModule() {
 
                               <div className="space-y-2">
                                 <div>
-                                  <p className="text-sm font-medium text-slate-700 mb-1">
+                                  <p className="text-sm font-medium text-gray-700 mb-1">
                                     Key Requirements:
                                   </p>
-                                  <ul className="text-sm text-slate-600 space-y-1">
+                                  <ul className="text-sm text-gray-600 space-y-1">
                                     {job.requirements
                                       .slice(0, 3)
                                       .map((req, index) => (
@@ -693,7 +693,7 @@ export function MobilityModule() {
 
                           <Separator className="mb-3" />
 
-                          <div className="flex items-center justify-between text-sm text-slate-500">
+                          <div className="flex items-center justify-between text-sm text-gray-500">
                             <div className="flex items-center gap-4">
                               <span>Posted {formatDate(job.postedDate)}</span>
                               <span>•</span>
@@ -710,11 +710,11 @@ export function MobilityModule() {
 
                   {filteredJobs.length === 0 && (
                     <div className="text-center py-8">
-                      <Briefcase className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-slate-900 mb-2">
+                      <Briefcase className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
                         No positions found
                       </h3>
-                      <p className="text-slate-600">
+                      <p className="text-gray-600">
                         Try adjusting your search criteria or check back later
                         for new opportunities.
                       </p>
@@ -724,7 +724,7 @@ export function MobilityModule() {
 
                 <TabsContent value="applications" className="space-y-6 mt-0">
                   <div className="space-y-4">
-                    <h3 className="font-medium text-slate-900">
+                    <h3 className="font-medium text-gray-900">
                       Application Status
                     </h3>
 
@@ -736,14 +736,14 @@ export function MobilityModule() {
                           return (
                             <Card
                               key={application.id}
-                              className="border-slate-200"
+                              className="border-gray-200"
                             >
                               <CardContent className="p-4">
                                 <div className="flex items-start justify-between">
                                   <div className="flex-1">
                                     <div className="flex items-center gap-3 mb-2">
-                                      <Briefcase className="w-4 h-4 text-slate-500" />
-                                      <h4 className="font-medium text-slate-900">
+                                      <Briefcase className="w-4 h-4 text-gray-500" />
+                                      <h4 className="font-medium text-gray-900">
                                         {application.jobTitle}
                                       </h4>
                                       <Badge
@@ -756,10 +756,10 @@ export function MobilityModule() {
                                         {application.status}
                                       </Badge>
                                     </div>
-                                    <p className="text-sm text-slate-600 mb-3">
+                                    <p className="text-sm text-gray-600 mb-3">
                                       {application.coverLetter.slice(0, 150)}...
                                     </p>
-                                    <div className="flex items-center gap-4 text-sm text-slate-500">
+                                    <div className="flex items-center gap-4 text-sm text-gray-500">
                                       <span>
                                         Applied:{" "}
                                         {formatDate(application.appliedDate)}
@@ -802,11 +802,11 @@ export function MobilityModule() {
                       </div>
                     ) : (
                       <div className="text-center py-8">
-                        <FileText className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-slate-900 mb-2">
+                        <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
                           No applications yet
                         </h3>
-                        <p className="text-slate-600">
+                        <p className="text-gray-600">
                           Browse open positions and apply to start your internal
                           mobility journey.
                         </p>
@@ -823,7 +823,7 @@ export function MobilityModule() {
                   {/* Application Statistics */}
                   {applications.length > 0 && (
                     <div className="mt-6">
-                      <h4 className="font-medium text-slate-900 mb-4">
+                      <h4 className="font-medium text-gray-900 mb-4">
                         Application Summary
                       </h4>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -831,16 +831,16 @@ export function MobilityModule() {
                           (status) => (
                             <div
                               key={status}
-                              className="text-center p-3 bg-slate-50 rounded-lg"
+                              className="text-center p-3 bg-gray-50 rounded-lg"
                             >
-                              <p className="text-2xl font-bold text-slate-900">
+                              <p className="text-2xl font-bold text-gray-900">
                                 {
                                   applications.filter(
                                     (app) => app.status === status
                                   ).length
                                 }
                               </p>
-                              <p className="text-xs text-slate-600 capitalize">
+                              <p className="text-xs text-gray-600 capitalize">
                                 {status}
                               </p>
                             </div>
@@ -853,7 +853,7 @@ export function MobilityModule() {
 
                 <TabsContent value="history" className="space-y-6 mt-0">
                   <div className="space-y-4">
-                    <h3 className="font-medium text-slate-900">
+                    <h3 className="font-medium text-gray-900">
                       Promotion Timeline
                     </h3>
 
@@ -862,10 +862,10 @@ export function MobilityModule() {
                         <div key={promotion.id} className="relative">
                           {/* Timeline line */}
                           {index < promotionHistory.length - 1 && (
-                            <div className="absolute left-6 top-12 w-0.5 h-16 bg-slate-200"></div>
+                            <div className="absolute left-6 top-12 w-0.5 h-16 bg-gray-200"></div>
                           )}
 
-                          <Card className="border-slate-200">
+                          <Card className="border-gray-200">
                             <CardContent className="p-4">
                               <div className="flex items-start gap-4">
                                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -875,21 +875,21 @@ export function MobilityModule() {
                                 <div className="flex-1">
                                   <div className="flex items-start justify-between mb-2">
                                     <div>
-                                      <h4 className="font-medium text-slate-900">
+                                      <h4 className="font-medium text-gray-900">
                                         {promotion.employeeName}
                                       </h4>
                                       <div className="flex items-center gap-2 mt-1">
-                                        <span className="text-sm text-slate-600">
+                                        <span className="text-sm text-gray-600">
                                           {promotion.fromRole}
                                         </span>
-                                        <ArrowRight className="w-3 h-3 text-slate-400" />
-                                        <span className="text-sm font-medium text-slate-900">
+                                        <ArrowRight className="w-3 h-3 text-gray-400" />
+                                        <span className="text-sm font-medium text-gray-900">
                                           {promotion.toRole}
                                         </span>
                                       </div>
                                     </div>
                                     <div className="text-right">
-                                      <p className="text-sm font-medium text-slate-900">
+                                      <p className="text-sm font-medium text-gray-900">
                                         {formatDate(promotion.promotionDate)}
                                       </p>
                                       {promotion.salaryIncrease && (
@@ -900,11 +900,11 @@ export function MobilityModule() {
                                     </div>
                                   </div>
 
-                                  <p className="text-sm text-slate-600 mb-3">
+                                  <p className="text-sm text-gray-600 mb-3">
                                     {promotion.notes}
                                   </p>
 
-                                  <div className="flex items-center gap-4 text-xs text-slate-500">
+                                  <div className="flex items-center gap-4 text-xs text-gray-500">
                                     <div className="flex items-center gap-1">
                                       <Building className="w-3 h-3" />
                                       <span>
@@ -927,11 +927,11 @@ export function MobilityModule() {
 
                     {promotionHistory.length === 0 && (
                       <div className="text-center py-8">
-                        <Award className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-slate-900 mb-2">
+                        <Award className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
                           No promotion history
                         </h3>
-                        <p className="text-slate-600">
+                        <p className="text-gray-600">
                           Promotion records will appear here as employees
                           advance in their careers.
                         </p>
@@ -947,7 +947,7 @@ export function MobilityModule() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Quick Actions */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
@@ -986,7 +986,7 @@ export function MobilityModule() {
           </Card>
 
           {/* Department Breakdown */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building className="w-5 h-5" />
@@ -1000,8 +1000,8 @@ export function MobilityModule() {
                 );
                 return (
                   <div key={dept} className="flex items-center justify-between">
-                    <span className="text-sm text-slate-700">{dept}</span>
-                    <span className="text-sm font-medium text-slate-900">
+                    <span className="text-sm text-gray-700">{dept}</span>
+                    <span className="text-sm font-medium text-gray-900">
                       {deptJobs.length}
                     </span>
                   </div>
@@ -1036,7 +1036,7 @@ export function MobilityModule() {
           </Card>
 
           {/* Recent Activity */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="w-5 h-5" />
@@ -1048,28 +1048,24 @@ export function MobilityModule() {
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-slate-900">
-                      New position posted
-                    </p>
-                    <p className="text-xs text-slate-500">2 hours ago</p>
+                    <p className="text-sm text-gray-900">New position posted</p>
+                    <p className="text-xs text-gray-500">2 hours ago</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-slate-900">
+                    <p className="text-sm text-gray-900">
                       Application submitted
                     </p>
-                    <p className="text-xs text-slate-500">1 day ago</p>
+                    <p className="text-xs text-gray-500">1 day ago</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-slate-900">
-                      Promotion announced
-                    </p>
-                    <p className="text-xs text-slate-500">3 days ago</p>
+                    <p className="text-sm text-gray-900">Promotion announced</p>
+                    <p className="text-xs text-gray-500">3 days ago</p>
                   </div>
                 </div>
               </div>
@@ -1095,18 +1091,18 @@ export function MobilityModule() {
           <div className="space-y-6">
             {/* Job Summary */}
             {selectedJob && (
-              <div className="p-4 bg-slate-50 rounded-lg">
-                <h4 className="font-medium text-slate-900 mb-2">
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-medium text-gray-900 mb-2">
                   {selectedJob.title}
                 </h4>
-                <div className="flex items-center gap-4 text-sm text-slate-600 mb-3">
+                <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
                   <span>{selectedJob.department}</span>
                   <span>•</span>
                   <span>{selectedJob.location}</span>
                   <span>•</span>
                   <span>{selectedJob.salaryRange}</span>
                 </div>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-gray-600">
                   {selectedJob.description}
                 </p>
               </div>
@@ -1132,7 +1128,7 @@ export function MobilityModule() {
 
               <div className="space-y-2">
                 <Label htmlFor="resume-upload">Resume Upload</Label>
-                <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                   <input
                     type="file"
                     id="resume-upload"
@@ -1141,13 +1137,13 @@ export function MobilityModule() {
                     className="hidden"
                   />
                   <label htmlFor="resume-upload" className="cursor-pointer">
-                    <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                    <p className="text-sm text-slate-600 mb-1">
+                    <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-600 mb-1">
                       {applicationForm.resumeFile
                         ? applicationForm.resumeFile.name
                         : "Click to upload your resume"}
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-gray-500">
                       PDF, DOC, or DOCX (max 10MB)
                     </p>
                   </label>

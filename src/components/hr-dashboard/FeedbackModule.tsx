@@ -367,7 +367,7 @@ export function FeedbackModule() {
       case "draft":
         return "bg-amber-100 text-amber-800";
       case "closed":
-        return "bg-slate-100 text-slate-800";
+        return "bg-gray-100 text-gray-800";
       case "scheduled":
         return "bg-blue-100 text-blue-800";
       case "open":
@@ -379,7 +379,7 @@ export function FeedbackModule() {
       case "rejected":
         return "bg-red-100 text-red-800";
       default:
-        return "bg-slate-100 text-slate-800";
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -392,7 +392,7 @@ export function FeedbackModule() {
       case "office":
         return "bg-green-100 text-green-800";
       default:
-        return "bg-slate-100 text-slate-800";
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -548,7 +548,7 @@ export function FeedbackModule() {
 
     return (
       <div className="space-y-3">
-        <Label className="text-sm font-medium text-slate-700">{label}</Label>
+        <Label className="text-sm font-medium text-gray-700">{label}</Label>
         <div className="flex justify-between items-center">
           {emojis.map((emoji, index) => {
             const rating = index + 1;
@@ -560,7 +560,7 @@ export function FeedbackModule() {
                 className={`text-2xl hover:scale-110 transition-transform ${
                   value === rating
                     ? colors[index]
-                    : "text-slate-300 hover:text-slate-400"
+                    : "text-gray-300 hover:text-gray-400"
                 }`}
               >
                 {emoji}
@@ -568,7 +568,7 @@ export function FeedbackModule() {
             );
           })}
         </div>
-        <div className="flex justify-between text-xs text-slate-500">
+        <div className="flex justify-between text-xs text-gray-500">
           <span>Poor</span>
           <span>Excellent</span>
         </div>
@@ -579,8 +579,8 @@ export function FeedbackModule() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border border-slate-200 rounded-lg shadow-lg">
-          <p className="font-medium text-slate-900">{label}</p>
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-medium text-gray-900">{label}</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} style={{ color: entry.color }}>
               {entry.dataKey}: {entry.value}
@@ -595,13 +595,13 @@ export function FeedbackModule() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">
+            <h1 className="text-2xl font-bold text-gray-900">
               Employee Feedback & Surveys
             </h1>
-            <p className="text-slate-600 mt-1">
+            <p className="text-gray-600 mt-1">
               Collect feedback, manage surveys, and track employee sentiment
             </p>
           </div>
@@ -625,41 +625,41 @@ export function FeedbackModule() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <MessageSquare className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Active Surveys</p>
+              <MessageSquare className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Active Surveys</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               {surveys.filter((s) => s.status === "active").length}
             </p>
-            <p className="text-xs text-slate-500">Running now</p>
+            <p className="text-xs text-gray-500">Running now</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Response Rate</p>
+              <Users className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Response Rate</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">87%</p>
-            <p className="text-xs text-slate-500">This month</p>
+            <p className="text-2xl font-bold text-gray-900">87%</p>
+            <p className="text-xs text-gray-500">This month</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Avg Satisfaction</p>
+              <TrendingUp className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Avg Satisfaction</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">4.3</p>
-            <p className="text-xs text-slate-500">Out of 5.0</p>
+            <p className="text-2xl font-bold text-gray-900">4.3</p>
+            <p className="text-xs text-gray-500">Out of 5.0</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Lightbulb className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Suggestions</p>
+              <Lightbulb className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Suggestions</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               {suggestions.filter((s) => s.status === "open").length}
             </p>
-            <p className="text-xs text-slate-500">Open suggestions</p>
+            <p className="text-xs text-gray-500">Open suggestions</p>
           </div>
         </div>
       </div>
@@ -667,7 +667,7 @@ export function FeedbackModule() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2">
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
@@ -687,7 +687,7 @@ export function FeedbackModule() {
                   {/* Pulse Check Widget */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-slate-900">
+                      <h3 className="font-medium text-gray-900">
                         Quick Pulse Check
                       </h3>
                       <Badge
@@ -701,10 +701,10 @@ export function FeedbackModule() {
                     <Card className="border-blue-200 bg-blue-50/50">
                       <CardContent className="p-6 space-y-6">
                         <div className="text-center">
-                          <h4 className="font-medium text-slate-900 mb-2">
+                          <h4 className="font-medium text-gray-900 mb-2">
                             How are you feeling today?
                           </h4>
-                          <p className="text-sm text-slate-600">
+                          <p className="text-sm text-gray-600">
                             Help us understand your current work experience
                           </p>
                         </div>
@@ -770,37 +770,37 @@ export function FeedbackModule() {
 
                   {/* Recent Survey Activity */}
                   <div className="space-y-4">
-                    <h3 className="font-medium text-slate-900">
+                    <h3 className="font-medium text-gray-900">
                       Recent Survey Activity
                     </h3>
                     <div className="space-y-3">
                       {surveys.slice(0, 3).map((survey) => (
                         <div
                           key={survey.id}
-                          className="flex items-center justify-between p-4 bg-slate-50 rounded-lg"
+                          className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
                         >
                           <div className="flex-1">
-                            <h4 className="font-medium text-slate-900">
+                            <h4 className="font-medium text-gray-900">
                               {survey.title}
                             </h4>
-                            <p className="text-sm text-slate-600 mt-1">
+                            <p className="text-sm text-gray-600 mt-1">
                               {survey.description}
                             </p>
                             <div className="flex items-center gap-4 mt-2">
                               <div className="flex items-center gap-1">
-                                <Users className="w-3 h-3 text-slate-400" />
-                                <span className="text-xs text-slate-500">
+                                <Users className="w-3 h-3 text-gray-400" />
+                                <span className="text-xs text-gray-500">
                                   {survey.responseCount}/
                                   {survey.targetParticipants} responses
                                 </span>
                               </div>
                               <div className="flex items-center gap-1">
                                 {survey.anonymous ? (
-                                  <Lock className="w-3 h-3 text-slate-400" />
+                                  <Lock className="w-3 h-3 text-gray-400" />
                                 ) : (
-                                  <Globe className="w-3 h-3 text-slate-400" />
+                                  <Globe className="w-3 h-3 text-gray-400" />
                                 )}
-                                <span className="text-xs text-slate-500">
+                                <span className="text-xs text-gray-500">
                                   {survey.anonymous ? "Anonymous" : "Named"}
                                 </span>
                               </div>
@@ -829,7 +829,7 @@ export function FeedbackModule() {
 
                   {/* Trend Overview */}
                   <div className="space-y-4">
-                    <h3 className="font-medium text-slate-900">
+                    <h3 className="font-medium text-gray-900">
                       Satisfaction Trends
                     </h3>
                     <div className="h-64">
@@ -888,7 +888,7 @@ export function FeedbackModule() {
                       {/* Survey Builder */}
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                          <h3 className="font-medium text-slate-900">
+                          <h3 className="font-medium text-gray-900">
                             Survey Builder
                           </h3>
                           <Badge
@@ -899,7 +899,7 @@ export function FeedbackModule() {
                           </Badge>
                         </div>
 
-                        <Card className="border-slate-200">
+                        <Card className="border-gray-200">
                           <CardHeader>
                             <CardTitle className="text-lg">
                               Create New Survey
@@ -977,7 +977,7 @@ export function FeedbackModule() {
 
                             {/* Questions */}
                             <div className="space-y-4">
-                              <h4 className="font-medium text-slate-900">
+                              <h4 className="font-medium text-gray-900">
                                 Questions
                               </h4>
 
@@ -985,12 +985,12 @@ export function FeedbackModule() {
                               {newSurvey.questions.map((question, index) => (
                                 <div
                                   key={question.id}
-                                  className="p-4 border border-slate-200 rounded-lg"
+                                  className="p-4 border border-gray-200 rounded-lg"
                                 >
                                   <div className="flex items-start justify-between">
                                     <div className="flex-1">
                                       <div className="flex items-center gap-2 mb-2">
-                                        <span className="text-sm font-medium text-slate-700">
+                                        <span className="text-sm font-medium text-gray-700">
                                           Q{index + 1}
                                         </span>
                                         <Badge
@@ -1008,11 +1008,11 @@ export function FeedbackModule() {
                                           </Badge>
                                         )}
                                       </div>
-                                      <p className="text-sm text-slate-900 mb-2">
+                                      <p className="text-sm text-gray-900 mb-2">
                                         {question.question}
                                       </p>
                                       {question.options && (
-                                        <ul className="text-sm text-slate-600 ml-4">
+                                        <ul className="text-sm text-gray-600 ml-4">
                                           {question.options.map(
                                             (option, idx) => (
                                               <li
@@ -1041,7 +1041,7 @@ export function FeedbackModule() {
                               ))}
 
                               {/* Add New Question */}
-                              <Card className="border-dashed border-slate-300">
+                              <Card className="border-dashed border-gray-300">
                                 <CardContent className="p-4 space-y-4">
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
@@ -1171,7 +1171,7 @@ export function FeedbackModule() {
                               </Card>
                             </div>
 
-                            <div className="flex gap-2 pt-4 border-t border-slate-200">
+                            <div className="flex gap-2 pt-4 border-t border-gray-200">
                               <Button
                                 onClick={saveSurvey}
                                 disabled={
@@ -1191,10 +1191,10 @@ export function FeedbackModule() {
 
                       {/* Existing Surveys */}
                       <div className="space-y-4">
-                        <h3 className="font-medium text-slate-900">
+                        <h3 className="font-medium text-gray-900">
                           Manage Surveys
                         </h3>
-                        <div className="border border-slate-200 rounded-lg overflow-hidden">
+                        <div className="border border-gray-200 rounded-lg overflow-hidden">
                           <Table>
                             <TableHeader>
                               <TableRow>
@@ -1210,19 +1210,19 @@ export function FeedbackModule() {
                                 <TableRow key={survey.id}>
                                   <TableCell>
                                     <div>
-                                      <p className="font-medium text-slate-900">
+                                      <p className="font-medium text-gray-900">
                                         {survey.title}
                                       </p>
-                                      <p className="text-sm text-slate-500 mt-1">
+                                      <p className="text-sm text-gray-500 mt-1">
                                         {survey.description}
                                       </p>
                                       <div className="flex items-center gap-2 mt-1">
                                         {survey.anonymous ? (
-                                          <Lock className="w-3 h-3 text-slate-400" />
+                                          <Lock className="w-3 h-3 text-gray-400" />
                                         ) : (
-                                          <Globe className="w-3 h-3 text-slate-400" />
+                                          <Globe className="w-3 h-3 text-gray-400" />
                                         )}
-                                        <span className="text-xs text-slate-500">
+                                        <span className="text-xs text-gray-500">
                                           {survey.anonymous
                                             ? "Anonymous"
                                             : "Named"}
@@ -1277,11 +1277,11 @@ export function FeedbackModule() {
                     </>
                   ) : (
                     <div className="text-center py-8">
-                      <AlertCircle className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-slate-900 mb-2">
+                      <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
                         Access Restricted
                       </h3>
-                      <p className="text-slate-600">
+                      <p className="text-gray-600">
                         Survey creation and management is available to HR
                         personnel only.
                       </p>
@@ -1291,7 +1291,7 @@ export function FeedbackModule() {
 
                 <TabsContent value="results" className="space-y-6 mt-0">
                   <div className="space-y-6">
-                    <h3 className="font-medium text-slate-900">
+                    <h3 className="font-medium text-gray-900">
                       Survey Results Dashboard
                     </h3>
 
@@ -1341,7 +1341,7 @@ export function FeedbackModule() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       {/* Satisfaction Distribution */}
                       <div>
-                        <h4 className="font-medium text-slate-900 mb-4">
+                        <h4 className="font-medium text-gray-900 mb-4">
                           Satisfaction Distribution
                         </h4>
                         <div className="h-64">
@@ -1370,7 +1370,7 @@ export function FeedbackModule() {
 
                       {/* Response Rate Trends */}
                       <div>
-                        <h4 className="font-medium text-slate-900 mb-4">
+                        <h4 className="font-medium text-gray-900 mb-4">
                           Response Rate Trends
                         </h4>
                         <div className="h-64">
@@ -1424,7 +1424,7 @@ export function FeedbackModule() {
 
                     {/* Pulse Data Trends */}
                     <div>
-                      <h4 className="font-medium text-slate-900 mb-4">
+                      <h4 className="font-medium text-gray-900 mb-4">
                         Pulse Check Trends
                       </h4>
                       <div className="h-64">
@@ -1494,12 +1494,12 @@ export function FeedbackModule() {
 
                 <TabsContent value="suggestions" className="space-y-6 mt-0">
                   <div className="space-y-6">
-                    <h3 className="font-medium text-slate-900">
+                    <h3 className="font-medium text-gray-900">
                       Suggestion Box
                     </h3>
 
                     {/* Submit Suggestion Form */}
-                    <Card className="border-slate-200">
+                    <Card className="border-gray-200">
                       <CardHeader>
                         <CardTitle className="text-lg">
                           Submit a Suggestion
@@ -1597,7 +1597,7 @@ export function FeedbackModule() {
                     {/* Existing Suggestions */}
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <h4 className="font-medium text-slate-900">
+                        <h4 className="font-medium text-gray-900">
                           All Suggestions
                         </h4>
                         <div className="flex gap-2">
@@ -1616,14 +1616,14 @@ export function FeedbackModule() {
                           return (
                             <Card
                               key={suggestion.id}
-                              className="border-slate-200"
+                              className="border-gray-200"
                             >
                               <CardContent className="p-4">
                                 <div className="flex items-start justify-between">
                                   <div className="flex-1">
                                     <div className="flex items-center gap-3 mb-2">
-                                      <CategoryIcon className="w-4 h-4 text-slate-500" />
-                                      <h4 className="font-medium text-slate-900">
+                                      <CategoryIcon className="w-4 h-4 text-gray-500" />
+                                      <h4 className="font-medium text-gray-900">
                                         {suggestion.title}
                                       </h4>
                                       <Badge
@@ -1643,10 +1643,10 @@ export function FeedbackModule() {
                                         {suggestion.status.replace("_", " ")}
                                       </Badge>
                                     </div>
-                                    <p className="text-sm text-slate-600 mb-3">
+                                    <p className="text-sm text-gray-600 mb-3">
                                       {suggestion.description}
                                     </p>
-                                    <div className="flex items-center gap-4 text-sm text-slate-500">
+                                    <div className="flex items-center gap-4 text-sm text-gray-500">
                                       <span>
                                         By:{" "}
                                         {suggestion.submittedBy || "Anonymous"}
@@ -1742,7 +1742,7 @@ export function FeedbackModule() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Quick Actions */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
@@ -1781,7 +1781,7 @@ export function FeedbackModule() {
           </Card>
 
           {/* Recent Activity */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="w-5 h-5" />
@@ -1793,28 +1793,28 @@ export function FeedbackModule() {
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-slate-900">
+                    <p className="text-sm text-gray-900">
                       New suggestion submitted
                     </p>
-                    <p className="text-xs text-slate-500">2 hours ago</p>
+                    <p className="text-xs text-gray-500">2 hours ago</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-slate-900">
+                    <p className="text-sm text-gray-900">
                       Pulse check completed
                     </p>
-                    <p className="text-xs text-slate-500">4 hours ago</p>
+                    <p className="text-xs text-gray-500">4 hours ago</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-amber-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm text-slate-900">
+                    <p className="text-sm text-gray-900">
                       Survey response received
                     </p>
-                    <p className="text-xs text-slate-500">6 hours ago</p>
+                    <p className="text-xs text-gray-500">6 hours ago</p>
                   </div>
                 </div>
               </div>

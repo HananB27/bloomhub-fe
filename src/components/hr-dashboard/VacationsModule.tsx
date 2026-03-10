@@ -347,7 +347,7 @@ export function VacationsModule() {
               </div>
 
               <div className="flex gap-2 pt-4">
-                <Button className="flex-1 bg-gray-800 hover:bg-gray-700">
+                <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
                   <Download className="w-4 h-4 mr-2" />
                   Export Data
                 </Button>
@@ -433,7 +433,7 @@ export function VacationsModule() {
               </div>
 
               <div className="flex gap-2 pt-4">
-                <Button className="flex-1 bg-gray-800 hover:bg-gray-700">
+                <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
                   Apply Filters
                 </Button>
                 <Button variant="outline">Clear All</Button>
@@ -494,7 +494,7 @@ export function VacationsModule() {
                     />
                     <Button
                       size="sm"
-                      className="w-full bg-gray-800 hover:bg-gray-700"
+                      className="w-full bg-blue-600 hover:bg-blue-700"
                     >
                       Update Balance
                     </Button>
@@ -632,7 +632,7 @@ export function VacationsModule() {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button className="bg-gray-800 hover:bg-gray-700">
+                    <Button className="bg-blue-600 hover:bg-blue-700">
                       <Plus className="w-4 h-4 mr-2" />
                       Submit Request
                     </Button>

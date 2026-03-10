@@ -30,6 +30,7 @@ import {
   PieChart,
   Pie,
   Cell,
+  type TooltipProps,
 } from "recharts";
 import {
   BarChart3,
@@ -117,8 +118,8 @@ type RechartsTooltipProps = TooltipProps<number, string>;
 function AnalyticsTooltip({ active, payload, label }: RechartsTooltipProps) {
   if (active && payload && payload.length) {
     return (
-      <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg">
-        <p className="mb-2 font-medium text-slate-900">{label}</p>
+      <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
+        <p className="mb-2 font-medium text-gray-900">{label}</p>
         {payload.map((entry, index) => {
           if (!entry) return null;
           const color = entry.color ?? "#0f172a";
@@ -458,7 +459,7 @@ export function AnalyticsModule() {
       case "partial":
         return "bg-amber-200";
       default:
-        return "bg-slate-100";
+        return "bg-gray-100";
     }
   };
 
@@ -527,13 +528,13 @@ export function AnalyticsModule() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">
+            <h1 className="text-2xl font-bold text-gray-900">
               Leave Analytics
             </h1>
-            <p className="text-slate-600 mt-1">
+            <p className="text-gray-600 mt-1">
               Insights into leave patterns, trends, and team availability
             </p>
           </div>
@@ -577,22 +578,22 @@ export function AnalyticsModule() {
 
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Calendar className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Total Leave Days</p>
+              <Calendar className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Total Leave Days</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               {leaveRecords.reduce((sum, record) => sum + record.days, 0)}
             </p>
-            <p className="text-xs text-slate-500">This year</p>
+            <p className="text-xs text-gray-500">This year</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Employees on Leave</p>
+              <Users className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Employees on Leave</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               {
                 employeeAvailability.filter((emp) =>
                   Object.values(emp.availability).some(
@@ -601,27 +602,27 @@ export function AnalyticsModule() {
                 ).length
               }
             </p>
-            <p className="text-xs text-slate-500">Currently</p>
+            <p className="text-xs text-gray-500">Currently</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Average Leave</p>
+              <TrendingUp className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Average Leave</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               {Math.round(
                 leaveRecords.reduce((sum, record) => sum + record.days, 0) /
                   leaveRecords.length
               ) || 0}
             </p>
-            <p className="text-xs text-slate-500">Days per employee</p>
+            <p className="text-xs text-gray-500">Days per employee</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Activity className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Team Availability</p>
+              <Activity className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Team Availability</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               {Math.round(
                 ((employeeAvailability.length -
                   employeeAvailability.filter((emp) =>
@@ -634,7 +635,7 @@ export function AnalyticsModule() {
               )}
               %
             </p>
-            <p className="text-xs text-slate-500">Currently available</p>
+            <p className="text-xs text-gray-500">Currently available</p>
           </div>
         </div>
       </div>
@@ -642,7 +643,7 @@ export function AnalyticsModule() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-3">
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
@@ -662,7 +663,7 @@ export function AnalyticsModule() {
                   {/* Leave Trends Chart */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-slate-900">
+                      <h3 className="font-medium text-gray-900">
                         Leave Trends by Month
                       </h3>
                       <Select
@@ -759,19 +760,16 @@ export function AnalyticsModule() {
 
                   {/* Department Overview */}
                   <div className="space-y-4">
-                    <h3 className="font-medium text-slate-900">
+                    <h3 className="font-medium text-gray-900">
                       Department Overview
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {departmentStats.map((dept) => (
-                        <Card
-                          key={dept.department}
-                          className="border-slate-200"
-                        >
+                        <Card key={dept.department} className="border-gray-200">
                           <CardContent className="p-4">
                             <div className="space-y-3">
                               <div className="flex items-center justify-between">
-                                <h4 className="font-medium text-slate-900">
+                                <h4 className="font-medium text-gray-900">
                                   {dept.department}
                                 </h4>
                                 <Badge
@@ -790,7 +788,7 @@ export function AnalyticsModule() {
 
                               <div className="space-y-2">
                                 <div className="flex justify-between text-sm">
-                                  <span className="text-slate-600">
+                                  <span className="text-gray-600">
                                     Available:
                                   </span>
                                   <span className="font-medium">
@@ -804,9 +802,9 @@ export function AnalyticsModule() {
                                 />
                               </div>
 
-                              <div className="pt-2 border-t border-slate-100">
+                              <div className="pt-2 border-t border-gray-100">
                                 <div className="flex justify-between text-sm">
-                                  <span className="text-slate-600">
+                                  <span className="text-gray-600">
                                     Avg Leave Days:
                                   </span>
                                   <span className="font-medium">
@@ -826,7 +824,7 @@ export function AnalyticsModule() {
                   {/* Detailed Trends Analysis */}
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-slate-900">
+                      <h3 className="font-medium text-gray-900">
                         Leave Patterns & Trends
                       </h3>
                       <div className="flex gap-2">
@@ -886,7 +884,7 @@ export function AnalyticsModule() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       {/* Leave Type Distribution */}
-                      <Card className="border-slate-200">
+                      <Card className="border-gray-200">
                         <CardHeader>
                           <CardTitle className="text-lg">
                             Leave Type Distribution
@@ -921,7 +919,7 @@ export function AnalyticsModule() {
                       </Card>
 
                       {/* Top Insights */}
-                      <Card className="border-slate-200">
+                      <Card className="border-gray-200">
                         <CardHeader>
                           <CardTitle className="text-lg">
                             Key Insights
@@ -975,32 +973,32 @@ export function AnalyticsModule() {
                   {/* Team Availability Heatmap */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-slate-900">
+                      <h3 className="font-medium text-gray-900">
                         Team Availability Heatmap
                       </h3>
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2 text-sm">
                           <div className="w-3 h-3 bg-green-100 rounded-sm"></div>
-                          <span className="text-slate-600">Available</span>
+                          <span className="text-gray-600">Available</span>
                         </div>
                         <div className="flex items-center gap-2 text-sm">
                           <div className="w-3 h-3 bg-amber-200 rounded-sm"></div>
-                          <span className="text-slate-600">Partial</span>
+                          <span className="text-gray-600">Partial</span>
                         </div>
                         <div className="flex items-center gap-2 text-sm">
                           <div className="w-3 h-3 bg-red-200 rounded-sm"></div>
-                          <span className="text-slate-600">On Leave</span>
+                          <span className="text-gray-600">On Leave</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Heatmap Calendar */}
-                    <Card className="border-slate-200">
+                    <Card className="border-gray-200">
                       <CardContent className="p-6">
                         <div className="space-y-4">
                           {/* Calendar Header */}
                           <div className="grid grid-cols-8 gap-2">
-                            <div className="text-sm font-medium text-slate-600 p-2">
+                            <div className="text-sm font-medium text-gray-600 p-2">
                               Employee
                             </div>
                             {[
@@ -1014,7 +1012,7 @@ export function AnalyticsModule() {
                             ].map((day) => (
                               <div
                                 key={day}
-                                className="text-sm font-medium text-slate-600 text-center p-2"
+                                className="text-sm font-medium text-gray-600 text-center p-2"
                               >
                                 {day}
                               </div>
@@ -1042,10 +1040,10 @@ export function AnalyticsModule() {
                                   </AvatarFallback>
                                 </Avatar>
                                 <div>
-                                  <p className="text-sm font-medium text-slate-900">
+                                  <p className="text-sm font-medium text-gray-900">
                                     {employee.employeeName}
                                   </p>
-                                  <p className="text-xs text-slate-500">
+                                  <p className="text-xs text-gray-500">
                                     {employee.department}
                                   </p>
                                 </div>
@@ -1081,19 +1079,16 @@ export function AnalyticsModule() {
                     {/* Department Availability Summary */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       {departmentStats.map((dept) => (
-                        <Card
-                          key={dept.department}
-                          className="border-slate-200"
-                        >
+                        <Card key={dept.department} className="border-gray-200">
                           <CardContent className="p-4 text-center">
-                            <h4 className="font-medium text-slate-900 mb-2">
+                            <h4 className="font-medium text-gray-900 mb-2">
                               {dept.department}
                             </h4>
                             <div className="space-y-1">
-                              <div className="text-2xl font-bold text-slate-900">
+                              <div className="text-2xl font-bold text-gray-900">
                                 {dept.totalEmployees - dept.onLeave}
                               </div>
-                              <div className="text-sm text-slate-600">
+                              <div className="text-sm text-gray-600">
                                 of {dept.totalEmployees} available
                               </div>
                               <Progress
@@ -1111,13 +1106,13 @@ export function AnalyticsModule() {
                 <TabsContent value="reports" className="space-y-6 mt-0">
                   {/* Reports Section */}
                   <div className="space-y-6">
-                    <h3 className="font-medium text-slate-900">
+                    <h3 className="font-medium text-gray-900">
                       Generate Reports
                     </h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Quick Export Options */}
-                      <Card className="border-slate-200">
+                      <Card className="border-gray-200">
                         <CardHeader>
                           <CardTitle className="text-lg">
                             Quick Exports
@@ -1151,7 +1146,7 @@ export function AnalyticsModule() {
                       </Card>
 
                       {/* Custom Report Builder */}
-                      <Card className="border-slate-200">
+                      <Card className="border-gray-200">
                         <CardHeader>
                           <CardTitle className="text-lg">
                             Custom Report
@@ -1215,7 +1210,7 @@ export function AnalyticsModule() {
                     </div>
 
                     {/* Recent Reports */}
-                    <Card className="border-slate-200">
+                    <Card className="border-gray-200">
                       <CardHeader>
                         <CardTitle className="text-lg">
                           Recent Reports
@@ -1245,7 +1240,7 @@ export function AnalyticsModule() {
                           ].map((report, index) => (
                             <div
                               key={index}
-                              className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
+                              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                             >
                               <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -1256,10 +1251,10 @@ export function AnalyticsModule() {
                                   )}
                                 </div>
                                 <div>
-                                  <p className="text-sm font-medium text-slate-900">
+                                  <p className="text-sm font-medium text-gray-900">
                                     {report.name}
                                   </p>
-                                  <p className="text-xs text-slate-500">
+                                  <p className="text-xs text-gray-500">
                                     {formatDate(report.date)} • {report.size}
                                   </p>
                                 </div>
@@ -1287,7 +1282,7 @@ export function AnalyticsModule() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Quick Actions */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
@@ -1316,7 +1311,7 @@ export function AnalyticsModule() {
           </Card>
 
           {/* Leave Type Legend */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="w-5 h-5" />
@@ -1339,12 +1334,12 @@ export function AnalyticsModule() {
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: type.color }}
                       ></div>
-                      <Icon className="w-4 h-4 text-slate-500" />
-                      <span className="text-sm text-slate-700">
+                      <Icon className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm text-gray-700">
                         {type.label}
                       </span>
                     </div>
-                    <span className="text-sm font-medium text-slate-900">
+                    <span className="text-sm font-medium text-gray-900">
                       {count}
                     </span>
                   </div>
@@ -1354,7 +1349,7 @@ export function AnalyticsModule() {
           </Card>
 
           {/* Quick Stats */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="w-5 h-5" />
@@ -1364,24 +1359,22 @@ export function AnalyticsModule() {
             <CardContent className="space-y-3">
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-sm text-slate-600">
+                  <span className="text-sm text-gray-600">
                     Most Used Leave:
                   </span>
-                  <span className="text-sm font-medium text-slate-900">
+                  <span className="text-sm font-medium text-gray-900">
                     Vacation
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-slate-600">Peak Month:</span>
-                  <span className="text-sm font-medium text-slate-900">
+                  <span className="text-sm text-gray-600">Peak Month:</span>
+                  <span className="text-sm font-medium text-gray-900">
                     August
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-slate-600">Approval Rate:</span>
-                  <span className="text-sm font-medium text-slate-900">
-                    98%
-                  </span>
+                  <span className="text-sm text-gray-600">Approval Rate:</span>
+                  <span className="text-sm font-medium text-gray-900">98%</span>
                 </div>
               </div>
             </CardContent>

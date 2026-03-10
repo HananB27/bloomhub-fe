@@ -360,7 +360,7 @@ export function OnboardingModule() {
       case "in-progress":
         return "text-blue-600 bg-blue-50 border-blue-200";
       default:
-        return "text-slate-600 bg-slate-50 border-slate-200";
+        return "text-gray-600 bg-gray-50 border-gray-200";
     }
   };
 
@@ -389,13 +389,13 @@ export function OnboardingModule() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">
+            <h1 className="text-2xl font-bold text-gray-900">
               Onboarding & Offboarding Tracker
             </h1>
-            <p className="text-slate-600 mt-1">
+            <p className="text-gray-600 mt-1">
               Streamline the employee journey with structured checklists
             </p>
           </div>
@@ -417,37 +417,37 @@ export function OnboardingModule() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <UserPlus className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Active Onboarding</p>
+              <UserPlus className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Active Onboarding</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">3</p>
-            <p className="text-xs text-slate-500">New hires this month</p>
+            <p className="text-2xl font-bold text-gray-900">3</p>
+            <p className="text-xs text-gray-500">New hires this month</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <UserMinus className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Active Offboarding</p>
+              <UserMinus className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Active Offboarding</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">2</p>
-            <p className="text-xs text-slate-500">Departures this month</p>
+            <p className="text-2xl font-bold text-gray-900">2</p>
+            <p className="text-xs text-gray-500">Departures this month</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Target className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Avg Completion</p>
+              <Target className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Avg Completion</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">87%</p>
-            <p className="text-xs text-slate-500">Task completion rate</p>
+            <p className="text-2xl font-bold text-gray-900">87%</p>
+            <p className="text-xs text-gray-500">Task completion rate</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Overdue Tasks</p>
+              <Clock className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Overdue Tasks</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">1</p>
-            <p className="text-xs text-slate-500">Needs attention</p>
+            <p className="text-2xl font-bold text-gray-900">1</p>
+            <p className="text-xs text-gray-500">Needs attention</p>
           </div>
         </div>
 
@@ -476,7 +476,7 @@ export function OnboardingModule() {
                       </Avatar>
                       <div>
                         <p className="font-medium">{employee.name}</p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-gray-500">
                           {employee.department} -{" "}
                           {employee.type === "onboarding"
                             ? `Starts ${employee.startDate}`
@@ -523,7 +523,7 @@ export function OnboardingModule() {
         {/* Main Task List */}
         <div className="lg:col-span-2 space-y-6">
           {/* Progress Overview */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
@@ -546,7 +546,7 @@ export function OnboardingModule() {
             <CardContent>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-600">
+                  <span className="text-sm text-gray-600">
                     Overall Progress
                   </span>
                   <span className="text-sm font-medium">
@@ -573,7 +573,7 @@ export function OnboardingModule() {
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Circle className="w-4 h-4 text-slate-400" />
+                    <Circle className="w-4 h-4 text-gray-400" />
                     <span>
                       {currentTasks.filter((t) => t.status === "todo").length}{" "}
                       To Do
@@ -602,16 +602,16 @@ export function OnboardingModule() {
                               ? "text-green-600"
                               : task.status === "in-progress"
                                 ? "text-blue-600"
-                                : "text-slate-400"
+                                : "text-gray-400"
                           }`}
                         />
                         <div className="flex-1">
                           <h3
-                            className={`font-medium ${task.status === "done" ? "line-through text-slate-500" : "text-slate-900"}`}
+                            className={`font-medium ${task.status === "done" ? "line-through text-gray-500" : "text-gray-900"}`}
                           >
                             {task.title}
                           </h3>
-                          <p className="text-sm text-slate-600 mt-1">
+                          <p className="text-sm text-gray-600 mt-1">
                             {task.description}
                           </p>
                         </div>
@@ -633,13 +633,13 @@ export function OnboardingModule() {
                               {task.assigneeAvatar}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="text-sm text-slate-600">
+                          <span className="text-sm text-gray-600">
                             {task.assignee}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-slate-400" />
-                          <span className="text-sm text-slate-600">
+                          <Calendar className="w-4 h-4 text-gray-400" />
+                          <span className="text-sm text-gray-600">
                             Due {task.dueDate}
                           </span>
                         </div>
@@ -660,7 +660,7 @@ export function OnboardingModule() {
                           <SelectContent>
                             <SelectItem value="todo">
                               <div className="flex items-center gap-2">
-                                <Circle className="w-4 h-4 text-slate-400" />
+                                <Circle className="w-4 h-4 text-gray-400" />
                                 To Do
                               </div>
                             </SelectItem>
@@ -682,11 +682,11 @@ export function OnboardingModule() {
                     </div>
 
                     {/* Comments Section */}
-                    <div className="border-t border-slate-200 pt-4">
+                    <div className="border-t border-gray-200 pt-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          <MessageSquare className="w-4 h-4 text-slate-500" />
-                          <span className="text-sm font-medium text-slate-700">
+                          <MessageSquare className="w-4 h-4 text-gray-500" />
+                          <span className="text-sm font-medium text-gray-700">
                             Comments ({task.comments.length})
                           </span>
                         </div>
@@ -709,7 +709,7 @@ export function OnboardingModule() {
                           {task.comments.map((comment) => (
                             <div
                               key={comment.id}
-                              className="flex gap-3 p-3 bg-slate-50 rounded-lg"
+                              className="flex gap-3 p-3 bg-gray-50 rounded-lg"
                             >
                               <Avatar className="w-7 h-7">
                                 <AvatarFallback className="text-xs">
@@ -718,14 +718,14 @@ export function OnboardingModule() {
                               </Avatar>
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <span className="text-sm font-medium text-slate-900">
+                                  <span className="text-sm font-medium text-gray-900">
                                     {comment.author}
                                   </span>
-                                  <span className="text-xs text-slate-500">
+                                  <span className="text-xs text-gray-500">
                                     {comment.timestamp}
                                   </span>
                                 </div>
-                                <p className="text-sm text-slate-700">
+                                <p className="text-sm text-gray-700">
                                   {comment.content}
                                 </p>
                               </div>
@@ -772,7 +772,7 @@ export function OnboardingModule() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Employee Info */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="w-5 h-5" />
@@ -792,13 +792,13 @@ export function OnboardingModule() {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium text-slate-900">
+                      <p className="font-medium text-gray-900">
                         {selectedEmployeeData.name}
                       </p>
-                      <p className="text-sm text-slate-500">
+                      <p className="text-sm text-gray-500">
                         {selectedEmployeeData.role}
                       </p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-gray-500">
                         {selectedEmployeeData.department}
                       </p>
                     </div>
@@ -806,7 +806,7 @@ export function OnboardingModule() {
                   <Separator />
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-sm text-slate-600">
+                      <span className="text-sm text-gray-600">
                         Process Type:
                       </span>
                       <Badge
@@ -822,7 +822,7 @@ export function OnboardingModule() {
                       </Badge>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-slate-600">
+                      <span className="text-sm text-gray-600">
                         {selectedEmployeeData.type === "onboarding"
                           ? "Start Date:"
                           : "End Date:"}
@@ -834,7 +834,7 @@ export function OnboardingModule() {
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-slate-600">Progress:</span>
+                      <span className="text-sm text-gray-600">Progress:</span>
                       <span className="text-sm font-medium">
                         {progressPercentage}%
                       </span>
@@ -846,7 +846,7 @@ export function OnboardingModule() {
           </Card>
 
           {/* Process Statistics */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5" />
@@ -874,7 +874,7 @@ export function OnboardingModule() {
               <Separator />
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-sm text-slate-600">
+                  <span className="text-sm text-gray-600">
                     Estimated Hours:
                   </span>
                   <span className="text-sm font-medium">
@@ -886,16 +886,14 @@ export function OnboardingModule() {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-slate-600">High Priority:</span>
+                  <span className="text-sm text-gray-600">High Priority:</span>
                   <span className="text-sm font-medium">
                     {currentTasks.filter((t) => t.priority === "high").length}{" "}
                     tasks
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-slate-600">
-                    Total Comments:
-                  </span>
+                  <span className="text-sm text-gray-600">Total Comments:</span>
                   <span className="text-sm font-medium">
                     {currentTasks.reduce(
                       (sum, task) => sum + task.comments.length,
@@ -908,7 +906,7 @@ export function OnboardingModule() {
           </Card>
 
           {/* Quick Actions */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>

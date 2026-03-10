@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
@@ -297,7 +297,7 @@ export function CompensationModule() {
       case "rejected":
         return "bg-red-100 text-red-800";
       default:
-        return "bg-slate-100 text-slate-800";
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -331,7 +331,7 @@ export function CompensationModule() {
       case "spot":
         return "bg-pink-100 text-pink-800";
       default:
-        return "bg-slate-100 text-slate-800";
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -398,12 +398,12 @@ export function CompensationModule() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border border-slate-200 rounded-lg shadow-lg">
-          <p className="font-medium text-slate-900">{label}</p>
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-medium text-gray-900">{label}</p>
           <p className="text-blue-600">
             Total: ${payload[0].value?.toLocaleString()}
           </p>
-          <p className="text-slate-600 text-sm">
+          <p className="text-gray-600 text-sm">
             {payload[0].payload?.bonusCount} bonuses
           </p>
         </div>
@@ -415,13 +415,13 @@ export function CompensationModule() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">
+            <h1 className="text-2xl font-bold text-gray-900">
               Compensation & Incentives
             </h1>
-            <p className="text-slate-600 mt-1">
+            <p className="text-gray-600 mt-1">
               Manage employee bonuses and compensation tracking
             </p>
           </div>
@@ -445,48 +445,48 @@ export function CompensationModule() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <DollarSign className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Total Paid YTD</p>
+              <DollarSign className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Total Paid YTD</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               ${totalPaidBonuses.toLocaleString()}
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-gray-500">
               {bonuses.filter((b) => b.status === "paid").length} bonuses
             </p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Pending Approval</p>
+              <Clock className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Pending Approval</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               ${totalPendingBonuses.toLocaleString()}
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-gray-500">
               {bonuses.filter((b) => b.status === "pending").length} bonuses
             </p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Approved</p>
+              <CheckCircle className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Approved</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               ${totalApprovedBonuses.toLocaleString()}
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-gray-500">
               {bonuses.filter((b) => b.status === "approved").length} bonuses
             </p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="w-4 h-4 text-slate-500" />
-              <p className="text-sm text-slate-600">Avg Bonus</p>
+              <Users className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">Avg Bonus</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-gray-900">
               $
               {totalPaidBonuses > 0
                 ? Math.round(
@@ -495,7 +495,7 @@ export function CompensationModule() {
                   ).toLocaleString()
                 : 0}
             </p>
-            <p className="text-xs text-slate-500">Per employee</p>
+            <p className="text-xs text-gray-500">Per employee</p>
           </div>
         </div>
 
@@ -521,7 +521,7 @@ export function CompensationModule() {
                     <div>
                       <p className="font-medium">{employee.name}</p>
                       {employee.department && (
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-gray-500">
                           {employee.department}
                         </p>
                       )}
@@ -537,7 +537,7 @@ export function CompensationModule() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2">
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
@@ -557,7 +557,7 @@ export function CompensationModule() {
                   {/* Payout History Chart */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-slate-900">
+                      <h3 className="font-medium text-gray-900">
                         Payout History Timeline
                       </h3>
                       <div className="flex gap-2">
@@ -612,7 +612,7 @@ export function CompensationModule() {
 
                   {/* Recent Bonuses Summary */}
                   <div className="space-y-4">
-                    <h3 className="font-medium text-slate-900">
+                    <h3 className="font-medium text-gray-900">
                       Recent Bonus Activity
                     </h3>
                     <div className="space-y-3">
@@ -621,7 +621,7 @@ export function CompensationModule() {
                         return (
                           <div
                             key={bonus.id}
-                            className="flex items-center justify-between p-4 bg-slate-50 rounded-lg"
+                            className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
                           >
                             <div className="flex items-center gap-3">
                               <Avatar className="w-8 h-8">
@@ -633,7 +633,7 @@ export function CompensationModule() {
                                 </AvatarFallback>
                               </Avatar>
                               <div>
-                                <p className="font-medium text-slate-900">
+                                <p className="font-medium text-gray-900">
                                   {bonus.employeeName}
                                 </p>
                                 <div className="flex items-center gap-2">
@@ -643,7 +643,7 @@ export function CompensationModule() {
                                   >
                                     {bonus.type}
                                   </Badge>
-                                  <span className="text-sm text-slate-500">
+                                  <span className="text-sm text-gray-500">
                                     ${bonus.amount.toLocaleString()}
                                   </span>
                                 </div>
@@ -678,7 +678,7 @@ export function CompensationModule() {
                 <TabsContent value="bonuses" className="space-y-4 mt-0">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-slate-900">
+                      <h3 className="font-medium text-gray-900">
                         Bonus Management
                       </h3>
                       <div className="flex gap-2">
@@ -694,7 +694,7 @@ export function CompensationModule() {
                     </div>
 
                     {/* Monthly Bonus Table */}
-                    <div className="border border-slate-200 rounded-lg overflow-hidden">
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
                       <Table>
                         <TableHeader>
                           <TableRow>
@@ -723,10 +723,10 @@ export function CompensationModule() {
                                       </AvatarFallback>
                                     </Avatar>
                                     <div>
-                                      <p className="font-medium text-slate-900">
+                                      <p className="font-medium text-gray-900">
                                         {bonus.employeeName}
                                       </p>
-                                      <p className="text-sm text-slate-500">
+                                      <p className="text-sm text-gray-500">
                                         {bonus.department}
                                       </p>
                                     </div>
@@ -905,14 +905,14 @@ export function CompensationModule() {
 
                 <TabsContent value="analytics" className="space-y-6 mt-0">
                   <div className="space-y-6">
-                    <h3 className="font-medium text-slate-900">
+                    <h3 className="font-medium text-gray-900">
                       Compensation Analytics
                     </h3>
 
                     {/* Bonus Type Distribution */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <div>
-                        <h4 className="font-medium text-slate-900 mb-4">
+                        <h4 className="font-medium text-gray-900 mb-4">
                           Bonus Type Distribution
                         </h4>
                         <div className="h-64">
@@ -947,7 +947,7 @@ export function CompensationModule() {
                       </div>
 
                       <div>
-                        <h4 className="font-medium text-slate-900 mb-4">
+                        <h4 className="font-medium text-gray-900 mb-4">
                           Monthly Bonus Count
                         </h4>
                         <div className="h-64">
@@ -996,7 +996,7 @@ export function CompensationModule() {
 
                     {/* Department Breakdown */}
                     <div>
-                      <h4 className="font-medium text-slate-900 mb-4">
+                      <h4 className="font-medium text-gray-900 mb-4">
                         Department Bonus Breakdown
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1019,18 +1019,18 @@ export function CompensationModule() {
                           return (
                             <div
                               key={dept}
-                              className="border border-slate-200 rounded-lg p-4"
+                              className="border border-gray-200 rounded-lg p-4"
                             >
                               <div className="flex items-center gap-2 mb-2">
-                                <Building className="w-4 h-4 text-slate-500" />
-                                <p className="font-medium text-slate-900">
+                                <Building className="w-4 h-4 text-gray-500" />
+                                <p className="font-medium text-gray-900">
                                   {dept}
                                 </p>
                               </div>
-                              <p className="text-2xl font-bold text-slate-700">
+                              <p className="text-2xl font-bold text-gray-700">
                                 ${deptTotal.toLocaleString()}
                               </p>
-                              <p className="text-sm text-slate-500">
+                              <p className="text-sm text-gray-500">
                                 {deptCount} bonuses • $
                                 {deptCount > 0
                                   ? Math.round(
@@ -1051,7 +1051,7 @@ export function CompensationModule() {
                   <TabsContent value="manage" className="space-y-6 mt-0">
                     <div className="space-y-6">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-medium text-slate-900">
+                        <h3 className="font-medium text-gray-900">
                           Add New Bonus
                         </h3>
                         <Badge
@@ -1063,7 +1063,7 @@ export function CompensationModule() {
                       </div>
 
                       {/* Add Bonus Form */}
-                      <Card className="border-slate-200">
+                      <Card className="border-gray-200">
                         <CardHeader>
                           <CardTitle className="text-lg">
                             Bonus Request Form
@@ -1106,7 +1106,7 @@ export function CompensationModule() {
                                             <p className="font-medium">
                                               {employee.name}
                                             </p>
-                                            <p className="text-xs text-slate-500">
+                                            <p className="text-xs text-gray-500">
                                               {employee.department}
                                             </p>
                                           </div>
@@ -1240,7 +1240,7 @@ export function CompensationModule() {
 
                       {/* Pending Approvals */}
                       <div className="space-y-4">
-                        <h4 className="font-medium text-slate-900">
+                        <h4 className="font-medium text-gray-900">
                           Pending Approvals
                         </h4>
                         <div className="space-y-3">
@@ -1264,7 +1264,7 @@ export function CompensationModule() {
                                           </AvatarFallback>
                                         </Avatar>
                                         <div>
-                                          <p className="font-medium text-slate-900">
+                                          <p className="font-medium text-gray-900">
                                             {bonus.employeeName}
                                           </p>
                                           <div className="flex items-center gap-2">
@@ -1276,16 +1276,16 @@ export function CompensationModule() {
                                             >
                                               {bonus.type}
                                             </Badge>
-                                            <span className="font-bold text-slate-900">
+                                            <span className="font-bold text-gray-900">
                                               ${bonus.amount.toLocaleString()}
                                             </span>
                                           </div>
                                         </div>
                                       </div>
-                                      <p className="text-sm text-slate-600 mb-2">
+                                      <p className="text-sm text-gray-600 mb-2">
                                         {bonus.reason}
                                       </p>
-                                      <div className="flex items-center gap-4 text-sm text-slate-500">
+                                      <div className="flex items-center gap-4 text-sm text-gray-500">
                                         <span>Approver: {bonus.approver}</span>
                                         <span>
                                           Requested: {bonus.requestDate}
@@ -1337,7 +1337,7 @@ export function CompensationModule() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Quick Summary */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Award className="w-5 h-5" />
@@ -1347,25 +1347,25 @@ export function CompensationModule() {
             <CardContent className="space-y-4">
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-sm text-slate-600">
+                  <span className="text-sm text-gray-600">
                     Total Bonuses YTD:
                   </span>
                   <span className="font-medium">{bonuses.length}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-slate-600">Total Paid:</span>
+                  <span className="text-sm text-gray-600">Total Paid:</span>
                   <span className="font-medium">
                     ${totalPaidBonuses.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-slate-600">Pending Value:</span>
+                  <span className="text-sm text-gray-600">Pending Value:</span>
                   <span className="font-medium">
                     ${totalPendingBonuses.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-slate-600">Avg Bonus:</span>
+                  <span className="text-sm text-gray-600">Avg Bonus:</span>
                   <span className="font-medium">
                     $
                     {totalPaidBonuses > 0
@@ -1381,7 +1381,7 @@ export function CompensationModule() {
           </Card>
 
           {/* Top Performers */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="w-5 h-5" />
@@ -1399,7 +1399,7 @@ export function CompensationModule() {
                     className="flex items-center justify-between"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-slate-500">
+                      <span className="text-sm font-medium text-gray-500">
                         #{index + 1}
                       </span>
                       <Avatar className="w-6 h-6">
@@ -1411,10 +1411,10 @@ export function CompensationModule() {
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="text-sm font-medium text-slate-900">
+                        <p className="text-sm font-medium text-gray-900">
                           {bonus.employeeName}
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-gray-500">
                           {bonus.department}
                         </p>
                       </div>
@@ -1428,7 +1428,7 @@ export function CompensationModule() {
           </Card>
 
           {/* Quick Actions */}
-          <Card className="border-slate-200">
+          <Card className="border-gray-200">
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
