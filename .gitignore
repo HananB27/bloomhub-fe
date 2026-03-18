@@ -42,3 +42,8 @@ next-env.d.ts
 .env*.local
 
 .idea
+
+.gemini/
+gha-creds-*.json
+.github/commands/gemini-*
+.github/workflows/gemini-*
