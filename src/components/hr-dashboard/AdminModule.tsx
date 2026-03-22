@@ -198,6 +198,15 @@ export function AdminModule() {
     }
   };
 
+  const handleBulkUpdateClick = () => {
+    if (!accessToken.trim()) {
+      toast.error("Set and save a JWT access token before uploading CSV.");
+      return;
+    }
+
+    fileInputRef.current?.click();
+  };
+
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -278,7 +287,7 @@ export function AdminModule() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={handleBulkUpdateClick}
             className="h-9"
           >
             <Upload className="mr-2 h-4 w-4" />

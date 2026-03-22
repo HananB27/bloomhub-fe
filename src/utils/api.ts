@@ -86,7 +86,7 @@ export async function uploadRolePermissionsCsv(
   file: File,
   accessToken?: string
 ): Promise<UploadRolePermissionsResponse> {
-  const token = accessToken ?? getStoredAccessToken();
+  const token = accessToken?.trim() || getStoredAccessToken();
 
   if (!token) {
     throw new ApiError(
