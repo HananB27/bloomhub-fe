@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Card,
   CardContent,
@@ -50,6 +50,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { ApiError, uploadRolePermissionsCsv } from "@/utils/api";
 
 interface UserData {
   id: string;
@@ -151,6 +152,8 @@ const PERMISSIONS_LIST = [
   "admin_access",
 ];
 
+const TOKEN_STORAGE_KEY = "access";
+
 export function AdminModule() {
   const [users, setUsers] = useState<UserData[]>(INITIAL_USERS);
   const [roles, setRoles] = useState<RoleData[]>(INITIAL_ROLES);
@@ -158,7 +161,23 @@ export function AdminModule() {
   const [searchQuery, setSearchQuery] = useState("");
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isUploadingCsv, setIsUploadingCsv] = useState(false);
+  const [accessToken, setAccessToken] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const tokenKeys = ["access", "accessToken", "token", "authToken", "jwt"];
+    const storedToken =
+      tokenKeys
+        .map((key) => window.localStorage.getItem(key))
+        .find((token) => Boolean(token)) ?? "";
+
+    setAccessToken(storedToken);
+  }, []);
 
   const filteredUsers = users.filter(
     (u) =>
@@ -179,16 +198,54 @@ export function AdminModule() {
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Mock CSV processing
-      toast.promise(new Promise((resolve) => setTimeout(resolve, 1500)), {
-        loading: "Processing CSV file...",
-        success: "Bulk update completed successfully",
-        error: "Error processing CSV file",
-      });
+      setIsUploadingCsv(true);
+
+      try {
+        const result = await uploadRolePermissionsCsv(file, accessToken.trim());
+        toast.success(result.message || "Bulk update completed successfully");
+      } catch (error) {
+        if (error instanceof ApiError) {
+          if (error.status === 401) {
+            toast.error(
+              "Authentication required. Please sign in and provide a valid access token."
+            );
+          } else if (error.status === 403) {
+            toast.error("Admin access required for this action.");
+          } else {
+            toast.error(error.message);
+          }
+        } else {
+          toast.error("Error processing CSV file");
+        }
+      } finally {
+        event.target.value = "";
+        setIsUploadingCsv(false);
+      }
     }
+  };
+
+  const handleSaveToken = () => {
+    const token = accessToken.trim();
+
+    if (!token) {
+      toast.error("Enter a valid JWT access token before saving.");
+      return;
+    }
+
+    window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
+    setAccessToken(token);
+    toast.success("Access token saved for admin CSV uploads.");
+  };
+
+  const handleClearToken = () => {
+    window.localStorage.removeItem(TOKEN_STORAGE_KEY);
+    setAccessToken("");
+    toast.success("Saved access token removed.");
   };
 
   const togglePermission = (roleId: string, permission: string) => {
@@ -225,7 +282,7 @@ export function AdminModule() {
             className="h-9"
           >
             <Upload className="mr-2 h-4 w-4" />
-            Bulk Update (CSV)
+            {isUploadingCsv ? "Uploading..." : "Bulk Update (CSV)"}
           </Button>
           <input
             type="file"
@@ -481,6 +538,43 @@ export function AdminModule() {
                     </SelectContent>
                   </Select>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>API Access Token</CardTitle>
+                <CardDescription>
+                  Paste a backend JWT access token used for role permission CSV
+                  uploads.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Label htmlFor="admin-access-token">JWT Access Token</Label>
+                <Input
+                  id="admin-access-token"
+                  type="password"
+                  placeholder="Paste access token"
+                  value={accessToken}
+                  onChange={(e) => setAccessToken(e.target.value)}
+                />
+                <div className="flex items-center gap-2">
+                  <Button type="button" size="sm" onClick={handleSaveToken}>
+                    Save Token
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={handleClearToken}
+                  >
+                    Clear Token
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500">
+                  The token is stored in this browser and sent as{" "}
+                  <code>Authorization: Bearer ...</code> during upload.
+                </p>
               </CardContent>
             </Card>
 

@@ -28,6 +28,7 @@ import {
   Network,
   BarChart3,
   Megaphone,
+  Settings,
   Lightbulb,
   InfoIcon,
 } from "lucide-react";
@@ -187,6 +188,15 @@ const hrModuleCapabilities: Record<
       "Policy changes",
       "Event notifications",
       "Targeted messaging",
+    ],
+  },
+  admin: {
+    icon: Settings,
+    capabilities: [
+      "Manage access and roles",
+      "Configure system settings",
+      "Review audit logs",
+      "Control module permissions",
     ],
   },
 };
