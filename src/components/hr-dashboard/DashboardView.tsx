@@ -13,8 +13,10 @@ import {
   Hand,
 } from "lucide-react";
 import { QuickActionButton } from "./QuickActionButton";
+import { useSession } from "next-auth/react";
 
 // Import all modules
+// ... (rest of imports unchanged)
 import { VacationsModule } from "./VacationsModule";
 import { ProfilesModule } from "./ProfilesModule";
 import { ReviewsModule } from "./ReviewsModule";
@@ -36,7 +38,13 @@ interface DashboardViewProps {
 
 // Dashboard Overview Component
 function DashboardOverview() {
+  const { data: session } = useSession();
+  const firstName = session?.user?.name
+    ? session.user.name.split(" ")[0]
+    : "John";
+
   const kpiData = [
+    // ... (rest of kpiData unchanged)
     {
       title: "Total Employees",
       value: "147",
@@ -76,6 +84,7 @@ function DashboardOverview() {
   ];
 
   const recentActivity = [
+    // ... (rest of recentActivity unchanged)
     {
       id: 1,
       user: "Sarah Johnson",
@@ -106,6 +115,7 @@ function DashboardOverview() {
   ];
 
   const pendingTasks = [
+    // ... (rest of pendingTasks unchanged)
     {
       id: 1,
       title: "Approve vacation requests",
@@ -175,7 +185,7 @@ function DashboardOverview() {
         <div>
           <h1 className="flex items-center gap-2 text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
             <Hand className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-            Welcome back, John!
+            Welcome back, {firstName}!
           </h1>
           <p className="text-sm text-gray-600 dark:text-gray-300">
             Here&apos;s what&apos;s happening with your team today. You have{" "}

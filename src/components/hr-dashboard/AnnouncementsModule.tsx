@@ -22,13 +22,11 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "./ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
@@ -46,26 +44,16 @@ import {
   Share,
   MoreHorizontal,
   Calendar,
-  User,
-  Gift,
-  Star,
   Trophy,
-  Coffee,
   Cake,
   PartyPopper,
   UserPlus,
-  Users,
   Bell,
   Eye,
   Edit3,
   Trash2,
   Send,
-  Image,
-  Link,
-  Clock,
-  Building,
   Bookmark,
-  Flag,
   TrendingUp,
   Activity,
   Settings,
@@ -78,6 +66,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { formatRelativeTimestamp } from "@/utils";
+import { useSession } from "next-auth/react";
 
 type PostType =
   | "announcement"
@@ -137,11 +126,11 @@ const reactionOptions: { id: string; Icon: LucideIcon }[] = [
 ];
 
 export function AnnouncementsModule() {
+  const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("feed");
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [isHRUser] = useState(true); // Mock HR permission
   const [showCommentsFor, setShowCommentsFor] = useState<number | null>(null);
   const [newComment, setNewComment] = useState("");
@@ -317,8 +306,9 @@ export function AnnouncementsModule() {
     const comment: Comment = {
       id: Date.now(),
       postId,
-      author: "John Doe",
+      author: session?.user?.name || "John Doe",
       authorAvatar:
+        session?.user?.image ||
         "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
       content: newComment,
       createdAt: new Date().toISOString(),
@@ -345,10 +335,13 @@ export function AnnouncementsModule() {
       priority: newPost.priority,
       title: newPost.title,
       content: newPost.content,
-      author: "John Doe", // Current user
+      author: session?.user?.name || "John Doe", // Current user
       authorAvatar:
+        session?.user?.image ||
         "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-      authorRole: "HR Manager",
+      authorRole:
+        (session?.user as { career_level?: string })?.career_level ||
+        "HR Manager",
       createdAt: new Date().toISOString(),
       isPinned: newPost.priority === "urgent",
       isRead: false,
@@ -646,7 +639,12 @@ export function AnnouncementsModule() {
                 <div className="flex gap-3">
                   <Avatar className="w-8 h-8">
                     <AvatarFallback className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs">
-                      JD
+                      {session?.user?.name
+                        ? session.user.name
+                            .split(" ")
+                            .map((n: string) => n[0])
+                            .join("")
+                        : "JD"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 space-y-2">

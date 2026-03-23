@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { type LucideIcon } from "lucide-react";
 import { ChevronLeft, UserCircle, LogOut } from "lucide-react";
+import { Button } from "./ui/button";
 import type { HrModuleId } from "./hr-modules";
 
 const SIDEBAR_WIDTH = 270;
@@ -37,6 +38,13 @@ export function CollapsibleSidebar({
     label: string;
     anchorRect: DOMRect;
   } | null>(null);
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   const showTooltip = useCallback(
     (label: string, e: React.MouseEvent<HTMLElement>) => {
@@ -85,10 +93,14 @@ export function CollapsibleSidebar({
                 aria-label="Bloomteq"
               >
                 <div
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gray-900 text-white dark:bg-white dark:text-[#151A2D]"
+                  className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-transparent"
                   aria-hidden
                 >
-                  <span className="text-lg font-bold">B</span>
+                  <img
+                    src="/414332629_122100699314163177_6128021943999749037_n.jpg"
+                    alt="Bloomteq Logo"
+                    className="h-full w-full object-contain mix-blend-multiply"
+                  />
                 </div>
                 <div className="min-w-0">
                   <h2 className="truncate text-base font-semibold text-gray-900 dark:text-white">
@@ -169,26 +181,52 @@ export function CollapsibleSidebar({
             {secondaryItems.map((item) => {
               const Icon = item.icon;
               return (
-                <li key={item.id} className="relative">
-                  <button
-                    type="button"
-                    onMouseEnter={
-                      collapsed ? (e) => showTooltip(item.label, e) : undefined
-                    }
-                    onMouseLeave={collapsed ? hideTooltip : undefined}
-                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition-colors duration-300 hover:bg-gray-100 hover:text-gray-900 dark:text-white dark:hover:bg-white dark:hover:text-[#151A2D] ${
-                      collapsed ? "justify-center rounded-xl px-0" : ""
-                    }`}
-                  >
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    {!collapsed && (
-                      <span className="min-w-0 flex-1 truncate">
-                        {item.label}
+                <li key={item.id} className="relative mt-1">
+                  {item.id === "logout" ? (
+                    <Button
+                      variant="ghost"
+                      onClick={() => onSelect(item.id as HrModuleId)}
+                      onMouseEnter={
+                        collapsed
+                          ? (e) => showTooltip(item.label, e)
+                          : undefined
+                      }
+                      onMouseLeave={collapsed ? hideTooltip : undefined}
+                      className={`flex h-10 w-full items-center gap-3 rounded-lg px-3 text-left font-medium text-gray-700 transition-colors duration-300 hover:bg-gray-100 hover:text-gray-900 dark:text-white dark:hover:bg-white dark:hover:text-[#151A2D] ${
+                        collapsed ? "justify-center px-0" : "justify-start"
+                      }`}
+                    >
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center">
+                        <Icon className="h-5 w-5" />
                       </span>
-                    )}
-                  </button>
+                      {!collapsed && (
+                        <span className="text-sm">{item.label}</span>
+                      )}
+                    </Button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => onSelect(item.id as HrModuleId)}
+                      onMouseEnter={
+                        collapsed
+                          ? (e) => showTooltip(item.label, e)
+                          : undefined
+                      }
+                      onMouseLeave={collapsed ? hideTooltip : undefined}
+                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition-colors duration-300 hover:bg-gray-100 hover:text-gray-900 dark:text-white dark:hover:bg-white dark:hover:text-[#151A2D] ${
+                        collapsed ? "justify-center rounded-xl px-0" : ""
+                      }`}
+                    >
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      {!collapsed && (
+                        <span className="min-w-0 flex-1 truncate">
+                          {item.label}
+                        </span>
+                      )}
+                    </button>
+                  )}
                 </li>
               );
             })}
@@ -196,8 +234,7 @@ export function CollapsibleSidebar({
         </nav>
       </aside>
 
-      {/* Tooltip portal: renders above main content so it's never behind it */}
-      {typeof document !== "undefined" &&
+      {mounted &&
         tooltip &&
         createPortal(
           <div

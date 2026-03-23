@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { CollapsibleSidebar } from "@/components/hr-dashboard/CollapsibleSidebar";
 import { BarChart3, Calendar } from "lucide-react";
 
@@ -132,7 +132,7 @@ describe("CollapsibleSidebar", () => {
     expect(vacationsBtn).toHaveClass("bg-gray-900");
   });
 
-  it("when collapsed shows tooltip on nav item hover", () => {
+  it("when collapsed shows tooltip on nav item hover", async () => {
     render(
       <CollapsibleSidebar
         collapsed={true}
@@ -143,12 +143,16 @@ describe("CollapsibleSidebar", () => {
       />
     );
 
-    const expandBtn = screen.getByRole("button", { name: /Expand sidebar/i });
+    const expandBtn = await screen.findByRole("button", {
+      name: /Expand sidebar/i,
+    });
     const navList = expandBtn.closest("aside")?.querySelector("ul");
     const firstNavButton = navList?.querySelector("li button");
     if (firstNavButton) {
       fireEvent.mouseEnter(firstNavButton as HTMLElement);
-      expect(document.body.textContent).toMatch(/Dashboard|Vacations/);
+      await waitFor(() => {
+        expect(document.body.textContent).toMatch(/Dashboard|Vacations/);
+      });
       fireEvent.mouseLeave(firstNavButton as HTMLElement);
     }
   });

@@ -12,6 +12,30 @@ vi.mock("@/components/hr-dashboard/AIAssistant", () => ({
   AIAssistant: () => <div data-testid="ai-assistant">AI Assistant</div>,
 }));
 
+// Mock next-auth/react
+vi.mock("next-auth/react", () => ({
+  useSession: vi.fn(() => ({
+    data: {
+      user: {
+        name: "John Doe",
+        email: "john.doe@bloomteq.com",
+        image:
+          "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+      },
+      accessToken: "dummy-token",
+    },
+    status: "authenticated",
+  })),
+  signOut: vi.fn(),
+}));
+
+// Mock next/navigation
+vi.mock("next/navigation", () => ({
+  useRouter: vi.fn(() => ({
+    push: vi.fn(),
+  })),
+}));
+
 // Mock useNotifications so we can control notifications and cover branches
 const mockMarkAsRead = vi.fn();
 const mockMarkAllAsRead = vi.fn();
@@ -146,7 +170,8 @@ describe("HRDashboardApp", () => {
   it("opens notifications popover and shows list", async () => {
     render(<HRDashboardApp />);
 
-    fireEvent.click(screen.getByTestId("notifications-trigger"));
+    const trigger = await screen.findByTestId("notifications-trigger");
+    fireEvent.click(trigger);
 
     expect(screen.getByText("Notifications")).toBeInTheDocument();
     expect(screen.getByText("Success notification")).toBeInTheDocument();
@@ -158,7 +183,8 @@ describe("HRDashboardApp", () => {
   it("mark as read is called when clicking a notification", async () => {
     render(<HRDashboardApp />);
 
-    fireEvent.click(screen.getByTestId("notifications-trigger"));
+    const trigger = await screen.findByTestId("notifications-trigger");
+    fireEvent.click(trigger);
 
     const firstNotification = screen.getByText("Success notification");
     fireEvent.click(firstNotification);
@@ -168,7 +194,8 @@ describe("HRDashboardApp", () => {
   it("mark all read button calls markAllAsRead", async () => {
     render(<HRDashboardApp />);
 
-    fireEvent.click(screen.getByTestId("notifications-trigger"));
+    const trigger = await screen.findByTestId("notifications-trigger");
+    fireEvent.click(trigger);
     const markAll = screen.getByRole("button", { name: /Mark all read/i });
     fireEvent.click(markAll);
     expect(mockMarkAllAsRead).toHaveBeenCalled();
@@ -177,18 +204,17 @@ describe("HRDashboardApp", () => {
   it("profile popover shows user info and View Profile", async () => {
     render(<HRDashboardApp />);
 
-    fireEvent.click(screen.getByTestId("profile-trigger"));
+    const trigger = await screen.findByTestId("profile-trigger");
+    fireEvent.click(trigger);
 
     expect(screen.getByText("john.doe@bloomteq.com")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /View Profile/i })
-    ).toBeInTheDocument();
   });
 
   it("View Profile from menu switches module to profiles", async () => {
     render(<HRDashboardApp />);
 
-    fireEvent.click(screen.getByTestId("profile-trigger"));
+    const trigger = await screen.findByTestId("profile-trigger");
+    fireEvent.click(trigger);
     fireEvent.click(screen.getByRole("button", { name: /View Profile/i }));
 
     expect(screen.getByTestId("dashboard-view")).toHaveTextContent(
@@ -199,7 +225,8 @@ describe("HRDashboardApp", () => {
   it("Settings dialog can be opened from profile menu", async () => {
     render(<HRDashboardApp />);
 
-    fireEvent.click(screen.getByTestId("profile-trigger"));
+    const trigger = await screen.findByTestId("profile-trigger");
+    fireEvent.click(trigger);
     fireEvent.click(screen.getByRole("button", { name: /Settings/i }));
 
     expect(
@@ -208,10 +235,10 @@ describe("HRDashboardApp", () => {
     expect(screen.getByText(/Email Notifications/i)).toBeInTheDocument();
   });
 
-  it("displays unread notification badge when there are unread notifications", () => {
+  it("displays unread notification badge when there are unread notifications", async () => {
     render(<HRDashboardApp />);
-    const badge = document.querySelector(".bg-gray-600");
+    const badge = await screen.findByText(/3|9\+/);
     expect(badge).toBeInTheDocument();
-    expect(badge?.textContent).toMatch(/3|9\+/);
+    expect(badge).toHaveClass("bg-gray-600");
   });
 });

@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Search,
   Bell,
-  User,
-  X,
   CheckCircle,
   AlertCircle,
   InfoIcon,
@@ -18,7 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Avatar, AvatarFallback } from "./ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Separator } from "./ui/separator";
@@ -32,7 +30,6 @@ import {
 } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { DashboardView } from "./DashboardView";
 import { AIAssistant } from "./AIAssistant";
 import { HR_MODULES, getModuleById, type HrModuleId } from "./hr-modules";
@@ -43,8 +40,53 @@ import {
   SIDEBAR_EXPANDED_OFFSET,
 } from "./CollapsibleSidebar";
 import { formatRelativeTimestamp } from "@/utils";
+import { getApiBaseUrl } from "@/lib/config";
+import { logoutUser } from "@/lib/api/auth";
+import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function HRDashboardApp() {
+  const { data: session } = useSession();
+  const [mounted, setMounted] = useState(false);
+  const [careerLevel, setCareerLevel] = useState<string | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+
+    // Fetch career level from backend
+    const fetchProfile = async () => {
+      if (!session) return;
+
+      const accessToken = (session as { accessToken?: string })?.accessToken;
+      if (!accessToken) {
+        return;
+      }
+
+      try {
+        const baseUrl = getApiBaseUrl();
+
+        const response = await fetch(`${baseUrl}/api/auth/profile/`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setCareerLevel(data.career_level);
+        }
+      } catch (error) {
+        // Silently fail in production or log to error service
+      }
+    };
+
+    if (session) {
+      fetchProfile();
+    }
+
+    return () => clearTimeout(timer);
+  }, [session]);
+
+  const router = useRouter();
   const [activeModule, setActiveModule] = useState<HrModuleId>("dashboard");
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -53,10 +95,10 @@ export default function HRDashboardApp() {
 
   const {
     notifications,
-    notificationCounts,
     unreadCount,
     markAsRead,
     markAllAsRead,
+    notificationCounts,
   } = useNotifications();
 
   const getNotificationIcon = (type: Notification["type"]) => {
@@ -72,8 +114,12 @@ export default function HRDashboardApp() {
     }
   };
 
-  const filteredModules = HR_MODULES.filter((module) =>
-    module.label.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredModules = useMemo(
+    () =>
+      HR_MODULES.filter((module) =>
+        module.label.toLowerCase().includes(searchQuery.toLowerCase())
+      ),
+    [searchQuery]
   );
 
   const handleSearch = (query: string) => {
@@ -81,18 +127,33 @@ export default function HRDashboardApp() {
     setIsSearchOpen(query.length > 0);
   };
 
-  const handleModuleSelect = (moduleId: HrModuleId) => {
-    setActiveModule(moduleId);
+  const handleLogout = async () => {
+    await logoutUser("dummy-refresh");
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    await signOut({ redirect: false });
+    router.push("/login");
+  };
+
+  const handleModuleSelect = (moduleId: HrModuleId | string) => {
+    if (moduleId === "logout") {
+      handleLogout();
+      return;
+    }
+    setActiveModule(moduleId as HrModuleId);
     setIsSearchOpen(false);
     setSearchQuery("");
   };
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const primaryItems = HR_MODULES.map((m) => ({
-    id: m.id,
-    label: m.label,
-    icon: m.icon,
-  }));
+  const primaryItems = useMemo(
+    () =>
+      HR_MODULES.map((m) => ({
+        id: m.id,
+        label: m.label,
+        icon: m.icon,
+      })),
+    []
+  );
 
   return (
     <div className="h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
@@ -101,7 +162,7 @@ export default function HRDashboardApp() {
         onToggle={() => setSidebarCollapsed((c) => !c)}
         primaryItems={primaryItems}
         activeId={activeModule}
-        onSelect={setActiveModule}
+        onSelect={handleModuleSelect as (moduleId: HrModuleId) => void}
         notificationCounts={notificationCounts}
       />
 
@@ -113,11 +174,11 @@ export default function HRDashboardApp() {
             : SIDEBAR_EXPANDED_OFFSET,
         }}
       >
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <header className="flex h-14 shrink-0 items-center justify-between border-b border-gray-200 bg-white pl-4 pr-0 dark:border-gray-800 dark:bg-gray-900">
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div></div>
-            </div>
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {getModuleById(activeModule)?.label || "Dashboard"}
+            </h1>
           </div>
 
           <div className="flex items-center gap-3">
@@ -161,258 +222,269 @@ export default function HRDashboardApp() {
               onModuleNavigate={(moduleId) => setActiveModule(moduleId)}
             />
 
-            <Popover
-              open={isNotificationOpen}
-              onOpenChange={setIsNotificationOpen}
-            >
-              <PopoverTrigger asChild>
-                <Button
-                  data-testid="notifications-trigger"
-                  variant="ghost"
-                  size="icon"
-                  className="relative h-9 w-9 rounded-lg transition-colors hover:bg-gray-100"
-                >
-                  <Bell className="h-5 w-5 text-gray-600" />
-                  {unreadCount > 0 && (
-                    <Badge className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-gray-600 p-0 text-xs text-white hover:bg-gray-700">
-                      {unreadCount > 9 ? "9+" : unreadCount}
-                    </Badge>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="mr-4 w-80 rounded-lg border-gray-200 p-0 shadow-xl"
-                align="end"
+            {mounted ? (
+              <Popover
+                open={isNotificationOpen}
+                onOpenChange={setIsNotificationOpen}
               >
-                <div className="flex items-center justify-between rounded-t-lg border-b border-gray-200 bg-gray-50 p-4">
-                  <h3 className="font-semibold text-gray-900">Notifications</h3>
-                  <div className="flex items-center gap-2">
+                <PopoverTrigger asChild>
+                  <Button
+                    data-testid="notifications-trigger"
+                    variant="ghost"
+                    size="icon"
+                    className="relative h-9 w-9 rounded-lg transition-colors hover:bg-gray-100"
+                  >
+                    <Bell className="h-5 w-5 text-gray-600" />
+                    {unreadCount > 0 && (
+                      <Badge className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-gray-600 p-0 text-xs text-white hover:bg-gray-700">
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="mr-4 w-80 rounded-lg border-gray-200 p-0 shadow-xl"
+                  align="end"
+                >
+                  <div className="flex items-center justify-between border-b border-gray-100 p-4 dark:border-gray-800">
+                    <h4 className="font-semibold text-gray-900 dark:text-white">
+                      Notifications
+                    </h4>
                     {unreadCount > 0 && (
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={markAllAsRead}
-                        className="rounded-md text-xs text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                        className="h-7 px-2 text-xs text-blue-600 hover:bg-blue-50"
                       >
                         Mark all read
                       </Button>
                     )}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 rounded-md hover:bg-gray-100"
-                      onClick={() => setIsNotificationOpen(false)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
                   </div>
-                </div>
-
-                <div className="max-h-96 overflow-y-auto">
-                  {notifications.length === 0 ? (
-                    <div className="p-8 text-center">
-                      <Bell className="mx-auto mb-3 h-10 w-10 text-gray-400" />
-                      <p className="text-sm text-gray-500">No notifications</p>
-                    </div>
-                  ) : (
-                    <div className="divide-y divide-gray-100">
-                      {notifications.map((notification) => (
-                        <div
-                          key={notification.id}
-                          className={`cursor-pointer p-4 transition-colors hover:bg-gray-50 ${
-                            !notification.isRead
-                              ? "border-l-2 border-l-gray-400 bg-blue-25"
-                              : ""
-                          }`}
-                          onClick={() => markAsRead(notification.id)}
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className="mt-0.5 shrink-0">
+                  <div className="max-h-80 overflow-y-auto p-2">
+                    {notifications.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-8 text-center">
+                        <Bell className="mb-2 h-8 w-8 text-gray-300" />
+                        <p className="text-sm text-gray-500">
+                          No notifications yet
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-1">
+                        {notifications.map((notification) => (
+                          <button
+                            key={notification.id}
+                            className={`flex w-full items-start gap-3 rounded-lg p-3 text-left transition-colors hover:bg-gray-50 ${
+                              !notification.isRead ? "bg-blue-50/50" : ""
+                            }`}
+                            onClick={() => markAsRead(notification.id)}
+                          >
+                            <div className="mt-1 shrink-0">
                               {getNotificationIcon(notification.type)}
                             </div>
                             <div className="min-w-0 flex-1">
-                              <div className="mb-1 flex items-center gap-2">
-                                <p className="truncate text-sm font-medium text-gray-900">
-                                  {notification.title}
-                                </p>
-                                {!notification.isRead && (
-                                  <div className="h-2 w-2 shrink-0 rounded-full bg-gray-600" />
-                                )}
-                              </div>
-                              <p className="mb-2 text-sm text-gray-600">
+                              <p className="text-sm font-medium text-gray-900 truncate">
+                                {notification.title}
+                              </p>
+                              <p className="mt-0.5 text-xs text-gray-500 line-clamp-2">
                                 {notification.message}
                               </p>
-                              <div className="flex items-center gap-2">
-                                <Badge
-                                  variant="outline"
-                                  className="border-gray-200 text-xs text-gray-500"
-                                >
-                                  {getModuleById(notification.module)?.label}
-                                </Badge>
-                                <span className="text-xs text-gray-500">
-                                  {formatRelativeTimestamp(
-                                    notification.timestamp
-                                  )}
-                                </span>
-                              </div>
+                              <p className="mt-1 text-[10px] text-gray-400">
+                                {formatRelativeTimestamp(
+                                  notification.timestamp
+                                )}
+                              </p>
                             </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {notifications.length > 0 && (
-                  <div className="rounded-b-lg border-t border-gray-200 bg-gray-50 p-3">
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-center rounded-md text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                    >
-                      View all notifications
-                    </Button>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
-              </PopoverContent>
-            </Popover>
-
-            <Popover open={isProfileOpen} onOpenChange={setIsProfileOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  data-testid="profile-trigger"
-                  variant="ghost"
-                  className="flex h-9 items-center gap-3 rounded-lg pl-3 transition-colors hover:bg-gray-100"
-                >
-                  <Avatar className="h-7 w-7">
-                    <AvatarFallback className="bg-gray-200 text-sm font-medium text-gray-600">
-                      JD
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="hidden text-left md:block">
-                    <p className="text-sm font-medium text-gray-900">
-                      John Doe
-                    </p>
-                    <p className="text-xs text-gray-500">HR Manager</p>
-                  </div>
-                  <ChevronDown className="h-4 w-4 text-gray-500" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="mr-4 w-64 rounded-lg border-gray-200 p-0 shadow-xl"
-                align="end"
+                </PopoverContent>
+              </Popover>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative h-9 w-9 rounded-lg"
               >
-                <div className="rounded-t-lg border-b border-gray-200 bg-gray-50 p-4">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-12 w-12">
-                      <AvatarFallback className="font-medium text-gray-700 bg-gray-200">
-                        JD
+                <Bell className="h-5 w-5 text-gray-600" />
+              </Button>
+            )}
+
+            {mounted ? (
+              <Popover open={isProfileOpen} onOpenChange={setIsProfileOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    data-testid="profile-trigger"
+                    variant="ghost"
+                    className="flex h-9 items-center gap-3 rounded-lg pl-3 pr-4 transition-colors hover:bg-gray-200 bg-gray-50/50 border border-transparent hover:border-gray-200"
+                  >
+                    <Avatar className="h-7 w-7 border border-gray-200">
+                      {session?.user?.image && (
+                        <AvatarImage
+                          src={session.user.image}
+                          alt={session.user.name || "User avatar"}
+                          referrerPolicy="no-referrer"
+                        />
+                      )}
+                      <AvatarFallback className="bg-gray-200 text-sm font-medium text-gray-600">
+                        {session?.user?.name
+                          ? session.user.name
+                              .split(" ")
+                              .map((n: string) => n[0])
+                              .join("")
+                          : "JD"}
                       </AvatarFallback>
                     </Avatar>
-                    <div>
-                      <p className="font-medium text-gray-900">John Doe</p>
-                      <p className="text-sm text-gray-500">
-                        john.doe@bloomteq.com
-                      </p>
-                      <p className="text-xs text-gray-400">HR Manager</p>
+                    <div className="flex flex-col items-end leading-tight text-right">
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white truncate max-w-[150px]">
+                        {session?.user?.name || "John Doe"}
+                      </span>
+                      <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
+                        {careerLevel || "HR Manager"}
+                      </span>
+                    </div>
+                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="mr-4 w-80 rounded-lg border-gray-200 p-0 shadow-xl"
+                  align="end"
+                >
+                  <div className="rounded-t-lg border-b border-gray-200 bg-gray-50 p-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-12 w-12 border border-gray-200">
+                        {session?.user?.image && (
+                          <AvatarImage
+                            src={session.user.image}
+                            alt={session.user.name || "User avatar"}
+                            className="object-cover"
+                            referrerPolicy="no-referrer"
+                          />
+                        )}
+                        <AvatarFallback className="font-medium text-gray-700 bg-gray-200">
+                          {session?.user?.name
+                            ? session.user.name
+                                .split(" ")
+                                .map((n: string) => n[0])
+                                .join("")
+                            : "JD"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-gray-900 truncate">
+                          {session?.user?.name || "John Doe"}
+                        </p>
+                        <p className="text-sm text-gray-600 break-all">
+                          {session?.user?.email || "john.doe@bloomteq.com"}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {careerLevel || "HR Manager"}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-
-                <div className="p-2">
-                  <Button
-                    variant="ghost"
-                    className="mb-1 w-full justify-start gap-3 rounded-md"
-                    onClick={() => setActiveModule("profiles")}
-                  >
-                    <UserCircle className="h-4 w-4" />
-                    View Profile
-                  </Button>
-
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="mb-1 w-full justify-start gap-3 rounded-md"
-                      >
-                        <Settings className="h-4 w-4" />
-                        Settings
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-md rounded-lg">
-                      <DialogHeader>
-                        <DialogTitle>User Settings</DialogTitle>
-                        <DialogDescription>
-                          Manage your account preferences and notifications.
-                        </DialogDescription>
-                      </DialogHeader>
-
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-1">
-                            <Label>Email Notifications</Label>
-                            <p className="text-xs text-gray-500">
-                              Receive email updates
-                            </p>
-                          </div>
-                          <Switch defaultChecked />
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-1">
-                            <Label>Push Notifications</Label>
-                            <p className="text-xs text-gray-500">
-                              Browser notifications
-                            </p>
-                          </div>
-                          <Switch />
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-1">
-                            <Label>Dark Mode</Label>
-                            <p className="text-xs text-gray-500">
-                              Toggle dark theme
-                            </p>
-                          </div>
-                          <Switch />
-                        </div>
-                      </div>
-
-                      <div className="flex gap-2 pt-4">
-                        <Button variant="primary" className="flex-1 rounded-lg">
-                          Save Changes
+                  <div className="p-2">
+                    <Button
+                      variant="ghost"
+                      className="mb-1 w-full justify-start gap-3 rounded-md"
+                      onClick={() => handleModuleSelect("profiles")}
+                    >
+                      <UserCircle className="h-4 w-4" />
+                      View Profile
+                    </Button>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="mb-1 w-full justify-start gap-3 rounded-md"
+                        >
+                          <Settings className="h-4 w-4" />
+                          Settings
                         </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>User Settings</DialogTitle>
+                          <DialogDescription>
+                            Manage your account preferences and notifications.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                              <Label>Email Notifications</Label>
+                              <p className="text-xs text-gray-500">
+                                Receive daily updates via email
+                              </p>
+                            </div>
+                            <Switch />
+                          </div>
 
-                  <Button
-                    variant="ghost"
-                    className="mb-1 w-full justify-start gap-3 rounded-md"
-                  >
-                    <Shield className="h-4 w-4" />
-                    Privacy
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="mb-1 w-full justify-start gap-3 rounded-md"
-                  >
-                    <HelpCircle className="h-4 w-4" />
-                    Help & Support
-                  </Button>
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                              <Label>Push Notifications</Label>
+                              <p className="text-xs text-gray-500">
+                                Browser notifications
+                              </p>
+                            </div>
+                            <Switch />
+                          </div>
 
-                  <Separator className="my-2" />
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                              <Label>Dark Mode</Label>
+                              <p className="text-xs text-gray-500">
+                                Toggle dark theme
+                              </p>
+                            </div>
+                            <Switch />
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
 
-                  <Button
-                    variant="destructive"
-                    className="w-full justify-start gap-3 rounded-md"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Sign Out
-                  </Button>
+                    <Button
+                      variant="ghost"
+                      className="mb-1 w-full justify-start gap-3 rounded-md"
+                    >
+                      <Shield className="h-4 w-4" />
+                      Privacy
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="mb-1 w-full justify-start gap-3 rounded-md"
+                    >
+                      <HelpCircle className="h-4 w-4" />
+                      Help & Support
+                    </Button>
+
+                    <Separator className="my-2" />
+
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start gap-3 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign Out
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            ) : (
+              <Button
+                variant="ghost"
+                className="flex h-9 items-center gap-3 rounded-lg pl-3 pr-4 transition-colors"
+              >
+                <div className="h-7 w-7 rounded-full bg-gray-200" />
+                <div className="flex flex-col items-end leading-tight">
+                  <div className="h-4 w-20 rounded bg-gray-200" />
+                  <div className="mt-1 h-3 w-12 rounded bg-gray-100" />
                 </div>
-              </PopoverContent>
-            </Popover>
+              </Button>
+            )}
           </div>
         </header>
 
