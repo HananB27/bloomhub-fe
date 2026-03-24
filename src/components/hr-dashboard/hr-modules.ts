@@ -14,6 +14,7 @@ import {
   Star,
   UserPlus,
   Users,
+  Settings,
 } from "lucide-react";
 
 export type HrModuleId =
@@ -31,7 +32,8 @@ export type HrModuleId =
   | "assets"
   | "orgchart"
   | "analytics"
-  | "announcements";
+  | "announcements"
+  | "admin";
 
 export interface HrModule {
   id: HrModuleId;
@@ -55,6 +57,7 @@ export const HR_MODULES: HrModule[] = [
   { id: "orgchart", label: "Org Chart", icon: Network },
   { id: "analytics", label: "Leave Analytics", icon: BarChart3 },
   { id: "announcements", label: "Announcements", icon: Megaphone },
+  { id: "admin", label: "Admin Panel", icon: Settings },
 ];
 
 export function getModuleById(id: HrModuleId): HrModule | undefined {

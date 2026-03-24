@@ -31,6 +31,7 @@ import { AssetsModule } from "./AssetsModule";
 import { OrgChartModule } from "./OrgChartModule";
 import { AnalyticsModule } from "./AnalyticsModule";
 import { AnnouncementsModule } from "./AnnouncementsModule";
+import { AdminModule } from "./AdminModule";
 
 interface DashboardViewProps {
   activeModule: string;
@@ -410,6 +411,8 @@ export function DashboardView({ activeModule }: DashboardViewProps) {
       return <AnalyticsModule />;
     case "announcements":
       return <AnnouncementsModule />;
+    case "admin":
+      return <AdminModule />;
     default:
       return <DashboardOverview />;
   }
