@@ -314,24 +314,11 @@ input[type="datetime-local"],
 textarea,
 select {
   background-color: var(--input-background);
-  border: 1px solid #e5e7eb;
+  /* border: 1px solid #e5e7eb; */
   border-radius: 0.5rem;
   padding: 0.625rem 0.875rem;
   font-size: 0.875rem;
   transition: all 0.15s ease-in-out;
-}
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="search"]:focus,
-input[type="date"]:focus,
-input[type="datetime-local"]:focus,
-textarea:focus,
-select:focus {
-  background-color: white;
-  border-color: #6b7280;
-  box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
-  outline: none;
 }
 
 [data-sidebar] {
