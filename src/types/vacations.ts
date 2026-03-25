@@ -97,8 +97,12 @@ export interface ApproveLeaveRequestPayload {
 }
 
 export interface UpdateLeaveBalancePayload {
-  allocated: number;
-  reason: string;
+  employeeId: string;
+  leaveType: LeaveType;
+  allocated?: number;
+  used?: number;
+  carryOver?: number;
+  reason?: string;
 }
 
 export const LEAVE_TYPE_LABELS: Record<LeaveType, string> = {
