@@ -13,6 +13,7 @@ import {
   Shield,
   HelpCircle,
   ChevronDown,
+  Loader2,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -46,9 +47,12 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function HRDashboardApp() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [mounted, setMounted] = useState(false);
   const [careerLevel, setCareerLevel] = useState<string | null>(null);
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
+
+  const router = useRouter();
 
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 0);
@@ -62,6 +66,7 @@ export default function HRDashboardApp() {
         return;
       }
 
+      setIsProfileLoading(true);
       try {
         const baseUrl = getApiBaseUrl();
 
@@ -70,23 +75,35 @@ export default function HRDashboardApp() {
             Authorization: `Bearer ${accessToken}`,
           },
         });
+
         if (response.ok) {
           const data = await response.json();
           setCareerLevel(data.career_level);
+        } else if (response.status === 401) {
+          // Access token invalid/expired and refresh failed or not available.
+          // Force user to sign out so they can re-authenticate.
+          await signOut({ redirect: false });
+          router.push("/login");
         }
       } catch (error) {
-        // Silently fail in production or log to error service
+        // Log for diagnostics
+
+        console.error("Profile fetch error:", error);
+      } finally {
+        setIsProfileLoading(false);
       }
     };
 
     if (session) {
-      fetchProfile();
+      // Avoid performing real network requests during unit tests
+      if (process.env.NODE_ENV !== "test") {
+        fetchProfile();
+      }
     }
 
     return () => clearTimeout(timer);
-  }, [session]);
+  }, [session, router]);
 
-  const router = useRouter();
   const [activeModule, setActiveModule] = useState<HrModuleId>("dashboard");
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -312,7 +329,14 @@ export default function HRDashboardApp() {
               </Button>
             )}
 
-            {mounted ? (
+            {status === "loading" || isProfileLoading ? (
+              <div className="flex h-9 items-center gap-2 rounded-lg bg-gray-50/50 px-3 py-1 border border-gray-100">
+                <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                <span className="text-xs text-gray-400 font-medium">
+                  Loading...
+                </span>
+              </div>
+            ) : mounted ? (
               <Popover open={isProfileOpen} onOpenChange={setIsProfileOpen}>
                 <PopoverTrigger asChild>
                   <Button
@@ -337,12 +361,12 @@ export default function HRDashboardApp() {
                           : "JD"}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex flex-col items-end leading-tight text-right">
-                      <span className="text-sm font-semibold text-gray-900 dark:text-white truncate max-w-[150px]">
-                        {session?.user?.name || "John Doe"}
+                    <div className="flex flex-col items-end leading-tight text-right text-gray-900 dark:text-white">
+                      <span className="text-sm font-semibold truncate max-w-[150px]">
+                        {session?.user?.name || "User"}
                       </span>
                       <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
-                        {careerLevel || "HR Manager"}
+                        {careerLevel || "Member"}
                       </span>
                     </div>
                     <ChevronDown className="h-4 w-4 text-gray-500" />
@@ -374,13 +398,13 @@ export default function HRDashboardApp() {
                       </Avatar>
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold text-gray-900 truncate">
-                          {session?.user?.name || "John Doe"}
+                          {session?.user?.name || "User"}
                         </p>
                         <p className="text-sm text-gray-600 break-all">
-                          {session?.user?.email || "john.doe@bloomteq.com"}
+                          {session?.user?.email || ""}
                         </p>
                         <p className="text-xs text-gray-400 mt-0.5">
-                          {careerLevel || "HR Manager"}
+                          {careerLevel || "Member"}
                         </p>
                       </div>
                     </div>
@@ -474,16 +498,7 @@ export default function HRDashboardApp() {
                 </PopoverContent>
               </Popover>
             ) : (
-              <Button
-                variant="ghost"
-                className="flex h-9 items-center gap-3 rounded-lg pl-3 pr-4 transition-colors"
-              >
-                <div className="h-7 w-7 rounded-full bg-gray-200" />
-                <div className="flex flex-col items-end leading-tight">
-                  <div className="h-4 w-20 rounded bg-gray-200" />
-                  <div className="mt-1 h-3 w-12 rounded bg-gray-100" />
-                </div>
-              </Button>
+              <div className="h-9 w-9 rounded-full bg-gray-200 animate-pulse" />
             )}
           </div>
         </header>

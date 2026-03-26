@@ -5,22 +5,61 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2, AtSign, Lock } from "lucide-react";
 import { signIn } from "next-auth/react";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState<string | null>(null);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Manual validation to avoid default browser tooltips
+    if (!formData.email || !formData.password) {
+      const errorMsg = "Please fill in all fields";
+      toast.error(errorMsg);
+      setError(errorMsg);
+      return;
+    }
+
     setIsLoading(true);
-    // Simulate API call to backend
-    setTimeout(() => {
+    setError(null);
+
+    try {
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (result?.error) {
+        toast.error(result.error);
+        setError(result.error);
+      } else {
+        toast.success("Welcome back!");
+        router.push("/");
+      }
+    } catch (err: unknown) {
+      // Log unexpected errors for diagnostics but avoid using `any`
+      // Provide a generic message to the user
+
+      console.error("Login error:", err);
+      const errorMsg = "An unexpected error occurred. Please try again.";
+      toast.error(errorMsg);
+      setError(errorMsg);
+    } finally {
       setIsLoading(false);
-      // For now, if we assume login succeeds, redirect to dashboard or home
-      // In a real flow, if user is not fully verified, redirect to /register
-      document.cookie = "token=dummy-session-token; path=/; max-age=86400";
-      router.push("/");
-    }, 1500);
+    }
   };
 
   const handleOAuthLogin = async (provider: "google") => {
@@ -40,7 +79,7 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-4">
+      <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <div className="space-y-4 mt-2">
           {/* Email Field */}
           <div className="space-y-2">
@@ -50,7 +89,9 @@ export default function LoginPage() {
             >
               Email
             </label>
-            <div className="flex items-center h-[42px] w-full rounded-md border border-gray-200 bg-gray-50 focus-within:ring-1 focus-within:ring-gray-900 focus-within:border-gray-900 transition-all">
+            <div
+              className={`flex items-center h-[42px] w-full rounded-md border ${error ? "border-red-500" : "border-gray-200"} bg-gray-50 focus-within:ring-1 focus-within:ring-gray-900 focus-within:border-gray-900 transition-all`}
+            >
               <div className="pl-3 pr-2 flex items-center justify-center">
                 <AtSign className="h-4 w-4 text-gray-400" />
               </div>
@@ -58,6 +99,8 @@ export default function LoginPage() {
                 id="email"
                 type="email"
                 placeholder="name@example.com"
+                value={formData.email || ""}
+                onChange={handleInputChange}
                 className="flex-1 bg-transparent py-2 pr-3 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-0 border-0 disabled:opacity-50"
                 required
                 disabled={isLoading}
@@ -81,7 +124,9 @@ export default function LoginPage() {
                 Forgot password?
               </Link>
             </div>
-            <div className="flex items-center h-[42px] w-full rounded-md border border-gray-200 bg-gray-50 focus-within:ring-1 focus-within:ring-gray-900 focus-within:border-gray-900 transition-all">
+            <div
+              className={`flex items-center h-[42px] w-full rounded-md border ${error ? "border-red-500" : "border-gray-200"} bg-gray-50 focus-within:ring-1 focus-within:ring-gray-900 focus-within:border-gray-900 transition-all`}
+            >
               <div className="pl-3 pr-2 flex items-center justify-center">
                 <Lock className="h-4 w-4 text-gray-400" />
               </div>
@@ -89,6 +134,8 @@ export default function LoginPage() {
                 id="password"
                 type="password"
                 placeholder="password"
+                value={formData.password || ""}
+                onChange={handleInputChange}
                 className="flex-1 bg-transparent py-2 pr-3 text-sm text-gray-800 focus:outline-none focus:ring-0 border-0 disabled:opacity-50"
                 required
                 disabled={isLoading}
