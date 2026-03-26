@@ -9,9 +9,9 @@ export function middleware(request: NextRequest) {
 
   // Allow static files, api routes, and Next.js internals to pass through
   if (
-    pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
-    pathname.includes(".") // e.g., favicon.ico, images, etc.
+    pathname.startsWith("/_next") ||
+    pathname.includes(".")
   ) {
     return NextResponse.next();
   }
@@ -48,11 +48,10 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };

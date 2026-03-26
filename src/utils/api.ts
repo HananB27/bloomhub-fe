@@ -74,6 +74,19 @@ async function parseResponse<T>(response: Response): Promise<T> {
     message = payload.message;
   }
 
+  // Detect common token invalid response from DRF SimpleJWT
+  if (payload && typeof payload === "object") {
+    const p = payload as Record<string, unknown>;
+    if (typeof p.code === "string" && p.code === "token_not_valid") {
+      const detail = p.detail;
+      if (typeof detail === "string" && detail.trim()) {
+        message = detail;
+      } else {
+        message = "Authentication token is invalid";
+      }
+    }
+  }
+
   throw new ApiError(message, response.status, payload);
 }
 
