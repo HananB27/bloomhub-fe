@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -48,18 +50,16 @@ import {
   Edit,
   Upload,
   Trash2,
+  AlertCircle,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ApiError, uploadRolePermissionsCsv } from "@/utils/api";
+import { fetchEmployees, Employee } from "@/lib/api/employees";
+import { useAdminAccess } from "@/hooks/useAdminAccess";
 
-interface UserData {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  status: "active" | "inactive";
-  department: string;
-}
+// Using Employee interface from API
+type UserData = Employee;
 
 interface RoleData {
   id: string;
@@ -75,25 +75,6 @@ interface AssetData {
   assignedTo: string;
   status: "available" | "assigned" | "maintenance";
 }
-
-const INITIAL_USERS: UserData[] = [
-  {
-    id: "BLQ-001",
-    name: "Alex Thompson",
-    email: "alex.thompson@bloomteq.com",
-    role: "Senior Software Engineer",
-    status: "active",
-    department: "Engineering",
-  },
-  {
-    id: "BLQ-002",
-    name: "Sarah Johnson",
-    email: "sarah.johnson@bloomteq.com",
-    role: "HR Director",
-    status: "active",
-    department: "Human Resources",
-  },
-];
 
 const INITIAL_ROLES: RoleData[] = [
   { id: "1", name: "Admin", permissions: ["all"], userCount: 2 },
@@ -154,8 +135,24 @@ const PERMISSIONS_LIST = [
 
 const TOKEN_STORAGE_KEY = "access";
 
+// Extend session type to include accessToken
+interface ExtendedSession {
+  accessToken?: string;
+  user?: {
+    name?: string;
+    email?: string;
+    image?: string;
+  };
+}
+
 export function AdminModule() {
-  const [users, setUsers] = useState<UserData[]>(INITIAL_USERS);
+  const { data: session } = useSession();
+  const router = useRouter();
+  const { isAdmin, isLoading: isCheckingAdmin } = useAdminAccess();
+
+  const [users, setUsers] = useState<UserData[]>([]);
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState(true);
+  const [employeesError, setEmployeesError] = useState<string | null>(null);
   const [roles, setRoles] = useState<RoleData[]>(INITIAL_ROLES);
   const [assets] = useState<AssetData[]>(INITIAL_ASSETS);
   const [searchQuery, setSearchQuery] = useState("");
@@ -164,6 +161,48 @@ export function AdminModule() {
   const [isUploadingCsv, setIsUploadingCsv] = useState(false);
   const [accessToken, setAccessToken] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Check admin access and redirect if not admin
+  useEffect(() => {
+    if (isCheckingAdmin) return;
+
+    if (!isAdmin) {
+      toast.error("Access denied. Admin privileges required.");
+      router.push("/");
+    }
+  }, [isAdmin, isCheckingAdmin, router]);
+
+  // Fetch employees from backend
+  useEffect(() => {
+    async function loadEmployees() {
+      const token = (session as ExtendedSession)?.accessToken;
+
+      if (!token) {
+        setEmployeesError("No access token found");
+        setIsLoadingEmployees(false);
+        return;
+      }
+
+      try {
+        setIsLoadingEmployees(true);
+        setEmployeesError(null);
+        const employees = await fetchEmployees({ accessToken: token });
+        setUsers(employees);
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+        setEmployeesError(
+          error instanceof Error ? error.message : "Failed to load employees"
+        );
+        toast.error("Failed to load employees");
+      } finally {
+        setIsLoadingEmployees(false);
+      }
+    }
+
+    if ((session as ExtendedSession)?.accessToken && isAdmin) {
+      loadEmployees();
+    }
+  }, [session, isAdmin]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -181,8 +220,9 @@ export function AdminModule() {
 
   const filteredUsers = users.filter(
     (u) =>
-      u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchQuery.toLowerCase())
+      u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.email_address?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleEditUser = (user: UserData) => {
@@ -271,6 +311,57 @@ export function AdminModule() {
     );
     toast.success("Permission updated");
   };
+
+  // Show loading state while checking admin access
+  if (isCheckingAdmin || isLoadingEmployees) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+          <p className="text-sm text-gray-500">
+            {isCheckingAdmin
+              ? "Verifying admin access..."
+              : "Loading employees..."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if not admin
+  if (!isAdmin) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <AlertCircle className="h-12 w-12 text-red-500" />
+          <h2 className="text-xl font-semibold">Access Denied</h2>
+          <p className="text-sm text-gray-500 max-w-md">
+            You don&apos;t have permission to access the admin panel. Only
+            administrators can view this page.
+          </p>
+          <Button onClick={() => router.push("/")} className="mt-4">
+            Return to Dashboard
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if employees failed to load
+  if (employeesError && users.length === 0) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <AlertCircle className="h-12 w-12 text-red-500" />
+          <h2 className="text-xl font-semibold">Failed to Load Data</h2>
+          <p className="text-sm text-gray-500 max-w-md">{employeesError}</p>
+          <Button onClick={() => window.location.reload()} className="mt-4">
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-full w-full flex-col gap-4 overflow-auto p-1">
@@ -366,22 +457,29 @@ export function AdminModule() {
                 <TableBody>
                   {filteredUsers.map((user) => (
                     <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.name}</TableCell>
-                      <TableCell>{user.email}</TableCell>
+                      <TableCell className="font-medium">
+                        {user.full_name ||
+                          `${user.first_name} ${user.last_name}`}
+                      </TableCell>
+                      <TableCell>{user.email || user.email_address}</TableCell>
                       <TableCell>
                         <Badge variant="outline" className="font-normal">
-                          {user.role}
+                          {user.role_name || `Role ${user.role}`}
                         </Badge>
                       </TableCell>
                       <TableCell>{user.department}</TableCell>
                       <TableCell>
                         <Badge
                           variant={
-                            user.status === "active" ? "success" : "secondary"
+                            user.employment_status === "active" ||
+                            user.is_active
+                              ? "success"
+                              : "secondary"
                           }
                           className="capitalize"
                         >
-                          {user.status}
+                          {user.employment_status ||
+                            (user.is_active ? "active" : "inactive")}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
@@ -635,9 +733,12 @@ export function AdminModule() {
                 <Label htmlFor="name">Full Name</Label>
                 <Input
                   id="name"
-                  value={editingUser.name}
+                  value={editingUser.full_name || ""}
                   onChange={(e) =>
-                    setEditingUser({ ...editingUser, name: e.target.value })
+                    setEditingUser({
+                      ...editingUser,
+                      full_name: e.target.value,
+                    })
                   }
                 />
               </div>
@@ -646,9 +747,13 @@ export function AdminModule() {
                 <Input
                   id="email"
                   type="email"
-                  value={editingUser.email}
+                  value={editingUser.email || editingUser.email_address || ""}
                   onChange={(e) =>
-                    setEditingUser({ ...editingUser, email: e.target.value })
+                    setEditingUser({
+                      ...editingUser,
+                      email: e.target.value,
+                      email_address: e.target.value,
+                    })
                   }
                 />
               </div>
@@ -656,9 +761,9 @@ export function AdminModule() {
                 <div className="space-y-2">
                   <Label htmlFor="role">Role</Label>
                   <Select
-                    value={editingUser.role}
+                    value={editingUser.role_name || ""}
                     onValueChange={(val) =>
-                      setEditingUser({ ...editingUser, role: val })
+                      setEditingUser({ ...editingUser, role_name: val })
                     }
                   >
                     <SelectTrigger id="role">
@@ -676,9 +781,9 @@ export function AdminModule() {
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
                   <Select
-                    value={editingUser.status}
+                    value={editingUser.employment_status || ""}
                     onValueChange={(val: "active" | "inactive") =>
-                      setEditingUser({ ...editingUser, status: val })
+                      setEditingUser({ ...editingUser, employment_status: val })
                     }
                   >
                     <SelectTrigger id="status">
