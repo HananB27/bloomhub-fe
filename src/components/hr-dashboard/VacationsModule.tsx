@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
@@ -43,6 +44,9 @@ import {
   Home,
   Baby,
   User,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { formatDate } from "@/utils";
 import { format } from "date-fns";
@@ -52,8 +56,32 @@ import type {
   LeaveType,
   LeaveStatus,
   TeamCalendarEvent,
+  CreateLeaveRequestPayload,
 } from "@/types/vacations";
 import { LEAVE_TYPE_LABELS, LEAVE_TYPE_COLORS } from "@/types/vacations";
+import {
+  fetchLeaveRequests,
+  fetchLeaveBalances,
+  fetchTeamCalendar,
+  fetchPendingApprovals,
+  createLeaveRequest,
+  approveLeaveRequest,
+  rejectLeaveRequest,
+  cancelLeaveRequest,
+  updateLeaveBalance,
+} from "@/lib/api/vacations";
+
+// Extend session type to include accessToken
+interface ExtendedSession {
+  accessToken?: string;
+  user?: {
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+    is_staff?: boolean;
+    is_superuser?: boolean;
+  };
+}
 
 interface Notification {
   id: string;
@@ -111,120 +139,27 @@ const getLeaveTypeIcon = (type: LeaveType) => {
 };
 
 export function VacationsModule() {
+  const { data: session, status: sessionStatus } = useSession();
   const [activeTab, setActiveTab] = useState("request");
   const [isAdminMode, setIsAdminMode] = useState(false);
-  const [isHRUser] = useState(true);
   const [showNotifications, setShowNotifications] = useState(false);
   const nextNotificationIdRef = useRef(1);
 
-  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([
-    {
-      id: "1",
-      employeeId: "emp1",
-      employeeName: "Sarah Johnson",
-      employeeAvatar:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b647?w=150&h=150&fit=crop&crop=face",
-      leaveType: "vacation",
-      startDate: "2025-08-15",
-      endDate: "2025-08-22",
-      days: 6,
-      reason: "Family vacation to Europe",
-      status: "pending",
-      submittedDate: "2025-08-01",
-      coveringEmployeeName: "Alex Thompson",
-    },
-    {
-      id: "2",
-      employeeId: "emp2",
-      employeeName: "Michael Chen",
-      employeeAvatar:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-      leaveType: "sick",
-      startDate: "2025-08-10",
-      endDate: "2025-08-12",
-      days: 3,
-      reason: "Medical appointment and recovery",
-      status: "approved",
-      submittedDate: "2025-08-08",
-    },
-    {
-      id: "3",
-      employeeId: "emp3",
-      employeeName: "Emily Rodriguez",
-      employeeAvatar:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      leaveType: "wfh",
-      startDate: "2025-08-20",
-      endDate: "2025-08-20",
-      days: 1,
-      reason: "Home maintenance",
-      status: "pending",
-      submittedDate: "2025-08-05",
-    },
-  ]);
+  // Loading and error states
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [leaveBalances, setLeaveBalances] = useState<LeaveBalance[]>([
-    {
-      id: "bal1",
-      employeeId: "current",
-      leaveType: "vacation",
-      allocated: 25,
-      used: 12,
-      remaining: 13,
-      carryOver: 0,
-      lastUpdated: new Date().toISOString(),
-    },
-    {
-      id: "bal2",
-      employeeId: "current",
-      leaveType: "sick",
-      allocated: 10,
-      used: 3,
-      remaining: 7,
-      carryOver: 0,
-      lastUpdated: new Date().toISOString(),
-    },
-    {
-      id: "bal3",
-      employeeId: "current",
-      leaveType: "wfh",
-      allocated: 12,
-      used: 8,
-      remaining: 4,
-      carryOver: 0,
-      lastUpdated: new Date().toISOString(),
-    },
-  ]);
+  // Determine if user is HR admin from session
+  const isHRUser =
+    (session as ExtendedSession)?.user?.is_staff ||
+    (session as ExtendedSession)?.user?.is_superuser ||
+    true; // Fallback to true for now
 
-  const [teamEvents, setTeamEvents] = useState<TeamCalendarEvent[]>([
-    {
-      id: "1",
-      employeeId: "emp1",
-      employeeName: "Sarah Johnson",
-      leaveType: "vacation",
-      startDate: "2025-08-15",
-      endDate: "2025-08-22",
-      status: "approved",
-    },
-    {
-      id: "2",
-      employeeId: "emp2",
-      employeeName: "Michael Chen",
-      leaveType: "sick",
-      startDate: "2025-08-10",
-      endDate: "2025-08-12",
-      status: "approved",
-    },
-    {
-      id: "3",
-      employeeId: "emp4",
-      employeeName: "David Kim",
-      leaveType: "wfh",
-      startDate: "2025-08-18",
-      endDate: "2025-08-19",
-      status: "approved",
-    },
-  ]);
+  // Data states - initialize as empty, will be populated from API
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+  const [leaveBalances, setLeaveBalances] = useState<LeaveBalance[]>([]);
+  const [teamEvents, setTeamEvents] = useState<TeamCalendarEvent[]>([]);
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
@@ -239,6 +174,67 @@ export function VacationsModule() {
     newBalance: "",
     reason: "",
   });
+
+  // Team calendar month navigation state
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
+
+  // Get access token from session
+  const getAccessToken = useCallback((): string | null => {
+    const extSession = session as ExtendedSession;
+    if (extSession?.accessToken) {
+      return extSession.accessToken;
+    }
+    // Fallback: check localStorage
+    if (typeof window !== "undefined") {
+      const tokenKeys = ["access", "accessToken", "token", "authToken", "jwt"];
+      for (const key of tokenKeys) {
+        const token = window.localStorage.getItem(key);
+        if (token) return token;
+      }
+    }
+    return null;
+  }, [session]);
+
+  // Fetch all data from API
+  const loadData = useCallback(async () => {
+    const token = getAccessToken();
+    if (!token) {
+      setError("Not authenticated. Please log in.");
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const [requestsData, balancesData, calendarData] = await Promise.all([
+        fetchLeaveRequests(token),
+        fetchLeaveBalances(token),
+        fetchTeamCalendar(token),
+      ]);
+
+      setLeaveRequests(requestsData);
+      setLeaveBalances(balancesData);
+      setTeamEvents(calendarData);
+    } catch (err) {
+      console.error("Failed to load vacation data:", err);
+      setError(err instanceof Error ? err.message : "Failed to load data");
+      addNotification(
+        "admin",
+        "Error",
+        err instanceof Error ? err.message : "Failed to load vacation data"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [getAccessToken]);
+
+  // Load data on mount and when session changes
+  useEffect(() => {
+    if (sessionStatus === "loading") return;
+    loadData();
+  }, [sessionStatus, loadData]);
 
   const calculateDays = (start?: Date, end?: Date): number => {
     if (!start || !end) return 0;
@@ -274,77 +270,128 @@ export function VacationsModule() {
     );
   };
 
-  const handleSubmitRequest = () => {
+  const handleSubmitRequest = async () => {
     if (!leaveType || !selectedStartDate || !selectedEndDate || !reason) {
       alert("Please fill in all required fields");
       return;
     }
 
-    const newRequest: LeaveRequest = {
-      id: String(leaveRequests.length + 1),
-      employeeId: "current",
-      employeeName: "You",
-      leaveType: leaveType,
-      startDate: selectedStartDate.toISOString().split("T")[0],
-      endDate: selectedEndDate.toISOString().split("T")[0],
-      days: calculateDays(selectedStartDate, selectedEndDate),
-      reason,
-      status: "pending",
-      submittedDate: new Date().toISOString().split("T")[0],
-    };
+    const token = getAccessToken();
+    if (!token) {
+      addNotification("admin", "Error", "Not authenticated. Please log in.");
+      return;
+    }
 
-    setLeaveRequests([...leaveRequests, newRequest]);
-    addNotification(
-      "approval",
-      "Request Submitted",
-      `Your ${LEAVE_TYPE_LABELS[leaveType]} request has been submitted for approval.`
-    );
+    setIsSubmitting(true);
 
-    setLeaveType("");
-    setSelectedStartDate(undefined);
-    setSelectedEndDate(undefined);
-    setReason("");
-    setCoveringEmployee("");
+    try {
+      const payload: CreateLeaveRequestPayload = {
+        leaveType: leaveType as LeaveType,
+        startDate: selectedStartDate.toISOString().split("T")[0],
+        endDate: selectedEndDate.toISOString().split("T")[0],
+        reason,
+        coveringEmployeeId: coveringEmployee || undefined,
+      };
+
+      const newRequest = await createLeaveRequest(payload, token);
+      setLeaveRequests((prev) => [newRequest, ...prev]);
+
+      addNotification(
+        "approval",
+        "Request Submitted",
+        `Your ${LEAVE_TYPE_LABELS[leaveType]} request has been submitted for approval.`
+      );
+
+      // Reset form
+      setLeaveType("");
+      setSelectedStartDate(undefined);
+      setSelectedEndDate(undefined);
+      setReason("");
+      setCoveringEmployee("");
+    } catch (err) {
+      console.error("Failed to submit leave request:", err);
+      addNotification(
+        "admin",
+        "Error",
+        err instanceof Error ? err.message : "Failed to submit request"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleApprove = (id: string, status: "approved" | "rejected") => {
-    setLeaveRequests((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status } : r))
-    );
-
+  const handleApprove = async (id: string, status: "approved" | "rejected") => {
     const request = leaveRequests.find((r) => r.id === id);
     if (!request) return;
 
-    if (status === "approved") {
-      if (!teamEvents.find((e) => e.id === id)) {
-        setTeamEvents([
-          ...teamEvents,
-          {
-            id,
-            employeeId: request.employeeId,
-            employeeName: request.employeeName,
-            leaveType: request.leaveType,
-            startDate: request.startDate,
-            endDate: request.endDate,
-            status: "approved",
-          },
-        ]);
+    const token = getAccessToken();
+    if (!token) {
+      addNotification("admin", "Error", "Not authenticated. Please log in.");
+      return;
+    }
+
+    try {
+      let updatedRequest: LeaveRequest;
+
+      if (status === "approved") {
+        const comments = window.prompt("Add approval comments (optional):");
+        updatedRequest = await approveLeaveRequest(id, comments || "", token);
+
+        // Add to calendar if not already there
+        if (!teamEvents.find((e) => e.id === id)) {
+          setTeamEvents((prev) => [
+            ...prev,
+            {
+              id,
+              employeeId: request.employeeId,
+              employeeName: request.employeeName,
+              leaveType: request.leaveType,
+              startDate: request.startDate,
+              endDate: request.endDate,
+              status: "approved",
+            },
+          ]);
+        }
+
+        addNotification(
+          "approval",
+          "Request Approved",
+          `${request.employeeName}'s ${LEAVE_TYPE_LABELS[request.leaveType]} request has been approved.`
+        );
+      } else {
+        const reason = window.prompt("Reason for rejection:");
+        if (!reason) return; // Cancelled
+
+        updatedRequest = await rejectLeaveRequest(id, reason, token);
+
+        addNotification(
+          "rejection",
+          "Request Rejected",
+          `${request.employeeName}'s ${LEAVE_TYPE_LABELS[request.leaveType]} request has been rejected.`
+        );
       }
-      addNotification(
-        "approval",
-        "Request Approved",
-        `${request.employeeName}'s ${LEAVE_TYPE_LABELS[request.leaveType]} request has been approved.`
+
+      // Update the request in state with API response
+      setLeaveRequests((prev) =>
+        prev.map((r) => (r.id === id ? updatedRequest : r))
       );
-    } else {
+
+      // Refresh balances since approval affects balance
+      if (status === "approved") {
+        const balancesData = await fetchLeaveBalances(token);
+        setLeaveBalances(balancesData);
+      }
+    } catch (err) {
+      console.error(`Failed to ${status} leave request:`, err);
       addNotification(
-        "rejection",
-        "Request Rejected",
-        `${request.employeeName}'s ${LEAVE_TYPE_LABELS[request.leaveType]} request has been rejected.`
+        "admin",
+        "Error",
+        err instanceof Error ? err.message : `Failed to ${status} request`
       );
     }
   };
 
-  const handleUpdateBalance = () => {
+  const handleUpdateBalance = async () => {
     if (
       !adminBalanceForm.leaveType ||
       !adminBalanceForm.newBalance ||
@@ -354,26 +401,56 @@ export function VacationsModule() {
       return;
     }
 
-    const newBalance = parseInt(adminBalanceForm.newBalance);
-    setLeaveBalances((prev) =>
-      prev.map((balance) =>
-        balance.leaveType === adminBalanceForm.leaveType
-          ? {
-              ...balance,
-              allocated: newBalance,
-              lastUpdated: new Date().toISOString(),
-            }
-          : balance
-      )
+    const token = getAccessToken();
+    if (!token) {
+      addNotification("admin", "Error", "Not authenticated. Please log in.");
+      return;
+    }
+
+    // Find the balance ID for the selected leave type
+    const balanceToUpdate = leaveBalances.find(
+      (b) => b.leaveType === adminBalanceForm.leaveType
     );
 
-    addNotification(
-      "admin",
-      "Balance Updated",
-      `${LEAVE_TYPE_LABELS[adminBalanceForm.leaveType as LeaveType]} allocation changed to ${newBalance} days. Reason: ${adminBalanceForm.reason}`
-    );
+    if (!balanceToUpdate) {
+      addNotification(
+        "admin",
+        "Error",
+        `Balance for ${adminBalanceForm.leaveType} not found`
+      );
+      return;
+    }
 
-    setAdminBalanceForm({ leaveType: "", newBalance: "", reason: "" });
+    try {
+      const newAllocated = parseInt(adminBalanceForm.newBalance);
+      const updatedBalance = await updateLeaveBalance(
+        balanceToUpdate.id,
+        {
+          allocated: newAllocated,
+          reason: adminBalanceForm.reason,
+        },
+        token
+      );
+
+      setLeaveBalances((prev) =>
+        prev.map((b) => (b.id === balanceToUpdate.id ? updatedBalance : b))
+      );
+
+      addNotification(
+        "admin",
+        "Balance Updated",
+        `${LEAVE_TYPE_LABELS[adminBalanceForm.leaveType as LeaveType]} allocation changed to ${newAllocated} days. Reason: ${adminBalanceForm.reason}`
+      );
+
+      setAdminBalanceForm({ leaveType: "", newBalance: "", reason: "" });
+    } catch (err) {
+      console.error("Failed to update balance:", err);
+      addNotification(
+        "admin",
+        "Error",
+        err instanceof Error ? err.message : "Failed to update balance"
+      );
+    }
   };
 
   const getStatusBadge = (status: LeaveStatus) => {
@@ -383,14 +460,45 @@ export function VacationsModule() {
       rejected: "bg-red-100 text-red-800 border-red-200",
       cancelled: "bg-gray-100 text-gray-800 border-gray-200",
     };
+    // Defensive check for undefined status
+    if (!status) {
+      return <Badge className="bg-gray-100 text-gray-800">Unknown</Badge>;
+    }
     return (
-      <Badge className={config[status]}>
+      <Badge className={config[status] || config.pending}>
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </Badge>
     );
   };
 
   const unreadNotifications = notifications.filter((n) => !n.read).length;
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading vacation data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state with retry option
+  if (error && leaveBalances.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-4" />
+          <p className="text-red-600 mb-4">{error}</p>
+          <Button onClick={loadData} variant="outline">
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -652,9 +760,22 @@ export function VacationsModule() {
                     />
                   </div>
 
-                  <Button onClick={handleSubmitRequest} className="w-full">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Submit Request
+                  <Button
+                    onClick={handleSubmitRequest}
+                    className="w-full"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Submit Request
+                      </>
+                    )}
                   </Button>
                 </CardContent>
               </Card>
@@ -699,7 +820,52 @@ export function VacationsModule() {
         <TabsContent value="calendar" className="space-y-6">
           <Card className="border-gray-200">
             <CardHeader>
-              <CardTitle>Team Leave Calendar</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Team Leave Calendar</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setCalendarMonth(
+                        new Date(
+                          calendarMonth.getFullYear(),
+                          calendarMonth.getMonth() - 1,
+                          1
+                        )
+                      )
+                    }
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm font-medium min-w-32 text-center">
+                    {format(calendarMonth, "MMMM yyyy")}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setCalendarMonth(
+                        new Date(
+                          calendarMonth.getFullYear(),
+                          calendarMonth.getMonth() + 1,
+                          1
+                        )
+                      )
+                    }
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCalendarMonth(new Date())}
+                    className="ml-2 text-xs"
+                  >
+                    Today
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -713,34 +879,66 @@ export function VacationsModule() {
                   )}
                 </div>
                 <div className="grid grid-cols-7 gap-2">
-                  {Array.from({ length: 35 }, (_, i) => {
-                    const date = new Date(2025, 7, i - 5);
-                    const dayEvents = teamEvents.filter((event) => {
-                      const start = new Date(event.startDate);
-                      const end = new Date(event.endDate);
-                      return date >= start && date <= end;
-                    });
-                    return (
-                      <div
-                        key={i}
-                        className="min-h-24 p-1 border border-gray-200 rounded"
-                      >
-                        <div className="text-sm text-gray-600 mb-1">
-                          {date.getDate()}
-                        </div>
-                        <div className="space-y-1">
-                          {dayEvents.map((event) => (
-                            <div
-                              key={event.id}
-                              className={`text-xs p-1 rounded text-white ${LEAVE_TYPE_COLORS[event.leaveType]}`}
-                            >
-                              {event.employeeName.split(" ")[0]}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                  {(() => {
+                    const firstDay = new Date(
+                      calendarMonth.getFullYear(),
+                      calendarMonth.getMonth(),
+                      1
                     );
-                  })}
+                    const startOffset = firstDay.getDay(); // Day of week (0-6)
+                    const today = new Date();
+                    return Array.from({ length: 35 }, (_, i) => {
+                      const date = new Date(
+                        calendarMonth.getFullYear(),
+                        calendarMonth.getMonth(),
+                        i - startOffset + 1
+                      );
+                      const dayEvents = teamEvents.filter((event) => {
+                        const start = new Date(event.startDate);
+                        const end = new Date(event.endDate);
+                        return date >= start && date <= end;
+                      });
+                      const isCurrentMonth =
+                        date.getMonth() === calendarMonth.getMonth();
+                      const isToday =
+                        date.toDateString() === today.toDateString();
+                      return (
+                        <div
+                          key={i}
+                          className={`min-h-24 p-1 border rounded ${
+                            isToday
+                              ? "border-blue-500 bg-blue-50"
+                              : !isCurrentMonth
+                                ? "bg-gray-50 border-gray-200"
+                                : "border-gray-200"
+                          }`}
+                        >
+                          <div
+                            className={`text-sm mb-1 ${
+                              isToday
+                                ? "text-blue-600 font-semibold"
+                                : !isCurrentMonth
+                                  ? "text-gray-400"
+                                  : "text-gray-600"
+                            }`}
+                          >
+                            {date.getDate()}
+                          </div>
+                          <div className="space-y-1">
+                            {dayEvents.map((event) => (
+                              <div
+                                key={event.id}
+                                className={`text-xs p-1 rounded text-white ${LEAVE_TYPE_COLORS[event.leaveType]}`}
+                                title={`${event.employeeName} - ${LEAVE_TYPE_LABELS[event.leaveType]}`}
+                              >
+                                {event.employeeName.split(" ")[0] || "Employee"}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
             </CardContent>
