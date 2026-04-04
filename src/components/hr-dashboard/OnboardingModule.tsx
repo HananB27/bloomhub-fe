@@ -1180,9 +1180,9 @@ export function OnboardingModule() {
                   {/* Tasks */}
                   <div className="space-y-2">
                     <Label>Tasks</Label>
-                    {templateForm.task_templates.map((task, index) => (
+                    {templateForm.task_templates.map((task) => (
                       <div
-                        key={index}
+                        key={task.id ?? `${task.order}-${task.title}`}
                         className="flex items-center justify-between p-2 bg-gray-50 rounded border text-sm"
                       >
                         <span>{task.title}</span>
