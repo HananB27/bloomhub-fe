@@ -37,7 +37,6 @@ import {
   Send,
   Edit3,
   AlertCircle,
-  Users,
   Target,
   TrendingUp,
   Trash2,
@@ -80,7 +79,10 @@ interface Comment {
 
 export function OnboardingModule() {
   const { data: session } = useSession();
-  const sessionWithAccessToken = session as { accessToken?: string } | null | undefined;
+  const sessionWithAccessToken = session as
+    | { accessToken?: string }
+    | null
+    | undefined;
   const rawAccessToken = sessionWithAccessToken?.accessToken;
   const accessToken =
     typeof rawAccessToken === "string" ? rawAccessToken : undefined;
@@ -1214,6 +1216,7 @@ export function OnboardingModule() {
                         variant="outline"
                         size="sm"
                         onClick={handleAddTask}
+                        aria-label="Add task"
                       >
                         <Plus className="w-4 h-4" />
                       </Button>
@@ -1259,6 +1262,7 @@ export function OnboardingModule() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleEditTemplate(template)}
+                        aria-label="Edit template"
                       >
                         <Edit3 className="w-4 h-4" />
                       </Button>
@@ -1266,6 +1270,7 @@ export function OnboardingModule() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleClone(template.id)}
+                        aria-label="Clone template"
                       >
                         <Copy className="w-4 h-4" />
                       </Button>
@@ -1273,6 +1278,7 @@ export function OnboardingModule() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleDelete(template.id)}
+                        aria-label="Delete template"
                       >
                         <Trash2 className="w-4 h-4 text-red-500" />
                       </Button>

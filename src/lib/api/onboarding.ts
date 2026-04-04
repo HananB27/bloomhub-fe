@@ -1,7 +1,6 @@
 import { ApiError } from "@/utils/api";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+import { API_BASE_URL } from "@/lib/config";
 
 function buildApiUrl(path: string): string {
   const normalizedBase = API_BASE_URL.replace(/\/+$/, "");
