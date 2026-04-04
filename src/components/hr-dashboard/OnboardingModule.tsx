@@ -80,8 +80,10 @@ interface Comment {
 
 export function OnboardingModule() {
   const { data: session } = useSession();
-  const accessToken = (session as unknown as Record<string, unknown>)
-    ?.accessToken as string | undefined;
+  const sessionWithAccessToken = session as { accessToken?: string } | null | undefined;
+  const rawAccessToken = sessionWithAccessToken?.accessToken;
+  const accessToken =
+    typeof rawAccessToken === "string" ? rawAccessToken : undefined;
   const [selectedEmployee, setSelectedEmployee] = useState("new-hire-1");
   const [selectedTemplate, setSelectedTemplate] =
     useState<TemplateType>("onboarding");
