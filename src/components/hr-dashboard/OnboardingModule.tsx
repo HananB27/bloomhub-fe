@@ -1284,9 +1284,9 @@ export function OnboardingModule() {
                     {template.task_templates.length} tasks
                   </p>
                   <div className="space-y-1">
-                    {template.task_templates.map((task, index) => (
+                    {template.task_templates.map((task) => (
                       <div
-                        key={index}
+                        key={`${template.id}-${task.title}-${task.role_responsible}`}
                         className="flex items-center justify-between text-sm p-2 bg-gray-50 rounded"
                       >
                         <span>{task.title}</span>
