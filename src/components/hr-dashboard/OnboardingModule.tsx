@@ -418,9 +418,6 @@ export function OnboardingModule() {
 
   // Load templates from API
   const loadTemplates = async () => {
-    console.log("Access token:", accessToken);
-    console.log("Session:", session);
-    console.log("Access token:", accessToken);
     setTemplatesLoading(true);
     setTemplatesError(null);
     try {
