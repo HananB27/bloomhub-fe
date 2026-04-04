@@ -32,13 +32,35 @@ export interface ChecklistTemplate {
 export type ChecklistTemplateInput = Omit<ChecklistTemplate, "id">;
 
 async function parseResponse<T>(response: Response): Promise<T> {
-  const payload = await response.json();
+  const contentType = response.headers.get("content-type") ?? "";
+  const rawBody = await response.text();
+  let payload: unknown;
+
+  if (rawBody) {
+    if (contentType.toLowerCase().includes("application/json")) {
+      try {
+        payload = JSON.parse(rawBody);
+      } catch {
+        payload = rawBody;
+      }
+    } else {
+      payload = rawBody;
+    }
+  }
+
   if (response.ok) return payload as T;
-  throw new ApiError(
-    payload?.error || payload?.message || `Error ${response.status}`,
-    response.status,
-    payload
-  );
+
+  const errorPayload =
+    payload && typeof payload === "object"
+      ? (payload as { error?: string; message?: string })
+      : undefined;
+  const errorMessage =
+    errorPayload?.error ||
+    errorPayload?.message ||
+    (typeof payload === "string" && payload.trim()) ||
+    `Error ${response.status}`;
+
+  throw new ApiError(errorMessage, response.status, payload);
 }
 
 export async function fetchTemplates(
