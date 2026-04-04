@@ -10,9 +10,19 @@ function buildApiUrl(path: string): string {
 }
 
 function getAuthHeaders(token?: string): Record<string, string> {
-  return token
-    ? { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
-    : { "Content-Type": "application/json" };
+  const normalizedToken = token?.trim();
+
+  if (!normalizedToken) {
+    throw new ApiError(
+      "Authentication token is required for template API requests",
+      401
+    );
+  }
+
+  return {
+    Authorization: `Bearer ${normalizedToken}`,
+    "Content-Type": "application/json",
+  };
 }
 
 export interface TaskTemplate {
