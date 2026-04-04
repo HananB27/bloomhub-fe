@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
@@ -35,10 +35,7 @@ import {
   X,
   Plus,
   Edit,
-  Bell,
   AlertCircle,
-  CheckCircle,
-  Info,
   Umbrella,
   Heart,
   Home,
@@ -58,7 +55,11 @@ import type {
   TeamCalendarEvent,
   CreateLeaveRequestPayload,
 } from "@/types/vacations";
-import { LEAVE_TYPE_LABELS, LEAVE_TYPE_COLORS } from "@/types/vacations";
+import {
+  LEAVE_TYPE_LABELS,
+  LEAVE_TYPE_COLORS,
+  ALL_LEAVE_TYPES,
+} from "@/types/vacations";
 import {
   fetchLeaveRequests,
   fetchLeaveBalances,
@@ -75,21 +76,13 @@ import {
 interface ExtendedSession {
   accessToken?: string;
   user?: {
+    id?: number;
     name?: string | null;
     email?: string | null;
     image?: string | null;
     is_staff?: boolean;
     is_superuser?: boolean;
   };
-}
-
-interface Notification {
-  id: string;
-  type: "approval" | "rejection" | "admin";
-  title: string;
-  message: string;
-  timestamp: Date;
-  read: boolean;
 }
 
 const EMPLOYEES = [
@@ -138,12 +131,19 @@ const getLeaveTypeIcon = (type: LeaveType) => {
   }
 };
 
-export function VacationsModule() {
+interface VacationsModuleProps {
+  addNotification?: (
+    module: "vacations",
+    type: "info" | "warning" | "success" | "alert",
+    title: string,
+    message: string
+  ) => void;
+}
+
+export function VacationsModule({ addNotification }: VacationsModuleProps) {
   const { data: session, status: sessionStatus } = useSession();
   const [activeTab, setActiveTab] = useState("request");
   const [isAdminMode, setIsAdminMode] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const nextNotificationIdRef = useRef(1);
 
   // Loading and error states
   const [isLoading, setIsLoading] = useState(true);
@@ -161,8 +161,6 @@ export function VacationsModule() {
   const [leaveBalances, setLeaveBalances] = useState<LeaveBalance[]>([]);
   const [teamEvents, setTeamEvents] = useState<TeamCalendarEvent[]>([]);
 
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-
   const [selectedStartDate, setSelectedStartDate] = useState<Date>();
   const [selectedEndDate, setSelectedEndDate] = useState<Date>();
   const [leaveType, setLeaveType] = useState<LeaveType | "">("");
@@ -177,6 +175,16 @@ export function VacationsModule() {
 
   // Team calendar month navigation state
   const [calendarMonth, setCalendarMonth] = useState(new Date());
+
+  // Get current user's employee ID from session
+  const currentUserEmployeeId = (session as ExtendedSession)?.user?.id
+    ? String((session as ExtendedSession)?.user?.id)
+    : null;
+
+  // Filter balances for current user (non-admin view) vs all balances (admin view)
+  const displayedBalances = isAdminMode
+    ? leaveBalances
+    : leaveBalances.filter((b) => b.employeeId === currentUserEmployeeId);
 
   // Get access token from session
   const getAccessToken = useCallback((): string | null => {
@@ -220,11 +228,6 @@ export function VacationsModule() {
     } catch (err) {
       console.error("Failed to load vacation data:", err);
       setError(err instanceof Error ? err.message : "Failed to load data");
-      addNotification(
-        "admin",
-        "Error",
-        err instanceof Error ? err.message : "Failed to load vacation data"
-      );
     } finally {
       setIsLoading(false);
     }
@@ -245,31 +248,6 @@ export function VacationsModule() {
     );
   };
 
-  const addNotification = (
-    type: Notification["type"],
-    title: string,
-    message: string
-  ) => {
-    const notificationId = `notif-${nextNotificationIdRef.current}`;
-    nextNotificationIdRef.current += 1;
-
-    const notification: Notification = {
-      id: notificationId,
-      type,
-      title,
-      message,
-      timestamp: new Date(),
-      read: false,
-    };
-    setNotifications((prev) => [notification, ...prev]);
-  };
-
-  const markNotificationRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
-  };
-
   const handleSubmitRequest = async () => {
     if (!leaveType || !selectedStartDate || !selectedEndDate || !reason) {
       alert("Please fill in all required fields");
@@ -278,17 +256,25 @@ export function VacationsModule() {
 
     const token = getAccessToken();
     if (!token) {
-      addNotification("admin", "Error", "Not authenticated. Please log in.");
+      // Notification removed - using global notification system
       return;
     }
 
     setIsSubmitting(true);
 
     try {
+      // Format dates as local YYYY-MM-DD (avoid timezone conversion)
+      const formatLocalDate = (date: Date): string => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      };
+
       const payload: CreateLeaveRequestPayload = {
         leaveType: leaveType as LeaveType,
-        startDate: selectedStartDate.toISOString().split("T")[0],
-        endDate: selectedEndDate.toISOString().split("T")[0],
+        startDate: formatLocalDate(selectedStartDate),
+        endDate: formatLocalDate(selectedEndDate),
         reason,
         coveringEmployeeId: coveringEmployee || undefined,
       };
@@ -296,25 +282,32 @@ export function VacationsModule() {
       const newRequest = await createLeaveRequest(payload, token);
       setLeaveRequests((prev) => [newRequest, ...prev]);
 
-      addNotification(
-        "approval",
-        "Request Submitted",
-        `Your ${LEAVE_TYPE_LABELS[leaveType]} request has been submitted for approval.`
-      );
-
       // Reset form
       setLeaveType("");
       setSelectedStartDate(undefined);
       setSelectedEndDate(undefined);
       setReason("");
       setCoveringEmployee("");
+
+      // Send notification
+      if (addNotification) {
+        addNotification(
+          "vacations",
+          "success",
+          "Leave Request Submitted",
+          `Your ${leaveType} request has been submitted successfully.`
+        );
+      }
     } catch (err) {
       console.error("Failed to submit leave request:", err);
-      addNotification(
-        "admin",
-        "Error",
-        err instanceof Error ? err.message : "Failed to submit request"
-      );
+      if (addNotification) {
+        addNotification(
+          "vacations",
+          "alert",
+          "Request Failed",
+          err instanceof Error ? err.message : "Failed to submit request"
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -326,7 +319,7 @@ export function VacationsModule() {
 
     const token = getAccessToken();
     if (!token) {
-      addNotification("admin", "Error", "Not authenticated. Please log in.");
+      // Notification removed - using global notification system
       return;
     }
 
@@ -352,23 +345,11 @@ export function VacationsModule() {
             },
           ]);
         }
-
-        addNotification(
-          "approval",
-          "Request Approved",
-          `${request.employeeName}'s ${LEAVE_TYPE_LABELS[request.leaveType]} request has been approved.`
-        );
       } else {
         const reason = window.prompt("Reason for rejection:");
         if (!reason) return; // Cancelled
 
         updatedRequest = await rejectLeaveRequest(id, reason, token);
-
-        addNotification(
-          "rejection",
-          "Request Rejected",
-          `${request.employeeName}'s ${LEAVE_TYPE_LABELS[request.leaveType]} request has been rejected.`
-        );
       }
 
       // Update the request in state with API response
@@ -381,13 +362,26 @@ export function VacationsModule() {
         const balancesData = await fetchLeaveBalances(token);
         setLeaveBalances(balancesData);
       }
+
+      // Send success notification
+      if (addNotification) {
+        addNotification(
+          "vacations",
+          "success",
+          `Request ${status === "approved" ? "Approved" : "Rejected"}`,
+          `Leave request for ${request.employeeName} has been ${status}.`
+        );
+      }
     } catch (err) {
       console.error(`Failed to ${status} leave request:`, err);
-      addNotification(
-        "admin",
-        "Error",
-        err instanceof Error ? err.message : `Failed to ${status} request`
-      );
+      if (addNotification) {
+        addNotification(
+          "vacations",
+          "alert",
+          `Request ${status === "approved" ? "Approval" : "Rejection"} Failed`,
+          err instanceof Error ? err.message : `Failed to ${status} request`
+        );
+      }
     }
   };
 
@@ -403,21 +397,19 @@ export function VacationsModule() {
 
     const token = getAccessToken();
     if (!token) {
-      addNotification("admin", "Error", "Not authenticated. Please log in.");
+      // Notification removed - using global notification system
       return;
     }
 
-    // Find the balance ID for the selected leave type
+    // Find the balance ID for the selected leave type (for current user)
     const balanceToUpdate = leaveBalances.find(
-      (b) => b.leaveType === adminBalanceForm.leaveType
+      (b) =>
+        b.leaveType === adminBalanceForm.leaveType &&
+        b.employeeId === currentUserEmployeeId
     );
 
     if (!balanceToUpdate) {
-      addNotification(
-        "admin",
-        "Error",
-        `Balance for ${adminBalanceForm.leaveType} not found`
-      );
+      alert(`Balance for ${adminBalanceForm.leaveType} not found`);
       return;
     }
 
@@ -436,20 +428,27 @@ export function VacationsModule() {
         prev.map((b) => (b.id === balanceToUpdate.id ? updatedBalance : b))
       );
 
-      addNotification(
-        "admin",
-        "Balance Updated",
-        `${LEAVE_TYPE_LABELS[adminBalanceForm.leaveType as LeaveType]} allocation changed to ${newAllocated} days. Reason: ${adminBalanceForm.reason}`
-      );
-
       setAdminBalanceForm({ leaveType: "", newBalance: "", reason: "" });
+
+      // Send success notification
+      if (addNotification) {
+        addNotification(
+          "vacations",
+          "success",
+          "Balance Updated",
+          `Leave balance for ${adminBalanceForm.leaveType} has been updated to ${newAllocated} days.`
+        );
+      }
     } catch (err) {
       console.error("Failed to update balance:", err);
-      addNotification(
-        "admin",
-        "Error",
-        err instanceof Error ? err.message : "Failed to update balance"
-      );
+      if (addNotification) {
+        addNotification(
+          "vacations",
+          "alert",
+          "Balance Update Failed",
+          err instanceof Error ? err.message : "Failed to update balance"
+        );
+      }
     }
   };
 
@@ -470,8 +469,6 @@ export function VacationsModule() {
       </Badge>
     );
   };
-
-  const unreadNotifications = notifications.filter((n) => !n.read).length;
 
   // Show loading state
   if (isLoading) {
@@ -511,64 +508,6 @@ export function VacationsModule() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Popover open={showNotifications} onOpenChange={setShowNotifications}>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="relative">
-                <Bell className="w-4 h-4" />
-                {unreadNotifications > 0 && (
-                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
-                    {unreadNotifications}
-                  </span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80 p-0">
-              <div className="max-h-96 overflow-y-auto">
-                <div className="sticky top-0 bg-white border-b p-4">
-                  <h3 className="font-semibold text-gray-900">Notifications</h3>
-                </div>
-                {notifications.length === 0 ? (
-                  <div className="p-4 text-center text-gray-500">
-                    No notifications yet
-                  </div>
-                ) : (
-                  <div className="divide-y">
-                    {notifications.map((notif) => (
-                      <div
-                        key={notif.id}
-                        className={`p-4 cursor-pointer hover:bg-gray-50 ${!notif.read ? "bg-blue-50" : ""}`}
-                        onClick={() => markNotificationRead(notif.id)}
-                      >
-                        <div className="flex items-start gap-3">
-                          {notif.type === "approval" && (
-                            <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                          )}
-                          {notif.type === "rejection" && (
-                            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                          )}
-                          {notif.type === "admin" && (
-                            <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                          )}
-                          <div className="flex-1">
-                            <p className="font-medium text-gray-900">
-                              {notif.title}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              {notif.message}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {notif.timestamp.toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </PopoverContent>
-          </Popover>
-
           {isHRUser && (
             <div className="flex items-center gap-2">
               <Label htmlFor="admin-mode" className="text-sm">
@@ -585,7 +524,7 @@ export function VacationsModule() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {leaveBalances.map((balance) => (
+        {displayedBalances.map((balance) => (
           <Card key={balance.id} className="border-gray-200">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
@@ -653,16 +592,7 @@ export function VacationsModule() {
                           <SelectValue placeholder="Select leave type" />
                         </SelectTrigger>
                         <SelectContent>
-                          {(
-                            [
-                              "vacation",
-                              "sick",
-                              "wfh",
-                              "personal",
-                              "maternity",
-                              "paternity",
-                            ] as LeaveType[]
-                          ).map((t) => (
+                          {ALL_LEAVE_TYPES.map((t) => (
                             <SelectItem key={t} value={t}>
                               {LEAVE_TYPE_LABELS[t]}
                             </SelectItem>
@@ -896,7 +826,28 @@ export function VacationsModule() {
                       const dayEvents = teamEvents.filter((event) => {
                         const start = new Date(event.startDate);
                         const end = new Date(event.endDate);
-                        return date >= start && date <= end;
+
+                        // Normalize all dates to midnight for accurate day comparison
+                        const dateAtMidnight = new Date(
+                          date.getFullYear(),
+                          date.getMonth(),
+                          date.getDate()
+                        );
+                        const startAtMidnight = new Date(
+                          start.getFullYear(),
+                          start.getMonth(),
+                          start.getDate()
+                        );
+                        const endAtMidnight = new Date(
+                          end.getFullYear(),
+                          end.getMonth(),
+                          end.getDate()
+                        );
+
+                        return (
+                          dateAtMidnight >= startAtMidnight &&
+                          dateAtMidnight <= endAtMidnight
+                        );
                       });
                       const isCurrentMonth =
                         date.getMonth() === calendarMonth.getMonth();
@@ -968,16 +919,7 @@ export function VacationsModule() {
                         <SelectValue placeholder="Select leave type" />
                       </SelectTrigger>
                       <SelectContent>
-                        {(
-                          [
-                            "vacation",
-                            "sick",
-                            "wfh",
-                            "personal",
-                            "maternity",
-                            "paternity",
-                          ] as LeaveType[]
-                        ).map((t) => (
+                        {ALL_LEAVE_TYPES.map((t) => (
                           <SelectItem key={t} value={t}>
                             {LEAVE_TYPE_LABELS[t]}
                           </SelectItem>
@@ -1030,22 +972,24 @@ export function VacationsModule() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {leaveBalances.map((balance) => (
-                      <div
-                        key={balance.id}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                      >
-                        <div className="flex items-center gap-2">
-                          {getLeaveTypeIcon(balance.leaveType)}
-                          <span className="font-medium">
-                            {LEAVE_TYPE_LABELS[balance.leaveType]}
+                    {leaveBalances
+                      .filter((b) => b.employeeId === currentUserEmployeeId)
+                      .map((balance) => (
+                        <div
+                          key={balance.id}
+                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                        >
+                          <div className="flex items-center gap-2">
+                            {getLeaveTypeIcon(balance.leaveType)}
+                            <span className="font-medium">
+                              {LEAVE_TYPE_LABELS[balance.leaveType]}
+                            </span>
+                          </div>
+                          <span className="font-semibold">
+                            {balance.allocated} days
                           </span>
                         </div>
-                        <span className="font-semibold">
-                          {balance.allocated} days
-                        </span>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 </CardContent>
               </Card>
@@ -1056,32 +1000,8 @@ export function VacationsModule() {
                 <CardTitle>Recent Balance Adjustments</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3 text-sm">
-                  {notifications
-                    .filter((n) => n.type === "admin")
-                    .slice(0, 5)
-                    .map((notif) => (
-                      <div
-                        key={notif.id}
-                        className="flex items-start justify-between p-3 bg-blue-50 rounded-lg border border-blue-200"
-                      >
-                        <div>
-                          <p className="font-medium text-gray-900">
-                            {notif.title}
-                          </p>
-                          <p className="text-gray-600">{notif.message}</p>
-                        </div>
-                        <span className="text-xs text-gray-500">
-                          {notif.timestamp.toLocaleString()}
-                        </span>
-                      </div>
-                    ))}
-                  {notifications.filter((n) => n.type === "admin").length ===
-                    0 && (
-                    <p className="text-center text-gray-500">
-                      No adjustments made yet
-                    </p>
-                  )}
+                <div className="space-y-3 text-sm text-gray-600">
+                  <p>Balance adjustment history will appear here.</p>
                 </div>
               </CardContent>
             </Card>

@@ -26,7 +26,6 @@ export function middleware(request: NextRequest) {
   }
 
   // Check for common session/token cookies
-  // Adjust the cookie names depending on your backend's authentication approach
   const hasAuthToken =
     request.cookies.has("next-auth.session-token") ||
     request.cookies.has("__Secure-next-auth.session-token") ||
@@ -43,7 +42,6 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Optionally define paths the middleware should specifically run against
 export const config = {
   matcher: [
     /*
