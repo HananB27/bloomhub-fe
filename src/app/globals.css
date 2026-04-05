@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "react-modern-calendar-datepicker/lib/DatePicker.css";
 
 @custom-variant dark (&:is(.dark *));
 

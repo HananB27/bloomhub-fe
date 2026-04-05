@@ -609,8 +609,14 @@ export function DatePicker(props: DatePickerProps) {
             <YearPanel
               viewYear={viewYear}
               onSelect={handleYearSelect}
-              onPrevDecade={() => setYearRangeBase((b) => b - 20)}
-              onNextDecade={() => setYearRangeBase((b) => b + 20)}
+              onPrevDecade={() => {
+                setYearRangeBase((b) => b - 20);
+                setViewYear((y) => y - 20);
+              }}
+              onNextDecade={() => {
+                setYearRangeBase((b) => b + 20);
+                setViewYear((y) => y + 20);
+              }}
             />
           )}
 

@@ -120,7 +120,9 @@ export function removePermission(
  */
 export function getPermissionBits(userPermissionBits: number): number[] {
   const bits: number[] = [];
-  for (let i = 0; i < 11; i++) {
+  const maxBit =
+    Math.max(...(Object.values(EMPLOYEE_PERMISSIONS) as number[])) + 1;
+  for (let i = 0; i < maxBit; i++) {
     if (hasPermission(userPermissionBits, i)) {
       bits.push(i);
     }

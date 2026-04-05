@@ -29,6 +29,10 @@ export function storeTokens(data: {
     return;
   }
 
+  if (typeof window === "undefined") {
+    return;
+  }
+
   // Store in localStorage
   const tokens: StoredToken = {
     access: accessToken,

@@ -18,7 +18,7 @@ function Input({
         "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
         className
       )}
-      value={value == null ? "" : value}
+      {...(value !== undefined ? { value } : {})}
       {...props}
     />
   );

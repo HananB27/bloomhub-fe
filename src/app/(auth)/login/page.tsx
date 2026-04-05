@@ -5,13 +5,21 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2, AtSign, Lock, AlertCircle } from "lucide-react";
 import { signIn } from "next-auth/react";
-import { API_BASE_URL } from "@/lib/config";
-import { storeTokens } from "@/lib/api/tokens";
 import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState<string | null>(null);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+  };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,10 +33,30 @@ export default function LoginPage() {
     }
 
     setIsLoading(true);
-    // Simulate API call to backend
-    setTimeout(() => {
+    setError(null);
+
+    try {
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (result?.error) {
+        toast.error(result.error);
+        setError(result.error);
+      } else {
+        toast.success("Welcome back!");
+        router.push("/");
+      }
+    } catch (err: unknown) {
+      console.error("Login error:", err);
+      const errorMsg = "An unexpected error occurred. Please try again.";
+      toast.error(errorMsg);
+      setError(errorMsg);
+    } finally {
       setIsLoading(false);
-    });
+    }
   };
 
   const handleOAuthLogin = async (provider: "google") => {

@@ -1,4 +1,10 @@
-import { getRefreshToken, storeTokens, clearTokens } from "./tokens";
+import {
+  getRefreshToken,
+  getAccessToken,
+  storeTokens,
+  clearTokens,
+} from "./tokens";
+import { API_BASE_URL } from "../config";
 
 /**
  * Refresh the access token using the refresh token.
@@ -12,7 +18,7 @@ export async function refreshAccessToken(): Promise<string> {
     throw new Error("No refresh token available");
   }
 
-  const response = await fetch("/api/auth/refresh/", {
+  const response = await fetch(`${API_BASE_URL}/api/auth/token/refresh/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -44,8 +50,7 @@ export async function fetchWithAuthRetry(
   init?: RequestInit,
   retry = true
 ): Promise<Response> {
-  let accessToken =
-    typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  let accessToken = getAccessToken();
   if (accessToken) {
     init = init || {};
     init.headers = {
