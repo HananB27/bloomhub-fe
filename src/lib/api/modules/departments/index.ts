@@ -7,9 +7,6 @@ export interface Department {
 }
 
 export const departmentsApi = {
-  /**
-   * Fetch all departments
-   */
   async listDepartments(): Promise<Department[]> {
     const data = await get<unknown>(
       `${API_BASE_URL}/api/departments/`,
@@ -21,9 +18,6 @@ export const departmentsApi = {
     return (Array.isArray(result) ? result : []) as Department[];
   },
 
-  /**
-   * Get departments as simple string list (for backward compatibility)
-   */
   async getDepartmentsAsStrings(): Promise<string[]> {
     const data = await get<unknown>(
       `${API_BASE_URL}/api/departments/`,

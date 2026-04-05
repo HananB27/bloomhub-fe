@@ -34,8 +34,11 @@ import { employeeApi, EmployeeProfileData } from "@/lib/api/employees";
 import { departmentsApi } from "@/lib/api/departments";
 import { cpfLevelsApi } from "@/lib/api/cpf-levels";
 import { managersApi, type Manager } from "@/lib/api/managers";
-import { getUserPermissions, getStoredUser } from "@/lib/api/tokens";
-import { PERMISSION_REQUIREMENTS } from "@/lib/api/permissions";
+import { getStoredUser } from "@/lib/api/tokens";
+import {
+  getUserPermissions,
+  PERMISSION_REQUIREMENTS,
+} from "@/lib/api/permissions";
 import { DatePicker } from "../DatePicker";
 import {
   EditableInput,
@@ -61,7 +64,6 @@ export default function ProfilesModule() {
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [isLoadingEmployee, setIsLoadingEmployee] = useState(false);
 
-  // New states for dropdown data
   const [roles, setRoles] = useState<{ id: number; name: string }[]>([]);
   const [projects, setProjects] = useState<
     { id: number; name: string; leaders?: { id: number; name: string }[] }[]
@@ -71,38 +73,29 @@ export default function ProfilesModule() {
   const [loadingDropdowns, setLoadingDropdowns] = useState(false);
   const [loadingCpfLevels, setLoadingCpfLevels] = useState(false);
 
-  // Fetch employees and permissions on component mount
   useEffect(() => {
     const loadData = async () => {
       try {
         setIsLoading(true);
         setError(null);
 
-        // Get current user ID
         const user = getStoredUser();
         if (user && typeof user.id === "number") {
           setCurrentUserId(user.id);
         }
 
-        // Check permissions
         const permBits = await getUserPermissions();
+        setCanEditAll(PERMISSION_REQUIREMENTS.canUpdateAnyProfile(permBits));
 
-        const hasEditAll =
-          PERMISSION_REQUIREMENTS.canUpdateAnyProfile(permBits);
-        setCanEditAll(hasEditAll);
-
-        // Fetch employees
         const data = await employeeApi.listEmployees();
         setEmployees(data.results || []);
 
-        // Fetch departments from dedicated API
         try {
           const departmentsData =
             await departmentsApi.getDepartmentsAsStrings();
           setDepartments(departmentsData);
         } catch (deptErr) {
           console.error("Error fetching departments:", deptErr);
-          // Fallback: extract from employees
           const uniqueDepts = Array.from(
             new Set(
               (data.results || [])
@@ -113,7 +106,6 @@ export default function ProfilesModule() {
           setDepartments(uniqueDepts);
         }
 
-        // Fetch dropdown data with individual error handling
         setLoadingDropdowns(true);
         try {
           try {
@@ -137,7 +129,6 @@ export default function ProfilesModule() {
             setCpfLevels([]);
           }
 
-          // Fetch managers once with standard roles
           try {
             const managersData = await managersApi.getManagersByRole();
             setManagers(managersData);
@@ -207,7 +198,6 @@ export default function ProfilesModule() {
         setProjects([]);
       }
 
-      // Fetch managers once with standard roles
       try {
         const managersData = await managersApi.getManagersByRole();
         setManagers(managersData);
@@ -215,9 +205,6 @@ export default function ProfilesModule() {
         console.error("Error fetching managers:", managersErr);
         setManagers([]);
       }
-
-      // Fetch CPF levels for the currently selected employee's role
-      // This will be updated when role selection changes
     } catch {
     } finally {
       setLoadingDropdowns(false);
@@ -230,16 +217,13 @@ export default function ProfilesModule() {
   ) => {
     try {
       setIsLoadingEmployee(true);
-      // Fetch fresh employee data
       const freshEmployee = await employeeApi.getEmployee(employee.id);
       setSelectedEmployee(freshEmployee);
       setEditMode(mode === "edit");
       setDialogOpen(true);
-      // Refetch dropdown data whenever opening the modal
       refetchDropdownData();
     } catch (err) {
       console.error("Error fetching employee details:", err);
-      // Fallback to the employee passed in
       setSelectedEmployee(employee);
       setEditMode(mode === "edit");
       setDialogOpen(true);
@@ -249,12 +233,10 @@ export default function ProfilesModule() {
     }
   };
 
-  // Refetch employees and dropdown data when dialog opens
   useEffect(() => {
     if (dialogOpen) {
       refetchDropdownData();
 
-      // Refetch all employees to get latest data
       const refetchEmployees = async () => {
         try {
           const data = await employeeApi.listEmployees();
@@ -266,7 +248,6 @@ export default function ProfilesModule() {
 
       refetchEmployees();
 
-      // Fetch CPF levels for the currently selected employee's role
       if (selectedEmployee?.role?.name) {
         fetchCPFLevelsByRole(selectedEmployee.role.name);
       }
@@ -294,7 +275,6 @@ export default function ProfilesModule() {
       setSaveError(null);
       setSaveSuccess(false);
 
-      // Prepare update data according to bulk-update endpoint spec
       const updateData: Record<string, unknown> = {
         first_name: selectedEmployee.first_name,
         last_name: selectedEmployee.last_name,
@@ -318,71 +298,50 @@ export default function ProfilesModule() {
           })) || [],
       };
 
-      // Add optional fields if they exist
-      if (selectedEmployee.career_level) {
+      if (selectedEmployee.career_level)
         updateData.career_level = selectedEmployee.career_level;
-      }
-      if (selectedEmployee.cpf_level) {
+      if (selectedEmployee.cpf_level)
         updateData.cpf_level = selectedEmployee.cpf_level;
-      }
-      if (selectedEmployee.emergency_contact_name) {
+      if (selectedEmployee.emergency_contact_name)
         updateData.emergency_contact_name =
           selectedEmployee.emergency_contact_name;
-      }
-      if (selectedEmployee.emergency_contact_phone) {
+      if (selectedEmployee.emergency_contact_phone)
         updateData.emergency_contact_phone =
           selectedEmployee.emergency_contact_phone;
-      }
 
-      // Call API to update employee
       const updated = await employeeApi.updateEmployee(
         selectedEmployee.id,
         updateData
       );
 
-      // Update the employees list with the new data
       setEmployees(
         employees.map((emp) => (emp.id === updated.id ? updated : emp))
       );
 
-      // Refetch all employees to ensure we have the latest data
       try {
         const data = await employeeApi.listEmployees();
         setEmployees(data.results || []);
-
-        // Update the selectedEmployee with the latest data from the server
         if (data.results) {
           const updatedEmployee = data.results.find(
             (emp) => emp.id === selectedEmployee.id
           );
-          if (updatedEmployee) {
-            setSelectedEmployee(updatedEmployee);
-          }
+          if (updatedEmployee) setSelectedEmployee(updatedEmployee);
         }
       } catch (err) {
         console.error("Error refetching employees:", err);
       }
 
-      // Show success toast with bottom-right position
       toast.success(
         `${selectedEmployee.first_name} ${selectedEmployee.last_name} has been updated successfully`,
-        {
-          position: "bottom-right",
-        }
+        { position: "bottom-right" }
       );
 
-      // Exit edit mode to show read-only view with updated data
       setEditMode(false);
-
-      // Don't close dialog - keep it open so user can see the updated data
-      // User can close manually by clicking X or Cancel
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to save employee";
       setSaveError(errorMessage);
-      toast.error(errorMessage, {
-        position: "bottom-right",
-      });
+      toast.error(errorMessage, { position: "bottom-right" });
       console.error("Error saving employee:", err);
     } finally {
       setIsSaving(false);
@@ -391,7 +350,6 @@ export default function ProfilesModule() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
@@ -401,10 +359,8 @@ export default function ProfilesModule() {
             Manage employee information, roles, and professional development
           </p>
         </div>
-        {/* Export button can be re-added here if needed, but only one Dialog should be open at a time */}
       </div>
 
-      {/* Search and Filters */}
       <div className="flex gap-4 items-center flex-wrap">
         <div className="flex-1 min-w-50">
           <div className="relative">
@@ -434,7 +390,6 @@ export default function ProfilesModule() {
         </Select>
       </div>
 
-      {/* Error Message */}
       {error && (
         <div className="rounded-md bg-red-50 p-4 border border-red-200 flex gap-3">
           <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 shrink-0" />
@@ -445,7 +400,6 @@ export default function ProfilesModule() {
         </div>
       )}
 
-      {/* Loading State */}
       {isLoading && (
         <Card>
           <CardContent className="p-0">
@@ -498,7 +452,6 @@ export default function ProfilesModule() {
         </Card>
       )}
 
-      {/* Empty State */}
       {!isLoading && employees.length === 0 && (
         <Card>
           <CardContent className="p-8 text-center">
@@ -507,7 +460,6 @@ export default function ProfilesModule() {
         </Card>
       )}
 
-      {/* Employees Table */}
       {!isLoading && employees.length > 0 && (
         <Card>
           <CardContent className="p-0">

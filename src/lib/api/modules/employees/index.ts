@@ -22,13 +22,9 @@ export interface SalaryHistoryItem {
   created_at: string;
 }
 
-// Re-export for backward compatibility
 export type { EmployeeProfileData } from "../../helpers";
 
 export const employeeApi = {
-  /**
-   * Fetch all employees with optional filtering
-   */
   async listEmployees(params?: {
     search?: string;
     department?: string;
@@ -39,21 +35,14 @@ export const employeeApi = {
   }): Promise<{ results: EmployeeProfileData[]; count: number }> {
     const url = `${API_BASE_URL}/api/employees/${buildQueryString(params)}`;
     const data = await get<unknown>(url, "Failed to fetch employees");
-
     const result = handleListResponse<EmployeeProfileData>(
       data as
         | EmployeeProfileData[]
         | { results?: EmployeeProfileData[]; count?: number }
     );
-    return {
-      ...result,
-      results: transformEmployeeList(result.results),
-    };
+    return { ...result, results: transformEmployeeList(result.results) };
   },
 
-  /**
-   * Fetch a specific employee by ID
-   */
   async getEmployee(id: number | string): Promise<EmployeeProfileData> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = await get<any>(
@@ -63,9 +52,6 @@ export const employeeApi = {
     return transformEmployeeData(data);
   },
 
-  /**
-   * Update employee profile (PATCH - partial update)
-   */
   async updateEmployee(
     id: number | string,
     data: Partial<EmployeeProfileData>
@@ -79,9 +65,6 @@ export const employeeApi = {
     return transformEmployeeData(responseData);
   },
 
-  /**
-   * Get salary history for an employee
-   */
   async getSalaryHistory(
     employeeId: number | string
   ): Promise<SalaryHistoryItem[]> {
@@ -91,9 +74,6 @@ export const employeeApi = {
     );
   },
 
-  /**
-   * Update employee role
-   */
   async updateEmployeeRole(
     employeeId: number | string,
     roleId: number
@@ -107,9 +87,6 @@ export const employeeApi = {
     return transformEmployeeData(responseData);
   },
 
-  /**
-   * Soft delete (deactivate) an employee
-   */
   async deleteEmployee(id: number | string): Promise<void> {
     return del(
       `${API_BASE_URL}/api/employees/${id}/`,
@@ -117,9 +94,6 @@ export const employeeApi = {
     );
   },
 
-  /**
-   * Fetch all departments
-   */
   async getDepartments(): Promise<string[]> {
     const data = await get<unknown>(
       `${API_BASE_URL}/api/departments/`,
@@ -130,9 +104,6 @@ export const employeeApi = {
     return (obj.departments ?? obj.results ?? []) as string[];
   },
 
-  /**
-   * Fetch all projects
-   */
   async getProjects(): Promise<
     { id: number; name: string; leaders?: { id: number; name: string }[] }[]
   > {
@@ -154,9 +125,6 @@ export const employeeApi = {
     }[];
   },
 
-  /**
-   * Fetch tech leads for a specific project
-   */
   async getProjectTechLeads(
     projectId: number
   ): Promise<{ id: number; first_name: string; last_name: string }[]> {
@@ -174,9 +142,6 @@ export const employeeApi = {
     }[];
   },
 
-  /**
-   * Fetch all roles
-   */
   async getRoles(): Promise<{ id: number; name: string }[]> {
     const data = await get<unknown>(
       `${API_BASE_URL}/api/roles/`,
@@ -187,9 +152,6 @@ export const employeeApi = {
     return (obj.roles ?? obj.results ?? []) as { id: number; name: string }[];
   },
 
-  /**
-   * Fetch all CPF levels
-   */
   async getCPFLevels(): Promise<string[]> {
     const data = await get<unknown>(
       `${API_BASE_URL}/api/cpf-levels/`,

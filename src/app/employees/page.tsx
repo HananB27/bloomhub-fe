@@ -3,14 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import {
-  Search,
-  Loader2,
-  AlertCircle,
-  Plus,
-  Filter,
-  ChevronDown,
-} from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/hr-dashboard/ui/card";
 import { Button } from "@/components/hr-dashboard/ui/button";
 import { Input } from "@/components/hr-dashboard/ui/input";
@@ -59,7 +52,6 @@ export default function EmployeesPage() {
         const result = await employeeApi.listEmployees(params);
         setEmployees(result.results || []);
 
-        // Extract unique departments
         const uniqueDepts = Array.from(
           new Set(result.results.map((emp) => emp.department).filter(Boolean))
         ) as string[];

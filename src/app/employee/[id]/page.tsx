@@ -42,14 +42,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/hr-dashboard/ui/table";
-import { Separator } from "@/components/hr-dashboard/ui/separator";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/hr-dashboard/ui/dialog";
 import {
   employeeApi,
   EmployeeProfileData,
@@ -100,28 +92,19 @@ export default function EmployeeProfilePage() {
     birth_date: "",
   });
 
-  // Check if current user is HR/Admin (for simplicity, checking if they're viewing someone else's profile)
-  // Note: session.user properties depend on your NextAuth setup
   const isHRUser =
     (session?.user as { role?: string })?.role === "HR" ||
     (session?.user as { role?: string })?.role === "Admin";
   const isOwnProfile =
     (session?.user as { id?: string | number })?.id === employee?.id;
 
-  // Determine which fields are editable
   const getEditableFields = (): EditableField[] => {
-    if (isHRUser) {
-      // HR can edit all fields
-      return ["first_name", "last_name", "phone_number", "address"];
-    } else if (isOwnProfile) {
-      // Employees can only edit certain fields
-      return ["phone_number", "address"];
-    }
+    if (isHRUser) return ["first_name", "last_name", "phone_number", "address"];
+    if (isOwnProfile) return ["phone_number", "address"];
     return [];
   };
 
   const editableFields = getEditableFields();
-  const canEdit = editableFields.length > 0 && isEditMode;
 
   useEffect(() => {
     const fetchEmployee = async () => {
@@ -131,11 +114,9 @@ export default function EmployeeProfilePage() {
         setIsLoading(true);
         setError(null);
 
-        // Fetch employee data
         const data = await employeeApi.getEmployee(employeeId);
         setEmployee(data);
 
-        // Initialize form data
         setFormData({
           first_name: data.first_name || "",
           last_name: data.last_name || "",
@@ -145,13 +126,11 @@ export default function EmployeeProfilePage() {
           birth_date: data.birth_date || "",
         });
 
-        // Fetch salary history if HR user
         if (isHRUser) {
           try {
             const history = await employeeApi.getSalaryHistory(employeeId);
             setSalaryHistory(history);
           } catch (err) {
-            // Salary history fetch is non-critical
             console.warn("Could not fetch salary history:", err);
           }
         }
@@ -166,9 +145,7 @@ export default function EmployeeProfilePage() {
       }
     };
 
-    if (session) {
-      fetchEmployee();
-    }
+    if (session) fetchEmployee();
   }, [employeeId, session, isHRUser]);
 
   const handleInputChange = (
@@ -176,12 +153,7 @@ export default function EmployeeProfilePage() {
     field: keyof FormData
   ) => {
     const value = e.target.value;
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-
-    // Clear field error on change
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (fieldErrors[field]) {
       setFieldErrors((prev) => {
         const updated = { ...prev };
@@ -193,20 +165,15 @@ export default function EmployeeProfilePage() {
 
   const validateForm = (): boolean => {
     const errors: FieldError = {};
-
-    if (!formData.first_name.trim()) {
+    if (!formData.first_name.trim())
       errors.first_name = "First name is required";
-    }
-    if (!formData.last_name.trim()) {
-      errors.last_name = "Last name is required";
-    }
+    if (!formData.last_name.trim()) errors.last_name = "Last name is required";
     if (
       formData.phone_number &&
       !/^[\d+\s\-()]+$/.test(formData.phone_number)
     ) {
       errors.phone_number = "Invalid phone number format";
     }
-
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -226,9 +193,7 @@ export default function EmployeeProfilePage() {
       setError(null);
       setSuccess(null);
 
-      // Prepare update payload - only include editable fields
       const updatePayload: Partial<EmployeeProfileData> = {};
-
       editableFields.forEach((field) => {
         const value = formData[field as keyof FormData];
         if (

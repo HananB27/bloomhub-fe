@@ -5,7 +5,7 @@ export interface LoginCredentials {
   email: string;
   password?: string;
   provider?: "email" | "google" | "microsoft";
-  token?: string; // For OAuth
+  token?: string;
 }
 
 export interface RegistrationPayload {
@@ -13,17 +13,15 @@ export interface RegistrationPayload {
   lastName: string;
   email: string;
   password?: string;
-  avatarFile?: File; // Native upload
+  avatarFile?: File;
   provider?: "email" | "google" | "microsoft";
-  providerAvatarUrl?: string; // Fallback from provider
+  providerAvatarUrl?: string;
 }
 
 export const loginWithEmail = async (credentials: LoginCredentials) => {
   const response = await fetch(`${API_BASE_URL}/api/auth/login/`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(credentials),
   });
 
@@ -43,14 +41,8 @@ export const registerUser = async (payload: RegistrationPayload) => {
   formData.append("last_name", payload.lastName);
   formData.append("email", payload.email);
 
-  if (payload.password) {
-    formData.append("password", payload.password);
-  }
-
-  if (payload.provider) {
-    formData.append("provider", payload.provider);
-  }
-
+  if (payload.password) formData.append("password", payload.password);
+  if (payload.provider) formData.append("provider", payload.provider);
   if (payload.avatarFile) {
     formData.append("avatar", payload.avatarFile);
   } else if (payload.providerAvatarUrl) {
@@ -59,7 +51,7 @@ export const registerUser = async (payload: RegistrationPayload) => {
 
   const response = await fetch(`${API_BASE_URL}/api/auth/register/`, {
     method: "POST",
-    body: formData, // Sending as FormData to support file upload
+    body: formData,
   });
 
   if (!response.ok) {
@@ -72,7 +64,6 @@ export const registerUser = async (payload: RegistrationPayload) => {
 
 export const logoutUser = async (refreshToken?: string) => {
   if (refreshToken) {
-    // Attempt to blacklist the refresh token on the backend
     try {
       await fetch(`${API_BASE_URL}/api/auth/logout/`, {
         method: "POST",

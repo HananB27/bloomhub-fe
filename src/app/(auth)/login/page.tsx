@@ -61,7 +61,6 @@ export default function LoginPage() {
 
   const handleOAuthLogin = async (provider: "google") => {
     setIsLoading(true);
-    // Use NextAuth to handle the OAuth redirect
     await signIn(provider, { callbackUrl: "/" });
   };
 
@@ -90,7 +89,6 @@ export default function LoginPage() {
 
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <div className="space-y-4 mt-2">
-          {/* Email Field */}
           <div className="space-y-2">
             <label
               className="text-sm font-medium leading-none text-gray-700"
@@ -116,7 +114,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Password Field */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label

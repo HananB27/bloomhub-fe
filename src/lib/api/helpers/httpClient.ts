@@ -1,8 +1,3 @@
-/**
- * HTTP Client Helper - Centralizes all HTTP request logic
- * Reduces code duplication and provides consistent error handling
- */
-
 import { getAccessToken } from "../tokens";
 import { fetchWithAuthRetry } from "../refresh";
 
@@ -12,37 +7,31 @@ export interface ApiError {
   [key: string]: unknown;
 }
 
-/**
- * Standard headers for API requests
- */
 export function getHeaders(): HeadersInit {
+  const token = getAccessToken();
   return {
     "Content-Type": "application/json",
-    ...(getAccessToken() && {
-      Authorization: `Bearer ${getAccessToken()}`,
-    }),
+    ...(token && { Authorization: `Bearer ${token}` }),
   };
 }
 
-/**
- * Generic GET request
- */
-export async function get<T>(url: string, errorMessage: string): Promise<T> {
-  const response = await fetchWithAuthRetry(url, {
-    headers: getHeaders(),
-  });
-
+async function handleResponse<T>(
+  response: Response,
+  errorMessage: string,
+  parseBody = true
+): Promise<T> {
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
     throw new Error((error as ApiError).detail || errorMessage);
   }
-
-  return response.json();
+  return (parseBody ? response.json() : undefined) as T;
 }
 
-/**
- * Generic POST request
- */
+export async function get<T>(url: string, errorMessage: string): Promise<T> {
+  const response = await fetchWithAuthRetry(url, { headers: getHeaders() });
+  return handleResponse<T>(response, errorMessage);
+}
+
 export async function post<T>(
   url: string,
   body: unknown,
@@ -53,18 +42,9 @@ export async function post<T>(
     headers: getHeaders(),
     body: JSON.stringify(body),
   });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error((error as ApiError).detail || errorMessage);
-  }
-
-  return response.json();
+  return handleResponse<T>(response, errorMessage);
 }
 
-/**
- * Generic PATCH request
- */
 export async function patch<T>(
   url: string,
   body: unknown,
@@ -75,62 +55,32 @@ export async function patch<T>(
     headers: getHeaders(),
     body: JSON.stringify(body),
   });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error((error as ApiError).detail || errorMessage);
-  }
-
-  return response.json();
+  return handleResponse<T>(response, errorMessage);
 }
 
-/**
- * Generic DELETE request
- */
 export async function del(url: string, errorMessage: string): Promise<void> {
   const response = await fetchWithAuthRetry(url, {
     method: "DELETE",
     headers: getHeaders(),
   });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error((error as ApiError).detail || errorMessage);
-  }
+  return handleResponse<void>(response, errorMessage, false);
 }
 
-/**
- * Build query string from params object
- */
 export function buildQueryString(
   params?: Record<string, string | number | boolean | null | undefined>
 ): string {
   if (!params) return "";
-
-  const queryString = new URLSearchParams();
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      queryString.append(key, String(value));
-    }
-  });
-
-  const str = queryString.toString();
-  return str ? "?" + str : "";
+  const qs = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null) qs.append(key, String(value));
+  }
+  const str = qs.toString();
+  return str ? `?${str}` : "";
 }
 
-/**
- * Handle array or paginated response formats
- */
 export function handleListResponse<T>(
   data: { results?: T[]; count?: number } | T[]
 ): { results: T[]; count: number } {
-  if (Array.isArray(data)) {
-    return { results: data, count: data.length };
-  }
-
-  return {
-    results: data.results || [],
-    count: data.count || 0,
-  };
+  if (Array.isArray(data)) return { results: data, count: data.length };
+  return { results: data.results ?? [], count: data.count ?? 0 };
 }

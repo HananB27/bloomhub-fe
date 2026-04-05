@@ -1,7 +1,3 @@
-/**
- * API Helpers - Export all helper functions and types
- */
-
 export {
   getHeaders,
   get,

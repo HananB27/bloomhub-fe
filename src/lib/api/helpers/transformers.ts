@@ -1,8 +1,3 @@
-/**
- * Data Transformation Helpers
- * Centralizes all data transformation logic for consistent data mapping
- */
-
 export interface EmployeeProfileData {
   id: number;
   employee_id: string;
@@ -45,10 +40,6 @@ export interface EmployeeProfileData {
     | null;
 }
 
-/**
- * Transform API response to EmployeeProfileData format
- * Handles multiple field name variations from different API versions
- */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function transformEmployeeData(data: any): EmployeeProfileData {
   return {
@@ -102,9 +93,6 @@ export function transformEmployeeData(data: any): EmployeeProfileData {
   };
 }
 
-/**
- * Transform array of employee data
- */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function transformEmployeeList(data: any[]): EmployeeProfileData[] {
   return data.map((emp) => transformEmployeeData(emp));
