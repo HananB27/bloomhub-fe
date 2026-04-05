@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "../config";
+import { storeTokens } from "./tokens";
 
 export interface LoginCredentials {
   email: string;
@@ -31,7 +32,9 @@ export const loginWithEmail = async (credentials: LoginCredentials) => {
     throw new Error(error.detail || "Failed to log in");
   }
 
-  return response.json();
+  const data = await response.json();
+  storeTokens(data);
+  return data;
 };
 
 export const registerUser = async (payload: RegistrationPayload) => {

@@ -52,8 +52,6 @@ const handler = NextAuth({
   },
   callbacks: {
     async signIn({ user, account }) {
-      console.log("[NextAuth] signIn callback triggered. User:", user?.email);
-      console.log("[NextAuth] Account type:", account?.provider);
       return true;
     },
     async jwt({ token, account, user }) {
@@ -174,6 +172,18 @@ const handler = NextAuth({
         } catch (error) {
           console.error("[NextAuth] Exchange error:", error);
         }
+      } else if (user) {
+        // This is for credentials provider
+        const u = user as {
+          accessToken?: string;
+          refreshToken?: string;
+          career_level?: string;
+          image?: string;
+        };
+        token.accessToken = u.accessToken;
+        token.refreshToken = u.refreshToken;
+        token.career_level = u.career_level;
+        token.picture = u.image;
       }
 
       // Try to refresh the token if it's expired (or missing expiry info)

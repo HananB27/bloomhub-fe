@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "react-modern-calendar-datepicker/lib/DatePicker.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -156,6 +157,7 @@
       text-wrap: balance;
       color: var(--foreground);
     }
+
     h2 {
       font-size: 1.5rem;
       font-weight: var(--font-weight-medium);
@@ -164,6 +166,7 @@
       text-wrap: balance;
       color: var(--foreground);
     }
+
     h3 {
       font-size: 1.25rem;
       font-weight: var(--font-weight-medium);
@@ -171,28 +174,33 @@
       letter-spacing: -0.025em;
       color: var(--foreground);
     }
+
     h4 {
       font-size: 1.125rem;
       font-weight: var(--font-weight-medium);
       line-height: 1.5;
       color: var(--foreground);
     }
+
     p {
       font-size: 1rem;
       font-weight: var(--font-weight-normal);
       line-height: 1.6;
       color: var(--foreground);
     }
+
     label {
       font-size: 0.875rem;
       font-weight: var(--font-weight-medium);
       line-height: 1.5;
     }
+
     button {
       font-size: 0.875rem;
       font-weight: var(--font-weight-medium);
       line-height: 1.5;
     }
+
     input {
       font-size: 0.875rem;
       font-weight: var(--font-weight-normal);
@@ -211,9 +219,11 @@ html {
   color: white;
   transition: background-color 0.2s ease;
 }
+
 .btn-smooth-primary:hover {
   background-color: #64748b;
 }
+
 .btn-smooth-outline {
   border: 1px solid #e2e8f0;
   color: #475569;
@@ -222,6 +232,7 @@ html {
     background-color 0.2s ease,
     border-color 0.2s ease;
 }
+
 .btn-smooth-outline:hover {
   background-color: #f8fafc;
   border-color: #cbd5e1;
@@ -231,12 +242,15 @@ html {
 .bg-bloomteq-primary {
   background-color: #374151;
 }
+
 .text-bloomteq-primary {
   color: #374151;
 }
+
 .border-bloomteq-primary {
   border-color: #374151;
 }
+
 .bg-bloomteq-gradient {
   background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
 }
@@ -253,12 +267,14 @@ html {
   border: 2px solid white;
   animation: notification-pulse 2s infinite;
 }
+
 @keyframes notification-pulse {
   0%,
   100% {
     transform: scale(1);
     opacity: 1;
   }
+
   50% {
     transform: scale(1.05);
     opacity: 0.8;
@@ -268,6 +284,7 @@ html {
 .card-hover {
   transition: all 0.2s ease-in-out;
 }
+
 .card-hover:hover {
   transform: translateY(-1px);
   box-shadow:
@@ -279,17 +296,21 @@ html {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: #f9fafb;
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #d1d5db;
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
+
 ::-webkit-scrollbar-corner {
   background: #f9fafb;
 }
@@ -298,9 +319,11 @@ html {
   outline: none;
   box-shadow: 0 0 0 2px var(--ring);
 }
+
 button {
   transition: all 0.15s ease-in-out;
 }
+
 button:active {
   transform: scale(0.98);
 }
@@ -326,6 +349,7 @@ select {
   border-right: 1px solid #262626;
   box-shadow: 2px 0 12px -4px rgba(0, 0, 0, 0.3);
 }
+
 .dark [data-sidebar] {
   background: #0a0a0a;
   border-right-color: #262626;
@@ -335,6 +359,7 @@ select {
 table {
   font-size: 0.875rem;
 }
+
 th {
   font-weight: 600;
   color: #374151;
@@ -343,10 +368,12 @@ th {
   text-align: left;
   border-bottom: 1px solid #e5e7eb;
 }
+
 td {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid #f3f4f6;
 }
+
 tr:hover {
   background-color: #f9fafb;
 }
@@ -356,16 +383,19 @@ tr:hover {
   color: #374151;
   border: 1px solid #d1d5db;
 }
+
 .badge-success {
   background-color: #f0f9f0;
   color: #166534;
   border: 1px solid #bbf7d0;
 }
+
 .badge-warning {
   background-color: #fefcbf;
   color: #92400e;
   border: 1px solid #fcd34d;
 }
+
 .badge-error {
   background-color: #fee2e2;
   color: #991b1b;
@@ -375,6 +405,7 @@ tr:hover {
 .recharts-wrapper {
   font-size: 0.75rem;
 }
+
 .recharts-cartesian-grid line {
   stroke: #e5e7eb;
 }
@@ -383,9 +414,11 @@ tr:hover {
   .mobile-hidden {
     display: none;
   }
+
   .mobile-full-width {
     width: 100%;
   }
+
   .mobile-padding {
     padding: 1rem;
   }
@@ -395,10 +428,12 @@ tr:hover {
   .print-hidden {
     display: none !important;
   }
+
   body {
     background: white !important;
     color: black !important;
   }
+
   .card {
     box-shadow: none !important;
     border: 1px solid #e5e7eb !important;
@@ -408,11 +443,13 @@ tr:hover {
 .fade-in {
   animation: fadeIn 0.2s ease-in;
 }
+
 @keyframes fadeIn {
   from {
     opacity: 0;
     transform: translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
