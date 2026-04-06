@@ -1,4 +1,7 @@
-import { useState } from "react";
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
@@ -27,222 +30,473 @@ import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Progress } from "./ui/progress";
 import { Switch } from "./ui/switch";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
-import {
   Calendar as CalendarIcon,
   Check,
   X,
   Plus,
   Edit,
-  Download,
-  Filter,
-  Clock,
-  User,
-  MapPin,
-  AlertTriangle,
-  Settings,
+  AlertCircle,
   Umbrella,
   Heart,
   Home,
   Baby,
+  User,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { formatDate } from "@/utils";
 import { format } from "date-fns";
+import type {
+  LeaveRequest,
+  LeaveBalance,
+  LeaveType,
+  LeaveStatus,
+  TeamCalendarEvent,
+  CreateLeaveRequestPayload,
+} from "@/types/vacations";
+import {
+  LEAVE_TYPE_LABELS,
+  LEAVE_TYPE_COLORS,
+  ALL_LEAVE_TYPES,
+} from "@/types/vacations";
+import {
+  fetchLeaveRequests,
+  fetchLeaveBalances,
+  fetchTeamCalendar,
+  createLeaveRequest,
+  approveLeaveRequest,
+  rejectLeaveRequest,
+  updateLeaveBalance,
+} from "@/lib/api/vacations";
 
-interface LeaveRequest {
-  id: string;
-  employeeName: string;
-  employeeAvatar: string;
-  leaveType: string;
-  startDate: string;
-  endDate: string;
-  days: number;
-  reason: string;
-  status: "pending" | "approved" | "rejected";
-  submittedDate: string;
-  coveringEmployee?: string;
+// Extend session type to include accessToken
+interface ExtendedSession {
+  accessToken?: string;
+  user?: {
+    id?: number;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+    is_staff?: boolean;
+    is_superuser?: boolean;
+  };
 }
 
-interface LeaveBalance {
-  type: string;
-  allocated: number;
-  used: number;
-  remaining: number;
-  Icon: LucideIcon;
-  color: string;
+const EMPLOYEES = [
+  {
+    id: "emp1",
+    name: "Alex Thompson",
+    avatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+  },
+  {
+    id: "emp2",
+    name: "Jessica Martinez",
+    avatar:
+      "https://images.unsplash.com/photo-1494790108755-2616b612b647?w=150&h=150&fit=crop&crop=face",
+  },
+  {
+    id: "emp3",
+    name: "David Kim",
+    avatar:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
+  },
+  {
+    id: "emp4",
+    name: "Sarah Chen",
+    avatar:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+  },
+];
+
+const getLeaveTypeIcon = (type: LeaveType) => {
+  const iconProps = "h-4 w-4";
+  switch (type) {
+    case "vacation":
+      return <Umbrella className={iconProps} />;
+    case "sick":
+      return <Heart className={iconProps} />;
+    case "wfh":
+      return <Home className={iconProps} />;
+    case "personal":
+      return <User className={iconProps} />;
+    case "maternity":
+    case "paternity":
+      return <Baby className={iconProps} />;
+    default:
+      return <CalendarIcon className={iconProps} />;
+  }
+};
+
+interface VacationsModuleProps {
+  addNotification?: (
+    module: "vacations",
+    type: "info" | "warning" | "success" | "alert",
+    title: string,
+    message: string
+  ) => void;
 }
 
-interface TeamCalendarEvent {
-  id: string;
-  employeeName: string;
-  leaveType: string;
-  startDate: string;
-  endDate: string;
-  color: string;
-}
-
-export function VacationsModule() {
+export function VacationsModule({ addNotification }: VacationsModuleProps) {
+  const { data: session, status: sessionStatus } = useSession();
   const [activeTab, setActiveTab] = useState("request");
+  const [isAdminMode, setIsAdminMode] = useState(false);
+
+  // Loading and error states
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Determine if user is HR admin from session
+  const isHRUser =
+    (session as ExtendedSession)?.user?.is_staff ||
+    (session as ExtendedSession)?.user?.is_superuser ||
+    true; // Fallback to true for now
+
+  // Data states - initialize as empty, will be populated from API
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+  const [leaveBalances, setLeaveBalances] = useState<LeaveBalance[]>([]);
+  const [teamEvents, setTeamEvents] = useState<TeamCalendarEvent[]>([]);
+
   const [selectedStartDate, setSelectedStartDate] = useState<Date>();
   const [selectedEndDate, setSelectedEndDate] = useState<Date>();
-  const [isAdminMode, setIsAdminMode] = useState(false);
-  const [isHRUser] = useState(true); // Mock HR permission
+  const [leaveType, setLeaveType] = useState<LeaveType | "">("");
+  const [reason, setReason] = useState("");
+  const [coveringEmployee, setCoveringEmployee] = useState("");
 
-  // Mock data
-  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([
-    {
-      id: "1",
-      employeeName: "Sarah Johnson",
-      employeeAvatar:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b647?w=150&h=150&fit=crop&crop=face",
-      leaveType: "Vacation",
-      startDate: "2025-08-15",
-      endDate: "2025-08-22",
-      days: 6,
-      reason: "Family vacation to Europe",
-      status: "pending",
-      submittedDate: "2025-08-01",
-      coveringEmployee: "Alex Thompson",
-    },
-    {
-      id: "2",
-      employeeName: "Michael Chen",
-      employeeAvatar:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-      leaveType: "Sick Leave",
-      startDate: "2025-08-10",
-      endDate: "2025-08-12",
-      days: 3,
-      reason: "Medical appointment and recovery",
-      status: "approved",
-      submittedDate: "2025-08-08",
-    },
-    {
-      id: "3",
-      employeeName: "Emily Rodriguez",
-      employeeAvatar:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      leaveType: "WFH",
-      startDate: "2025-08-20",
-      endDate: "2025-08-20",
-      days: 1,
-      reason: "Home maintenance",
-      status: "pending",
-      submittedDate: "2025-08-05",
-    },
-  ]);
+  const [adminBalanceForm, setAdminBalanceForm] = useState({
+    leaveType: "",
+    newBalance: "",
+    reason: "",
+  });
 
-  const leaveBalances: LeaveBalance[] = [
-    {
-      type: "Vacation",
-      allocated: 25,
-      used: 12,
-      remaining: 13,
-      Icon: Umbrella,
-      color: "bg-blue-100 text-blue-800 border-blue-200",
-    },
-    {
-      type: "Sick Leave",
-      allocated: 10,
-      used: 3,
-      remaining: 7,
-      Icon: Heart,
-      color: "bg-red-100 text-red-800 border-red-200",
-    },
-    {
-      type: "WFH",
-      allocated: 12,
-      used: 8,
-      remaining: 4,
-      Icon: Home,
-      color: "bg-green-100 text-green-800 border-green-200",
-    },
-  ];
+  // Team calendar month navigation state
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
 
-  const teamCalendarEvents: TeamCalendarEvent[] = [
-    {
-      id: "1",
-      employeeName: "Sarah Johnson",
-      leaveType: "Vacation",
-      startDate: "2025-08-15",
-      endDate: "2025-08-22",
-      color: "bg-blue-500",
-    },
-    {
-      id: "2",
-      employeeName: "Michael Chen",
-      leaveType: "Sick Leave",
-      startDate: "2025-08-10",
-      endDate: "2025-08-12",
-      color: "bg-red-500",
-    },
-    {
-      id: "3",
-      employeeName: "David Kim",
-      leaveType: "WFH",
-      startDate: "2025-08-18",
-      endDate: "2025-08-19",
-      color: "bg-green-500",
-    },
-  ];
+  // Get current user's employee ID from session
+  const currentUserEmployeeId = (session as ExtendedSession)?.user?.id
+    ? String((session as ExtendedSession)?.user?.id)
+    : null;
 
-  const handleApproval = (
-    requestId: string,
-    status: "approved" | "rejected"
-  ) => {
-    setLeaveRequests((prev) =>
-      prev.map((request) =>
-        request.id === requestId ? { ...request, status } : request
-      )
+  // Filter balances for current user (non-admin view) vs all balances (admin view)
+  const displayedBalances = isAdminMode
+    ? leaveBalances
+    : leaveBalances.filter((b) => b.employeeId === currentUserEmployeeId);
+
+  // Get access token from session
+  const getAccessToken = useCallback((): string | null => {
+    const extSession = session as ExtendedSession;
+    if (extSession?.accessToken) {
+      return extSession.accessToken;
+    }
+    // Fallback: check localStorage
+    if (typeof window !== "undefined") {
+      const tokenKeys = ["access", "accessToken", "token", "authToken", "jwt"];
+      for (const key of tokenKeys) {
+        const token = window.localStorage.getItem(key);
+        if (token) return token;
+      }
+    }
+    return null;
+  }, [session]);
+
+  // Fetch all data from API
+  const loadData = useCallback(async () => {
+    const token = getAccessToken();
+    if (!token) {
+      setError("Not authenticated. Please log in.");
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const [requestsData, balancesData, calendarData] = await Promise.all([
+        fetchLeaveRequests(token),
+        fetchLeaveBalances(token),
+        fetchTeamCalendar(token),
+      ]);
+
+      setLeaveRequests(requestsData);
+      setLeaveBalances(balancesData);
+      setTeamEvents(calendarData);
+    } catch (err) {
+      console.error("Failed to load vacation data:", err);
+      setError(err instanceof Error ? err.message : "Failed to load data");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [getAccessToken]);
+
+  // Load data on mount and when session changes
+  useEffect(() => {
+    if (sessionStatus === "loading") return;
+    loadData();
+  }, [sessionStatus, loadData]);
+
+  const calculateDays = (start?: Date, end?: Date): number => {
+    if (!start || !end) return 0;
+    return (
+      Math.ceil(
+        Math.abs(end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+      ) + 1
     );
   };
 
-  const calculateDays = (start?: Date, end?: Date) => {
-    if (!start || !end) return 0;
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-    return diffDays;
-  };
+  const handleSubmitRequest = async () => {
+    if (!leaveType || !selectedStartDate || !selectedEndDate || !reason) {
+      alert("Please fill in all required fields");
+      return;
+    }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "pending":
-        return (
-          <Badge className="bg-amber-100 text-amber-800 border-amber-200">
-            Pending
-          </Badge>
+    const token = getAccessToken();
+    if (!token) {
+      // Notification removed - using global notification system
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Format dates as local YYYY-MM-DD (avoid timezone conversion)
+      const formatLocalDate = (date: Date): string => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      };
+
+      const payload: CreateLeaveRequestPayload = {
+        leaveType: leaveType as LeaveType,
+        startDate: formatLocalDate(selectedStartDate),
+        endDate: formatLocalDate(selectedEndDate),
+        reason,
+        coveringEmployeeId: coveringEmployee || undefined,
+      };
+
+      const newRequest = await createLeaveRequest(payload, token);
+      setLeaveRequests((prev) => [newRequest, ...prev]);
+
+      // Reset form
+      setLeaveType("");
+      setSelectedStartDate(undefined);
+      setSelectedEndDate(undefined);
+      setReason("");
+      setCoveringEmployee("");
+
+      // Send notification
+      if (addNotification) {
+        addNotification(
+          "vacations",
+          "success",
+          "Leave Request Submitted",
+          `Your ${leaveType} request has been submitted successfully.`
         );
-      case "approved":
-        return (
-          <Badge className="bg-green-100 text-green-800 border-green-200">
-            Approved
-          </Badge>
+      }
+    } catch (err) {
+      console.error("Failed to submit leave request:", err);
+      if (addNotification) {
+        addNotification(
+          "vacations",
+          "alert",
+          "Request Failed",
+          err instanceof Error ? err.message : "Failed to submit request"
         );
-      case "rejected":
-        return (
-          <Badge className="bg-red-100 text-red-800 border-red-200">
-            Rejected
-          </Badge>
-        );
-      default:
-        return (
-          <Badge className="bg-gray-100 text-gray-800 border-gray-200">
-            Unknown
-          </Badge>
-        );
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  const handleApprove = async (id: string, status: "approved" | "rejected") => {
+    const request = leaveRequests.find((r) => r.id === id);
+    if (!request) return;
+
+    const token = getAccessToken();
+    if (!token) {
+      // Notification removed - using global notification system
+      return;
+    }
+
+    try {
+      let updatedRequest: LeaveRequest;
+
+      if (status === "approved") {
+        const comments = window.prompt("Add approval comments (optional):");
+        updatedRequest = await approveLeaveRequest(id, comments || "", token);
+
+        // Add to calendar if not already there
+        if (!teamEvents.find((e) => e.id === id)) {
+          setTeamEvents((prev) => [
+            ...prev,
+            {
+              id,
+              employeeId: request.employeeId,
+              employeeName: request.employeeName,
+              leaveType: request.leaveType,
+              startDate: request.startDate,
+              endDate: request.endDate,
+              status: "approved",
+            },
+          ]);
+        }
+      } else {
+        const reason = window.prompt("Reason for rejection:");
+        if (!reason) return; // Cancelled
+
+        updatedRequest = await rejectLeaveRequest(id, reason, token);
+      }
+
+      // Update the request in state with API response
+      setLeaveRequests((prev) =>
+        prev.map((r) => (r.id === id ? updatedRequest : r))
+      );
+
+      // Refresh balances since approval affects balance
+      if (status === "approved") {
+        const balancesData = await fetchLeaveBalances(token);
+        setLeaveBalances(balancesData);
+      }
+
+      // Send success notification
+      if (addNotification) {
+        addNotification(
+          "vacations",
+          "success",
+          `Request ${status === "approved" ? "Approved" : "Rejected"}`,
+          `Leave request for ${request.employeeName} has been ${status}.`
+        );
+      }
+    } catch (err) {
+      console.error(`Failed to ${status} leave request:`, err);
+      if (addNotification) {
+        addNotification(
+          "vacations",
+          "alert",
+          `Request ${status === "approved" ? "Approval" : "Rejection"} Failed`,
+          err instanceof Error ? err.message : `Failed to ${status} request`
+        );
+      }
+    }
+  };
+
+  const handleUpdateBalance = async () => {
+    if (
+      !adminBalanceForm.leaveType ||
+      !adminBalanceForm.newBalance ||
+      !adminBalanceForm.reason
+    ) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    const token = getAccessToken();
+    if (!token) {
+      // Notification removed - using global notification system
+      return;
+    }
+
+    // Find the balance ID for the selected leave type (for current user)
+    const balanceToUpdate = leaveBalances.find(
+      (b) =>
+        b.leaveType === adminBalanceForm.leaveType &&
+        b.employeeId === currentUserEmployeeId
+    );
+
+    if (!balanceToUpdate) {
+      alert(`Balance for ${adminBalanceForm.leaveType} not found`);
+      return;
+    }
+
+    try {
+      const newAllocated = parseInt(adminBalanceForm.newBalance);
+      const updatedBalance = await updateLeaveBalance(
+        balanceToUpdate.id,
+        {
+          allocated: newAllocated,
+          reason: adminBalanceForm.reason,
+        },
+        token
+      );
+
+      setLeaveBalances((prev) =>
+        prev.map((b) => (b.id === balanceToUpdate.id ? updatedBalance : b))
+      );
+
+      setAdminBalanceForm({ leaveType: "", newBalance: "", reason: "" });
+
+      // Send success notification
+      if (addNotification) {
+        addNotification(
+          "vacations",
+          "success",
+          "Balance Updated",
+          `Leave balance for ${adminBalanceForm.leaveType} has been updated to ${newAllocated} days.`
+        );
+      }
+    } catch (err) {
+      console.error("Failed to update balance:", err);
+      if (addNotification) {
+        addNotification(
+          "vacations",
+          "alert",
+          "Balance Update Failed",
+          err instanceof Error ? err.message : "Failed to update balance"
+        );
+      }
+    }
+  };
+
+  const getStatusBadge = (status: LeaveStatus) => {
+    const config = {
+      pending: "bg-amber-100 text-amber-800 border-amber-200",
+      approved: "bg-green-100 text-green-800 border-green-200",
+      rejected: "bg-red-100 text-red-800 border-red-200",
+      cancelled: "bg-gray-100 text-gray-800 border-gray-200",
+    };
+    // Defensive check for undefined status
+    if (!status) {
+      return <Badge className="bg-gray-100 text-gray-800">Unknown</Badge>;
+    }
+    return (
+      <Badge className={config[status] || config.pending}>
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </Badge>
+    );
+  };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading vacation data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state with retry option
+  if (error && leaveBalances.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-4" />
+          <p className="text-red-600 mb-4">{error}</p>
+          <Button onClick={loadData} variant="outline">
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Leave Management</h1>
@@ -264,202 +518,21 @@ export function VacationsModule() {
               />
             </div>
           )}
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>Export Vacation Data</DialogTitle>
-                <DialogDescription>
-                  Choose the format and date range for your export.
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Export Format</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select format" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pdf">PDF Report</SelectItem>
-                      <SelectItem value="csv">CSV Spreadsheet</SelectItem>
-                      <SelectItem value="excel">Excel Workbook</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>From Date</Label>
-                    <Input type="date" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>To Date</Label>
-                    <Input type="date" />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Include Data</Label>
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id="pending"
-                        defaultChecked
-                        className="rounded"
-                      />
-                      <Label htmlFor="pending" className="text-sm">
-                        Pending requests
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id="approved"
-                        defaultChecked
-                        className="rounded"
-                      />
-                      <Label htmlFor="approved" className="text-sm">
-                        Approved requests
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id="balances"
-                        className="rounded"
-                      />
-                      <Label htmlFor="balances" className="text-sm">
-                        Leave balances
-                      </Label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-2 pt-4">
-                <Button variant="primary" className="flex-1">
-                  <Download className="w-4 h-4 mr-2" />
-                  Export Data
-                </Button>
-                <DialogTrigger asChild>
-                  <Button variant="outline">Cancel</Button>
-                </DialogTrigger>
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Filter className="w-4 h-4 mr-2" />
-                Filter
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>Filter Vacation Requests</DialogTitle>
-                <DialogDescription>
-                  Apply filters to narrow down the vacation requests displayed.
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Status</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All statuses" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All statuses</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="approved">Approved</SelectItem>
-                      <SelectItem value="rejected">Rejected</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Leave Type</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All types" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All types</SelectItem>
-                      <SelectItem value="vacation">Vacation</SelectItem>
-                      <SelectItem value="sick">Sick Leave</SelectItem>
-                      <SelectItem value="wfh">Work From Home</SelectItem>
-                      <SelectItem value="personal">Personal</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Employee</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All employees" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All employees</SelectItem>
-                      <SelectItem value="sarah">Sarah Johnson</SelectItem>
-                      <SelectItem value="michael">Michael Chen</SelectItem>
-                      <SelectItem value="emily">Emily Rodriguez</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>From Date</Label>
-                    <Input type="date" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>To Date</Label>
-                    <Input type="date" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-2 pt-4">
-                <Button variant="primary" className="flex-1">
-                  Apply Filters
-                </Button>
-                <Button variant="outline">Clear All</Button>
-              </div>
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
 
-      {/* Leave Balances Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {leaveBalances.map((balance) => (
-          <Card key={balance.type} className="border-gray-200">
+        {displayedBalances.map((balance) => (
+          <Card key={balance.id} className="border-gray-200">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <balance.Icon className="h-6 w-6 text-gray-600" />
+                  {getLeaveTypeIcon(balance.leaveType)}
                   <h3 className="font-semibold text-gray-900">
-                    {balance.type}
+                    {LEAVE_TYPE_LABELS[balance.leaveType]}
                   </h3>
                 </div>
-                {isAdminMode && isHRUser && (
-                  <Button variant="ghost" size="sm">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                )}
               </div>
-
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Used:</span>
@@ -480,41 +553,26 @@ export function VacationsModule() {
                   </span>
                 </div>
               </div>
-
-              {isAdminMode && isHRUser && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <div className="space-y-2">
-                    <Label className="text-xs">Override Balance</Label>
-                    <Input placeholder="New balance" className="h-8 text-sm" />
-                    <Input
-                      placeholder="Reason for change"
-                      className="h-8 text-sm"
-                    />
-                    <Button variant="primary" size="sm" className="w-full">
-                      Update Balance
-                    </Button>
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Main Content Tabs */}
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
         className="space-y-6"
       >
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="request">Request Leave</TabsTrigger>
           <TabsTrigger value="calendar">Team Calendar</TabsTrigger>
+          {isAdminMode && isHRUser && (
+            <TabsTrigger value="admin">Admin Panel</TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="request" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Leave Request Form */}
             <div className="lg:col-span-2">
               <Card className="border-gray-200">
                 <CardHeader>
@@ -524,61 +582,37 @@ export function VacationsModule() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Leave Type *</Label>
-                      <Select>
+                      <Select
+                        value={leaveType}
+                        onValueChange={(v) => setLeaveType(v as LeaveType)}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select leave type" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="vacation">
-                            <span className="flex items-center gap-2">
-                              <Umbrella className="h-4 w-4" />
-                              Vacation
-                            </span>
-                          </SelectItem>
-                          <SelectItem value="sick">
-                            <span className="flex items-center gap-2">
-                              <Heart className="h-4 w-4" />
-                              Sick Leave
-                            </span>
-                          </SelectItem>
-                          <SelectItem value="wfh">
-                            <span className="flex items-center gap-2">
-                              <Home className="h-4 w-4" />
-                              Work From Home
-                            </span>
-                          </SelectItem>
-                          <SelectItem value="personal">
-                            <span className="flex items-center gap-2">
-                              <User className="h-4 w-4" />
-                              Personal
-                            </span>
-                          </SelectItem>
-                          <SelectItem value="maternity">
-                            <span className="flex items-center gap-2">
-                              <Baby className="h-4 w-4" />
-                              Maternity
-                            </span>
-                          </SelectItem>
-                          <SelectItem value="paternity">
-                            <span className="flex items-center gap-2">
-                              <User className="h-4 w-4" />
-                              Paternity
-                            </span>
-                          </SelectItem>
+                          {ALL_LEAVE_TYPES.map((t) => (
+                            <SelectItem key={t} value={t}>
+                              {LEAVE_TYPE_LABELS[t]}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
                       <Label>Covering Employee</Label>
-                      <Select>
+                      <Select
+                        value={coveringEmployee}
+                        onValueChange={setCoveringEmployee}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select covering employee" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="alex">Alex Thompson</SelectItem>
-                          <SelectItem value="michael">Michael Chen</SelectItem>
-                          <SelectItem value="emily">Emily Rodriguez</SelectItem>
-                          <SelectItem value="david">David Kim</SelectItem>
+                          {EMPLOYEES.map((e) => (
+                            <SelectItem key={e.id} value={e.id}>
+                              {e.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -647,103 +681,63 @@ export function VacationsModule() {
                   <div className="space-y-2">
                     <Label>Reason for Leave *</Label>
                     <Textarea
-                      placeholder="Please provide details about your leave request..."
+                      placeholder="Please provide details..."
                       rows={4}
+                      value={reason}
+                      onChange={(e) => setReason(e.target.value)}
                     />
                   </div>
 
-                  <div className="flex gap-2">
-                    <Button variant="primary">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Submit Request
-                    </Button>
-                    <Button variant="outline">Save as Draft</Button>
-                  </div>
+                  <Button
+                    onClick={handleSubmitRequest}
+                    className="w-full"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Submit Request
+                      </>
+                    )}
+                  </Button>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Quick Stats Sidebar */}
             <div className="space-y-6">
               <Card className="border-gray-200">
                 <CardHeader>
                   <CardTitle className="text-lg">Quick Stats</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">
-                        Total Requests
-                      </span>
-                      <span className="font-medium">
-                        {leaveRequests.length}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Pending</span>
-                      <span className="font-medium text-amber-600">
-                        {
-                          leaveRequests.filter((r) => r.status === "pending")
-                            .length
-                        }
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Approved</span>
-                      <span className="font-medium text-green-600">
-                        {
-                          leaveRequests.filter((r) => r.status === "approved")
-                            .length
-                        }
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">
-                        Team Availability
-                      </span>
-                      <span className="font-medium">85%</span>
-                    </div>
+                <CardContent className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">
+                      Total Requests
+                    </span>
+                    <span className="font-medium">{leaveRequests.length}</span>
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-gray-200">
-                <CardHeader>
-                  <CardTitle className="text-lg">Upcoming Leaves</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {leaveRequests
-                      .filter((req) => new Date(req.startDate) > new Date())
-                      .slice(0, 3)
-                      .map((request) => (
-                        <div
-                          key={request.id}
-                          className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg"
-                        >
-                          <Avatar className="w-8 h-8">
-                            <img
-                              src={request.employeeAvatar}
-                              alt={request.employeeName}
-                            />
-                            <AvatarFallback>
-                              {request.employeeName
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
-                              {request.employeeName}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {formatDate(request.startDate)} -{" "}
-                              {request.leaveType}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Pending</span>
+                    <span className="font-medium text-amber-600">
+                      {
+                        leaveRequests.filter((r) => r.status === "pending")
+                          .length
+                      }
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Approved</span>
+                    <span className="font-medium text-green-600">
+                      {
+                        leaveRequests.filter((r) => r.status === "approved")
+                          .length
+                      }
+                    </span>
                   </div>
                 </CardContent>
               </Card>
@@ -752,128 +746,267 @@ export function VacationsModule() {
         </TabsContent>
 
         <TabsContent value="calendar" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Team Calendar */}
-            <div className="lg:col-span-3">
-              <Card className="border-gray-200">
-                <CardHeader>
-                  <CardTitle>Team Leave Calendar</CardTitle>
-                  <div className="flex gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                      <span>Vacation</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                      <span>Sick Leave</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      <span>WFH</span>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {/* Calendar Grid */}
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-7 gap-2 text-sm font-medium text-gray-500">
-                      {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
-                        (day) => (
-                          <div key={day} className="p-2 text-center">
-                            {day}
-                          </div>
+          <Card className="border-gray-200">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Team Leave Calendar</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setCalendarMonth(
+                        new Date(
+                          calendarMonth.getFullYear(),
+                          calendarMonth.getMonth() - 1,
+                          1
                         )
-                      )}
-                    </div>
-                    <div className="grid grid-cols-7 gap-2">
-                      {Array.from({ length: 35 }, (_, i) => {
-                        const date = new Date(2025, 7, i - 5); // August 2025
-                        const dayEvents = teamCalendarEvents.filter((event) => {
-                          const eventStart = new Date(event.startDate);
-                          const eventEnd = new Date(event.endDate);
-                          return date >= eventStart && date <= eventEnd;
-                        });
+                      )
+                    }
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm font-medium min-w-32 text-center">
+                    {format(calendarMonth, "MMMM yyyy")}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setCalendarMonth(
+                        new Date(
+                          calendarMonth.getFullYear(),
+                          calendarMonth.getMonth() + 1,
+                          1
+                        )
+                      )
+                    }
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCalendarMonth(new Date())}
+                    className="ml-2 text-xs"
+                  >
+                    Today
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-7 gap-2 text-sm font-medium text-gray-500">
+                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
+                    (day) => (
+                      <div key={day} className="p-2 text-center">
+                        {day}
+                      </div>
+                    )
+                  )}
+                </div>
+                <div className="grid grid-cols-7 gap-2">
+                  {(() => {
+                    const firstDay = new Date(
+                      calendarMonth.getFullYear(),
+                      calendarMonth.getMonth(),
+                      1
+                    );
+                    const startOffset = firstDay.getDay(); // Day of week (0-6)
+                    const today = new Date();
+                    return Array.from({ length: 35 }, (_, i) => {
+                      const date = new Date(
+                        calendarMonth.getFullYear(),
+                        calendarMonth.getMonth(),
+                        i - startOffset + 1
+                      );
+                      const dayEvents = teamEvents.filter((event) => {
+                        const start = new Date(event.startDate);
+                        const end = new Date(event.endDate);
+
+                        // Normalize all dates to midnight for accurate day comparison
+                        const dateAtMidnight = new Date(
+                          date.getFullYear(),
+                          date.getMonth(),
+                          date.getDate()
+                        );
+                        const startAtMidnight = new Date(
+                          start.getFullYear(),
+                          start.getMonth(),
+                          start.getDate()
+                        );
+                        const endAtMidnight = new Date(
+                          end.getFullYear(),
+                          end.getMonth(),
+                          end.getDate()
+                        );
 
                         return (
-                          <div
-                            key={i}
-                            className="min-h-24 p-1 border border-gray-200 rounded"
-                          >
-                            <div className="text-sm text-gray-600 mb-1">
-                              {date.getDate()}
-                            </div>
-                            <div className="space-y-1">
-                              {dayEvents.map((event) => (
-                                <div
-                                  key={event.id}
-                                  className={`text-xs p-1 rounded text-white ${event.color}`}
-                                  title={`${event.employeeName} - ${event.leaveType}`}
-                                >
-                                  {event.employeeName.split(" ")[0]}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
+                          dateAtMidnight >= startAtMidnight &&
+                          dateAtMidnight <= endAtMidnight
                         );
-                      })}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                      });
+                      const isCurrentMonth =
+                        date.getMonth() === calendarMonth.getMonth();
+                      const isToday =
+                        date.toDateString() === today.toDateString();
+                      return (
+                        <div
+                          key={i}
+                          className={`min-h-24 p-1 border rounded ${
+                            isToday
+                              ? "border-blue-500 bg-blue-50"
+                              : !isCurrentMonth
+                                ? "bg-gray-50 border-gray-200"
+                                : "border-gray-200"
+                          }`}
+                        >
+                          <div
+                            className={`text-sm mb-1 ${
+                              isToday
+                                ? "text-blue-600 font-semibold"
+                                : !isCurrentMonth
+                                  ? "text-gray-400"
+                                  : "text-gray-600"
+                            }`}
+                          >
+                            {date.getDate()}
+                          </div>
+                          <div className="space-y-1">
+                            {dayEvents.map((event) => (
+                              <div
+                                key={event.id}
+                                className={`text-xs p-1 rounded text-white ${LEAVE_TYPE_COLORS[event.leaveType]}`}
+                                title={`${event.employeeName} - ${LEAVE_TYPE_LABELS[event.leaveType]}`}
+                              >
+                                {event.employeeName.split(" ")[0] || "Employee"}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-            {/* Calendar Sidebar */}
-            <div className="space-y-6">
+        {isAdminMode && isHRUser && (
+          <TabsContent value="admin" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="border-gray-200">
                 <CardHeader>
-                  <CardTitle className="text-lg">Today&apos;s Leaves</CardTitle>
+                  <CardTitle>Adjust Leave Balance</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Leave Type *</Label>
+                    <Select
+                      value={adminBalanceForm.leaveType}
+                      onValueChange={(v) =>
+                        setAdminBalanceForm({
+                          ...adminBalanceForm,
+                          leaveType: v,
+                        })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select leave type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ALL_LEAVE_TYPES.map((t) => (
+                          <SelectItem key={t} value={t}>
+                            {LEAVE_TYPE_LABELS[t]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>New Allocation (days) *</Label>
+                    <Input
+                      type="number"
+                      placeholder="e.g., 25"
+                      value={adminBalanceForm.newBalance}
+                      onChange={(e) =>
+                        setAdminBalanceForm({
+                          ...adminBalanceForm,
+                          newBalance: e.target.value,
+                        })
+                      }
+                      min="0"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Reason for Change *</Label>
+                    <Textarea
+                      placeholder="e.g., Annual policy update, special allocation, correction..."
+                      rows={3}
+                      value={adminBalanceForm.reason}
+                      onChange={(e) =>
+                        setAdminBalanceForm({
+                          ...adminBalanceForm,
+                          reason: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  <Button onClick={handleUpdateBalance} className="w-full">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Update Balance
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="border-gray-200">
+                <CardHeader>
+                  <CardTitle>Current Leave Allocations</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {teamCalendarEvents
-                      .filter((event) => {
-                        const today = new Date();
-                        const eventStart = new Date(event.startDate);
-                        const eventEnd = new Date(event.endDate);
-                        return today >= eventStart && today <= eventEnd;
-                      })
-                      .map((event) => (
+                    {leaveBalances
+                      .filter((b) => b.employeeId === currentUserEmployeeId)
+                      .map((balance) => (
                         <div
-                          key={event.id}
-                          className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg"
+                          key={balance.id}
+                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                         >
-                          <div
-                            className={`w-3 h-3 rounded-full ${event.color}`}
-                          ></div>
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              {event.employeeName}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {event.leaveType}
-                            </p>
+                          <div className="flex items-center gap-2">
+                            {getLeaveTypeIcon(balance.leaveType)}
+                            <span className="font-medium">
+                              {LEAVE_TYPE_LABELS[balance.leaveType]}
+                            </span>
                           </div>
+                          <span className="font-semibold">
+                            {balance.allocated} days
+                          </span>
                         </div>
                       ))}
-                    {teamCalendarEvents.filter((event) => {
-                      const today = new Date();
-                      const eventStart = new Date(event.startDate);
-                      const eventEnd = new Date(event.endDate);
-                      return today >= eventStart && today <= eventEnd;
-                    }).length === 0 && (
-                      <p className="text-sm text-gray-500 text-center py-4">
-                        No leaves today
-                      </p>
-                    )}
                   </div>
                 </CardContent>
               </Card>
             </div>
-          </div>
-        </TabsContent>
+
+            <Card className="border-gray-200">
+              <CardHeader>
+                <CardTitle>Recent Balance Adjustments</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 text-sm text-gray-600">
+                  <p>Balance adjustment history will appear here.</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
       </Tabs>
 
-      {/* Pending Approvals Table */}
       {isHRUser && (
         <Card className="border-gray-200">
           <CardHeader>
@@ -898,10 +1031,12 @@ export function VacationsModule() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="w-8 h-8">
-                          <img
-                            src={request.employeeAvatar}
-                            alt={request.employeeName}
-                          />
+                          {request.employeeAvatar && (
+                            <img
+                              src={request.employeeAvatar}
+                              alt={request.employeeName}
+                            />
+                          )}
                           <AvatarFallback>
                             {request.employeeName
                               .split(" ")
@@ -909,49 +1044,32 @@ export function VacationsModule() {
                               .join("")}
                           </AvatarFallback>
                         </Avatar>
-                        <div>
-                          <p className="font-medium text-gray-900">
-                            {request.employeeName}
-                          </p>
-                          {request.coveringEmployee && (
-                            <p className="text-xs text-gray-500">
-                              Cover: {request.coveringEmployee}
-                            </p>
-                          )}
-                        </div>
+                        <p className="font-medium">{request.employeeName}</p>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="bg-gray-50">
-                        {request.leaveType}
-                      </Badge>
+                      <Badge>{LEAVE_TYPE_LABELS[request.leaveType]}</Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">
-                        <p>{formatDate(request.startDate)}</p>
-                        <p className="text-gray-500">
-                          to {formatDate(request.endDate)}
-                        </p>
-                      </div>
+                      <span className="text-sm">
+                        {formatDate(request.startDate)} to{" "}
+                        {formatDate(request.endDate)}
+                      </span>
                     </TableCell>
                     <TableCell>{request.days}</TableCell>
-                    <TableCell className="max-w-48">
-                      <p
-                        className="text-sm text-gray-600 truncate"
-                        title={request.reason}
-                      >
+                    <TableCell>
+                      <span className="text-sm text-gray-600 truncate max-w-xs">
                         {request.reason}
-                      </p>
+                      </span>
                     </TableCell>
                     <TableCell>{getStatusBadge(request.status)}</TableCell>
                     <TableCell>
                       {request.status === "pending" && (
                         <div className="flex gap-2">
                           <Button
-                            variant="primary"
                             size="sm"
                             onClick={() =>
-                              handleApproval(request.id, "approved")
+                              handleApprove(request.id, "approved")
                             }
                           >
                             <Check className="w-4 h-4" />
@@ -960,7 +1078,7 @@ export function VacationsModule() {
                             size="sm"
                             variant="destructive"
                             onClick={() =>
-                              handleApproval(request.id, "rejected")
+                              handleApprove(request.id, "rejected")
                             }
                           >
                             <X className="w-4 h-4" />

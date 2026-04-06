@@ -14,11 +14,13 @@ import {
 } from "lucide-react";
 import { QuickActionButton } from "./QuickActionButton";
 import { useSession } from "next-auth/react";
+import type { NotificationType } from "./notifications";
+import type { HrModuleId } from "./hr-modules";
 
 // Import all modules
 // ... (rest of imports unchanged)
 import { VacationsModule } from "./VacationsModule";
-import { ProfilesModule } from "./ProfilesModule";
+import ProfilesModule from "./ProfilesModule";
 import { ReviewsModule } from "./ReviewsModule";
 import { OnboardingModule } from "./OnboardingModule";
 import { TrainingModule } from "./TrainingModule";
@@ -35,6 +37,12 @@ import { AdminModule } from "./AdminModule";
 
 interface DashboardViewProps {
   activeModule: string;
+  addNotification?: (
+    module: HrModuleId,
+    type: NotificationType,
+    title: string,
+    message: string
+  ) => void;
 }
 
 // Dashboard Overview Component
@@ -379,12 +387,15 @@ function DashboardOverview() {
   );
 }
 
-export function DashboardView({ activeModule }: DashboardViewProps) {
+export function DashboardView({
+  activeModule,
+  addNotification,
+}: DashboardViewProps) {
   switch (activeModule) {
     case "dashboard":
       return <DashboardOverview />;
     case "vacations":
-      return <VacationsModule />;
+      return <VacationsModule addNotification={addNotification} />;
     case "profiles":
       return <ProfilesModule />;
     case "reviews":

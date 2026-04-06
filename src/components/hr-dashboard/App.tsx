@@ -45,12 +45,16 @@ import { getApiBaseUrl } from "@/lib/config";
 import { logoutUser } from "@/lib/api/auth";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { getStoredUser } from "@/lib/api/tokens";
 
 export default function HRDashboardApp() {
   const { data: session, status } = useSession();
   const [mounted, setMounted] = useState(false);
   const [careerLevel, setCareerLevel] = useState<string | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
+  const [storedUser] = useState<Record<string, unknown> | null>(() =>
+    getStoredUser()
+  );
 
   const router = useRouter();
 
@@ -115,6 +119,7 @@ export default function HRDashboardApp() {
     unreadCount,
     markAsRead,
     markAllAsRead,
+    addNotification,
     notificationCounts,
   } = useNotifications();
 
@@ -345,25 +350,61 @@ export default function HRDashboardApp() {
                     className="flex h-9 items-center gap-3 rounded-lg pl-3 pr-4 transition-colors hover:bg-gray-200 bg-gray-50/50 border border-transparent hover:border-gray-200"
                   >
                     <Avatar className="h-7 w-7 border border-gray-200">
-                      {session?.user?.image && (
+                      {(session?.user?.image ||
+                        (storedUser?.avatar_url as string)) && (
                         <AvatarImage
-                          src={session.user.image}
-                          alt={session.user.name || "User avatar"}
+                          src={
+                            (session?.user?.image as string) ||
+                            (storedUser?.avatar_url as string)
+                          }
+                          alt="User avatar"
                           referrerPolicy="no-referrer"
                         />
                       )}
                       <AvatarFallback className="bg-gray-200 text-sm font-medium text-gray-600">
-                        {session?.user?.name
-                          ? session.user.name
+                        {(() => {
+                          const firstName = String(
+                            storedUser?.first_name || ""
+                          ).trim();
+                          const lastName = String(
+                            storedUser?.last_name || ""
+                          ).trim();
+                          const userName =
+                            session?.user?.name ||
+                            (firstName && lastName
+                              ? `${firstName} ${lastName}`
+                              : (storedUser?.email as string) ||
+                                (storedUser?.username as string));
+                          if (userName) {
+                            return userName
                               .split(" ")
                               .map((n: string) => n[0])
                               .join("")
-                          : "JD"}
+                              .toUpperCase()
+                              .slice(0, 2);
+                          }
+                          return "U";
+                        })()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col items-end leading-tight text-right text-gray-900 dark:text-white">
                       <span className="text-sm font-semibold truncate max-w-[150px]">
-                        {session?.user?.name || "User"}
+                        {(() => {
+                          const firstName = String(
+                            storedUser?.first_name || ""
+                          ).trim();
+                          const lastName = String(
+                            storedUser?.last_name || ""
+                          ).trim();
+                          return (
+                            session?.user?.name ||
+                            (firstName && lastName
+                              ? `${firstName} ${lastName}`
+                              : (storedUser?.email as string) ||
+                                (storedUser?.username as string) ||
+                                "User")
+                          );
+                        })()}
                       </span>
                       <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
                         {careerLevel || "Member"}
@@ -379,29 +420,67 @@ export default function HRDashboardApp() {
                   <div className="rounded-t-lg border-b border-gray-200 bg-gray-50 p-4">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-12 w-12 border border-gray-200">
-                        {session?.user?.image && (
+                        {(session?.user?.image ||
+                          (storedUser?.avatar_url as string)) && (
                           <AvatarImage
-                            src={session.user.image}
-                            alt={session.user.name || "User avatar"}
+                            src={
+                              (session?.user?.image as string) ||
+                              (storedUser?.avatar_url as string)
+                            }
+                            alt="User avatar"
                             className="object-cover"
                             referrerPolicy="no-referrer"
                           />
                         )}
                         <AvatarFallback className="font-medium text-gray-700 bg-gray-200">
-                          {session?.user?.name
-                            ? session.user.name
+                          {(() => {
+                            const firstName = String(
+                              storedUser?.first_name || ""
+                            ).trim();
+                            const lastName = String(
+                              storedUser?.last_name || ""
+                            ).trim();
+                            const userName =
+                              session?.user?.name ||
+                              (firstName && lastName
+                                ? `${firstName} ${lastName}`
+                                : (storedUser?.email as string) ||
+                                  (storedUser?.username as string));
+                            if (userName) {
+                              return userName
                                 .split(" ")
                                 .map((n: string) => n[0])
                                 .join("")
-                            : "JD"}
+                                .toUpperCase()
+                                .slice(0, 2);
+                            }
+                            return "U";
+                          })()}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold text-gray-900 truncate">
-                          {session?.user?.name || "User"}
+                          {(() => {
+                            const firstName = String(
+                              storedUser?.first_name || ""
+                            ).trim();
+                            const lastName = String(
+                              storedUser?.last_name || ""
+                            ).trim();
+                            return (
+                              session?.user?.name ||
+                              (firstName && lastName
+                                ? `${firstName} ${lastName}`
+                                : (storedUser?.email as string) ||
+                                  (storedUser?.username as string) ||
+                                  "User")
+                            );
+                          })()}
                         </p>
                         <p className="text-sm text-gray-600 break-all">
-                          {session?.user?.email || ""}
+                          {session?.user?.email ||
+                            (storedUser?.email as string) ||
+                            "user@example.com"}
                         </p>
                         <p className="text-xs text-gray-400 mt-0.5">
                           {careerLevel || "Member"}
@@ -505,7 +584,10 @@ export default function HRDashboardApp() {
 
         <div className="flex min-h-0 flex-1 overflow-auto bg-gray-50 p-4 dark:bg-gray-950">
           <div className="w-full min-w-0">
-            <DashboardView activeModule={activeModule} />
+            <DashboardView
+              activeModule={activeModule}
+              addNotification={addNotification}
+            />
           </div>
         </div>
       </main>

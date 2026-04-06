@@ -41,6 +41,8 @@ const handler = NextAuth({
             refreshToken: data.refresh,
             career_level: data.user.career_level,
             image: data.user.avatar_url,
+            is_staff: data.user.is_staff,
+            is_superuser: data.user.is_superuser,
           };
         }
 
@@ -132,6 +134,9 @@ const handler = NextAuth({
         if (typeof u.career_level === "string")
           token.career_level = u.career_level as string;
         if (typeof u.image === "string") token.picture = u.image as string;
+        if (typeof u.is_staff === "boolean") token.is_staff = u.is_staff;
+        if (typeof u.is_superuser === "boolean")
+          token.is_superuser = u.is_superuser;
       }
 
       // For Google provider, we exchange the id_token for a local JWT
@@ -173,6 +178,18 @@ const handler = NextAuth({
         } catch (error) {
           console.error("[NextAuth] Exchange error:", error);
         }
+      } else if (user) {
+        // This is for credentials provider
+        const u = user as {
+          accessToken?: string;
+          refreshToken?: string;
+          career_level?: string;
+          image?: string;
+        };
+        token.accessToken = u.accessToken;
+        token.refreshToken = u.refreshToken;
+        token.career_level = u.career_level;
+        token.picture = u.image;
       }
 
       // Try to refresh the token if it's expired (or missing expiry info)
@@ -191,15 +208,35 @@ const handler = NextAuth({
     async session({ session, token }) {
       if (token && session.user) {
         const t = token as unknown as Record<string, unknown>;
+
+        // Add user ID to session
+        if (typeof t.sub === "string") {
+          (session.user as Record<string, unknown>).id = Number(t.sub);
+        }
+
+        // Add is_staff and is_superuser
+        if (typeof t.is_staff === "boolean") {
+          (session.user as Record<string, unknown>).is_staff = t.is_staff;
+        }
+        if (typeof t.is_superuser === "boolean") {
+          (session.user as Record<string, unknown>).is_superuser =
+            t.is_superuser;
+        }
+
+        // Add picture
         if (typeof t.picture === "string") {
           session.user!.image = t.picture as string;
         }
+
+        // Add career level
         if (typeof t.career_level === "string") {
           session.user =
             session.user || ({} as unknown as Record<string, unknown>);
           (session.user as Record<string, unknown>).career_level =
             t.career_level as string;
         }
+
+        // Add access token
         if (typeof t.accessToken === "string") {
           (session as unknown as Record<string, unknown>).accessToken =
             t.accessToken;
