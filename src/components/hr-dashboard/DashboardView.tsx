@@ -18,7 +18,7 @@ import { useSession } from "next-auth/react";
 // Import all modules
 // ... (rest of imports unchanged)
 import { VacationsModule } from "./VacationsModule";
-import { ProfilesModule } from "./ProfilesModule";
+import ProfilesModule from "./ProfilesModule";
 import { ReviewsModule } from "./ReviewsModule";
 import { OnboardingModule } from "./OnboardingModule";
 import { TrainingModule } from "./TrainingModule";

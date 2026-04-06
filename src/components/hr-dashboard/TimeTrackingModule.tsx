@@ -376,7 +376,6 @@ export function TimeTrackingModule() {
       a.click();
     } else {
       // Mock PDF export
-      console.log("PDF export would generate a detailed timesheet report");
       alert(
         "PDF export functionality would be implemented with a PDF generation library"
       );
