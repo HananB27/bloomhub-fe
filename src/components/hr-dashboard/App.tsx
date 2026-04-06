@@ -119,6 +119,7 @@ export default function HRDashboardApp() {
     unreadCount,
     markAsRead,
     markAllAsRead,
+    addNotification,
     notificationCounts,
   } = useNotifications();
 
@@ -583,7 +584,10 @@ export default function HRDashboardApp() {
 
         <div className="flex min-h-0 flex-1 overflow-auto bg-gray-50 p-4 dark:bg-gray-950">
           <div className="w-full min-w-0">
-            <DashboardView activeModule={activeModule} />
+            <DashboardView
+              activeModule={activeModule}
+              addNotification={addNotification}
+            />
           </div>
         </div>
       </main>
