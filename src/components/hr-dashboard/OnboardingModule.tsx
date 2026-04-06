@@ -354,7 +354,7 @@ export function OnboardingModule() {
     setNewComment("");
   };
 
-  const getStatusColor = (status: TaskStatus) => {
+  const _getStatusColor = (status: TaskStatus) => {
     switch (status) {
       case "done":
         return "text-green-600 bg-green-50 border-green-200";

@@ -151,7 +151,7 @@ export function AnalyticsModule() {
   const [selectedTimeRange, setSelectedTimeRange] = useState("12months");
   const [selectedDepartment, setSelectedDepartment] = useState("all");
   const [selectedLeaveType, setSelectedLeaveType] = useState("all");
-  const [isHRUser] = useState(true); // Mock HR permission
+  const [_isHRUser] = useState(true);
 
   // TODO: Implement - fetch leave records from API
   const leaveRecords: LeaveRecord[] = [];

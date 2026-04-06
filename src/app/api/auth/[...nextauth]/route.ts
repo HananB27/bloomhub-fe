@@ -1,3 +1,4 @@
+import type { NextRequest } from "next/server";
 import NextAuth from "next-auth";
 // Use runtime-safe casts to avoid widening to `any` while keeping NextAuth callback signatures intact
 import GoogleProvider from "next-auth/providers/google";
@@ -51,9 +52,7 @@ const handler = NextAuth({
     signIn: "/login",
   },
   callbacks: {
-    async signIn({ user, account }) {
-      console.log("[NextAuth] signIn callback triggered. User:", user?.email);
-      console.log("[NextAuth] Account type:", account?.provider);
+    async signIn({ user: _user }) {
       return true;
     },
     async jwt({ token, account, user }) {

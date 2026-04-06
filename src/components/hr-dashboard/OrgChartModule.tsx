@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
@@ -415,7 +415,7 @@ export function OrgChartModule() {
   const chartRef = useRef<HTMLDivElement>(null);
 
   // TODO: Implement - fetch employees from API and set via setEmployees(...)
-  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [employees, _setEmployees] = useState<Employee[]>([]);
 
   // TODO: Implement - fetch departments from API and set via setDepartments(...)
   const [departments, setDepartments] = useState<Department[]>([]);

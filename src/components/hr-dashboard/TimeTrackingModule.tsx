@@ -206,7 +206,7 @@ export function TimeTrackingModule() {
       weekEntries.length > 0 &&
       weekEntries.every((entry) => entry.status === "approved");
     const hasPending = weekEntries.some((entry) => entry.status === "pending");
-    const hasDraft = weekEntries.some((entry) => entry.status === "draft");
+    const _hasDraft = weekEntries.some((entry) => entry.status === "draft");
 
     let status: ApprovalStatus = "draft";
     if (allApproved) status = "approved";
