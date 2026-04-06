@@ -237,7 +237,7 @@ export const fetchLeaveBalance = async (
  */
 export const updateLeaveBalance = async (
   id: string,
-  payload: UpdateLeaveBalancePayload,
+  payload: Pick<UpdateLeaveBalancePayload, "allocated" | "reason">,
   accessToken: string
 ): Promise<LeaveBalance> => {
   const response = await fetch(

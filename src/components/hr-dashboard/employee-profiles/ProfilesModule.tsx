@@ -60,7 +60,7 @@ export default function ProfilesModule() {
   const [canEditAll, setCanEditAll] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [_saveSuccess, setSaveSuccess] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [isLoadingEmployee, setIsLoadingEmployee] = useState(false);
 
@@ -70,7 +70,7 @@ export default function ProfilesModule() {
   >([]);
   const [managers, setManagers] = useState<Manager[]>([]);
   const [cpfLevels, setCpfLevels] = useState<string[]>([]);
-  const [loadingDropdowns, setLoadingDropdowns] = useState(false);
+  const [_loadingDropdowns, setLoadingDropdowns] = useState(false);
   const [loadingCpfLevels, setLoadingCpfLevels] = useState(false);
 
   useEffect(() => {

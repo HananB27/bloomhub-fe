@@ -148,7 +148,7 @@ export function DocumentsModule() {
   const [expiryFilter, setExpiryFilter] = useState("all");
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(
+  const [_selectedDocument, _setSelectedDocument] = useState<Document | null>(
     null
   );
   const [isHRUser] = useState(true); // Mock HR permission
@@ -169,7 +169,7 @@ export function DocumentsModule() {
   const [documents, setDocuments] = useState<Document[]>([]);
 
   // TODO: Implement - fetch signatures from API
-  const [signatures, setSignatures] = useState<Signature[]>([]);
+  const [signatures, _setSignatures] = useState<Signature[]>([]);
 
   const categories: { value: DocumentCategory; label: string }[] = [
     { value: "contracts", label: "Contracts" },

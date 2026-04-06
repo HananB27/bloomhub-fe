@@ -74,3 +74,7 @@ export const fetchCurrentUserProfile = async (
 
   return response.json();
 };
+
+export { employeeApi } from "./modules/employees";
+export type { EmployeeProfileData } from "./modules/employees";
+export type { SalaryHistoryItem } from "./modules/employees";

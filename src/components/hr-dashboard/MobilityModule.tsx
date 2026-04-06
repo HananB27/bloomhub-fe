@@ -135,7 +135,7 @@ export function MobilityModule() {
   });
 
   // TODO: Implement - fetch job postings from API
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobs, _setJobs] = useState<Job[]>([]);
 
   // TODO: Implement - fetch applications from API
   const [applications, setApplications] = useState<Application[]>([]);

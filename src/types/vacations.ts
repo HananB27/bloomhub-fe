@@ -137,3 +137,14 @@ export const LEAVE_TYPE_BADGE_COLORS: Record<LeaveType, string> = {
   bereavement: "bg-gray-100 text-gray-800 border-gray-200",
   unpaid: "bg-yellow-100 text-yellow-800 border-yellow-200",
 };
+
+export const ALL_LEAVE_TYPES: LeaveType[] = [
+  "vacation",
+  "sick",
+  "wfh",
+  "personal",
+  "maternity",
+  "paternity",
+  "bereavement",
+  "unpaid",
+] as const;

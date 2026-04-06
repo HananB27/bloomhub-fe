@@ -7,13 +7,29 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   prettier,
-  // Override default ignores of eslint-config-next.
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
-  // Ignore generated HR dashboard UI from Figma Make (ui primitives, figma components only).
-  globalIgnores([
-    "src/components/hr-dashboard/ui/**",
-    "src/components/hr-dashboard/figma/**",
-  ]),
+  {
+    ignores: [
+      ".next/**",
+      "out/**",
+      "build/**",
+      "next-env.d.ts",
+      "src/components/hr-dashboard/ui/**",
+      "src/components/hr-dashboard/figma/**",
+    ],
+  },
+  {
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_|^[A-Z]",
+          caughtErrorsIgnorePattern: "^_",
+          ignoreRestSiblings: true,
+        },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;

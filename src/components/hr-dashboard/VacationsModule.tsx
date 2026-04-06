@@ -64,11 +64,9 @@ import {
   fetchLeaveRequests,
   fetchLeaveBalances,
   fetchTeamCalendar,
-  fetchPendingApprovals,
   createLeaveRequest,
   approveLeaveRequest,
   rejectLeaveRequest,
-  cancelLeaveRequest,
   updateLeaveBalance,
 } from "@/lib/api/vacations";
 

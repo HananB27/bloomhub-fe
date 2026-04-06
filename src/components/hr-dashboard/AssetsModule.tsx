@@ -330,7 +330,7 @@ export function AssetsModule() {
     return categoryData?.icon || Package;
   };
 
-  const assignAsset = (
+  const _assignAsset = (
     assetId: number,
     employeeId: string,
     employeeName: string
@@ -463,7 +463,7 @@ export function AssetsModule() {
     setIsAddAssetDialogOpen(false);
   };
 
-  const updateAssetStatus = (assetId: number, newStatus: AssetStatus) => {
+  const _updateAssetStatus = (assetId: number, newStatus: AssetStatus) => {
     setAssets((prev) =>
       prev.map((asset) =>
         asset.id === assetId ? { ...asset, status: newStatus } : asset

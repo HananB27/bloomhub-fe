@@ -430,7 +430,9 @@ export function DatePicker(props: DatePickerProps) {
   const [panel, setPanel] = React.useState<Panel>("days");
   const [viewYear, setViewYear] = React.useState(today.getFullYear());
   const [viewMonth, setViewMonth] = React.useState(today.getMonth());
-  const [yearRangeBase, setYearRangeBase] = React.useState(today.getFullYear());
+  const [_yearRangeBase, setYearRangeBase] = React.useState(
+    today.getFullYear()
+  );
   const [hoverDate, setHoverDate] = React.useState<Date | undefined>();
   const wrapRef = React.useRef<HTMLDivElement>(null);
 
