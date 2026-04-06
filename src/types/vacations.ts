@@ -116,18 +116,6 @@ export const LEAVE_TYPE_LABELS: Record<LeaveType, string> = {
   unpaid: "Unpaid Leave",
 };
 
-// All leave types as an array for iteration
-export const ALL_LEAVE_TYPES: LeaveType[] = [
-  "vacation",
-  "sick",
-  "wfh",
-  "personal",
-  "maternity",
-  "paternity",
-  "bereavement",
-  "unpaid",
-];
-
 export const LEAVE_TYPE_COLORS: Record<LeaveType, string> = {
   vacation: "bg-blue-500",
   sick: "bg-red-500",
