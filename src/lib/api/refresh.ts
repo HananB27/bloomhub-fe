@@ -10,7 +10,9 @@ function buildAuthHeader(token: string): Record<string, string> {
   return { Authorization: `Bearer ${token}` };
 }
 
-export async function refreshAccessToken(): Promise<string> {
+let activeRefreshPromise: Promise<string> | null = null;
+
+async function performRefresh(): Promise<string> {
   const refreshToken = getRefreshToken();
   if (!refreshToken) {
     clearTokens();
@@ -38,6 +40,18 @@ export async function refreshAccessToken(): Promise<string> {
   return data.access || data.access_token;
 }
 
+export async function refreshAccessToken(): Promise<string> {
+  if (activeRefreshPromise) {
+    return activeRefreshPromise;
+  }
+
+  activeRefreshPromise = performRefresh().finally(() => {
+    activeRefreshPromise = null;
+  });
+
+  return activeRefreshPromise;
+}
+
 export async function fetchWithAuthRetry(
   input: RequestInfo,
   init?: RequestInit,
@@ -54,7 +68,7 @@ export async function fetchWithAuthRetry(
 
   let response = await fetch(input, authInit);
 
-  if ((response.status === 401 || response.status === 403) && retry) {
+  if (response.status === 401 && retry) {
     try {
       const newToken = await refreshAccessToken();
       response = await fetch(input, {
@@ -68,11 +82,6 @@ export async function fetchWithAuthRetry(
       }
       throw e;
     }
-  }
-
-  if (response.status === 403 && typeof window !== "undefined") {
-    clearTokens();
-    window.location.href = "/login";
   }
 
   return response;

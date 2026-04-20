@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Fragment } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -45,6 +45,10 @@ import {
   EditableSelect,
   EditableMultiSelect,
 } from "../ui/editable-form";
+import { TechnologyTagInput } from "./TechnologyTagInput";
+import { TechIcon } from "./tech-icons";
+import { technologyTagsApi } from "@/lib/api/modules/technology-tags";
+import type { TechnologyTag } from "@/types/technology-tags";
 
 export default function ProfilesModule() {
   const [employees, setEmployees] = useState<EmployeeProfileData[]>([]);
@@ -72,6 +76,9 @@ export default function ProfilesModule() {
   const [cpfLevels, setCpfLevels] = useState<string[]>([]);
   const [_loadingDropdowns, setLoadingDropdowns] = useState(false);
   const [loadingCpfLevels, setLoadingCpfLevels] = useState(false);
+  const [allTechnologyTags, setAllTechnologyTags] = useState<TechnologyTag[]>(
+    []
+  );
 
   useEffect(() => {
     const loadData = async () => {
@@ -88,7 +95,9 @@ export default function ProfilesModule() {
         setCanEditAll(PERMISSION_REQUIREMENTS.canUpdateAnyProfile(permBits));
 
         const data = await employeeApi.listEmployees();
-        setEmployees(data.results || []);
+        const employeeResults = data.results || [];
+        setEmployees(employeeResults);
+        setAllTechnologyTags(technologyTagsApi.getAllTags(employeeResults));
 
         try {
           const departmentsData =
@@ -240,7 +249,9 @@ export default function ProfilesModule() {
       const refetchEmployees = async () => {
         try {
           const data = await employeeApi.listEmployees();
-          setEmployees(data.results || []);
+          const employeeResults = data.results || [];
+          setEmployees(employeeResults);
+          setAllTechnologyTags(technologyTagsApi.getAllTags(employeeResults));
         } catch (err) {
           console.error("Error refetching employees:", err);
         }
@@ -309,6 +320,12 @@ export default function ProfilesModule() {
         updateData.emergency_contact_phone =
           selectedEmployee.emergency_contact_phone;
 
+      if (selectedEmployee.technology_tags) {
+        updateData.tech_tags = selectedEmployee.technology_tags.map(
+          (t) => t.id
+        );
+      }
+
       const updated = await employeeApi.updateEmployee(
         selectedEmployee.id,
         updateData
@@ -320,7 +337,9 @@ export default function ProfilesModule() {
 
       try {
         const data = await employeeApi.listEmployees();
-        setEmployees(data.results || []);
+        const employeeResults = data.results || [];
+        setEmployees(employeeResults);
+        setAllTechnologyTags(technologyTagsApi.getAllTags(employeeResults));
         if (data.results) {
           const updatedEmployee = data.results.find(
             (emp) => emp.id === selectedEmployee.id
@@ -494,8 +513,44 @@ export default function ProfilesModule() {
                                 {initials}
                               </AvatarFallback>
                             </Avatar>
-                            <div className="font-medium text-gray-900">
-                              {employee.first_name} {employee.last_name}
+                            <div>
+                              <div className="font-medium text-gray-900">
+                                {employee.first_name} {employee.last_name}
+                              </div>
+                              {(employee.technology_tags?.length ?? 0) > 0 && (
+                                <div className="mt-1 flex flex-wrap items-center">
+                                  {employee
+                                    .technology_tags!.slice(0, 3)
+                                    .map((tag, idx) => (
+                                      <Fragment key={tag.id}>
+                                        {idx > 0 ? (
+                                          <span
+                                            className="mx-1.5 h-3 w-px shrink-0 self-center bg-zinc-200"
+                                            aria-hidden
+                                          />
+                                        ) : null}
+                                        <span
+                                          className="inline-flex size-4 shrink-0 items-center justify-center leading-none"
+                                          title={tag.name}
+                                          aria-label={tag.name}
+                                        >
+                                          <TechIcon name={tag.name} size={16} />
+                                        </span>
+                                      </Fragment>
+                                    ))}
+                                  {employee.technology_tags!.length > 3 ? (
+                                    <>
+                                      <span
+                                        className="mx-1.5 h-3 w-px shrink-0 self-center bg-zinc-200"
+                                        aria-hidden
+                                      />
+                                      <span className="text-[10px] font-medium leading-none text-zinc-400 tabular-nums">
+                                        +{employee.technology_tags!.length - 3}
+                                      </span>
+                                    </>
+                                  ) : null}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </TableCell>
@@ -568,7 +623,7 @@ export default function ProfilesModule() {
               {/* Loading skeleton ... */}
             </div>
           ) : selectedEmployee ? (
-            <div className="flex-1 overflow-y-auto p-8 scrollbar-thin scrollbar-thumb-zinc-300 scrollbar-track-zinc-50 hover:scrollbar-thumb-zinc-400 transition-colors">
+            <div className="flex-1 overflow-y-auto px-8 pt-8 scrollbar-thin scrollbar-thumb-zinc-300 scrollbar-track-zinc-50 hover:scrollbar-thumb-zinc-400 transition-colors">
               <div className="space-y-8">
                 {/* Header with Profile Picture and Title */}
                 <div className="flex items-center gap-6 pb-8 border-b border-gray-100">
@@ -1020,6 +1075,43 @@ export default function ProfilesModule() {
                     </div>
                   </div>
 
+                  {/* Technology Tags Section */}
+                  <div className="space-y-6">
+                    <div className="flex items-baseline justify-between border-b border-gray-100 pb-2">
+                      <h3 className="text-lg font-bold text-gray-900 tracking-tight">
+                        Technology & Skills
+                      </h3>
+                      <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
+                        SECTION 03
+                      </span>
+                    </div>
+                    <TechnologyTagInput
+                      selectedTags={selectedEmployee.technology_tags ?? []}
+                      allTags={allTechnologyTags}
+                      isEditing={editMode}
+                      disabled={
+                        !canEditAll && currentUserId !== selectedEmployee.id
+                      }
+                      onTagAdded={(tag) =>
+                        setSelectedEmployee({
+                          ...selectedEmployee,
+                          technology_tags: [
+                            ...(selectedEmployee.technology_tags ?? []),
+                            tag,
+                          ],
+                        })
+                      }
+                      onTagRemoved={(tagId) =>
+                        setSelectedEmployee({
+                          ...selectedEmployee,
+                          technology_tags: (
+                            selectedEmployee.technology_tags ?? []
+                          ).filter((t) => t.id !== tagId),
+                        })
+                      }
+                    />
+                  </div>
+
                   {/* Emergency Contact Section - Editable only if user has permission */}
                   <div className="space-y-6">
                     <div className="flex items-baseline justify-between border-b border-gray-100 pb-2">
@@ -1027,7 +1119,7 @@ export default function ProfilesModule() {
                         Emergency Contact
                       </h3>
                       <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
-                        SECTION 03
+                        SECTION 04
                       </span>
                     </div>
                     <div className="grid grid-cols-2 gap-x-8 gap-y-6">

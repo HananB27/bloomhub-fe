@@ -45,7 +45,7 @@ import { getApiBaseUrl } from "@/lib/config";
 import { logoutUser } from "@/lib/api/auth";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { getStoredUser } from "@/lib/api/tokens";
+import { getStoredUser, storeTokens } from "@/lib/api/tokens";
 
 export default function HRDashboardApp() {
   const { data: session, status } = useSession();
@@ -107,6 +107,14 @@ export default function HRDashboardApp() {
 
     return () => clearTimeout(timer);
   }, [session, router]);
+
+  useEffect(() => {
+    if (!session) return;
+    const accessToken = (session as { accessToken?: string })?.accessToken;
+    if (accessToken) {
+      storeTokens({ access: accessToken });
+    }
+  }, [session]);
 
   const [activeModule, setActiveModule] = useState<HrModuleId>("dashboard");
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);

@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../../../config";
-import { get, buildQueryString } from "../../helpers";
+import { get, buildQueryString } from "../../helpers/httpClient";
 
 export interface Manager {
   id: number;

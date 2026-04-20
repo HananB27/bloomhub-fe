@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../../../config";
-import { get, handleListResponse } from "../../helpers";
+import { get, handleListResponse } from "../../helpers/httpClient";
 
 export interface Department {
   id: number;
