@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../../../config";
-import { get } from "../../helpers";
+import { get } from "../../helpers/httpClient";
 
 export const cpfLevelsApi = {
   async getCPFLevelsByRole(roleId: string): Promise<string[]> {

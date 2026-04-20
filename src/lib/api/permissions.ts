@@ -1,4 +1,5 @@
 import { getAccessToken } from "./tokens";
+import { fetchWithAuthRetry } from "./refresh";
 import { getApiBaseUrl } from "../config";
 
 export const EMPLOYEE_PERMISSIONS = {
@@ -112,12 +113,15 @@ export async function getUserPermissions(): Promise<number> {
   if (!token) return 0;
 
   try {
-    const response = await fetch(`${getApiBaseUrl()}/api/auth/permissions/`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetchWithAuthRetry(
+      `${getApiBaseUrl()}/api/auth/permissions/`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (!response.ok) return 0;
 

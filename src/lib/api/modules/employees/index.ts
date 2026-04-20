@@ -6,10 +6,12 @@ import {
   del,
   buildQueryString,
   handleListResponse,
+} from "../../helpers/httpClient";
+import {
   transformEmployeeData,
   transformEmployeeList,
   type EmployeeProfileData,
-} from "../../helpers";
+} from "../../helpers/transformers";
 
 export interface SalaryHistoryItem {
   id: number;
@@ -22,7 +24,7 @@ export interface SalaryHistoryItem {
   created_at: string;
 }
 
-export type { EmployeeProfileData } from "../../helpers";
+export type { EmployeeProfileData } from "../../helpers/transformers";
 
 export const employeeApi = {
   async listEmployees(params?: {
@@ -58,7 +60,7 @@ export const employeeApi = {
   ): Promise<EmployeeProfileData> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const responseData = await patch<any>(
-      `${API_BASE_URL}/api/employees/${id}/bulk-update/`,
+      `${API_BASE_URL}/api/employees/${id}/`,
       data,
       "Failed to update employee"
     );

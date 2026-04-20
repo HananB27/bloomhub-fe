@@ -15,6 +15,20 @@ export function getHeaders(): HeadersInit {
   };
 }
 
+function extractErrorMessage(
+  error: Record<string, unknown>,
+  fallback: string
+): string {
+  if (typeof error.detail === "string") return error.detail;
+  if (typeof error.message === "string") return error.message;
+
+  const fieldErrors = Object.entries(error)
+    .filter(([, v]) => Array.isArray(v) || typeof v === "string")
+    .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`);
+
+  return fieldErrors.length > 0 ? fieldErrors.join("; ") : fallback;
+}
+
 async function handleResponse<T>(
   response: Response,
   errorMessage: string,
@@ -22,7 +36,9 @@ async function handleResponse<T>(
 ): Promise<T> {
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error((error as ApiError).detail || errorMessage);
+    throw new Error(
+      extractErrorMessage(error as Record<string, unknown>, errorMessage)
+    );
   }
   return (parseBody ? response.json() : undefined) as T;
 }

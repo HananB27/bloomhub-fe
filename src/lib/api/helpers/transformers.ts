@@ -25,6 +25,7 @@ export interface EmployeeProfileData {
   cpf_level?: string;
   emergency_contact_name?: string;
   emergency_contact_phone?: string;
+  technology_tags?: { id: number; name: string }[];
   created_at: string;
   updated_at: string;
   assigned_projects?:
@@ -38,6 +39,66 @@ export interface EmployeeProfileData {
         status: string;
       }[]
     | null;
+}
+
+const TECHNOLOGY_TAG_NAME_BY_ID: Record<number, string> = {
+  1: "React",
+  2: "Angular",
+  3: "Vue.js",
+  4: "TypeScript",
+  5: "JavaScript",
+  6: "Python",
+  7: "Django",
+  8: "Node.js",
+  9: "Next.js",
+  10: "PostgreSQL",
+  11: "Docker",
+  12: "AWS",
+  13: "Tailwind CSS",
+  14: "GraphQL",
+  15: "Redis",
+  16: "Git",
+  17: "Java",
+  18: "C#",
+  19: ".NET",
+  20: "Go",
+  21: "Rust",
+  22: "Kubernetes",
+  23: "Flutter",
+  24: "Swift",
+  25: "Kotlin",
+  26: "MongoDB",
+  27: "MySQL",
+};
+
+function normalizeTechnologyTags(
+  input: unknown
+): { id: number; name: string }[] {
+  if (!Array.isArray(input)) return [];
+
+  return input
+    .map((rawTag) => {
+      if (typeof rawTag === "number") {
+        return {
+          id: rawTag,
+          name: TECHNOLOGY_TAG_NAME_BY_ID[rawTag] ?? `Tag ${rawTag}`,
+        };
+      }
+
+      if (rawTag && typeof rawTag === "object") {
+        const tagObj = rawTag as { id?: unknown; name?: unknown };
+        const tagId = Number(tagObj.id);
+        if (!Number.isFinite(tagId)) return null;
+        const tagName =
+          typeof tagObj.name === "string" && tagObj.name.trim().length > 0
+            ? tagObj.name
+            : (TECHNOLOGY_TAG_NAME_BY_ID[tagId] ?? `Tag ${tagId}`);
+        return { id: tagId, name: tagName };
+      }
+
+      return null;
+    })
+    .filter((tag): tag is { id: number; name: string } => tag !== null);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -77,6 +138,9 @@ export function transformEmployeeData(data: any): EmployeeProfileData {
     cpf_level: data.cpf_level as string | undefined,
     emergency_contact_name: data.emergency_contact_name as string | undefined,
     emergency_contact_phone: data.emergency_contact_phone as string | undefined,
+    technology_tags: normalizeTechnologyTags(
+      data.tech_tags ?? data.technology_tags
+    ),
     created_at: (data.created_at as string) || new Date().toISOString(),
     updated_at: (data.updated_at as string) || new Date().toISOString(),
     assigned_projects: Array.isArray(data.assigned_projects)
