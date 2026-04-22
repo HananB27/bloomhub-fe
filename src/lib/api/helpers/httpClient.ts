@@ -43,9 +43,85 @@ async function handleResponse<T>(
   return (parseBody ? response.json() : undefined) as T;
 }
 
-export async function get<T>(url: string, errorMessage: string): Promise<T> {
-  const response = await fetchWithAuthRetry(url, { headers: getHeaders() });
+export async function get<T>(
+  url: string,
+  errorMessage: string,
+  init?: RequestInit
+): Promise<T> {
+  const response = await fetchWithAuthRetry(url, {
+    ...init,
+    headers: {
+      ...(getHeaders() as Record<string, string>),
+      ...(init?.headers as Record<string, string> | undefined),
+    },
+  });
   return handleResponse<T>(response, errorMessage);
+}
+
+/** GET that returns null on 404 (for optional composite endpoints). */
+export async function getAllow404<T>(
+  url: string,
+  signal?: AbortSignal
+): Promise<T | null> {
+  const response = await fetchWithAuthRetry(url, {
+    headers: getHeaders(),
+    signal,
+  });
+  if (response.status === 404) return null;
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(
+      extractErrorMessage(error as Record<string, unknown>, "Request failed")
+    );
+  }
+  return response.json() as Promise<T>;
+}
+
+/**
+ * Authenticated GET with optional If-None-Match (bundle ETag revalidation).
+ * — 200: JSON body + ETag header when present
+ * — 304: unchanged (caller keeps cached bundle)
+ * — 404: treat like missing optional resource
+ */
+export async function getJsonWithRevalidation<T>(
+  url: string,
+  options?: {
+    signal?: AbortSignal;
+    ifNoneMatch?: string;
+  }
+): Promise<
+  | { status: "ok"; data: T; etag: string | null }
+  | { status: "not_modified" }
+  | { status: "not_found" }
+> {
+  const headers: Record<string, string> = {
+    ...(getHeaders() as Record<string, string>),
+  };
+  if (options?.ifNoneMatch) {
+    headers["If-None-Match"] = options.ifNoneMatch;
+  }
+
+  const response = await fetchWithAuthRetry(url, {
+    headers,
+    signal: options?.signal,
+  });
+
+  if (response.status === 404) {
+    return { status: "not_found" };
+  }
+  if (response.status === 304) {
+    return { status: "not_modified" };
+  }
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(
+      extractErrorMessage(error as Record<string, unknown>, "Request failed")
+    );
+  }
+
+  const data = (await response.json()) as T;
+  const etag = response.headers.get("ETag");
+  return { status: "ok", data, etag };
 }
 
 export async function post<T>(

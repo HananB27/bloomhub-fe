@@ -12,6 +12,15 @@ import {
   transformEmployeeList,
   type EmployeeProfileData,
 } from "../../helpers/transformers";
+import {
+  fetchEmployeeProfileModalBundle,
+  fetchEmployeeProfileModalBundleWithRevalidation,
+  fetchHrProfilesPageBundle,
+  type EmployeeProfileModalBundleApplied,
+  type EmployeeProfileModalBundleFetchMeta,
+  type HrProfilesPageBundleApplied,
+} from "./hrProfileBundles";
+import type { ProfileModalBundleSection } from "../../constants/hrEmployeeProfilesEndpoints";
 
 export interface SalaryHistoryItem {
   id: number;
@@ -26,17 +35,30 @@ export interface SalaryHistoryItem {
 
 export type { EmployeeProfileData } from "../../helpers/transformers";
 
+export type {
+  EmployeeProfileModalBundleApplied,
+  EmployeeProfileModalBundleFetchMeta,
+  HrProfilesPageBundleApplied,
+} from "./hrProfileBundles";
+
+export type { ProfileModalBundleSection } from "../../constants/hrEmployeeProfilesEndpoints";
+
+export { PROFILE_MODAL_BUNDLE_SECTIONS } from "../../constants/hrEmployeeProfilesEndpoints";
+
 export const employeeApi = {
-  async listEmployees(params?: {
-    search?: string;
-    department?: string;
-    role__name?: string;
-    is_active?: boolean;
-    page?: number;
-    page_size?: number;
-  }): Promise<{ results: EmployeeProfileData[]; count: number }> {
+  async listEmployees(
+    params?: {
+      search?: string;
+      department?: string;
+      role__name?: string;
+      is_active?: boolean;
+      page?: number;
+      page_size?: number;
+    },
+    init?: RequestInit
+  ): Promise<{ results: EmployeeProfileData[]; count: number }> {
     const url = `${API_BASE_URL}/api/employees/${buildQueryString(params)}`;
-    const data = await get<unknown>(url, "Failed to fetch employees");
+    const data = await get<unknown>(url, "Failed to fetch employees", init);
     const result = handleListResponse<EmployeeProfileData>(
       data as
         | EmployeeProfileData[]
@@ -162,5 +184,32 @@ export const employeeApi = {
     if (Array.isArray(data)) return data as string[];
     const obj = data as Record<string, unknown>;
     return (obj.cpf_levels ?? obj.results ?? []) as string[];
+  },
+
+  async loadHrProfilesPageBundle(
+    signal?: AbortSignal
+  ): Promise<HrProfilesPageBundleApplied | null> {
+    return fetchHrProfilesPageBundle(signal);
+  },
+
+  async loadEmployeeProfileModalBundle(
+    employeeId: number | string,
+    options?: {
+      signal?: AbortSignal;
+      sections?: readonly ProfileModalBundleSection[];
+    }
+  ): Promise<EmployeeProfileModalBundleApplied | null> {
+    return fetchEmployeeProfileModalBundle(employeeId, options);
+  },
+
+  async loadEmployeeProfileModalBundleWithRevalidation(
+    employeeId: number | string,
+    options: {
+      ifNoneMatch: string;
+      signal?: AbortSignal;
+      sections?: readonly ProfileModalBundleSection[];
+    }
+  ): Promise<EmployeeProfileModalBundleFetchMeta> {
+    return fetchEmployeeProfileModalBundleWithRevalidation(employeeId, options);
   },
 };

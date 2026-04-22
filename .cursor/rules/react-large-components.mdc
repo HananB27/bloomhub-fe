@@ -1,0 +1,21 @@
+---
+description: Keep large React feature modules maintainable by moving logic out of the component file
+globs: **/src/components/**/*.tsx
+alwaysApply: false
+---
+
+# Large components and feature modules
+
+## When a screen or feature file grows (roughly 300+ lines or dense handler logic)
+
+1. **Pure helpers** — validation, formatting, sorting, constants, payload builders, permission predicates, URL helpers → co-located **`profilesModuleHelpers.ts`**-style modules next to the component (`./featureHelpers.ts`). Prefer **pure functions** with typed inputs; no React hooks inside helpers.
+
+2. **Async orchestration / data-fetching sequences** — multi-step API sequences that were inline in `useEffect` or handlers → co-located **`profilesModuleLoaders.ts`**-style modules (`./featureLoaders.ts`). Loaders call APIs and return **plain data** (interfaces); the component only applies results with `setState`.
+
+3. **Presentation** — repeated JSX blocks → subcomponents in the **same folder** (`./EmployeeProfileDialog.tsx`), notinside the parent file.
+
+4. **Naming** — use a **feature prefix** shared with the parent (`profilesModule*` for `ProfilesModule.tsx`) so imports stay grep-friendly.
+
+5. **Imports** — helpers/loaders live beside the component; reuse shared utilities from **`src/utils/`** when logic is reused across modules (per repo modularity rules).
+
+Do not add new markdown documentation files for refactors unless the user asks.
