@@ -22,22 +22,30 @@ export function getBitValue(permissionBit: number): number {
   return Math.pow(2, permissionBit);
 }
 
+/** Bitwise permission mask; supports bigint when values exceed Number.MAX_SAFE_INTEGER (JSON metadata). */
 export function hasPermission(
-  userPermissionBits: number,
+  userPermissionBits: number | bigint,
   permissionBit: number
 ): boolean {
-  return (userPermissionBits & getBitValue(permissionBit)) !== 0;
+  const mask = BigInt(1) << BigInt(permissionBit);
+  const bits =
+    typeof userPermissionBits === "bigint"
+      ? userPermissionBits
+      : Number.isSafeInteger(userPermissionBits)
+        ? BigInt(userPermissionBits)
+        : BigInt(0);
+  return (bits & mask) !== BigInt(0);
 }
 
 export function hasAllPermissions(
-  userPermissionBits: number,
+  userPermissionBits: number | bigint,
   permissionBits: number[]
 ): boolean {
   return permissionBits.every((bit) => hasPermission(userPermissionBits, bit));
 }
 
 export function hasAnyPermission(
-  userPermissionBits: number,
+  userPermissionBits: number | bigint,
   permissionBits: number[]
 ): boolean {
   return permissionBits.some((bit) => hasPermission(userPermissionBits, bit));
@@ -57,7 +65,9 @@ export function removePermission(
   return userPermissionBits & ~getBitValue(permissionBit);
 }
 
-export function getPermissionBits(userPermissionBits: number): number[] {
+export function getPermissionBits(
+  userPermissionBits: number | bigint
+): number[] {
   const maxBit =
     Math.max(...(Object.values(EMPLOYEE_PERMISSIONS) as number[])) + 1;
   const bits: number[] = [];
@@ -67,40 +77,42 @@ export function getPermissionBits(userPermissionBits: number): number[] {
   return bits;
 }
 
-export function getPermissionNames(userPermissionBits: number): string[] {
+export function getPermissionNames(
+  userPermissionBits: number | bigint
+): string[] {
   return Object.entries(EMPLOYEE_PERMISSIONS)
     .filter(([, bit]) => hasPermission(userPermissionBits, bit))
     .map(([name]) => name);
 }
 
 export const PERMISSION_REQUIREMENTS = {
-  canViewOwnProfile: (bits: number) =>
+  canViewOwnProfile: (bits: number | bigint) =>
     hasPermission(bits, EMPLOYEE_PERMISSIONS.VIEW_OWN_PROFILE),
-  canEditOwnBasicInfo: (bits: number) =>
+  canEditOwnBasicInfo: (bits: number | bigint) =>
     hasPermission(bits, EMPLOYEE_PERMISSIONS.EDIT_OWN_BASIC_INFO),
-  canEditOwnSensitiveInfo: (bits: number) =>
+  canEditOwnSensitiveInfo: (bits: number | bigint) =>
     hasPermission(bits, EMPLOYEE_PERMISSIONS.EDIT_OWN_ROLE_SALARY_CPF),
-  canViewTeamProfiles: (bits: number) =>
+  canViewTeamProfiles: (bits: number | bigint) =>
     hasPermission(bits, EMPLOYEE_PERMISSIONS.VIEW_TEAM_PROFILES),
-  canViewAllProfiles: (bits: number) =>
+  canViewAllProfiles: (bits: number | bigint) =>
     hasPermission(bits, EMPLOYEE_PERMISSIONS.VIEW_ALL_PROFILES),
-  canViewSalaryHistory: (bits: number) =>
+  canViewSalaryHistory: (bits: number | bigint) =>
     hasPermission(bits, EMPLOYEE_PERMISSIONS.VIEW_SALARY_HISTORY),
-  canViewAuditLog: (bits: number) =>
+  canViewAuditLog: (bits: number | bigint) =>
     hasPermission(bits, EMPLOYEE_PERMISSIONS.VIEW_AUDIT_LOG),
-  canExportData: (bits: number) =>
+  canExportData: (bits: number | bigint) =>
     hasPermission(bits, EMPLOYEE_PERMISSIONS.EXPORT_EMPLOYEE_DATA),
-  canManageEmployees: (bits: number) =>
+  canManageEmployees: (bits: number | bigint) =>
     hasPermission(bits, EMPLOYEE_PERMISSIONS.ADD_REMOVE_EMPLOYEES),
-  canUploadOwnCV: (bits: number) =>
+  canUploadOwnCV: (bits: number | bigint) =>
     hasPermission(bits, EMPLOYEE_PERMISSIONS.UPLOAD_OWN_CV),
-  canUploadAnyCV: (bits: number) =>
+  canUploadAnyCV: (bits: number | bigint) =>
     hasPermission(bits, EMPLOYEE_PERMISSIONS.UPLOAD_ANY_CV),
-  canUpdateOwnProfile: (bits: number) =>
+  canUpdateOwnProfile: (bits: number | bigint) =>
     hasPermission(bits, EMPLOYEE_PERMISSIONS.UPDATE_OWN_PROFILE),
-  canUpdateAnyProfile: (bits: number) =>
+  canUpdateAnyProfile: (bits: number | bigint) =>
     hasPermission(bits, EMPLOYEE_PERMISSIONS.UPDATE_ANY_PROFILE),
-  isHR: (bits: number) =>
+  isHR: (bits: number | bigint) =>
     hasAllPermissions(bits, [
       EMPLOYEE_PERMISSIONS.VIEW_ALL_PROFILES,
       EMPLOYEE_PERMISSIONS.VIEW_SALARY_HISTORY,
@@ -108,7 +120,7 @@ export const PERMISSION_REQUIREMENTS = {
     ]),
 } as const;
 
-export async function getUserPermissions(): Promise<number> {
+export async function getUserPermissions(): Promise<number | bigint> {
   const token = getAccessToken();
   if (!token) return 0;
 
@@ -127,13 +139,37 @@ export async function getUserPermissions(): Promise<number> {
 
     const data = await response.json();
 
-    if (typeof data.permissions === "number") return data.permissions;
-    if (typeof data.permission_bits === "number") return data.permission_bits;
+    const decimalString = (v: unknown): string | null =>
+      typeof v === "string" && /^\d+$/.test(v) ? v : null;
+
+    const pStr =
+      decimalString(data.permissions) ?? decimalString(data.permission_bits);
+    if (pStr !== null) {
+      try {
+        return BigInt(pStr);
+      } catch {
+        /* fall through */
+      }
+    }
+
+    if (
+      typeof data.permissions === "number" &&
+      Number.isSafeInteger(data.permissions)
+    ) {
+      return data.permissions;
+    }
+    if (
+      typeof data.permission_bits === "number" &&
+      Number.isSafeInteger(data.permission_bits)
+    ) {
+      return data.permission_bits;
+    }
+
     if (Array.isArray(data.permissions)) {
       return data.permissions.reduce(
-        (bits: number, perm: { bit_position: number }) =>
-          bits | (1 << (perm.bit_position - 1)),
-        0
+        (bits: bigint, perm: { bit_position: number }) =>
+          bits | (BigInt(1) << BigInt(perm.bit_position - 1)),
+        BigInt(0)
       );
     }
     return 0;

@@ -1,5 +1,6 @@
-# CI: lint, format check, and tests on every push/PR
-name: CI
+# Lint, format check, and tests on every push/PR.
+# Workflow + job id are lowercase `ci` so required status checks named `ci` or `ci / ci` match GitHub Actions reporting.
+name: ci
 
 on:
   push:
@@ -12,8 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  CI:
-    name: CI
+  ci:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:

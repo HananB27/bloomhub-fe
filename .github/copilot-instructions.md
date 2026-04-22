@@ -15,7 +15,7 @@ When the developer makes a suggestion, accept it and execute immediately. Do not
 1. No DRY violations. If code repeats in 2+ places, extract to a helper immediately.
 2. No `any` types. Use `unknown` with type narrowing.
 3. No unnecessary comments. Code must be self-documenting through clear naming.
-4. No component files over 300 lines. Split into sub-components.
+4. No component files over 300 lines. Split into sub-components **and/or** co-located helpers: `featureHelpers.ts` (pure validation, formatting, builders, sorting) and `featureLoaders.ts` (async API orchestration returning plain data). Example: `ProfilesModule.tsx` alongside `profilesModuleHelpers.ts`, `profilesModuleLoaders.ts`.
 5. No `console.log` in committed code.
 6. No commented-out code. Use git history.
 7. No magic numbers. Extract to named constants.
@@ -30,7 +30,7 @@ Every piece of code must exist in exactly one place. This is a frontend repo —
 
 - If a UI pattern (card, list item, status badge, empty state) appears in 2+ modules → extract a shared component to `src/components/hr-dashboard/common/`
 - If logic (filtering, sorting, validation, formatting, status mapping) appears in 2+ modules → extract a helper to `src/utils/`
-- If a component file exceeds 300 lines → split it into sub-components co-located in a folder
+- If a component file exceeds 300 lines → split into sub-components co-located in a folder **and extract** non-UI logic to `*Helpers.ts` / `*Loaders.ts` beside the component (see `.cursor/rules/react-large-components.mdc`)
 - If a switch/if-else maps values to strings (status→color, type→icon, role→label) → replace with a lookup object or Record<string, T>
 - If a dialog/modal structure repeats → use BaseDialog, ConfirmDialog, or FormDialog from `src/components/hr-dashboard/common/dialogs.tsx`
 - If toast notification logic repeats → use notifySuccess/notifyError/withNotification from `src/utils/notificationHelpers.ts`
