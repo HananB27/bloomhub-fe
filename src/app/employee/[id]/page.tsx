@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
@@ -18,6 +18,7 @@ import {
   Building,
   DollarSign,
   History,
+  User,
 } from "lucide-react";
 import {
   Card,
@@ -45,24 +46,26 @@ import {
 import {
   employeeApi,
   EmployeeProfileData,
+  EmployeeProfileChangeHistoryItem,
   SalaryHistoryItem,
 } from "@/lib/api/employees";
+import {
+  profileHistoryFieldLabel,
+  filterTrackedProfileHistoryEntries,
+  profileHistoryValueText,
+} from "@/lib/profileHistory/helpers";
 import { formatDate, formatCurrency } from "@/utils";
-
-type EditableField = "first_name" | "last_name" | "phone_number" | "address";
-
-interface FormData {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string;
-  address: string;
-  birth_date: string;
-}
-
-interface FieldError {
-  [key: string]: string;
-}
+import {
+  buildFormDataFromEmployee,
+  buildProfileUpdatePayload,
+  getEditableFields,
+  isHrRole,
+  isOwnProfileById,
+  validateProfileForm,
+  type EditableField,
+  type EmployeeProfileFormData as FormData,
+  type ProfileFieldErrors as FieldError,
+} from "./profilePageHelpers";
 
 export default function EmployeeProfilePage() {
   const router = useRouter();
@@ -75,6 +78,13 @@ export default function EmployeeProfilePage() {
 
   const [employee, setEmployee] = useState<EmployeeProfileData | null>(null);
   const [salaryHistory, setSalaryHistory] = useState<SalaryHistoryItem[]>([]);
+  const [profileChangeHistory, setProfileChangeHistory] = useState<
+    EmployeeProfileChangeHistoryItem[]
+  >([]);
+  const [isLoadingProfileHistory, setIsLoadingProfileHistory] = useState(false);
+  const [profileHistoryError, setProfileHistoryError] = useState<string | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -92,19 +102,47 @@ export default function EmployeeProfilePage() {
     birth_date: "",
   });
 
-  const isHRUser =
-    (session?.user as { role?: string })?.role === "HR" ||
-    (session?.user as { role?: string })?.role === "Admin";
-  const isOwnProfile =
-    (session?.user as { id?: string | number })?.id === employee?.id;
+  const isHRUser = isHrRole((session?.user as { role?: string })?.role);
+  const sessionUserIdNumber = Number(
+    (session?.user as { id?: string | number })?.id
+  );
+  const isOwnProfile = isOwnProfileById(sessionUserIdNumber, employee?.id);
+  const editableFields = getEditableFields(isHRUser, isOwnProfile);
 
-  const getEditableFields = (): EditableField[] => {
-    if (isHRUser) return ["first_name", "last_name", "phone_number", "address"];
-    if (isOwnProfile) return ["phone_number", "address"];
-    return [];
-  };
+  const loadProfileHistory = useCallback(
+    async (
+      targetEmployeeId: number | string,
+      targetEmployeeNumericId: number
+    ) => {
+      const canViewHistory =
+        isHRUser ||
+        (Number.isFinite(sessionUserIdNumber) &&
+          sessionUserIdNumber === targetEmployeeNumericId);
 
-  const editableFields = getEditableFields();
+      if (!canViewHistory) {
+        setProfileChangeHistory([]);
+        setProfileHistoryError(null);
+        return;
+      }
+
+      try {
+        setIsLoadingProfileHistory(true);
+        setProfileHistoryError(null);
+        const history =
+          await employeeApi.getProfileChangeHistory(targetEmployeeId);
+        setProfileChangeHistory(filterTrackedProfileHistoryEntries(history));
+      } catch (historyErr) {
+        setProfileHistoryError(
+          historyErr instanceof Error
+            ? historyErr.message
+            : "Failed to load history"
+        );
+      } finally {
+        setIsLoadingProfileHistory(false);
+      }
+    },
+    [isHRUser, sessionUserIdNumber]
+  );
 
   useEffect(() => {
     const fetchEmployee = async () => {
@@ -116,15 +154,10 @@ export default function EmployeeProfilePage() {
 
         const data = await employeeApi.getEmployee(employeeId);
         setEmployee(data);
+        setProfileChangeHistory([]);
+        setProfileHistoryError(null);
 
-        setFormData({
-          first_name: data.first_name || "",
-          last_name: data.last_name || "",
-          email: data.email || "",
-          phone_number: data.phone_number || "",
-          address: data.address || "",
-          birth_date: data.birth_date || "",
-        });
+        setFormData(buildFormDataFromEmployee(data));
 
         if (isHRUser) {
           try {
@@ -134,6 +167,8 @@ export default function EmployeeProfilePage() {
             console.warn("Could not fetch salary history:", err);
           }
         }
+
+        await loadProfileHistory(employeeId, data.id);
       } catch (err) {
         const message =
           err instanceof Error
@@ -146,7 +181,7 @@ export default function EmployeeProfilePage() {
     };
 
     if (session) fetchEmployee();
-  }, [employeeId, session, isHRUser]);
+  }, [employeeId, isHRUser, session, loadProfileHistory]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -164,16 +199,7 @@ export default function EmployeeProfilePage() {
   };
 
   const validateForm = (): boolean => {
-    const errors: FieldError = {};
-    if (!formData.first_name.trim())
-      errors.first_name = "First name is required";
-    if (!formData.last_name.trim()) errors.last_name = "Last name is required";
-    if (
-      formData.phone_number &&
-      !/^[\d+\s\-()]+$/.test(formData.phone_number)
-    ) {
-      errors.phone_number = "Invalid phone number format";
-    }
+    const errors = validateProfileForm(formData);
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -193,17 +219,11 @@ export default function EmployeeProfilePage() {
       setError(null);
       setSuccess(null);
 
-      const updatePayload: Partial<EmployeeProfileData> = {};
-      editableFields.forEach((field) => {
-        const value = formData[field as keyof FormData];
-        if (
-          value !== undefined &&
-          value !== employee[field as keyof EmployeeProfileData]
-        ) {
-          (updatePayload[field as keyof EmployeeProfileData] as unknown) =
-            value;
-        }
-      });
+      const updatePayload = buildProfileUpdatePayload(
+        employee,
+        formData,
+        editableFields
+      );
 
       if (Object.keys(updatePayload).length === 0) {
         setSuccess("No changes to save");
@@ -217,16 +237,10 @@ export default function EmployeeProfilePage() {
       );
 
       setEmployee(updated);
-      setFormData({
-        first_name: updated.first_name || "",
-        last_name: updated.last_name || "",
-        email: updated.email || "",
-        phone_number: updated.phone_number || "",
-        address: updated.address || "",
-        birth_date: updated.birth_date || "",
-      });
+      setFormData(buildFormDataFromEmployee(updated));
 
       setSuccess("Profile updated successfully");
+      await loadProfileHistory(employee.id, updated.id);
       setIsEditMode(false);
     } catch (err) {
       const message =
@@ -239,14 +253,7 @@ export default function EmployeeProfilePage() {
 
   const handleCancel = () => {
     if (employee) {
-      setFormData({
-        first_name: employee.first_name || "",
-        last_name: employee.last_name || "",
-        email: employee.email || "",
-        phone_number: employee.phone_number || "",
-        address: employee.address || "",
-        birth_date: employee.birth_date || "",
-      });
+      setFormData(buildFormDataFromEmployee(employee));
     }
     setFieldErrors({});
     setIsEditMode(false);
@@ -552,6 +559,70 @@ export default function EmployeeProfilePage() {
         </CardContent>
       </Card>
 
+      {(isHRUser || isOwnProfile) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <History className="h-5 w-5" />
+              Profile Change History
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoadingProfileHistory ? (
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading history...
+              </div>
+            ) : profileHistoryError ? (
+              <p className="text-sm text-red-600">{profileHistoryError}</p>
+            ) : profileChangeHistory.length === 0 ? (
+              <p className="text-sm text-gray-500">No tracked changes yet.</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>When</TableHead>
+                    <TableHead>Field</TableHead>
+                    <TableHead>Old Value</TableHead>
+                    <TableHead>New Value</TableHead>
+                    <TableHead>Changed By</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {profileChangeHistory.map((entry) => (
+                    <TableRow key={String(entry.id)}>
+                      <TableCell>{formatDate(entry.changed_at)}</TableCell>
+                      <TableCell>
+                        {profileHistoryFieldLabel(entry.field)}
+                      </TableCell>
+                      <TableCell className="text-gray-600">
+                        {profileHistoryValueText(
+                          entry.field,
+                          entry.old_value,
+                          employee.currency || "USD"
+                        )}
+                      </TableCell>
+                      <TableCell className="font-semibold">
+                        {profileHistoryValueText(
+                          entry.field,
+                          entry.new_value,
+                          employee.currency || "USD"
+                        )}
+                      </TableCell>
+                      <TableCell className="text-gray-600">
+                        {entry.changed_by_name ||
+                          entry.changed_by_email ||
+                          "System"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Salary Information (HR Only) */}
       {isHRUser && (
         <>
@@ -641,6 +712,3 @@ export default function EmployeeProfilePage() {
     </div>
   );
 }
-
-// Import the User icon that was missing
-import { User } from "lucide-react";

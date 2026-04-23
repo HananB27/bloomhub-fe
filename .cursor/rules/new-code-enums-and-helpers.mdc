@@ -1,0 +1,37 @@
+---
+description: Enforce enums for new strings and helper extraction for reusable functions
+alwaysApply: true
+---
+
+# New Code Standards: Enums and Helpers
+
+Apply these rules to all newly written or substantially modified code.
+
+## 1) Strings must be centralized in enums/constants
+
+- Do not introduce repeated or business-meaningful string literals inline.
+- Move such strings to a typed enum (preferred) or a shared constants object.
+- Use the enum/constant reference at call sites.
+- Exceptions: framework-required literals, third-party API contract keys, and one-off test fixtures.
+
+Example:
+
+```ts
+// Avoid
+if (status === "active") { ... }
+
+// Prefer
+enum EmploymentStatus {
+  Active = "active",
+}
+if (status === EmploymentStatus.Active) { ... }
+```
+
+## 2) Reusable functions must live in helpers
+
+- If a function is reused or likely to be reused, extract it from component/handler files.
+- Place it in a co-located `*Helpers.ts`/`*Utils.ts` module (or existing shared helper module).
+- Keep helper functions pure when possible and strongly typed.
+- Components/pages should orchestrate state/UI; shared logic belongs in helpers.
+- Default behavior: if code can reasonably be split into a reusable helper, split it now instead of waiting for duplication.
+- Do not keep complex transformation/formatting/conditional logic inline in JSX or page components when it can be extracted.

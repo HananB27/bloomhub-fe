@@ -1,5 +1,14 @@
-import type { EmployeeProfileData } from "@/lib/api/employees";
-import { PERMISSION_REQUIREMENTS } from "@/lib/api/permissions";
+import {
+  employeeApi,
+  type EmployeeProfileChangeHistoryItem,
+  type EmployeeProfileData,
+} from "@/lib/api/employees";
+import {
+  EMPLOYEE_PERMISSIONS,
+  hasPermission,
+  PERMISSION_REQUIREMENTS,
+} from "@/lib/api/permissions";
+import { filterTrackedProfileHistoryEntries } from "@/lib/profileHistory/helpers";
 
 export const CV_UPLOAD_MAX_BYTES = 10 * 1024 * 1024;
 
@@ -111,6 +120,25 @@ export function canUploadCvForEmployee(
     (selectedEmployeeId === currentUserId &&
       PERMISSION_REQUIREMENTS.canUploadOwnCV(permissionBits))
   );
+}
+
+export function canViewProfileHistoryForEmployee(
+  permissionBits: number | bigint,
+  selectedEmployeeId: number,
+  currentUserId: number | null
+): boolean {
+  return (
+    selectedEmployeeId === currentUserId ||
+    hasPermission(permissionBits, EMPLOYEE_PERMISSIONS.VIEW_AUDIT_LOG) ||
+    PERMISSION_REQUIREMENTS.canViewAllProfiles(permissionBits)
+  );
+}
+
+export async function fetchTrackedProfileHistory(
+  employeeId: number
+): Promise<EmployeeProfileChangeHistoryItem[]> {
+  const history = await employeeApi.getProfileChangeHistory(employeeId);
+  return filterTrackedProfileHistoryEntries(history);
 }
 
 /** Normalize user input into an absolute https URL, or null if invalid. */

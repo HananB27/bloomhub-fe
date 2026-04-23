@@ -1,0 +1,11 @@
+---
+description: CSS, Tailwind, and Stylelint for mt-otter-fe
+globs: "**/*.css"
+alwaysApply: false
+---
+
+# Styling
+
+- **Tailwind** for utility styling; **Prettier** uses `prettier-plugin-tailwindcss` (class order).
+- **Stylelint**: `stylelint-config-standard` + `stylelint-order` — declaration order and Tailwind `@layer` / `@apply` at-rules are allowed per `.stylelintrc.json`.
+- Run **`npm run lint:css`** (or full **`npm run lint`**) after non-trivial CSS edits.

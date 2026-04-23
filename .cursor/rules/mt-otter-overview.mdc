@@ -1,0 +1,55 @@
+---
+description: Stack, quality commands, and conventions for BloomHub frontend
+alwaysApply: true
+---
+
+# BloomHub frontend core context
+
+## How to work with the user
+
+- **Do not rubber-stamp** suggestions. Check them against requirements, **this repo’s rules**, existing patterns, tests, and obvious risks (correctness, security, maintainability).
+- **Be decisive**: state a **recommended approach** as the default. Prefer one clear path over endless options with no pick.
+- **Justify recommendations**: briefly say **why** the preferred choice is stronger—tie it to concrete facts (file patterns here, type safety, DRY, CI, MSW, performance, accessibility).
+- **Push back when warranted**: if a suggestion conflicts with a better design or project standards, say so plainly and explain the tradeoff. If the user still wants it, implement their call after they confirm.
+- **If uncertain**, say what is unknown and what you would check (code, docs, `npm run lint` / `test:unit`) instead of agreeing without basis.
+
+## Stack
+
+Next.js, React, TypeScript, NextAuth, Tailwind, Radix UI, Vitest, Testing Library.
+
+## Commands
+
+- `npm run lint` — ESLint on `src`
+- `npm run test` — Vitest run
+- `npm run test:watch` — Vitest watch
+
+## Modularity and DRY
+
+- Keep UI **thin**: move data shaping, parsing, guards, and branching into **pure helpers** or **hooks**, not duplicated inline blocks.
+- **Do not repeat** the same non-trivial logic in multiple places: extract a **named helper** (or hook) the first time the pattern appears again. Prefer `src/lib/*` or feature-local `*Helpers.ts` for shared logic.
+- Helpers should be **small, typed, and testable**; add **`*.test.ts`** when behavior is easy to get wrong.
+
+## Comments
+
+- **Do not put comments in code** — no `//`, no `/* */`, and **no JSDoc/TSDoc** (or any other comment syntax). Explain intent with **names, types, structure, and tests** instead.
+- When editing a file, **do not add** new comments. Avoid drive-by comment deletion unless you are removing the code the comment referred to.
+
+## Imports
+
+Prefer `@/` imports over deep relative paths when crossing feature boundaries.
+
+## Column keys and string helpers
+
+- Use shared column constants/enums (for example `REVIEW_COLUMN.FLAG_REASON`) instead of hardcoded column name strings.
+- When introducing new domain/status/column keys used in app logic, define or reuse shared enums/constants immediately instead of adding new raw string literals.
+- When checking string presence/emptiness, centralize checks in shared helpers instead of ad-hoc inline expressions.
+- Prefer explicit `!== undefined` checks after helper normalization when branching on optional string values.
+
+## Commits
+
+Follow repository commit hooks and message conventions; do not bypass hooks.
+
+## Tests
+
+- Prefer role-based queries in RTL tests; use stable data attributes only when needed.
+- Keep API-dependent tests aligned with current mock strategy so tests do not hit real endpoints.

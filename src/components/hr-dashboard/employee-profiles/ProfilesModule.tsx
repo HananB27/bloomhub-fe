@@ -57,7 +57,11 @@ import {
 import { toast } from "sonner";
 import { formatDate } from "@/utils";
 import { cn } from "../ui/utils";
-import { employeeApi, EmployeeProfileData } from "@/lib/api/employees";
+import {
+  employeeApi,
+  EmployeeProfileData,
+  type EmployeeProfileChangeHistoryItem,
+} from "@/lib/api/employees";
 import { cpfLevelsApi } from "@/lib/api/cpf-levels";
 import type { Manager } from "@/lib/api/managers";
 import {
@@ -67,6 +71,8 @@ import {
 import { getStoredUser } from "@/lib/api/tokens";
 import {
   getUserPermissions,
+  EMPLOYEE_PERMISSIONS,
+  hasPermission,
   PERMISSION_REQUIREMENTS,
 } from "@/lib/api/permissions";
 import { DatePicker } from "../DatePicker";
@@ -97,6 +103,35 @@ import {
   fetchProfilesDropdownRefs,
 } from "./profilesModuleLoaders";
 
+const TRACKED_HISTORY_FIELDS = new Set(["role", "salary", "cpf", "cpf_level"]);
+
+function profileHistoryFieldLabel(field: string): string {
+  if (field === "cpf" || field === "cpf_level") return "CPF Level";
+  if (field === "role") return "Role";
+  if (field === "salary") return "Salary";
+  return field.replace(/_/g, " ");
+}
+
+function profileHistoryValueText(field: string, value: unknown): string {
+  if (value === null || value === undefined || value === "") return "—";
+  if (field === "salary") {
+    const amount = typeof value === "number" ? value : Number(value);
+    if (Number.isFinite(amount)) {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 2,
+      }).format(amount);
+    }
+  }
+  if (typeof value === "object") {
+    const obj = value as Record<string, unknown>;
+    if (typeof obj.name === "string") return obj.name;
+    return JSON.stringify(value);
+  }
+  return String(value);
+}
+
 export default function ProfilesModule() {
   const [employees, setEmployees] = useState<EmployeeProfileData[]>([]);
   const [selectedEmployee, setSelectedEmployee] =
@@ -116,6 +151,13 @@ export default function ProfilesModule() {
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [isLoadingEmployee, setIsLoadingEmployee] = useState(false);
   const [cvVersions, setCvVersions] = useState<EmployeeCVVersion[]>([]);
+  const [profileChangeHistory, setProfileChangeHistory] = useState<
+    EmployeeProfileChangeHistoryItem[]
+  >([]);
+  const [isLoadingProfileHistory, setIsLoadingProfileHistory] = useState(false);
+  const [profileHistoryError, setProfileHistoryError] = useState<string | null>(
+    null
+  );
   const [isLoadingCVs, setIsLoadingCVs] = useState(false);
   const [isUploadingCV, setIsUploadingCV] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -319,6 +361,49 @@ export default function ProfilesModule() {
     void fetchCPFLevelsByRole(selectedEmployee.role.name);
   }, [dialogOpen, selectedEmployee?.role?.name, fetchCPFLevelsByRole]);
 
+  useEffect(() => {
+    if (!dialogOpen || !selectedEmployee) return;
+
+    const canViewHistory =
+      selectedEmployee.id === currentUserId ||
+      hasPermission(permissionBits, EMPLOYEE_PERMISSIONS.VIEW_AUDIT_LOG) ||
+      PERMISSION_REQUIREMENTS.canViewAllProfiles(permissionBits);
+
+    if (!canViewHistory) {
+      setProfileChangeHistory([]);
+      setProfileHistoryError(null);
+      return;
+    }
+
+    let stale = false;
+    const loadProfileHistory = async () => {
+      try {
+        setIsLoadingProfileHistory(true);
+        setProfileHistoryError(null);
+        const history = await employeeApi.getProfileChangeHistory(
+          selectedEmployee.id
+        );
+        if (stale) return;
+        setProfileChangeHistory(
+          history.filter((entry) => TRACKED_HISTORY_FIELDS.has(entry.field))
+        );
+      } catch (err) {
+        if (stale) return;
+        setProfileChangeHistory([]);
+        setProfileHistoryError(
+          err instanceof Error ? err.message : "Failed to load history"
+        );
+      } finally {
+        if (!stale) setIsLoadingProfileHistory(false);
+      }
+    };
+
+    void loadProfileHistory();
+    return () => {
+      stale = true;
+    };
+  }, [dialogOpen, selectedEmployee, permissionBits, currentUserId]);
+
   const closeEmployeeDialog = () => {
     setDialogOpen(false);
     setSelectedEmployee(null);
@@ -326,6 +411,9 @@ export default function ProfilesModule() {
     setSaveError(null);
     setSaveSuccess(false);
     setCvVersions([]);
+    setProfileChangeHistory([]);
+    setIsLoadingProfileHistory(false);
+    setProfileHistoryError(null);
     setIsLoadingCVs(false);
     setIsUploadingCV(false);
     setIsPreviewOpen(false);
@@ -1512,6 +1600,74 @@ export default function ProfilesModule() {
                         </div>
                       )}
                     </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="flex items-baseline justify-between border-b border-gray-100 pb-2">
+                      <h3 className="text-lg font-bold text-gray-900 tracking-tight">
+                        Change History
+                      </h3>
+                      <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
+                        SECTION 06
+                      </span>
+                    </div>
+                    {isLoadingProfileHistory ? (
+                      <div className="flex items-center gap-2 text-sm text-zinc-500">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Loading change history...
+                      </div>
+                    ) : profileHistoryError ? (
+                      <p className="text-sm text-red-600">
+                        {profileHistoryError}
+                      </p>
+                    ) : profileChangeHistory.length === 0 ? (
+                      <p className="text-sm text-zinc-500">
+                        No tracked profile changes yet.
+                      </p>
+                    ) : (
+                      <div className="overflow-x-auto rounded-xl border border-zinc-200">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>When</TableHead>
+                              <TableHead>Field</TableHead>
+                              <TableHead>Old Value</TableHead>
+                              <TableHead>New Value</TableHead>
+                              <TableHead>Changed By</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {profileChangeHistory.map((entry) => (
+                              <TableRow key={String(entry.id)}>
+                                <TableCell>
+                                  {formatDate(entry.changed_at)}
+                                </TableCell>
+                                <TableCell>
+                                  {profileHistoryFieldLabel(entry.field)}
+                                </TableCell>
+                                <TableCell className="text-zinc-600">
+                                  {profileHistoryValueText(
+                                    entry.field,
+                                    entry.old_value
+                                  )}
+                                </TableCell>
+                                <TableCell className="font-medium text-zinc-900">
+                                  {profileHistoryValueText(
+                                    entry.field,
+                                    entry.new_value
+                                  )}
+                                </TableCell>
+                                <TableCell className="text-zinc-600">
+                                  {entry.changed_by_name ||
+                                    entry.changed_by_email ||
+                                    "System"}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
                   </div>
 
                   {/* Emergency Contact Section - Editable only if user has permission */}
