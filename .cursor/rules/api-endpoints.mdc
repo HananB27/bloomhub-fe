@@ -1,0 +1,12 @@
+---
+description: API module patterns, endpoint constants, and env usage
+globs: "src/lib/api/**/*.ts,src/lib/api/constants/**/*.ts,src/lib/config.ts,src/config.ts"
+alwaysApply: false
+---
+
+# API layer
+
+- Keep API calls in `src/lib/api/modules/*`; avoid fetch calls scattered in components.
+- Declare reusable endpoint segments in `src/lib/api/constants/*` and keep module contracts typed.
+- Base URLs must come from config/env (`src/config.ts`, `src/lib/config.ts`); never hardcode hosts.
+- Use existing HTTP helpers (`src/lib/api/helpers/httpClient.ts`) for consistent auth, error handling, and list parsing.

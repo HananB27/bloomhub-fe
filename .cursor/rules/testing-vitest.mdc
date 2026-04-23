@@ -1,0 +1,13 @@
+---
+description: Vitest, Testing Library, and MSW conventions
+globs: "**/*.{test.ts,test.tsx}"
+alwaysApply: false
+---
+
+# Testing
+
+- Framework: **Vitest** + **@testing-library/react**; `vitest.setup.ts` registers **MSW** and `jest-dom`.
+- Query tests with **`getByRole`** where possible; use **`data-test-id`** for stable selectors when needed.
+- Wrap components that use **react-router** in **`MemoryRouter`** (see `Table.test.tsx` and similar).
+- New network behavior: extend **`mocks/handlers.ts`** (and `mocks/data/` if needed) so tests do not hit real APIs. Match URLs to test env: `https://test-api.example.com/` and `https://test-app.example.com` (see `vite.config.ts` test `env` and `vitest.setup.ts`).
+- Keep tests focused and colocated: `Feature.tsx` → `Feature.test.tsx`.

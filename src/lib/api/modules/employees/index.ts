@@ -33,6 +33,19 @@ export interface SalaryHistoryItem {
   created_at: string;
 }
 
+export interface EmployeeProfileChangeHistoryItem {
+  id: number | string;
+  employee_id: number;
+  field: string;
+  old_value: unknown;
+  new_value: unknown;
+  changed_by?: number | string | null;
+  changed_by_name?: string | null;
+  changed_by_email?: string | null;
+  changed_at: string;
+  created_at?: string;
+}
+
 export type { EmployeeProfileData } from "../../helpers/transformers";
 
 export type {
@@ -95,6 +108,15 @@ export const employeeApi = {
     return get<SalaryHistoryItem[]>(
       `${API_BASE_URL}/api/employees/${employeeId}/salary-history/`,
       "Failed to fetch salary history"
+    );
+  },
+
+  async getProfileChangeHistory(
+    employeeId: number | string
+  ): Promise<EmployeeProfileChangeHistoryItem[]> {
+    return get<EmployeeProfileChangeHistoryItem[]>(
+      `${API_BASE_URL}/api/employees/${employeeId}/profile-change-history/`,
+      "Failed to fetch profile change history"
     );
   },
 

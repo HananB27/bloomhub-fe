@@ -1,0 +1,19 @@
+---
+description: Keep TSX expressions readable and maintainable
+globs: "**/*.tsx"
+alwaysApply: false
+---
+
+# TSX Readability
+
+## Conditional expressions
+
+- Avoid nested ternary expressions inside JSX props or render trees.
+- If JSX value logic needs more than one condition, compute it in named `const` values or a small helper before `return`.
+- Prefer a clear sequence (`baseValue` -> `overrideValue` -> `displayValue`) over inline branching.
+- Keep JSX attributes simple: pass identifiers, not complex inline expression blocks.
+
+## Repeated formatting and fallback logic
+
+- When the same fallback/normalization logic appears in more than one field, extract a local helper or shared helper.
+- Use explicit names that describe intent (`resolveRowDateValue`, `normalizedValue`) instead of re-encoding logic in-place.

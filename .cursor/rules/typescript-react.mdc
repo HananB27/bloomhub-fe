@@ -1,0 +1,23 @@
+---
+description: TypeScript and React patterns for BloomHub frontend
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# TypeScript & React
+
+## Modularity
+
+- **Extract repetition**: identical or near-identical blocks (formatting, mapping API → UI models, validation snippets, conditional render logic) belong in a **helper function** or **custom hook**, not copy-pasted across components.
+- **Where to put code**: shared pure functions → `src/lib/` modules; feature-only logic → `*Helpers.ts` / `utils.ts` next to the feature; reusable state + effects → hooks modules.
+- **Components** should mostly compose hooks/helpers and render; avoid long inline lambdas and repeated JSX subtrees—extract **subcomponents** or **render helpers** when the same structure appears multiple times.
+
+## TypeScript, tooling, and UI
+
+- **Comments**: **none** in source — no `//`, `/* */`, or JSDoc/TSDoc. Use naming and types only.
+- Respect **`strict`**, `noUnusedLocals`, and `noUnusedParameters` — unused code fails CI.
+- ESLint: `@typescript-eslint/recommended-type-checked`, Prettier, `react-hooks`, `jsx-a11y`. Fix warnings; ESLint runs with **zero max warnings**.
+- Use **functional components** and hooks; keep modules focused and composable.
+- Keep API shape changes typed in `src/lib/api` modules and shared types.
+- Forms should stay consistent with existing form patterns used in this repo.
+- **Accessibility**: satisfy `eslint-plugin-jsx-a11y`; prefer semantic HTML and labels on controls.
