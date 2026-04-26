@@ -1,4 +1,7 @@
-import { useState } from "react";
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
@@ -12,6 +15,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { Badge } from "./ui/badge";
+import { Calendar } from "./ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
   Table,
   TableBody,
@@ -20,946 +26,869 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
-import { Badge } from "./ui/badge";
-import { QuickActionButton } from "./QuickActionButton";
-import { Switch } from "./ui/switch";
-import { Separator } from "./ui/separator";
-import { Progress } from "./ui/progress";
 import { Avatar, AvatarFallback } from "./ui/avatar";
-import { Checkbox } from "./ui/checkbox";
+import { Progress } from "./ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import {
-  Star,
-  Calendar,
-  User,
-  FileText,
-  Upload,
-  Download,
-  Edit3,
-  Save,
+  Calendar as CalendarIcon,
   Plus,
-  Filter,
-  Eye,
-  EyeOff,
-  Target,
-  TrendingUp,
-  Clock,
-  CheckCircle,
-  Circle,
-  X,
-  Paperclip,
+  Edit,
+  Trash2,
+  Download,
+  Upload,
   AlertCircle,
+  Loader2,
+  FileText,
+  MessageSquare,
+  CheckCircle,
+  Clock,
+  Star,
 } from "lucide-react";
+import { formatDate } from "@/utils";
+import type {
+  PerformanceReview,
+  PerformanceReviewListItem,
+  PerformanceReviewNote,
+  PerformanceReviewActionPoint,
+  PerformanceReviewAttachment,
+  ReviewStatus,
+  ReviewType,
+  NoteVisibility,
+} from "@/types/reviews";
+import {
+  REVIEW_STATUS_LABELS,
+  REVIEW_STATUS_COLORS,
+  REVIEW_TYPE_LABELS,
+  ACTION_POINT_STATUS_LABELS,
+  ALL_REVIEW_TYPES,
+  RATING_SCALE,
+  RATING_LABELS,
+  NOTE_VISIBILITY_LABELS,
+} from "@/types/reviews";
+import {
+  fetchPerformanceReviews,
+  createPerformanceReview,
+  updatePerformanceReview,
+  updateReviewStatus,
+  fetchReviewNotes,
+  createReviewNote,
+  deleteReviewNote,
+  fetchActionPoints,
+  createActionPoint,
+  deleteActionPoint,
+  fetchAttachments,
+  uploadAttachment,
+  deleteAttachment,
+  fetchUserProfiles,
+  type UserProfile,
+} from "@/lib/api/reviews";
+
+interface ExtendedSession {
+  accessToken?: string;
+  user?: {
+    id?: number;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+    is_staff?: boolean;
+    is_superuser?: boolean;
+  };
+}
 
 export function ReviewsModule() {
-  const [selectedEmployee, setSelectedEmployee] = useState("sarah-johnson");
-  const [selectedReview, setSelectedReview] = useState("q3-2025");
-  const [isNotesPrivate, setIsNotesPrivate] = useState(false);
-  const [reviewNotes, setReviewNotes] = useState("");
-  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+  const { data: session } = useSession() as {
+    data: ExtendedSession | null;
+  };
 
-  // Mock employee data
-  const employees = [
-    {
-      id: "sarah-johnson",
-      name: "Sarah Johnson",
-      department: "Engineering",
-      role: "Senior Developer",
-    },
-    {
-      id: "michael-chen",
-      name: "Michael Chen",
-      department: "Marketing",
-      role: "Marketing Manager",
-    },
-    {
-      id: "emily-rodriguez",
-      name: "Emily Rodriguez",
-      department: "Sales",
-      role: "Sales Representative",
-    },
-    {
-      id: "david-kim",
-      name: "David Kim",
-      department: "HR",
-      role: "HR Specialist",
-    },
-  ];
+  const [activeTab, setActiveTab] = useState("scheduled");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [reviews, setReviews] = useState<PerformanceReviewListItem[]>([]);
+  const [employees, setEmployees] = useState<UserProfile[]>([]);
+  const [selectedReview, setSelectedReview] = useState<PerformanceReview | null>(null);
+  const [notes, setNotes] = useState<PerformanceReviewNote[]>([]);
+  const [actionPoints, setActionPoints] = useState<PerformanceReviewActionPoint[]>([]);
+  const [attachments, setAttachments] = useState<PerformanceReviewAttachment[]>([]);
+  const [newNoteContent, setNewNoteContent] = useState("");
+  const [newNoteVisibility, setNewNoteVisibility] = useState<NoteVisibility>("shared");
+  const [newActionTitle, setNewActionTitle] = useState("");
+  const [newActionDescription, setNewActionDescription] = useState("");
+  const [newActionOwner, setNewActionOwner] = useState("");
+  const [newActionDueDate, setNewActionDueDate] = useState("");
+  const [newReviewEmployeeId, setNewReviewEmployeeId] = useState("");
+  const [newReviewReviewerId, setNewReviewReviewerId] = useState("");
+  const [newReviewType, setNewReviewType] = useState<ReviewType>("quarterly");
+  const [newReviewScheduledDate, setNewReviewScheduledDate] = useState("");
+  const [overallRating, setOverallRating] = useState<number | null>(null);
+  const [notes_field, setNotesField] = useState("");
+  const [cpfScore, setCpfScore] = useState<number | null>(null);
+  const [performanceScore, setPerformanceScore] = useState<number | null>(null);
 
-  // Mock scheduled reviews
-  const scheduledReviews = [
-    {
-      id: "q3-2025",
-      employee: "Sarah Johnson",
-      reviewer: "Alex Thompson",
-      type: "Quarterly Review",
-      scheduledDate: "Aug 15, 2025",
-      status: "In Progress",
-      progress: 60,
-    },
-    {
-      id: "annual-2025",
-      employee: "Sarah Johnson",
-      reviewer: "Alex Thompson",
-      type: "Annual Review",
-      scheduledDate: "Dec 15, 2025",
-      status: "Scheduled",
-      progress: 0,
-    },
-    {
-      id: "probation-2025",
-      employee: "Michael Chen",
-      reviewer: "Lisa Wong",
-      type: "Probation Review",
-      scheduledDate: "Aug 20, 2025",
-      status: "Pending",
-      progress: 0,
-    },
-    {
-      id: "mid-year-2025",
-      employee: "Emily Rodriguez",
-      reviewer: "John Smith",
-      type: "Mid-Year Review",
-      scheduledDate: "Aug 10, 2025",
-      status: "Completed",
-      progress: 100,
-    },
-  ];
+  // Load reviews and user profiles on mount
+  useEffect(() => {
+    const accessToken = session?.accessToken;
+    if (!accessToken) return;
 
-  // Mock goals and action items
-  const [goals, setGoals] = useState([
-    {
-      id: 1,
-      title: "Complete React certification",
-      description:
-        "Obtain React developer certification to improve frontend skills",
-      category: "Professional Development",
-      status: "completed",
-      dueDate: "Jul 30, 2025",
-      progress: 100,
-    },
-    {
-      id: 2,
-      title: "Lead team project delivery",
-      description:
-        "Successfully deliver the e-commerce platform redesign project on time",
-      category: "Leadership",
-      status: "in-progress",
-      dueDate: "Sep 15, 2025",
-      progress: 75,
-    },
-    {
-      id: 3,
-      title: "Mentor junior developers",
-      description:
-        "Provide guidance and mentorship to 2 junior developers in the team",
-      category: "Team Development",
-      status: "in-progress",
-      dueDate: "Dec 31, 2025",
-      progress: 45,
-    },
-    {
-      id: 4,
-      title: "Improve code review practices",
-      description:
-        "Establish consistent code review standards and documentation",
-      category: "Process Improvement",
-      status: "pending",
-      dueDate: "Oct 1, 2025",
-      progress: 0,
-    },
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const [reviewsData, usersData] = await Promise.all([
+          fetchPerformanceReviews(accessToken),
+          fetchUserProfiles(accessToken),
+        ]);
+        setReviews(reviewsData);
+        setEmployees(usersData);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to load data";
+        setError(message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [session?.accessToken]);
+
+  // Load review details when selected
+  useEffect(() => {
+    const accessToken = session?.accessToken;
+    if (!selectedReview || !accessToken) return;
+
+    const loadReviewDetails = async () => {
+      try {
+        const [notesData, actionPointsData, attachmentsData] = await Promise.all([
+          fetchReviewNotes(selectedReview.id, accessToken),
+          fetchActionPoints(selectedReview.id, accessToken),
+          fetchAttachments(selectedReview.id, accessToken),
+        ]);
+        setNotes(notesData);
+        setActionPoints(actionPointsData);
+        setAttachments(attachmentsData);
+        setOverallRating(selectedReview.overallRating || null);
+        setNotesField(selectedReview.summary || "");
+        setCpfScore(selectedReview.cpfScore || null);
+        setPerformanceScore(selectedReview.performanceScore || null);
+      } catch (err) {
+        console.error("Failed to load review details:", err);
+      }
+    };
+
+    loadReviewDetails();
+  }, [selectedReview, session?.accessToken]);
+
+  const handleCreateReview = useCallback(async () => {
+    const accessToken = session?.accessToken;
+    if (!accessToken || !newReviewEmployeeId || !newReviewReviewerId) {
+      setError("Please fill in all required fields");
+      return;
+    }
+
+    try {
+      setError(null);
+      await createPerformanceReview(
+        {
+          employee: newReviewEmployeeId,
+          reviewer: newReviewReviewerId,
+          reviewType: newReviewType,
+          scheduledDate: newReviewScheduledDate || new Date().toISOString().split('T')[0],
+        },
+        accessToken
+      );
+      const data = await fetchPerformanceReviews(accessToken);
+      setReviews(data);
+      // Reset form and close dialog
+      setNewReviewEmployeeId("");
+      setNewReviewReviewerId("");
+      setNewReviewType("quarterly");
+      setNewReviewScheduledDate("");
+      setError(null);
+      setCreateDialogOpen(false);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to create review";
+      setError(message);
+    }
+  }, [
+    session?.accessToken,
+    newReviewEmployeeId,
+    newReviewReviewerId,
+    newReviewType,
+    newReviewScheduledDate,
   ]);
 
-  // CPF Level progression
-  const cpfLevels = [
-    {
-      level: "CPF-1",
-      title: "Junior",
-      description: "Entry level position",
-      minScore: 0,
-    },
-    {
-      level: "CPF-2",
-      title: "Mid-level",
-      description: "Experienced contributor",
-      minScore: 25,
-    },
-    {
-      level: "CPF-3",
-      title: "Senior",
-      description: "Subject matter expert",
-      minScore: 50,
-    },
-    {
-      level: "CPF-4",
-      title: "Lead",
-      description: "Team leadership role",
-      minScore: 75,
-    },
-    {
-      level: "CPF-5",
-      title: "Principal",
-      description: "Strategic leadership",
-      minScore: 90,
-    },
-  ];
+  const handleAddNote = useCallback(async () => {
+    const accessToken = session?.accessToken;
+    if (!selectedReview || !accessToken || !newNoteContent.trim()) {
+      return;
+    }
 
-  const currentCPFScore = 78; // Current score out of 100
-  const currentLevel = cpfLevels.find(
-    (level) =>
-      currentCPFScore >= level.minScore &&
-      (cpfLevels.indexOf(level) === cpfLevels.length - 1 ||
-        currentCPFScore < cpfLevels[cpfLevels.indexOf(level) + 1].minScore)
+    try {
+      await createReviewNote(
+        selectedReview.id,
+        { content: newNoteContent, visibility: newNoteVisibility },
+        accessToken
+      );
+      const notesData = await fetchReviewNotes(selectedReview.id, accessToken);
+      setNotes(notesData);
+      setNewNoteContent("");
+      setNewNoteVisibility("shared");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to add note";
+      setError(message);
+    }
+  }, [selectedReview, session?.accessToken, newNoteContent, newNoteVisibility]);
+
+  const handleDeleteNote = useCallback(
+    async (noteId: string) => {
+      const accessToken = session?.accessToken;
+      if (!selectedReview || !accessToken) return;
+
+      try {
+        await deleteReviewNote(selectedReview.id, noteId, accessToken);
+        const notesData = await fetchReviewNotes(selectedReview.id, accessToken);
+        setNotes(notesData);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to delete note";
+        setError(message);
+      }
+    },
+    [selectedReview, session?.accessToken]
   );
 
-  const handleGoalStatusChange = (goalId: number, completed: boolean) => {
-    setGoals((prev) =>
-      prev.map((goal) =>
-        goal.id === goalId
-          ? {
-              ...goal,
-              status: completed ? "completed" : "pending",
-              progress: completed ? 100 : 0,
-            }
-          : goal
-      )
+  const handleAddActionPoint = useCallback(async () => {
+    const accessToken = session?.accessToken;
+    if (!selectedReview || !accessToken || !newActionTitle.trim()) {
+      return;
+    }
+
+    try {
+      const userId = String(session.user?.id || "");
+      await createActionPoint(
+        selectedReview.id,
+        {
+          title: newActionTitle,
+          description: newActionDescription,
+          ownerId: newActionOwner || userId,
+          dueDate: newActionDueDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        },
+        accessToken
+      );
+      const actionPointsData = await fetchActionPoints(selectedReview.id, accessToken);
+      setActionPoints(actionPointsData);
+      setNewActionTitle("");
+      setNewActionDescription("");
+      setNewActionOwner("");
+      setNewActionDueDate("");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to add action point";
+      setError(message);
+    }
+  }, [selectedReview, session?.accessToken, session?.user?.id, newActionTitle, newActionDescription, newActionOwner, newActionDueDate]);
+
+  const handleDeleteActionPoint = useCallback(
+    async (actionPointId: string) => {
+      const accessToken = session?.accessToken;
+      if (!selectedReview || !accessToken) return;
+
+      try {
+        await deleteActionPoint(selectedReview.id, actionPointId, accessToken);
+        const actionPointsData = await fetchActionPoints(selectedReview.id, accessToken);
+        setActionPoints(actionPointsData);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to delete action point";
+        setError(message);
+      }
+    },
+    [selectedReview, session?.accessToken]
+  );
+
+  const handleUploadAttachment = useCallback(
+    async (file: File) => {
+      const accessToken = session?.accessToken;
+      if (!selectedReview || !accessToken) return;
+
+      try {
+        await uploadAttachment(selectedReview.id, file, accessToken);
+        const attachmentsData = await fetchAttachments(selectedReview.id, accessToken);
+        setAttachments(attachmentsData);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to upload attachment";
+        setError(message);
+      }
+    },
+    [selectedReview, session?.accessToken]
+  );
+
+  const handleDeleteAttachment = useCallback(
+    async (attachmentId: string) => {
+      const accessToken = session?.accessToken;
+      if (!selectedReview || !accessToken) return;
+
+      try {
+        await deleteAttachment(selectedReview.id, attachmentId, accessToken);
+        const attachmentsData = await fetchAttachments(selectedReview.id, accessToken);
+        setAttachments(attachmentsData);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to delete attachment";
+        setError(message);
+      }
+    },
+    [selectedReview, session?.accessToken]
+  );
+
+  const handleUpdateReviewOutcome = useCallback(async () => {
+    const accessToken = session?.accessToken;
+    if (!selectedReview || !accessToken) return;
+
+    try {
+      const updated = await updatePerformanceReview(
+        selectedReview.id,
+        {
+          overallRating: overallRating || undefined,
+          summary: notes_field || undefined,
+          cpfScore: cpfScore || undefined,
+          performanceScore: performanceScore || undefined,
+        },
+        accessToken
+      );
+      setSelectedReview(updated);
+      const data = await fetchPerformanceReviews(accessToken);
+      setReviews(data);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to update review";
+      setError(message);
+    }
+  }, [selectedReview, session?.accessToken, overallRating, notes_field, cpfScore, performanceScore]);
+
+  const handleStatusChange = useCallback(
+    async (newStatus: ReviewStatus) => {
+      const accessToken = session?.accessToken;
+      if (!selectedReview || !accessToken) return;
+
+      try {
+        const updated = await updateReviewStatus(
+          selectedReview.id,
+          newStatus,
+          accessToken
+        );
+        setSelectedReview(updated);
+        const data = await fetchPerformanceReviews(accessToken);
+        setReviews(data);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to update status";
+        setError(message);
+      }
+    },
+    [selectedReview, session?.accessToken]
+  );
+
+  const filteredReviews = reviews.filter((r) => r.status === activeTab);
+
+  if (loading) {
+    return (
+      <Card className="w-full">
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+        </CardContent>
+      </Card>
     );
-  };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
-    const newFiles = files.map((file) => file.name);
-    setUploadedFiles((prev) => [...prev, ...newFiles]);
-  };
-
-  const removeFile = (fileName: string) => {
-    setUploadedFiles((prev) => prev.filter((file) => file !== fileName));
-  };
-
-  const selectedEmployeeData = employees.find(
-    (emp) => emp.id === selectedEmployee
-  );
-  const currentReview = scheduledReviews.find(
-    (review) => review.id === selectedReview
-  );
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Performance Reviews
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Conduct and track employee performance evaluations
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
-            <Button variant="outline" size="sm">
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
-            <Button variant="primary" size="sm">
-              <Plus className="w-4 h-4 mr-2" />
-              Schedule Review
-            </Button>
-          </div>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Due This Week</p>
-            </div>
-            <p className="text-2xl font-bold text-gray-900">3</p>
-            <p className="text-xs text-gray-500">Reviews pending</p>
-          </div>
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Star className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">In Progress</p>
-            </div>
-            <p className="text-2xl font-bold text-gray-900">8</p>
-            <p className="text-xs text-gray-500">Active reviews</p>
-          </div>
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Completed</p>
-            </div>
-            <p className="text-2xl font-bold text-gray-900">45</p>
-            <p className="text-xs text-gray-500">This quarter</p>
-          </div>
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Avg Score</p>
-            </div>
-            <p className="text-2xl font-bold text-gray-900">4.2</p>
-            <p className="text-xs text-gray-500">Out of 5.0</p>
-          </div>
-        </div>
-
-        {/* Employee & Review Selector */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="employee-select">Select Employee</Label>
-            <Select
-              value={selectedEmployee}
-              onValueChange={setSelectedEmployee}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Choose an employee" />
-              </SelectTrigger>
-              <SelectContent>
-                {employees.map((employee) => (
-                  <SelectItem key={employee.id} value={employee.id}>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="w-6 h-6">
-                        <AvatarFallback className="text-xs">
-                          {employee.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{employee.name}</p>
-                        <p className="text-xs text-gray-500">
-                          {employee.department} - {employee.role}
-                        </p>
-                      </div>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="review-select">Select Review</Label>
-            <Select value={selectedReview} onValueChange={setSelectedReview}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose a review" />
-              </SelectTrigger>
-              <SelectContent>
-                {scheduledReviews
-                  .filter(
-                    (review) => review.employee === selectedEmployeeData?.name
-                  )
-                  .map((review) => (
-                    <SelectItem key={review.id} value={review.id}>
-                      <div className="flex items-center justify-between w-full">
-                        <span>
-                          {review.type} - {review.scheduledDate}
-                        </span>
-                        <Badge
-                          variant={
-                            review.status === "Completed"
-                              ? "default"
-                              : review.status === "In Progress"
-                                ? "secondary"
-                                : "outline"
-                          }
-                          className="ml-2"
-                        >
-                          {review.status}
-                        </Badge>
-                      </div>
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Scheduled Reviews List */}
-          <Card className="border-gray-200">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
-                Scheduled Reviews
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Employee</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Reviewer</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Progress</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {scheduledReviews.map((review) => (
-                    <TableRow key={review.id}>
-                      <TableCell className="font-medium">
-                        {review.employee}
-                      </TableCell>
-                      <TableCell>{review.type}</TableCell>
-                      <TableCell>{review.reviewer}</TableCell>
-                      <TableCell>{review.scheduledDate}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            review.status === "Completed"
-                              ? "default"
-                              : review.status === "In Progress"
-                                ? "secondary"
-                                : "outline"
-                          }
-                        >
-                          {review.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Progress
-                            value={review.progress}
-                            className="w-16 h-2"
-                          />
-                          <span className="text-sm text-gray-500">
-                            {review.progress}%
-                          </span>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-
-          {/* Review Content Tabs */}
-          <Card className="border-gray-200">
-            <Tabs defaultValue="notes" className="w-full">
-              <CardHeader className="pb-3">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="notes">Notes & Feedback</TabsTrigger>
-                  <TabsTrigger value="goals">Goals & Action Items</TabsTrigger>
-                  <TabsTrigger value="files">Documents</TabsTrigger>
-                </TabsList>
-              </CardHeader>
-
-              <CardContent>
-                <TabsContent value="notes" className="space-y-4 mt-0">
-                  <div className="space-y-4">
-                    {/* Notes Editor Header */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <h3 className="font-medium text-gray-900">
-                          Review Notes
-                        </h3>
-                        <div className="flex items-center gap-2">
-                          <Switch
-                            id="notes-visibility"
-                            checked={isNotesPrivate}
-                            onCheckedChange={setIsNotesPrivate}
-                          />
-                          <Label htmlFor="notes-visibility" className="text-sm">
-                            {isNotesPrivate ? (
-                              <span className="flex items-center gap-1">
-                                <EyeOff className="w-4 h-4" />
-                                Private
-                              </span>
-                            ) : (
-                              <span className="flex items-center gap-1">
-                                <Eye className="w-4 h-4" />
-                                Shared
-                              </span>
-                            )}
-                          </Label>
-                        </div>
-                      </div>
-                      <Button size="sm" variant="primary">
-                        <Save className="w-4 h-4 mr-2" />
-                        Save Notes
-                      </Button>
-                    </div>
-
-                    {/* Notes Editor */}
-                    <div className="space-y-2">
-                      <Textarea
-                        placeholder="Enter your review notes and feedback here..."
-                        value={reviewNotes}
-                        onChange={(e) => setReviewNotes(e.target.value)}
-                        rows={12}
-                        className="resize-none"
-                      />
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
-                        {isNotesPrivate ? (
-                          <>
-                            <EyeOff className="w-3 h-3" />
-                            <span>
-                              Private notes - only visible to managers and HR
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <Eye className="w-3 h-3" />
-                            <span>Shared notes - visible to employee</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Pre-filled Example Content */}
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <h4 className="font-medium text-gray-900 mb-2">
-                        Previous Review Summary
-                      </h4>
-                      <p className="text-sm text-gray-600 mb-2">
-                        <strong>Strengths:</strong> Sarah consistently delivers
-                        high-quality code and shows excellent problem-solving
-                        skills. She has taken initiative in mentoring junior
-                        developers and contributing to architectural decisions.
-                      </p>
-                      <p className="text-sm text-gray-600 mb-2">
-                        <strong>Areas for Improvement:</strong> Could benefit
-                        from improving communication in cross-team
-                        collaborations and taking on more leadership
-                        responsibilities in project planning.
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <strong>Next Quarter Focus:</strong> Lead the e-commerce
-                        platform redesign project and establish mentorship
-                        program for junior developers.
-                      </p>
-                    </div>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <span>Performance Reviews</span>
+          <Dialog open={createDialogOpen} onOpenChange={(open) => {
+            setCreateDialogOpen(open);
+            if (!open) {
+              // Clear error when dialog closes
+              setError(null);
+            }
+          }}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="gap-2">
+                <Plus className="w-4 h-4" />
+                New Review
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Schedule New Review</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                {error && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-red-700">{error}</p>
                   </div>
-                </TabsContent>
-
-                <TabsContent value="goals" className="space-y-4 mt-0">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-gray-900">
-                        Goals & Action Items
-                      </h3>
-                      <Button size="sm" variant="outline">
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Goal
-                      </Button>
-                    </div>
-
-                    <div className="space-y-3">
-                      {goals.map((goal) => (
-                        <div
-                          key={goal.id}
-                          className="border border-gray-200 rounded-lg p-4"
-                        >
-                          <div className="flex items-start gap-3">
-                            <Checkbox
-                              checked={goal.status === "completed"}
-                              onCheckedChange={(checked) =>
-                                handleGoalStatusChange(
-                                  goal.id,
-                                  checked as boolean
-                                )
-                              }
-                              className="mt-1"
-                            />
-                            <div className="flex-1 space-y-2">
-                              <div className="flex items-center justify-between">
-                                <h4
-                                  className={`font-medium ${goal.status === "completed" ? "line-through text-gray-500" : "text-gray-900"}`}
-                                >
-                                  {goal.title}
-                                </h4>
-                                <Badge
-                                  variant={
-                                    goal.status === "completed"
-                                      ? "default"
-                                      : goal.status === "in-progress"
-                                        ? "secondary"
-                                        : "outline"
-                                  }
-                                >
-                                  {goal.category}
-                                </Badge>
-                              </div>
-                              <p className="text-sm text-gray-600">
-                                {goal.description}
-                              </p>
-
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <Progress
-                                    value={goal.progress}
-                                    className="w-24 h-2"
-                                  />
-                                  <span className="text-xs text-gray-500">
-                                    {goal.progress}%
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2 text-xs text-gray-500">
-                                  <Calendar className="w-3 h-3" />
-                                  <span>Due: {goal.dueDate}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                )}
+                <div>
+                  <Label>Employee</Label>
+                  <Select value={newReviewEmployeeId} onValueChange={setNewReviewEmployeeId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select employee" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {employees.map((emp) => (
+                        <SelectItem key={emp.id} value={emp.id.toString()}>
+                          {emp.name}
+                        </SelectItem>
                       ))}
-                    </div>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Reviewer</Label>
+                  <Select value={newReviewReviewerId} onValueChange={setNewReviewReviewerId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select reviewer" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {employees.map((emp) => (
+                        <SelectItem key={emp.id} value={emp.id.toString()}>
+                          {emp.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Review Type</Label>
+                  <Select value={newReviewType} onValueChange={(v) => setNewReviewType(v as ReviewType)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ALL_REVIEW_TYPES.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {REVIEW_TYPE_LABELS[type]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button onClick={handleCreateReview} className="w-full">
+                  Create Review
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {error && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        )}
 
-                    {/* Goals Summary */}
-                    <div className="bg-blue-50 rounded-lg p-4">
-                      <h4 className="font-medium text-blue-900 mb-2">
-                        Goals Summary
-                      </h4>
-                      <div className="grid grid-cols-3 gap-4 text-sm">
-                        <div className="text-center">
-                          <p className="text-2xl font-bold text-blue-700">
-                            {
-                              goals.filter((g) => g.status === "completed")
-                                .length
-                            }
-                          </p>
-                          <p className="text-blue-600">Completed</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-2xl font-bold text-blue-700">
-                            {
-                              goals.filter((g) => g.status === "in-progress")
-                                .length
-                            }
-                          </p>
-                          <p className="text-blue-600">In Progress</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-2xl font-bold text-blue-700">
-                            {goals.filter((g) => g.status === "pending").length}
-                          </p>
-                          <p className="text-blue-600">Pending</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
+        {!selectedReview ? (
+          <>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList>
+                <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
+                <TabsTrigger value="in_progress">In Progress</TabsTrigger>
+                <TabsTrigger value="completed">Completed</TabsTrigger>
+              </TabsList>
 
-                <TabsContent value="files" className="space-y-4 mt-0">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-gray-900">
-                        Review Documents
-                      </h3>
-                      <div className="flex gap-2">
-                        <input
-                          type="file"
-                          id="file-upload"
-                          multiple
-                          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                          onChange={handleFileUpload}
-                          className="hidden"
-                        />
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() =>
-                            document.getElementById("file-upload")?.click()
-                          }
-                        >
-                          <Upload className="w-4 h-4 mr-2" />
-                          Upload Files
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* File Upload Area */}
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-600 mb-1">
-                        Drag and drop files here, or click to browse
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Supports PDF, JPG, PNG, DOC files up to 10MB
-                      </p>
-                    </div>
-
-                    {/* Uploaded Files */}
-                    {uploadedFiles.length > 0 && (
-                      <div className="space-y-2">
-                        <h4 className="font-medium text-gray-900">
-                          Uploaded Files
-                        </h4>
-                        {uploadedFiles.map((fileName, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                          >
-                            <div className="flex items-center gap-3">
-                              <Paperclip className="w-4 h-4 text-gray-500" />
-                              <span className="text-sm font-medium text-gray-900">
-                                {fileName}
-                              </span>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button size="sm" variant="ghost">
-                                <Download className="w-4 h-4" />
-                              </Button>
+              <TabsContent value={activeTab} className="space-y-4 mt-4">
+                {filteredReviews.length === 0 ? (
+                  <p className="text-center py-8 text-gray-500">No reviews in this category</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Employee</TableHead>
+                          <TableHead>Reviewer</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Due Date</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Rating</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredReviews.map((review) => (
+                          <TableRow key={review.id} className="hover:bg-gray-50">
+                            <TableCell>{review.employeeName}</TableCell>
+                            <TableCell>{review.reviewerName}</TableCell>
+                            <TableCell>{REVIEW_TYPE_LABELS[review.reviewType]}</TableCell>
+                            <TableCell>{formatDate(review.scheduledDate)}</TableCell>
+                            <TableCell>
+                              <Badge className={REVIEW_STATUS_COLORS[review.status]}>
+                                {REVIEW_STATUS_LABELS[review.status]}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {review.overallRating != null ? (
+                                <div className="flex gap-1">
+                                  {[1, 2, 3, 4, 5].map((i) => (
+                                    <Star
+                                      key={i}
+                                      className={`w-4 h-4 ${
+                                        i <= (review.overallRating ?? 0) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                              ) : (
+                                <span className="text-gray-400">-</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
                               <Button
                                 size="sm"
-                                variant="ghost"
-                                onClick={() => removeFile(fileName)}
+                                variant="outline"
+                                onClick={() => setSelectedReview(review)}
                               >
-                                <X className="w-4 h-4" />
+                                View
                               </Button>
-                            </div>
-                          </div>
+                            </TableCell>
+                          </TableRow>
                         ))}
-                      </div>
-                    )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center justify-between">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setSelectedReview(null)}
+              >
+                ← Back to List
+              </Button>
+              <Select value={selectedReview.status} onValueChange={(v) => handleStatusChange(v as ReviewStatus)}>
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="scheduled">Scheduled</SelectItem>
+                  <SelectItem value="in_progress">In Progress</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-                    {/* Example Files */}
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-gray-900">
-                        Previous Documents
-                      </h4>
-                      {[
-                        {
-                          name: "Q2_2025_Performance_Report.pdf",
-                          date: "Jun 30, 2025",
-                          type: "PDF",
-                        },
-                        {
-                          name: "Goals_Checklist_2025.docx",
-                          date: "Jan 15, 2025",
-                          type: "DOC",
-                        },
-                        {
-                          name: "Training_Certificates.pdf",
-                          date: "May 20, 2025",
-                          type: "PDF",
-                        },
-                      ].map((file, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between p-3 border border-gray-200 rounded-lg"
-                        >
-                          <div className="flex items-center gap-3">
-                            <FileText className="w-4 h-4 text-gray-500" />
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">
-                                {file.name}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                Uploaded {file.date}
-                              </p>
+            <div className="grid grid-cols-2 gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">{selectedReview.employeeName}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm">
+                  <div>
+                    <span className="text-gray-600">Reviewer:</span> {selectedReview.reviewerName}
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Type:</span> {REVIEW_TYPE_LABELS[selectedReview.reviewType]}
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Scheduled:</span> {formatDate(selectedReview.scheduledDate)}
+                  </div>
+                  {selectedReview.nextReviewDate && (
+                    <div>
+                      <span className="text-gray-600">Next Review:</span> {formatDate(selectedReview.nextReviewDate)}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Overall Rating</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex gap-2">
+                    {RATING_SCALE.map((rating) => (
+                      <button
+                        key={rating}
+                        onClick={() => setOverallRating(rating)}
+                        className={`p-2 rounded transition ${
+                          overallRating === rating
+                            ? "bg-yellow-400 text-white"
+                            : "bg-gray-100 hover:bg-gray-200"
+                        }`}
+                      >
+                        <Star className="w-5 h-5" fill="currentColor" />
+                      </button>
+                    ))}
+                  </div>
+                  {overallRating && <p className="text-sm text-gray-600">{RATING_LABELS[overallRating]}</p>}
+                </CardContent>
+              </Card>
+            </div>
+
+            <Tabs defaultValue="notes" className="w-full">
+              <TabsList>
+                <TabsTrigger value="notes" className="gap-2">
+                  <MessageSquare className="w-4 h-4" />
+                  Notes
+                </TabsTrigger>
+                <TabsTrigger value="actions" className="gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  Action Points
+                </TabsTrigger>
+                <TabsTrigger value="documents" className="gap-2">
+                  <FileText className="w-4 h-4" />
+                  Documents
+                </TabsTrigger>
+                <TabsTrigger value="scores" className="gap-2">
+                  <Star className="w-4 h-4" />
+                  Scores
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="notes" className="space-y-4 mt-4">
+                <div className="space-y-3">
+                  <div>
+                    <Label>Add Note</Label>
+                    <Textarea
+                      value={newNoteContent}
+                      onChange={(e) => setNewNoteContent(e.target.value)}
+                      placeholder="Add a note..."
+                      className="mt-2 h-20"
+                    />
+                  </div>
+                  <div className="flex gap-3">
+                    <Select value={newNoteVisibility} onValueChange={(v) => setNewNoteVisibility(v as NoteVisibility)}>
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="private">Private</SelectItem>
+                        <SelectItem value="shared">Shared</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button onClick={handleAddNote} className="flex-1">
+                      Add Note
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-3 mt-6">
+                  {notes.length === 0 ? (
+                    <p className="text-center text-gray-500 py-4">No notes yet</p>
+                  ) : (
+                    notes.map((note) => (
+                      <Card key={note.id} className="p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <p className="font-medium text-sm">{note.authorName}</p>
+                            <Badge variant="outline" className="text-xs mt-1">
+                              {NOTE_VISIBILITY_LABELS[note.visibility]}
+                            </Badge>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDeleteNote(note.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <p className="text-sm text-gray-700">{note.content}</p>
+                        <p className="text-xs text-gray-500 mt-2">{formatDate(note.updatedAt)}</p>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="actions" className="space-y-4 mt-4">
+                <div className="space-y-3">
+                  <div>
+                    <Label>Title</Label>
+                    <Input
+                      value={newActionTitle}
+                      onChange={(e) => setNewActionTitle(e.target.value)}
+                      placeholder="Action point title"
+                      className="mt-2"
+                    />
+                  </div>
+                  <div>
+                    <Label>Description</Label>
+                    <Textarea
+                      value={newActionDescription}
+                      onChange={(e) => setNewActionDescription(e.target.value)}
+                      placeholder="Description"
+                      className="mt-2 h-20"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label>Owner</Label>
+                      <Select value={newActionOwner} onValueChange={setNewActionOwner}>
+                        <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="Select owner" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {employees.map((emp) => (
+                            <SelectItem key={emp.id} value={emp.id.toString()}>
+                              {emp.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Due Date</Label>
+                      <Input
+                        type="date"
+                        value={newActionDueDate}
+                        onChange={(e) => setNewActionDueDate(e.target.value)}
+                        className="mt-2"
+                      />
+                    </div>
+                  </div>
+                  <Button onClick={handleAddActionPoint} className="w-full">
+                    Add Action Point
+                  </Button>
+                </div>
+
+                <div className="space-y-2 mt-6">
+                  {actionPoints.length === 0 ? (
+                    <p className="text-center text-gray-500 py-4">No action points</p>
+                  ) : (
+                    actionPoints.map((ap) => (
+                      <Card key={ap.id} className="p-4">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <p className="font-medium">{ap.title}</p>
+                              <Badge variant="outline" className="text-xs">
+                                {ACTION_POINT_STATUS_LABELS[ap.status]}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">{ap.description}</p>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Owner: {ap.ownerName}</span>
+                              <span>Due: {formatDate(ap.dueDate)}</span>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="text-xs">
-                              {file.type}
-                            </Badge>
-                            <Button size="sm" variant="ghost">
-                              <Download className="w-4 h-4" />
-                            </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDeleteActionPoint(ap.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="documents" className="space-y-4 mt-4">
+                <div>
+                  <Label>Upload Document</Label>
+                  <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <input
+                      type="file"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          handleUploadAttachment(e.target.files[0]);
+                        }
+                      }}
+                      className="hidden"
+                      id="file-upload"
+                    />
+                    <label htmlFor="file-upload" className="cursor-pointer">
+                      <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                      <p className="text-sm text-gray-600">Click to upload or drag and drop</p>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="space-y-2 mt-4">
+                  {attachments.length === 0 ? (
+                    <p className="text-center text-gray-500 py-4">No documents</p>
+                  ) : (
+                    attachments.map((att) => (
+                      <Card key={att.id} className="p-4 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-5 h-5 text-gray-400" />
+                          <div>
+                            <p className="font-medium text-sm">{att.fileName}</p>
+                            <p className="text-xs text-gray-500">{att.uploadedByName}</p>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                </TabsContent>
-              </CardContent>
-            </Tabs>
-          </Card>
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Current Review Info */}
-          <Card className="border-gray-200">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="w-5 h-5" />
-                Review Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {currentReview && (
-                <>
-                  <div className="flex items-center gap-3">
-                    <Avatar className="w-12 h-12">
-                      <AvatarFallback className="bg-blue-100 text-blue-600">
-                        {selectedEmployeeData?.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium text-gray-900">
-                        {selectedEmployeeData?.name}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {selectedEmployeeData?.role}
-                      </p>
-                    </div>
-                  </div>
-                  <Separator />
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">
-                        Review Type:
-                      </span>
-                      <span className="text-sm font-medium">
-                        {currentReview.type}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Reviewer:</span>
-                      <span className="text-sm font-medium">
-                        {currentReview.reviewer}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Due Date:</span>
-                      <span className="text-sm font-medium">
-                        {currentReview.scheduledDate}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Status:</span>
-                      <Badge
-                        variant={
-                          currentReview.status === "Completed"
-                            ? "default"
-                            : currentReview.status === "In Progress"
-                              ? "secondary"
-                              : "outline"
-                        }
-                      >
-                        {currentReview.status}
-                      </Badge>
-                    </div>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* CPF Level Tracker */}
-          <Card className="border-gray-200">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="w-5 h-5" />
-                CPF Level Tracker
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-1">
-                  {currentLevel?.level}
-                </div>
-                <p className="text-sm text-gray-600">{currentLevel?.title}</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {currentLevel?.description}
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                {cpfLevels.map((level, index) => {
-                  const isCurrentLevel = level.level === currentLevel?.level;
-                  const isAchieved = currentCPFScore >= level.minScore;
-                  const nextLevel = cpfLevels[index + 1];
-                  const progressToNext = nextLevel
-                    ? Math.min(
-                        100,
-                        ((currentCPFScore - level.minScore) /
-                          (nextLevel.minScore - level.minScore)) *
-                          100
-                      )
-                    : 100;
-
-                  return (
-                    <div key={level.level} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          {isAchieved ? (
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <Circle className="w-4 h-4 text-gray-400" />
-                          )}
-                          <span
-                            className={`text-sm font-medium ${isCurrentLevel ? "text-blue-600" : isAchieved ? "text-green-600" : "text-gray-500"}`}
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => window.open(att.fileUrl)}
                           >
-                            {level.level}
-                          </span>
+                            <Download className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDeleteAttachment(att.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </div>
-                        <span className="text-xs text-gray-500">
-                          {level.minScore}+ pts
-                        </span>
-                      </div>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              </TabsContent>
 
-                      {isCurrentLevel && nextLevel && (
-                        <div className="space-y-1">
-                          <Progress value={progressToNext} className="h-2" />
-                          <p className="text-xs text-gray-500">
-                            {Math.round(progressToNext)}% to {nextLevel.level} (
-                            {nextLevel.minScore - currentCPFScore} pts needed)
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="bg-blue-50 rounded-lg p-3 text-center">
-                <p className="text-sm font-medium text-blue-900">
-                  Current Score
-                </p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {currentCPFScore}/100
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <Card className="border-gray-200">
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <QuickActionButton
-                label="Edit Review"
-                icon={Edit3}
-                onClick={() => {}}
-                variant="primary"
-              />
-              <QuickActionButton
-                label="Schedule Meeting"
-                icon={Calendar}
-                onClick={() => {}}
-              />
-              <QuickActionButton
-                label="Export Review"
-                icon={Download}
-                onClick={() => {}}
-              />
-              <QuickActionButton
-                label="Add Goal"
-                icon={Plus}
-                onClick={() => {}}
-              />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
+              <TabsContent value="scores" className="space-y-4 mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>CPF Score</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={cpfScore || ""}
+                      onChange={(e) => setCpfScore(e.target.value ? parseInt(e.target.value) : null)}
+                      placeholder="0-100"
+                      className="mt-2"
+                    />
+                  </div>
+                  <div>
+                    <Label>Performance Score</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={performanceScore || ""}
+                      onChange={(e) => setPerformanceScore(e.target.value ? parseInt(e.target.value) : null)}
+                      placeholder="0-100"
+                      className="mt-2"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label>Notes</Label>
+                  <Textarea
+                    value={notes_field}
+                    onChange={(e) => setNotesField(e.target.value)}
+                    placeholder="Review notes..."
+                    className="mt-2 h-32"
+                  />
+                </div>
+                <Button onClick={handleUpdateReviewOutcome} className="w-full">
+                  Save Scores & Notes
+                </Button>
+              </TabsContent>
+            </Tabs>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }
