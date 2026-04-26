@@ -182,7 +182,7 @@ function transformPerformanceReview(api: ApiPerformanceReview): PerformanceRevie
     scheduledDate: api.scheduled_date,
     nextReviewDate: api.next_review_date || undefined,
     completedAt: api.completed_at || undefined,
-    outcome: api.outcome || undefined,
+    outcome: (api.outcome as "exceeds_expectations" | "meets_expectations" | "partially_meets" | "needs_improvement" | "unsatisfactory" | undefined) || undefined,
     overallRating: api.overall_rating || undefined,
     performanceScore: api.performance_score || undefined,
     cpfScore: api.cpf_score || undefined,

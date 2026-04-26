@@ -186,7 +186,6 @@ export const REVIEW_STATUS_LABELS: Record<ReviewStatus, string> = {
   in_progress: "In Progress",
   completed: "Completed",
   cancelled: "Cancelled",
-  deferred: "Deferred",
 };
 
 export const REVIEW_STATUS_COLORS: Record<ReviewStatus, string> = {
@@ -260,7 +259,6 @@ export const ALL_REVIEW_STATUSES: ReviewStatus[] = [
   "in_progress",
   "completed",
   "cancelled",
-  "deferred",
 ];
 
 export const ALL_REVIEW_TYPES: ReviewType[] = [
