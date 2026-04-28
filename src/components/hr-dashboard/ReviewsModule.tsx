@@ -24,13 +24,9 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
-import { Avatar, AvatarFallback } from "./ui/avatar";
-import { Progress } from "./ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import {
-  Calendar as CalendarIcon,
   Plus,
-  Edit,
   Trash2,
   Download,
   Upload,
@@ -39,7 +35,6 @@ import {
   FileText,
   MessageSquare,
   CheckCircle,
-  Clock,
   Star,
 } from "lucide-react";
 import { formatDate } from "@/utils";
@@ -119,14 +114,18 @@ export function ReviewsModule() {
   const [newReviewType, setNewReviewType] = useState<ReviewType>("quarterly");
   const [newReviewScheduledDate, setNewReviewScheduledDate] = useState("");
   const [overallRating, setOverallRating] = useState<number | null>(null);
-  const [notes_field, setNotesField] = useState("");
+  const [reviewSummary, setReviewSummary] = useState("");
   const [cpfScore, setCpfScore] = useState<number | null>(null);
   const [performanceScore, setPerformanceScore] = useState<number | null>(null);
 
   // Load reviews and user profiles on mount
   useEffect(() => {
     const accessToken = session?.accessToken;
-    if (!accessToken) return;
+    if (!accessToken) {
+      setError(null);
+      setLoading(false);
+      return;
+    }
 
     const loadData = async () => {
       try {
@@ -165,11 +164,11 @@ export function ReviewsModule() {
         setActionPoints(actionPointsData);
         setAttachments(attachmentsData);
         setOverallRating(selectedReview.overallRating || null);
-        setNotesField(selectedReview.summary || "");
-        setCpfScore(selectedReview.cpfScore || null);
-        setPerformanceScore(selectedReview.performanceScore || null);
+        setReviewSummary(selectedReview.summary || "");
+        setCpfScore(selectedReview.cpfScore ?? null);
+        setPerformanceScore(selectedReview.performanceScore ?? null);
       } catch (err) {
-        console.error("Failed to load review details:", err);
+        setError("Failed to load review details");
       }
     };
 
@@ -261,13 +260,21 @@ export function ReviewsModule() {
     }
 
     try {
-      const userId = String(session.user?.id || "");
+      const sessionUserId = session?.user?.id;
+      const userId = sessionUserId != null ? String(sessionUserId) : "";
+      const ownerId = newActionOwner || userId;
+
+      if (!ownerId) {
+        setError("Failed to add action point");
+        return;
+      }
+
       await createActionPoint(
         selectedReview.id,
         {
           title: newActionTitle,
           description: newActionDescription,
-          ownerId: newActionOwner || userId,
+          ownerId,
           dueDate: newActionDueDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         },
         accessToken
@@ -344,9 +351,9 @@ export function ReviewsModule() {
         selectedReview.id,
         {
           overallRating: overallRating || undefined,
-          summary: notes_field || undefined,
-          cpfScore: cpfScore || undefined,
-          performanceScore: performanceScore || undefined,
+          summary: reviewSummary ?? undefined,
+          cpfScore: cpfScore ?? undefined,
+          performanceScore: performanceScore ?? undefined,
         },
         accessToken
       );
@@ -357,7 +364,7 @@ export function ReviewsModule() {
       const message = err instanceof Error ? err.message : "Failed to update review";
       setError(message);
     }
-  }, [selectedReview, session?.accessToken, overallRating, notes_field, cpfScore, performanceScore]);
+  }, [selectedReview, session?.accessToken, overallRating, reviewSummary, cpfScore, performanceScore]);
 
   const handleStatusChange = useCallback(
     async (newStatus: ReviewStatus) => {
@@ -873,8 +880,8 @@ export function ReviewsModule() {
                 <div>
                   <Label>Notes</Label>
                   <Textarea
-                    value={notes_field}
-                    onChange={(e) => setNotesField(e.target.value)}
+                    value={reviewSummary}
+                    onChange={(e) => setReviewSummary(e.target.value)}
                     placeholder="Review notes..."
                     className="mt-2 h-32"
                   />
