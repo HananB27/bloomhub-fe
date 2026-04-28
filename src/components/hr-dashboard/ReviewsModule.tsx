@@ -827,7 +827,7 @@ export function ReviewsModule() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => window.open(att.fileUrl)}
+                            onClick={() => window.open(att.fileUrl, "_blank", "noopener,noreferrer")}
                           >
                             <Download className="w-4 h-4" />
                           </Button>
