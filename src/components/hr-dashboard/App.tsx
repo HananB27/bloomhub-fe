@@ -12,7 +12,6 @@ import {
   UserCircle,
   Shield,
   HelpCircle,
-  ChevronDown,
   Loader2,
 } from "lucide-react";
 import { Button } from "./ui/button";
@@ -204,22 +203,22 @@ export default function HRDashboardApp() {
             : SIDEBAR_EXPANDED_OFFSET,
         }}
       >
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-gray-200 bg-white pl-4 pr-0 dark:border-gray-800 dark:bg-gray-900">
-          <div className="flex items-center gap-4">
+        <header className="flex h-16 shrink-0 items-center justify-between border-b border-gray-200 bg-white pl-6 pr-6 dark:border-gray-800 dark:bg-gray-900">
+          <div className="flex items-center gap-6">
             <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
               {getModuleById(activeModule)?.label || "Dashboard"}
             </h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4 pr-1">
             <div className="relative">
-              <div className="relative max-w-sm">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                 <Input
                   placeholder="Search modules..."
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
-                  className="h-9 w-64 rounded-lg border-gray-200 bg-gray-50 pl-9 pr-4 text-sm focus:border-gray-300 focus:bg-white"
+                  className="h-11 w-[480px] rounded-2xl border-gray-300 bg-white pl-12 pr-4 text-base text-gray-900 focus:border-gray-400"
                 />
               </div>
 
@@ -262,11 +261,11 @@ export default function HRDashboardApp() {
                     data-testid="notifications-trigger"
                     variant="ghost"
                     size="icon"
-                    className="relative h-9 w-9 rounded-lg transition-colors hover:bg-gray-100"
+                    className="relative h-11 w-11 rounded-xl border border-gray-200 transition-colors hover:bg-gray-100"
                   >
                     <Bell className="h-5 w-5 text-gray-600" />
                     {unreadCount > 0 && (
-                      <Badge className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-gray-600 p-0 text-xs text-white hover:bg-gray-700">
+                      <Badge className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-red-500 p-0 text-xs text-white hover:bg-red-600">
                         {unreadCount > 9 ? "9+" : unreadCount}
                       </Badge>
                     )}
@@ -336,7 +335,7 @@ export default function HRDashboardApp() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative h-9 w-9 rounded-lg"
+                className="relative h-11 w-11 rounded-xl border border-gray-200"
               >
                 <Bell className="h-5 w-5 text-gray-600" />
               </Button>
@@ -355,9 +354,9 @@ export default function HRDashboardApp() {
                   <Button
                     data-testid="profile-trigger"
                     variant="ghost"
-                    className="flex h-9 items-center gap-3 rounded-lg pl-3 pr-4 transition-colors hover:bg-gray-200 bg-gray-50/50 border border-transparent hover:border-gray-200"
+                    className="flex h-11 items-center gap-2 rounded-xl border border-gray-200 px-3 transition-colors hover:bg-gray-100"
                   >
-                    <Avatar className="h-7 w-7 border border-gray-200">
+                    <Avatar className="h-7 w-7">
                       {(session?.user?.image ||
                         (storedUser?.avatar_url as string)) && (
                         <AvatarImage
@@ -369,7 +368,7 @@ export default function HRDashboardApp() {
                           referrerPolicy="no-referrer"
                         />
                       )}
-                      <AvatarFallback className="bg-gray-200 text-sm font-medium text-gray-600">
+                      <AvatarFallback className="bg-green-600 text-sm font-semibold text-white">
                         {(() => {
                           const firstName = String(
                             storedUser?.first_name || ""
@@ -395,30 +394,25 @@ export default function HRDashboardApp() {
                         })()}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex flex-col items-end leading-tight text-right text-gray-900 dark:text-white">
-                      <span className="text-sm font-semibold truncate max-w-[150px]">
-                        {(() => {
-                          const firstName = String(
-                            storedUser?.first_name || ""
-                          ).trim();
-                          const lastName = String(
-                            storedUser?.last_name || ""
-                          ).trim();
-                          return (
-                            session?.user?.name ||
-                            (firstName && lastName
-                              ? `${firstName} ${lastName}`
-                              : (storedUser?.email as string) ||
-                                (storedUser?.username as string) ||
-                                "User")
-                          );
-                        })()}
-                      </span>
-                      <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
-                        {careerLevel || "Member"}
-                      </span>
-                    </div>
-                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm font-medium text-gray-900 truncate max-w-[150px]">
+                      {(() => {
+                        const firstName = String(
+                          storedUser?.first_name || ""
+                        ).trim();
+                        const lastName = String(
+                          storedUser?.last_name || ""
+                        ).trim();
+                        const name =
+                          session?.user?.name ||
+                          (firstName
+                            ? firstName
+                            : (storedUser?.email as string) ||
+                              (storedUser?.username as string) ||
+                              "User");
+                        const role = careerLevel || "Member";
+                        return `${name} · ${role}`;
+                      })()}
+                    </span>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent

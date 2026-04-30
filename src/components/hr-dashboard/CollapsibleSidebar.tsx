@@ -66,7 +66,7 @@ export function CollapsibleSidebar({
   return (
     <>
       <aside
-        className="fixed left-0 top-0 z-20 flex h-screen flex-col overflow-hidden rounded-r-2xl border-y border-r border-gray-200 bg-white shadow-sm transition-[width] duration-300 ease-out dark:border-gray-800 dark:bg-[#151A2D] dark:shadow-none"
+        className="fixed left-0 top-0 z-20 flex h-screen flex-col overflow-hidden border-y border-r border-[#262626] bg-[#171717] transition-[width] duration-300 ease-out"
         style={{
           width: collapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH,
         }}
@@ -80,7 +80,7 @@ export function CollapsibleSidebar({
             <button
               type="button"
               onClick={onToggle}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors hover:bg-gray-200 dark:bg-white dark:text-[#151A2D] dark:hover:bg-[#dde4fb]"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#262626] text-[#e5e7eb] transition-colors hover:bg-[#333]"
               aria-label="Expand sidebar"
             >
               <ChevronLeft className="h-5 w-5 transition-transform duration-300 rotate-180" />
@@ -97,16 +97,16 @@ export function CollapsibleSidebar({
                   aria-hidden
                 >
                   <img
-                    src="/414332629_122100699314163177_6128021943999749037_n.jpg"
+                    src="/bloomteq.jpg"
                     alt="Bloomteq Logo"
-                    className="h-full w-full object-contain mix-blend-multiply"
+                    className="h-full w-full object-cover"
                   />
                 </div>
                 <div className="min-w-0">
-                  <h2 className="truncate text-base font-semibold text-gray-900 dark:text-white">
+                  <h2 className="truncate text-base font-semibold text-white">
                     Bloomteq
                   </h2>
-                  <p className="truncate text-xs text-gray-500 dark:text-white/70">
+                  <p className="truncate text-xs text-[#9ca3af]">
                     HR Management System
                   </p>
                 </div>
@@ -114,7 +114,7 @@ export function CollapsibleSidebar({
               <button
                 type="button"
                 onClick={onToggle}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors hover:bg-gray-200 dark:bg-white dark:text-[#151A2D] dark:hover:bg-[#dde4fb]"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#262626] text-[#e5e7eb] transition-colors hover:bg-[#333]"
                 aria-label="Collapse sidebar"
               >
                 <ChevronLeft className="h-5 w-5 transition-transform duration-300" />
@@ -148,8 +148,8 @@ export function CollapsibleSidebar({
                       collapsed ? "justify-center rounded-xl px-0 py-2.5" : ""
                     } ${
                       isActive
-                        ? "bg-gray-900 text-white dark:bg-white dark:text-[#151A2D]"
-                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-white dark:hover:bg-white dark:hover:text-[#151A2D]"
+                        ? "bg-[#262626] text-white"
+                        : "text-[#9ca3af] hover:bg-[#1f1f1f] hover:text-[#f3f4f6]"
                     }`}
                   >
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center">
@@ -164,8 +164,8 @@ export function CollapsibleSidebar({
                       <span
                         className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-semibold tabular-nums ${
                           isActive
-                            ? "bg-white/20 text-white dark:bg-[#151A2D]/15 dark:text-[#151A2D]"
-                            : "bg-gray-200 text-gray-700 dark:bg-white/20 dark:text-white"
+                            ? "bg-white/20 text-white"
+                            : "bg-[#404040] text-gray-300"
                         }`}
                       >
                         {count > 9 ? "9+" : count}
@@ -177,7 +177,7 @@ export function CollapsibleSidebar({
             })}
           </ul>
 
-          <ul className="mt-auto flex shrink-0 flex-col gap-0.5 border-t border-gray-200 px-4 py-3 dark:border-white/10">
+          <ul className="mt-auto flex shrink-0 flex-col gap-0.5 border-t border-[#262626] px-4 py-3">
             {secondaryItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -192,7 +192,7 @@ export function CollapsibleSidebar({
                           : undefined
                       }
                       onMouseLeave={collapsed ? hideTooltip : undefined}
-                      className={`flex h-10 w-full items-center gap-3 rounded-lg px-3 text-left font-medium text-gray-700 transition-colors duration-300 hover:bg-gray-100 hover:text-gray-900 dark:text-white dark:hover:bg-white dark:hover:text-[#151A2D] ${
+                      className={`flex h-10 w-full items-center gap-3 rounded-lg px-3 text-left font-medium text-[#9ca3af] transition-colors duration-300 hover:bg-[#1f1f1f] hover:text-[#f3f4f6] ${
                         collapsed ? "justify-center px-0" : "justify-start"
                       }`}
                     >
@@ -213,7 +213,7 @@ export function CollapsibleSidebar({
                           : undefined
                       }
                       onMouseLeave={collapsed ? hideTooltip : undefined}
-                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition-colors duration-300 hover:bg-gray-100 hover:text-gray-900 dark:text-white dark:hover:bg-white dark:hover:text-[#151A2D] ${
+                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-[#9ca3af] transition-colors duration-300 hover:bg-[#1f1f1f] hover:text-[#f3f4f6] ${
                         collapsed ? "justify-center rounded-xl px-0" : ""
                       }`}
                     >
@@ -238,7 +238,7 @@ export function CollapsibleSidebar({
         tooltip &&
         createPortal(
           <div
-            className="fixed z-9999 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 shadow-lg dark:border-0 dark:bg-white dark:text-[#151A2D] dark:shadow-xl"
+            className="fixed z-9999 whitespace-nowrap rounded-lg border border-[#404040] bg-[#1f1f1f] px-3 py-2 text-sm font-medium text-white shadow-lg"
             style={{
               left: tooltip.anchorRect.right + TOOLTIP_GAP,
               top: tooltip.anchorRect.top + tooltip.anchorRect.height / 2,

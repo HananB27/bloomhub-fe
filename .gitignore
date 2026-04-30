@@ -47,3 +47,4 @@ next-env.d.ts
 gha-creds-*.json
 .github/commands/gemini-*
 .github/workflows/gemini-*
+.claude

@@ -12,6 +12,7 @@ interface SingleDatePickerProps {
   disabled?: boolean;
   placeholder?: string;
   disabledDates?: (date: Date) => boolean;
+  size?: "default" | "compact";
 }
 
 interface RangeDatePickerProps {
@@ -23,6 +24,7 @@ interface RangeDatePickerProps {
   startPlaceholder?: string;
   endPlaceholder?: string;
   disabledDates?: (date: Date) => boolean;
+  size?: "default" | "compact";
 }
 
 type DatePickerProps = SingleDatePickerProps | RangeDatePickerProps;
@@ -383,6 +385,7 @@ function Trigger({
   hasValue,
   open,
   disabled,
+  size = "default",
   onClick,
 }: {
   label?: string;
@@ -390,8 +393,10 @@ function Trigger({
   hasValue: boolean;
   open: boolean;
   disabled?: boolean;
+  size?: "default" | "compact";
   onClick: () => void;
 }) {
+  const compact = size === "compact";
   return (
     <div className="flex flex-col gap-1 w-full">
       {label && (
@@ -402,7 +407,9 @@ function Trigger({
         disabled={disabled}
         onClick={() => !disabled && onClick()}
         className={[
-          "flex h-14 w-full min-w-40 items-center justify-between gap-2 rounded-xl border border-zinc-200 px-3 text-left transition-all shadow-sm",
+          compact
+            ? "flex h-10 w-full min-w-0 items-center justify-between gap-2 rounded-md border border-zinc-200 px-2.5 text-left transition-all shadow-sm"
+            : "flex h-14 w-full min-w-40 items-center justify-between gap-2 rounded-xl border border-zinc-200 px-3 text-left transition-all shadow-sm",
           open
             ? "border-zinc-400 ring-4 ring-zinc-500/10 shadow-inner"
             : "border-zinc-200 hover:border-zinc-300",
@@ -412,7 +419,7 @@ function Trigger({
         ].join(" ")}
       >
         <span
-          className={`text-sm ${hasValue ? "text-gray-900" : "text-gray-400"}`}
+          className={`${compact ? "text-[13px]" : "text-sm"} ${hasValue ? "text-gray-900" : "text-gray-400"}`}
         >
           {text}
         </span>
@@ -548,6 +555,7 @@ export function DatePicker(props: DatePickerProps) {
           hasValue={!!singleSel}
           open={open}
           disabled={props.disabled}
+          size={props.size}
           onClick={handleOpen}
         />
       ) : (
@@ -558,6 +566,7 @@ export function DatePicker(props: DatePickerProps) {
             hasValue={!!rangeStart}
             open={open}
             disabled={props.disabled}
+            size={props.size}
             onClick={handleOpen}
           />
           <span className="mb-2.5 text-sm text-gray-400">→</span>
@@ -567,6 +576,7 @@ export function DatePicker(props: DatePickerProps) {
             hasValue={!!rangeEnd}
             open={open}
             disabled={props.disabled}
+            size={props.size}
             onClick={handleOpen}
           />
         </div>
