@@ -239,6 +239,6 @@ describe("HRDashboardApp", () => {
     render(<HRDashboardApp />);
     const badge = await screen.findByText(/3|9\+/);
     expect(badge).toBeInTheDocument();
-    expect(badge).toHaveClass("bg-gray-600");
+    expect(badge).toHaveClass("bg-red-500");
   });
 });

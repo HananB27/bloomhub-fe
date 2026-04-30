@@ -129,7 +129,7 @@ describe("CollapsibleSidebar", () => {
     );
 
     const vacationsBtn = screen.getByRole("button", { name: /Vacations/i });
-    expect(vacationsBtn).toHaveClass("bg-gray-900");
+    expect(vacationsBtn).toHaveClass("bg-[#262626]");
   });
 
   it("when collapsed shows tooltip on nav item hover", async () => {

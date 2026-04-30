@@ -14,6 +14,7 @@ import {
   Bot,
   Send,
   Sparkles,
+  Command,
   Calendar,
   Users,
   Star,
@@ -583,9 +584,9 @@ export function AIAssistant({
       <Button
         variant="ghost"
         size="icon"
-        className="relative hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-700 h-9 w-9 transition-colors rounded-lg"
+        className="h-11 w-11 rounded-xl border border-gray-200 transition-colors hover:bg-gray-100"
       >
-        <Bot className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+        <Command className="h-5 w-5 text-gray-600" />
       </Button>
     );
   }
@@ -596,12 +597,9 @@ export function AIAssistant({
         <Button
           variant="ghost"
           size="icon"
-          className="relative hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-700 h-9 w-9 transition-colors rounded-lg"
+          className="h-11 w-11 rounded-xl border border-gray-200 transition-colors hover:bg-gray-100"
         >
-          <Bot className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-          <div className="absolute -top-1 -right-1 w-3 h-3 bg-linear-to-r from-gray-700 to-gray-800 rounded-full flex items-center justify-center">
-            <Sparkles className="w-2 h-2 text-white shrink-0" />
-          </div>
+          <Command className="h-5 w-5 text-gray-600" />
         </Button>
       </DialogTrigger>
 

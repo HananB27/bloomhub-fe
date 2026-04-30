@@ -9,9 +9,8 @@ export default function AuthLayout({
         {/* Logo and Header area */}
         <div className="flex flex-col items-center mb-8">
           <div className="h-16 w-auto relative mb-4">
-            {/* The provided JPG logo */}
             <img
-              src="/414332629_122100699314163177_6128021943999749037_n.jpg"
+              src="/bloomteq.jpg"
               alt="Bloomteq Logo"
               className="h-full object-contain mix-blend-multiply"
             />
