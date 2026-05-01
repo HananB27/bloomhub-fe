@@ -1,5 +1,14 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Modules
+
+The HR Dashboard includes the following modules:
+
+- **Employee Profiles**: View employee information, skills, and training history
+- **Vacations**: Manage leave requests and approval workflows
+- **Performance Reviews**: Structured evaluations with audit trails and feedback
+- **Training & Development**: Log training entries, certificates, and track training budgets with filtering by type and year
+
 ## Getting Started
 
 First, run the development server:
