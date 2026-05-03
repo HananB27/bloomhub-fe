@@ -38,6 +38,35 @@ export interface ChecklistTemplate {
   task_templates: TaskTemplate[];
 }
 
+export interface UserProfileSummary {
+  id: number;
+  employee_id?: string;
+  department?: string;
+  user: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    username?: string;
+  };
+}
+
+export interface ChecklistInstanceSummary {
+  id: number;
+  employee: UserProfileSummary;
+  template: ChecklistTemplate;
+}
+
+export interface ChecklistTask {
+  id: number;
+  checklist_instance: ChecklistInstanceSummary;
+  task_template: TaskTemplate;
+  title: string;
+  status: "todo" | "in_progress" | "done";
+  assigned_to: UserProfileSummary | null;
+  due_date: string | null;
+  completed_at: string | null;
+}
+
 export type ChecklistTemplateInput = Omit<ChecklistTemplate, "id">;
 
 async function parseResponse<T>(response: Response): Promise<T> {
@@ -137,4 +166,24 @@ export async function cloneTemplate(
     }
   );
   return parseResponse<ChecklistTemplate>(response);
+}
+
+export async function fetchMyTasks(token?: string): Promise<ChecklistTask[]> {
+  const response = await fetch(buildApiUrl("/api/onboarding/tasks/my-tasks/"), {
+    headers: getAuthHeaders(token),
+  });
+  return parseResponse<ChecklistTask[]>(response);
+}
+
+export async function fetchEmployeeTasks(
+  employeeId: number | string,
+  token?: string
+): Promise<ChecklistTask[]> {
+  const response = await fetch(
+    buildApiUrl(`/api/onboarding/tasks/employee/${employeeId}/`),
+    {
+      headers: getAuthHeaders(token),
+    }
+  );
+  return parseResponse<ChecklistTask[]>(response);
 }

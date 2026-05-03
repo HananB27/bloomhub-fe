@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
@@ -44,10 +44,13 @@ import {
 } from "lucide-react";
 import {
   ChecklistTemplate,
+  ChecklistTask,
   TaskTemplate,
   cloneTemplate,
   createTemplate,
   deleteTemplate,
+  fetchEmployeeTasks,
+  fetchMyTasks,
   fetchTemplates,
   updateTemplate,
 } from "@/lib/api/onboarding";
@@ -77,6 +80,16 @@ interface Comment {
   timestamp: string;
 }
 
+interface Employee {
+  id: string;
+  name: string;
+  department: string;
+  role: string;
+  type: "onboarding" | "offboarding";
+  startDate?: string;
+  endDate?: string;
+}
+
 export function OnboardingModule() {
   const { data: session } = useSession();
   const sessionWithAccessToken = session as
@@ -86,9 +99,27 @@ export function OnboardingModule() {
   const rawAccessToken = sessionWithAccessToken?.accessToken;
   const accessToken =
     typeof rawAccessToken === "string" ? rawAccessToken : undefined;
-  const [selectedEmployee, setSelectedEmployee] = useState("new-hire-1");
+  const [activeTab, setActiveTab] = useState("tracker");
+  const [selectedEmployee, setSelectedEmployee] = useState("");
   const [selectedTemplate, setSelectedTemplate] =
     useState<TemplateType>("onboarding");
+  const [selectedEmployeeFilter, setSelectedEmployeeFilter] = useState<
+    "all" | string
+  >("all");
+  const [selectedChecklistFilter, setSelectedChecklistFilter] = useState<
+    "all" | string
+  >("all");
+  const [selectedEmployeeForView, setSelectedEmployeeForView] = useState<
+    "all" | string
+  >("all");
+  const [myTasks, setMyTasks] = useState<ChecklistTask[]>([]);
+  const [myTasksLoading, setMyTasksLoading] = useState(false);
+  const [myTasksError, setMyTasksError] = useState<string | null>(null);
+  const [employeeTasks, setEmployeeTasks] = useState<ChecklistTask[]>([]);
+  const [employeeTasksLoading, setEmployeeTasksLoading] = useState(false);
+  const [employeeTasksError, setEmployeeTasksError] = useState<string | null>(
+    null
+  );
   const [newComment, setNewComment] = useState("");
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   // Template management state
@@ -106,238 +137,11 @@ export function OnboardingModule() {
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskRole, setNewTaskRole] = useState<"HR" | "IT" | "Manager">("HR");
 
-  // Mock employee data
-  const employees = [
-    {
-      id: "new-hire-1",
-      name: "Alex Rivera",
-      department: "Engineering",
-      role: "Software Engineer",
-      type: "onboarding",
-      startDate: "Aug 15, 2025",
-    },
-    {
-      id: "new-hire-2",
-      name: "Maria Garcia",
-      department: "Marketing",
-      role: "Marketing Specialist",
-      type: "onboarding",
-      startDate: "Aug 20, 2025",
-    },
-    {
-      id: "departing-1",
-      name: "John Smith",
-      department: "Sales",
-      role: "Sales Manager",
-      type: "offboarding",
-      endDate: "Sep 15, 2025",
-    },
-    {
-      id: "departing-2",
-      name: "Lisa Chen",
-      department: "HR",
-      role: "HR Coordinator",
-      type: "offboarding",
-      endDate: "Aug 30, 2025",
-    },
-  ];
+  const employees: Employee[] = [];
 
-  // Mock task templates
-  const [tasks, setTasks] = useState<Task[]>([
-    // Onboarding tasks
-    {
-      id: 1,
-      title: "Send welcome email and first-day information",
-      description:
-        "Send comprehensive welcome email with office location, parking info, dress code, and first-day agenda",
-      assignee: "Sarah Johnson",
-      assigneeAvatar: "SJ",
-      dueDate: "Aug 12, 2025",
-      status: "done",
-      category: "Communication",
-      priority: "high",
-      estimatedHours: 1,
-      comments: [
-        {
-          id: 1,
-          author: "Sarah Johnson",
-          authorAvatar: "SJ",
-          content:
-            "Welcome email sent with all details. Alex confirmed receipt.",
-          timestamp: "2 days ago",
-        },
-      ],
-    },
-    {
-      id: 2,
-      title: "Prepare workspace and equipment",
-      description:
-        "Set up desk, provide laptop, monitor, keyboard, mouse, and any role-specific equipment",
-      assignee: "IT Support",
-      assigneeAvatar: "IT",
-      dueDate: "Aug 14, 2025",
-      status: "done",
-      category: "IT Setup",
-      priority: "high",
-      estimatedHours: 3,
-      comments: [
-        {
-          id: 2,
-          author: "IT Support",
-          authorAvatar: "IT",
-          content: "MacBook Pro configured and ready. Desk setup complete.",
-          timestamp: "1 day ago",
-        },
-      ],
-    },
-    {
-      id: 3,
-      title: "Create system accounts and access permissions",
-      description:
-        "Set up email, Slack, GitHub, project management tools, and necessary system access based on role",
-      assignee: "IT Support",
-      assigneeAvatar: "IT",
-      dueDate: "Aug 15, 2025",
-      status: "in-progress",
-      category: "IT Setup",
-      priority: "high",
-      estimatedHours: 2,
-      comments: [
-        {
-          id: 3,
-          author: "IT Support",
-          authorAvatar: "IT",
-          content:
-            "Email and Slack accounts created. Working on GitHub and project access.",
-          timestamp: "4 hours ago",
-        },
-      ],
-    },
-    {
-      id: 4,
-      title: "Conduct HR orientation session",
-      description:
-        "Review company policies, benefits, compensation, code of conduct, and have employee sign necessary documents",
-      assignee: "David Kim",
-      assigneeAvatar: "DK",
-      dueDate: "Aug 15, 2025",
-      status: "todo",
-      category: "HR",
-      priority: "high",
-      estimatedHours: 2,
-      comments: [],
-    },
-    {
-      id: 5,
-      title: "Schedule team introductions",
-      description:
-        "Arrange meetings with immediate team members, key stakeholders, and cross-functional partners",
-      assignee: "Alex Thompson",
-      assigneeAvatar: "AT",
-      dueDate: "Aug 16, 2025",
-      status: "todo",
-      category: "Team Integration",
-      priority: "medium",
-      estimatedHours: 1,
-      comments: [],
-    },
-    {
-      id: 6,
-      title: "Assign onboarding buddy/mentor",
-      description:
-        "Pair new hire with experienced team member for guidance and support during first month",
-      assignee: "Alex Thompson",
-      assigneeAvatar: "AT",
-      dueDate: "Aug 15, 2025",
-      status: "todo",
-      category: "Team Integration",
-      priority: "medium",
-      estimatedHours: 0.5,
-      comments: [],
-    },
-    {
-      id: 7,
-      title: "Complete first project assignment",
-      description:
-        "Provide initial project or learning task to help new hire get familiar with codebase and processes",
-      assignee: "Tech Lead",
-      assigneeAvatar: "TL",
-      dueDate: "Aug 22, 2025",
-      status: "todo",
-      category: "Training",
-      priority: "medium",
-      estimatedHours: 4,
-      comments: [],
-    },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>([]);
 
-  const offboardingTasks: Task[] = [
-    {
-      id: 8,
-      title: "Conduct exit interview",
-      description:
-        "Schedule and complete comprehensive exit interview to gather feedback and insights",
-      assignee: "David Kim",
-      assigneeAvatar: "DK",
-      dueDate: "Sep 10, 2025",
-      status: "todo",
-      category: "HR",
-      priority: "high",
-      estimatedHours: 1,
-      comments: [],
-    },
-    {
-      id: 9,
-      title: "Knowledge transfer sessions",
-      description:
-        "Organize sessions to transfer critical knowledge, processes, and project information to team",
-      assignee: "John Smith",
-      assigneeAvatar: "JS",
-      dueDate: "Sep 8, 2025",
-      status: "in-progress",
-      category: "Knowledge Transfer",
-      priority: "high",
-      estimatedHours: 8,
-      comments: [
-        {
-          id: 4,
-          author: "John Smith",
-          authorAvatar: "JS",
-          content:
-            "Started documenting key client relationships and ongoing projects.",
-          timestamp: "1 day ago",
-        },
-      ],
-    },
-    {
-      id: 10,
-      title: "Revoke system access and collect equipment",
-      description:
-        "Disable all system accounts, collect laptop, badges, keys, and other company property",
-      assignee: "IT Support",
-      assigneeAvatar: "IT",
-      dueDate: "Sep 15, 2025",
-      status: "todo",
-      category: "IT Security",
-      priority: "high",
-      estimatedHours: 2,
-      comments: [],
-    },
-    {
-      id: 11,
-      title: "Process final payroll and benefits",
-      description:
-        "Calculate final salary, unused PTO, process COBRA paperwork, and handle 401k transfer",
-      assignee: "Payroll Team",
-      assigneeAvatar: "PT",
-      dueDate: "Sep 20, 2025",
-      status: "todo",
-      category: "Payroll",
-      priority: "high",
-      estimatedHours: 3,
-      comments: [],
-    },
-  ];
+  const offboardingTasks: Task[] = [];
 
   const selectedEmployeeData = employees.find(
     (emp) => emp.id === selectedEmployee
@@ -347,12 +151,30 @@ export function OnboardingModule() {
       ? tasks.filter((task) => task.id <= 7)
       : offboardingTasks;
 
+  const allTasks = [...tasks, ...offboardingTasks];
   const completedTasks = currentTasks.filter(
     (task) => task.status === "done"
   ).length;
   const totalTasks = currentTasks.length;
   const progressPercentage =
     totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+  const activeOnboardingCount = tasks.length;
+  const activeOffboardingCount = offboardingTasks.length;
+  const overdueTasksCount = allTasks.filter((task) => {
+    const due = new Date(task.dueDate);
+    return (
+      !Number.isNaN(due.valueOf()) && due < new Date() && task.status !== "done"
+    );
+  }).length;
+  const averageCompletionPercent =
+    allTasks.length > 0
+      ? Math.round(
+          (allTasks.filter((task) => task.status === "done").length /
+            allTasks.length) *
+            100
+        )
+      : 0;
 
   const handleTaskStatusChange = (taskId: number, newStatus: TaskStatus) => {
     if (selectedTemplate === "onboarding") {
@@ -370,8 +192,8 @@ export function OnboardingModule() {
 
     const comment: Comment = {
       id: Date.now(),
-      author: "John Doe",
-      authorAvatar: "JD",
+      author: "You",
+      authorAvatar: "Y",
       content: newComment,
       timestamp: "Just now",
     };
@@ -387,22 +209,24 @@ export function OnboardingModule() {
     setNewComment("");
   };
 
-  const _getStatusColor = (status: TaskStatus) => {
+  const _getStatusColor = (status: TaskStatus | "in_progress") => {
     switch (status) {
       case "done":
         return "text-green-600 bg-green-50 border-green-200";
       case "in-progress":
+      case "in_progress":
         return "text-blue-600 bg-blue-50 border-blue-200";
       default:
         return "text-gray-600 bg-gray-50 border-gray-200";
     }
   };
 
-  const getStatusIcon = (status: TaskStatus) => {
+  const getStatusIcon = (status: TaskStatus | "in_progress") => {
     switch (status) {
       case "done":
         return CheckCircle;
       case "in-progress":
+      case "in_progress":
         return Play;
       default:
         return Circle;
@@ -505,16 +329,87 @@ export function OnboardingModule() {
     setShowTemplateForm(true);
   };
 
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    if (value === "templates") {
+      loadTemplates();
+    }
+    if (value === "my-tasks") {
+      loadMyTasks();
+    }
+  };
+
+  const loadMyTasks = async () => {
+    setMyTasksLoading(true);
+    setMyTasksError(null);
+    try {
+      const tasks = await fetchMyTasks(accessToken);
+      setMyTasks(tasks);
+    } catch (error) {
+      setMyTasksError(
+        error instanceof Error
+          ? error.message
+          : "Failed to load assigned tasks."
+      );
+    } finally {
+      setMyTasksLoading(false);
+    }
+  };
+
+  const loadEmployeeTasks = async () => {
+    if (selectedEmployeeForView === "all") return;
+    setEmployeeTasksLoading(true);
+    setEmployeeTasksError(null);
+    try {
+      const tasks = await fetchEmployeeTasks(
+        selectedEmployeeForView,
+        accessToken
+      );
+      setEmployeeTasks(tasks);
+    } catch (error) {
+      setEmployeeTasksError(
+        error instanceof Error
+          ? error.message
+          : "Failed to load employee tasks."
+      );
+      setEmployeeTasks([]);
+    } finally {
+      setEmployeeTasksLoading(false);
+    }
+  };
+
+  const employeeOptions = Array.from(
+    new Map(
+      myTasks.map((task) => [
+        task.checklist_instance.employee.id,
+        task.checklist_instance.employee,
+      ])
+    ).values()
+  );
+
+  const checklistOptions = Array.from(
+    new Set(myTasks.map((task) => task.checklist_instance.template.name))
+  );
+
+  const filteredMyTasks = myTasks.filter((task) => {
+    const matchesEmployee =
+      selectedEmployeeFilter === "all" ||
+      String(task.checklist_instance.employee.id) === selectedEmployeeFilter;
+    const matchesChecklist =
+      selectedChecklistFilter === "all" ||
+      task.checklist_instance.template.name === selectedChecklistFilter;
+    return matchesEmployee && matchesChecklist;
+  });
+
+  const normalizeStatus = (status: string) =>
+    status === "in_progress" ? "in-progress" : status;
+
   return (
     <div className="space-y-6">
-      <Tabs
-        defaultValue="tracker"
-        onValueChange={(val) => {
-          if (val === "templates") loadTemplates();
-        }}
-      >
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList className="mb-4">
           <TabsTrigger value="tracker">Tracker</TabsTrigger>
+          <TabsTrigger value="my-tasks">My Tasks</TabsTrigger>
           <TabsTrigger value="templates">Manage Templates</TabsTrigger>
         </TabsList>
 
@@ -553,23 +448,29 @@ export function OnboardingModule() {
                   <UserPlus className="w-4 h-4 text-gray-500" />
                   <p className="text-sm text-gray-600">Active Onboarding</p>
                 </div>
-                <p className="text-2xl font-bold text-gray-900">3</p>
-                <p className="text-xs text-gray-500">New hires this month</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {activeOnboardingCount}
+                </p>
+                <p className="text-xs text-gray-500">Onboarding tasks</p>
               </div>
               <div className="bg-gray-50 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <UserMinus className="w-4 h-4 text-gray-500" />
                   <p className="text-sm text-gray-600">Active Offboarding</p>
                 </div>
-                <p className="text-2xl font-bold text-gray-900">2</p>
-                <p className="text-xs text-gray-500">Departures this month</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {activeOffboardingCount}
+                </p>
+                <p className="text-xs text-gray-500">Offboarding tasks</p>
               </div>
               <div className="bg-gray-50 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Target className="w-4 h-4 text-gray-500" />
                   <p className="text-sm text-gray-600">Avg Completion</p>
                 </div>
-                <p className="text-2xl font-bold text-gray-900">87%</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {averageCompletionPercent}%
+                </p>
                 <p className="text-xs text-gray-500">Task completion rate</p>
               </div>
               <div className="bg-gray-50 rounded-lg p-4">
@@ -577,81 +478,81 @@ export function OnboardingModule() {
                   <Clock className="w-4 h-4 text-gray-500" />
                   <p className="text-sm text-gray-600">Overdue Tasks</p>
                 </div>
-                <p className="text-2xl font-bold text-gray-900">1</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {overdueTasksCount}
+                </p>
                 <p className="text-xs text-gray-500">Needs attention</p>
-              </div>
-            </div>
-
-            {/* Employee and Template Selector */}
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="employee-select">Select Employee</Label>
-                <Select
-                  value={selectedEmployee}
-                  onValueChange={setSelectedEmployee}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose an employee" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {employees.map((employee) => (
-                      <SelectItem key={employee.id} value={employee.id}>
-                        <div className="flex items-center gap-3">
-                          <Avatar className="w-6 h-6">
-                            <AvatarFallback className="text-xs">
-                              {employee.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-medium">{employee.name}</p>
-                            <p className="text-xs text-gray-500">
-                              {employee.department} -{" "}
-                              {employee.type === "onboarding"
-                                ? `Starts ${employee.startDate}`
-                                : `Ends ${employee.endDate}`}
-                            </p>
-                          </div>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="template-select">Template Type</Label>
-                <Select
-                  value={selectedTemplate}
-                  onValueChange={(value: TemplateType) =>
-                    setSelectedTemplate(value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="onboarding">
-                      <div className="flex items-center gap-2">
-                        <UserPlus className="w-4 h-4" />
-                        Onboarding Checklist
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="offboarding">
-                      <div className="flex items-center gap-2">
-                        <UserMinus className="w-4 h-4" />
-                        Offboarding Checklist
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
             </div>
           </div>
 
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="employee-select">Select Employee</Label>
+              <Select
+                value={selectedEmployee}
+                onValueChange={setSelectedEmployee}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose an employee" />
+                </SelectTrigger>
+                <SelectContent>
+                  {employees.map((employee) => (
+                    <SelectItem key={employee.id} value={employee.id}>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="w-6 h-6">
+                          <AvatarFallback className="text-xs">
+                            {employee.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">{employee.name}</p>
+                          <p className="text-xs text-gray-500">
+                            {employee.department} -{" "}
+                            {employee.type === "onboarding"
+                              ? `Starts ${employee.startDate}`
+                              : `Ends ${employee.endDate}`}
+                          </p>
+                        </div>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="template-select">Template Type</Label>
+              <Select
+                value={selectedTemplate}
+                onValueChange={(value: TemplateType) =>
+                  setSelectedTemplate(value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="onboarding">
+                    <div className="flex items-center gap-2">
+                      <UserPlus className="w-4 h-4" />
+                      Onboarding Checklist
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="offboarding">
+                    <div className="flex items-center gap-2">
+                      <UserMinus className="w-4 h-4" />
+                      Offboarding Checklist
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Main Task List */}
             <div className="lg:col-span-2 space-y-6">
               {/* Progress Overview */}
               <Card className="border-gray-200">
@@ -663,7 +564,7 @@ export function OnboardingModule() {
                       ) : (
                         <UserMinus className="w-5 h-5" />
                       )}
-                      {selectedEmployeeData?.name} -{" "}
+                      {selectedEmployeeData?.name ?? "Selected Employee"} -{" "}
                       {selectedTemplate === "onboarding"
                         ? "Onboarding"
                         : "Offboarding"}{" "}
@@ -920,7 +821,7 @@ export function OnboardingModule() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {selectedEmployeeData && (
+                  {selectedEmployeeData ? (
                     <>
                       <div className="flex items-center gap-3">
                         <Avatar className="w-12 h-12">
@@ -983,6 +884,11 @@ export function OnboardingModule() {
                         </div>
                       </div>
                     </>
+                  ) : (
+                    <div className="py-8 text-center text-sm text-gray-500">
+                      No employee selected yet. Choose an employee once real
+                      data is available.
+                    </div>
                   )}
                 </CardContent>
               </Card>
@@ -1083,24 +989,253 @@ export function OnboardingModule() {
                   />
                 </CardContent>
               </Card>
-
-              {/* Overdue Alert */}
-              <Card className="border-red-200 bg-red-50">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-medium text-red-900">
-                        Attention Required
-                      </p>
-                      <p className="text-xs text-red-700 mt-1">
-                        1 task is overdue and needs immediate attention.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="my-tasks">
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">My Tasks</h2>
+                  <p className="text-gray-600 mt-1">
+                    View checklist tasks assigned to you and filter by employee
+                    or checklist.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <Button variant="outline" size="sm" onClick={loadMyTasks}>
+                    Refresh
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={loadEmployeeTasks}
+                    disabled={selectedEmployeeForView === "all"}
+                  >
+                    Load Employee Tasks
+                  </Button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6">
+                <div className="space-y-2">
+                  <Label htmlFor="employee-filter">Filter by employee</Label>
+                  <Select
+                    value={selectedEmployeeFilter}
+                    onValueChange={setSelectedEmployeeFilter}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All employees</SelectItem>
+                      {employeeOptions.map((employee) => (
+                        <SelectItem
+                          key={employee.id}
+                          value={String(employee.id)}
+                        >
+                          {employee.user.first_name} {employee.user.last_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="checklist-filter">Filter by checklist</Label>
+                  <Select
+                    value={selectedChecklistFilter}
+                    onValueChange={setSelectedChecklistFilter}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All checklists</SelectItem>
+                      {checklistOptions.map((name) => (
+                        <SelectItem key={name} value={name}>
+                          {name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="employee-view">Employee task view</Label>
+                  <Select
+                    value={selectedEmployeeForView}
+                    onValueChange={setSelectedEmployeeForView}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Choose employee</SelectItem>
+                      {employeeOptions.map((employee) => (
+                        <SelectItem
+                          key={employee.id}
+                          value={String(employee.id)}
+                        >
+                          {employee.user.first_name} {employee.user.last_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {myTasksError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+                {myTasksError}
+              </div>
+            )}
+
+            {myTasksLoading ? (
+              <p className="text-gray-500">Loading your tasks...</p>
+            ) : (
+              <div className="space-y-4">
+                {filteredMyTasks.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-gray-500">
+                    No tasks assigned to you match the selected filters.
+                  </div>
+                ) : (
+                  filteredMyTasks.map((task) => {
+                    const status = normalizeStatus(task.status);
+                    const StatusIcon = getStatusIcon(status as TaskStatus);
+                    return (
+                      <Card
+                        key={task.id}
+                        className={`border transition-all hover:shadow-sm ${
+                          status === "done" ? "bg-green-50/50" : ""
+                        }`}
+                      >
+                        <CardHeader className="pb-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-start gap-3">
+                              <StatusIcon
+                                className={`w-5 h-5 mt-0.5 ${
+                                  status === "done"
+                                    ? "text-green-600"
+                                    : status === "in-progress"
+                                      ? "text-blue-600"
+                                      : "text-gray-400"
+                                }`}
+                              />
+                              <div className="flex-1">
+                                <h3 className="font-medium text-gray-900">
+                                  {task.title}
+                                </h3>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  Checklist:{" "}
+                                  {task.checklist_instance.template.name}
+                                </p>
+                              </div>
+                            </div>
+                            <Badge variant="outline" className="text-sm">
+                              {task.task_template.role_responsible}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-2">
+                                <Avatar className="w-6 h-6">
+                                  <AvatarFallback className="text-xs">
+                                    {task.assigned_to
+                                      ? `${task.assigned_to.user.first_name.charAt(0)}${task.assigned_to.user.last_name.charAt(0)}`
+                                      : "U"}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span className="text-sm text-gray-600">
+                                  {task.assigned_to
+                                    ? `${task.assigned_to.user.first_name} ${task.assigned_to.user.last_name}`
+                                    : "Unassigned"}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Calendar className="w-4 h-4 text-gray-400" />
+                                <span className="text-sm text-gray-600">
+                                  {task.due_date ?? "No due date"}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })
+                )}
+              </div>
+            )}
+
+            {employeeTasksError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+                {employeeTasksError}
+              </div>
+            )}
+
+            {employeeTasksLoading && (
+              <p className="text-gray-500">Loading employee tasks...</p>
+            )}
+
+            {employeeTasks.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Employee Tasks
+                  </h3>
+                  <Badge variant="outline">
+                    {employeeTasks.length} tasks loaded
+                  </Badge>
+                </div>
+                <div className="space-y-4">
+                  {employeeTasks.map((task) => {
+                    const status = normalizeStatus(task.status);
+                    const StatusIcon = getStatusIcon(status as TaskStatus);
+                    return (
+                      <Card key={`employee-${task.id}`} className="border">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-start gap-3">
+                              <StatusIcon
+                                className={`w-5 h-5 mt-0.5 ${
+                                  status === "done"
+                                    ? "text-green-600"
+                                    : status === "in-progress"
+                                      ? "text-blue-600"
+                                      : "text-gray-400"
+                                }`}
+                              />
+                              <div>
+                                <h4 className="font-medium text-gray-900">
+                                  {task.title}
+                                </h4>
+                                <p className="text-xs text-gray-500">
+                                  {
+                                    task.checklist_instance.employee.user
+                                      .first_name
+                                  }{" "}
+                                  {
+                                    task.checklist_instance.employee.user
+                                      .last_name
+                                  }
+                                </p>
+                              </div>
+                            </div>
+                            <Badge variant="outline">
+                              {status.replace("_", " ")}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </TabsContent>
 
