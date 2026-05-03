@@ -475,3 +475,70 @@ tr:hover {
 .bg-blue-25 {
   background-color: #f0f9ff;
 }
+
+/* ─── Template editor rich-text styles ───────────────────────────────────── */
+/* Applied when contentEditable has the .template-editor class               */
+.template-editor h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: #111827;
+}
+.template-editor h2 {
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: #111827;
+}
+.template-editor h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: #111827;
+}
+.template-editor p {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+.template-editor strong {
+  font-weight: 700;
+}
+.template-editor em {
+  font-style: italic;
+}
+.template-editor ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+.template-editor ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+.template-editor hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 0.75rem 0;
+}
+.template-editor a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+.template-editor .tpl-field {
+  background: #cffafe;
+  color: #0e7490;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
