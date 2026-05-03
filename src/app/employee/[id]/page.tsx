@@ -54,6 +54,7 @@ import {
   filterTrackedProfileHistoryEntries,
   profileHistoryValueText,
 } from "@/lib/profileHistory/helpers";
+import { TrainingRecentSection } from "@/components/hr-dashboard/training";
 import { formatDate, formatCurrency } from "@/utils";
 import {
   buildFormDataFromEmployee,
@@ -108,6 +109,8 @@ export default function EmployeeProfilePage() {
   );
   const isOwnProfile = isOwnProfileById(sessionUserIdNumber, employee?.id);
   const editableFields = getEditableFields(isHRUser, isOwnProfile);
+  const accessToken = (session as { access_token?: string })
+    ?.access_token as string;
 
   const loadProfileHistory = useCallback(
     async (
@@ -709,6 +712,13 @@ export default function EmployeeProfilePage() {
           )}
         </>
       )}
+
+      {/* Training & Development Section */}
+      <TrainingRecentSection
+        employeeId={employee.id}
+        accessToken={accessToken}
+        isOwnProfile={isOwnProfile}
+      />
     </div>
   );
 }
