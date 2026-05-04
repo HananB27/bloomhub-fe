@@ -357,15 +357,14 @@ export function OnboardingModule() {
   };
 
   const loadEmployeeTasks = async () => {
-    if (!selectedEmployeeForView.trim()) return;
+    const employeeId = parseInt(selectedEmployeeForView.trim(), 10);
+    if (!selectedEmployeeForView.trim() || isNaN(employeeId) || employeeId < 1)
+      return;
     setEmployeeTasksLoading(true);
     setEmployeeTasksError(null);
     setEmployeeTasksLoaded(false);
     try {
-      const tasks = await fetchEmployeeTasks(
-        selectedEmployeeForView.trim(),
-        accessToken
-      );
+      const tasks = await fetchEmployeeTasks(employeeId, accessToken);
       setEmployeeTasks(tasks);
       setEmployeeTasksLoaded(true);
     } catch (error) {
@@ -1014,7 +1013,11 @@ export function OnboardingModule() {
                     variant="primary"
                     size="sm"
                     onClick={loadEmployeeTasks}
-                    disabled={!selectedEmployeeForView.trim()}
+                    disabled={
+                      !selectedEmployeeForView.trim() ||
+                      isNaN(parseInt(selectedEmployeeForView.trim(), 10)) ||
+                      parseInt(selectedEmployeeForView.trim(), 10) < 1
+                    }
                   >
                     Load Employee Tasks
                   </Button>
@@ -1067,6 +1070,8 @@ export function OnboardingModule() {
                   <Label htmlFor="employee-view">Employee task view</Label>
                   <Input
                     id="employee-view"
+                    type="number"
+                    min="1"
                     placeholder="Enter employee ID"
                     value={selectedEmployeeForView}
                     onChange={(e) => {
