@@ -90,7 +90,7 @@ interface ChecklistTaskCardProps {
 function ChecklistTaskCard({ task, variant }: ChecklistTaskCardProps) {
   const status = normalizeStatus(task.status);
   const StatusIcon = getStatusIcon(status as TaskStatus);
-  const iconCls = `w-5 h-5 mt-0.5 ${statusIconClass(status)}`;
+  const iconClassName = `w-5 h-5 mt-0.5 ${statusIconClass(status)}`;
 
   if (variant === "my-tasks") {
     return (
@@ -102,7 +102,7 @@ function ChecklistTaskCard({ task, variant }: ChecklistTaskCardProps) {
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3">
-              <StatusIcon className={iconCls} />
+              <StatusIcon className={iconClassName} />
               <div className="flex-1">
                 <h3 className="font-medium text-gray-900">{task.title}</h3>
                 <p className="text-sm text-gray-600 mt-1">
@@ -150,7 +150,7 @@ function ChecklistTaskCard({ task, variant }: ChecklistTaskCardProps) {
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-3">
-            <StatusIcon className={iconCls} />
+            <StatusIcon className={iconClassName} />
             <div>
               <h4 className="font-medium text-gray-900">{task.title}</h4>
               <p className="text-xs text-gray-500">
