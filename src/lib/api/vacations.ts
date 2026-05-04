@@ -112,6 +112,7 @@ function transformLeaveBalance(api: ApiLeaveBalance): LeaveBalance {
   return {
     id: String(api.id),
     employeeId: String(api.employee_id),
+    employeeName: api.employee_name || "Unknown employee",
     leaveType: api.leave_type as LeaveType,
     allocated: api.allocated,
     used: api.used,
