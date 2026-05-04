@@ -168,16 +168,12 @@ export async function withNotification<T>(
 
   try {
     const result = await promise;
-    replaceNotification(String(toastId), successMessage, "success");
+    replaceNotification(toastId, successMessage, "success");
     return result;
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
-    replaceNotification(
-      String(toastId),
-      `${errorPrefix}: ${errorMessage}`,
-      "error"
-    );
+    replaceNotification(toastId, `${errorPrefix}: ${errorMessage}`, "error");
     throw error;
   }
 }
