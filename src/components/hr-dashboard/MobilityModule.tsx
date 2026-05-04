@@ -62,6 +62,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { formatDate } from "@/utils";
+import { useSession } from "next-auth/react";
+import { isHrLikeRole } from "@/lib/permissions/assets-permissions";
 
 type ApplicationStatus =
   | "applied"
@@ -120,12 +122,18 @@ interface PromotionHistory {
 }
 
 export function MobilityModule() {
+  const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("jobs");
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [isApplicationDialogOpen, setIsApplicationDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
-  const [isHRUser] = useState(true); // Mock HR permission
+  const roleSource =
+    (session?.user as { role?: string; career_level?: string } | undefined)
+      ?.role ||
+    (session?.user as { role?: string; career_level?: string } | undefined)
+      ?.career_level;
+  const isHRUser = isHrLikeRole(roleSource);
 
   // Application form state
   const [applicationForm, setApplicationForm] = useState({
@@ -135,7 +143,7 @@ export function MobilityModule() {
   });
 
   // TODO: Implement - fetch job postings from API
-  const [jobs, _setJobs] = useState<Job[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
 
   // TODO: Implement - fetch applications from API
   const [applications, setApplications] = useState<Application[]>([]);

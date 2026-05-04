@@ -833,180 +833,180 @@ export function OnboardingModule() {
                     </div>
                   )}
                 {currentTasks.map((task) => (
-                    <Card
-                      key={task.id}
-                      className={`border transition-all hover:shadow-sm ${task.status === "done" ? "bg-green-50/50" : ""}`}
-                    >
-                      <CardHeader className="pb-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-start gap-3">
-                            <TaskStatusIcon
-                              status={task.status}
-                              className={`w-5 h-5 mt-0.5 ${statusIconClass(task.status)}`}
-                            />
-                            <div className="flex-1">
-                              <h3
-                                className={`font-medium ${task.status === "done" ? "line-through text-gray-500" : "text-gray-900"}`}
-                              >
-                                {task.title}
-                              </h3>
-                              <p className="text-sm text-gray-600 mt-1">
-                                {task.description}
-                              </p>
-                            </div>
+                  <Card
+                    key={task.id}
+                    className={`border transition-all hover:shadow-sm ${task.status === "done" ? "bg-green-50/50" : ""}`}
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3">
+                          <TaskStatusIcon
+                            status={task.status}
+                            className={`w-5 h-5 mt-0.5 ${statusIconClass(task.status)}`}
+                          />
+                          <div className="flex-1">
+                            <h3
+                              className={`font-medium ${task.status === "done" ? "line-through text-gray-500" : "text-gray-900"}`}
+                            >
+                              {task.title}
+                            </h3>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {task.description}
+                            </p>
                           </div>
-                          <Badge
-                            className={getPriorityColor(task.priority)}
-                            variant="outline"
-                          >
-                            {task.priority}
+                        </div>
+                        <Badge
+                          className={getPriorityColor(task.priority)}
+                          variant="outline"
+                        >
+                          {task.priority}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2">
+                            <Avatar className="w-6 h-6">
+                              <AvatarFallback className="text-xs">
+                                {task.assigneeAvatar}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="text-sm text-gray-600">
+                              {task.assignee}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-gray-400" />
+                            <span className="text-sm text-gray-600">
+                              Due {task.dueDate}
+                            </span>
+                          </div>
+                          <Badge variant="outline" className="text-xs">
+                            {task.category}
                           </Badge>
                         </div>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-2">
-                              <Avatar className="w-6 h-6">
-                                <AvatarFallback className="text-xs">
-                                  {task.assigneeAvatar}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span className="text-sm text-gray-600">
-                                {task.assignee}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4 text-gray-400" />
-                              <span className="text-sm text-gray-600">
-                                Due {task.dueDate}
-                              </span>
-                            </div>
-                            <Badge variant="outline" className="text-xs">
-                              {task.category}
-                            </Badge>
+                        <div className="flex gap-2">
+                          <Select
+                            value={task.status}
+                            onValueChange={(status: TaskStatus) =>
+                              handleTaskStatusChange(task.id, status)
+                            }
+                          >
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="todo">
+                                <div className="flex items-center gap-2">
+                                  <Circle className="w-4 h-4 text-gray-400" />
+                                  To Do
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="in-progress">
+                                <div className="flex items-center gap-2">
+                                  <Play className="w-4 h-4 text-blue-600" />
+                                  In Progress
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="done">
+                                <div className="flex items-center gap-2">
+                                  <CheckCircle className="w-4 h-4 text-green-600" />
+                                  Done
+                                </div>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      {/* Comments Section */}
+                      <div className="border-t border-gray-200 pt-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <MessageSquare className="w-4 h-4 text-gray-500" />
+                            <span className="text-sm font-medium text-gray-700">
+                              Comments ({task.comments.length})
+                            </span>
                           </div>
-                          <div className="flex gap-2">
-                            <Select
-                              value={task.status}
-                              onValueChange={(status: TaskStatus) =>
-                                handleTaskStatusChange(task.id, status)
-                              }
-                            >
-                              <SelectTrigger className="w-32">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="todo">
-                                  <div className="flex items-center gap-2">
-                                    <Circle className="w-4 h-4 text-gray-400" />
-                                    To Do
-                                  </div>
-                                </SelectItem>
-                                <SelectItem value="in-progress">
-                                  <div className="flex items-center gap-2">
-                                    <Play className="w-4 h-4 text-blue-600" />
-                                    In Progress
-                                  </div>
-                                </SelectItem>
-                                <SelectItem value="done">
-                                  <div className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4 text-green-600" />
-                                    Done
-                                  </div>
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              setSelectedTaskId(
+                                selectedTaskId === task.id ? null : task.id
+                              )
+                            }
+                          >
+                            {selectedTaskId === task.id ? "Hide" : "Show"}
+                          </Button>
                         </div>
 
-                        {/* Comments Section */}
-                        <div className="border-t border-gray-200 pt-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-2">
-                              <MessageSquare className="w-4 h-4 text-gray-500" />
-                              <span className="text-sm font-medium text-gray-700">
-                                Comments ({task.comments.length})
-                              </span>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                setSelectedTaskId(
-                                  selectedTaskId === task.id ? null : task.id
-                                )
-                              }
-                            >
-                              {selectedTaskId === task.id ? "Hide" : "Show"}
-                            </Button>
-                          </div>
-
-                          {selectedTaskId === task.id && (
-                            <div className="space-y-3">
-                              {/* Existing Comments */}
-                              {task.comments.map((comment) => (
-                                <div
-                                  key={comment.id}
-                                  className="flex gap-3 p-3 bg-gray-50 rounded-lg"
-                                >
-                                  <Avatar className="w-7 h-7">
-                                    <AvatarFallback className="text-xs">
-                                      {comment.authorAvatar}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <span className="text-sm font-medium text-gray-900">
-                                        {comment.author}
-                                      </span>
-                                      <span className="text-xs text-gray-500">
-                                        {comment.timestamp}
-                                      </span>
-                                    </div>
-                                    <p className="text-sm text-gray-700">
-                                      {comment.content}
-                                    </p>
-                                  </div>
-                                </div>
-                              ))}
-
-                              {/* New Comment Form */}
-                              <div className="flex gap-3">
+                        {selectedTaskId === task.id && (
+                          <div className="space-y-3">
+                            {/* Existing Comments */}
+                            {task.comments.map((comment) => (
+                              <div
+                                key={comment.id}
+                                className="flex gap-3 p-3 bg-gray-50 rounded-lg"
+                              >
                                 <Avatar className="w-7 h-7">
                                   <AvatarFallback className="text-xs">
-                                    JD
+                                    {comment.authorAvatar}
                                   </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1">
-                                  <Textarea
-                                    placeholder="Add a comment..."
-                                    value={newComment}
-                                    onChange={(e) =>
-                                      setNewComment(e.target.value)
-                                    }
-                                    rows={2}
-                                    className="text-sm"
-                                  />
-                                  <div className="flex justify-end mt-2">
-                                    <Button
-                                      size="sm"
-                                      onClick={() => handleAddComment(task.id)}
-                                      disabled={!newComment.trim()}
-                                    >
-                                      <Send className="w-4 h-4 mr-2" />
-                                      Comment
-                                    </Button>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-sm font-medium text-gray-900">
+                                      {comment.author}
+                                    </span>
+                                    <span className="text-xs text-gray-500">
+                                      {comment.timestamp}
+                                    </span>
                                   </div>
+                                  <p className="text-sm text-gray-700">
+                                    {comment.content}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+
+                            {/* New Comment Form */}
+                            <div className="flex gap-3">
+                              <Avatar className="w-7 h-7">
+                                <AvatarFallback className="text-xs">
+                                  JD
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1">
+                                <Textarea
+                                  placeholder="Add a comment..."
+                                  value={newComment}
+                                  onChange={(e) =>
+                                    setNewComment(e.target.value)
+                                  }
+                                  rows={2}
+                                  className="text-sm"
+                                />
+                                <div className="flex justify-end mt-2">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleAddComment(task.id)}
+                                    disabled={!newComment.trim()}
+                                  >
+                                    <Send className="w-4 h-4 mr-2" />
+                                    Comment
+                                  </Button>
                                 </div>
                               </div>
                             </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
 
             {/* Sidebar */}

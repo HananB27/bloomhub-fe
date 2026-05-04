@@ -76,6 +76,8 @@ import {
   ThumbsUp,
   Heart,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { isHrLikeRole } from "@/lib/permissions/assets-permissions";
 
 interface FeedbackTooltipProps {
   active?: boolean;
@@ -215,8 +217,14 @@ interface PulseData {
 }
 
 export function FeedbackModule() {
+  const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [isHRUser] = useState(true); // Mock HR permission
+  const roleSource =
+    (session?.user as { role?: string; career_level?: string } | undefined)
+      ?.role ||
+    (session?.user as { role?: string; career_level?: string } | undefined)
+      ?.career_level;
+  const isHRUser = isHrLikeRole(roleSource);
 
   // Survey Builder State
   const [newSurvey, setNewSurvey] = useState({
@@ -601,6 +609,8 @@ export function FeedbackModule() {
   };
 
   const submitPulseCheck = () => {
+    // In real app, this would submit to backend
+    console.log("Pulse check submitted:", pulseRatings);
     setPulseRatings({
       overallSatisfaction: 0,
       workload: 0,

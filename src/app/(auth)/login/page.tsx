@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2, AtSign, Lock, AlertCircle } from "lucide-react";
+import { Loader2, AtSign, Lock } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
 
@@ -21,7 +21,7 @@ export default function LoginPage() {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Manual validation to avoid default browser tooltips
@@ -50,6 +50,9 @@ export default function LoginPage() {
         router.push("/");
       }
     } catch (err: unknown) {
+      // Log unexpected errors for diagnostics but avoid using `any`
+      // Provide a generic message to the user
+
       console.error("Login error:", err);
       const errorMsg = "An unexpected error occurred. Please try again.";
       toast.error(errorMsg);
@@ -61,6 +64,7 @@ export default function LoginPage() {
 
   const handleOAuthLogin = async (provider: "google") => {
     setIsLoading(true);
+    // Use NextAuth to handle the OAuth redirect
     await signIn(provider, { callbackUrl: "/" });
   };
 
@@ -75,20 +79,9 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {error && (
-        <div className="rounded-md bg-red-50 p-4 border border-red-200">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
-            <div>
-              <h3 className="font-medium text-red-900">Login Error</h3>
-              <p className="text-sm text-red-700 mt-1">{error}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <div className="space-y-4 mt-2">
+          {/* Email Field */}
           <div className="space-y-2">
             <label
               className="text-sm font-medium leading-none text-gray-700"
@@ -96,13 +89,14 @@ export default function LoginPage() {
             >
               Email
             </label>
-            <div className="flex items-center h-[42px] w-full rounded-md border border-gray-200 bg-gray-50 focus-within:ring-1 focus-within:ring-gray-900 focus-within:border-gray-900 transition-all">
+            <div
+              className={`flex items-center h-[42px] w-full rounded-md border ${error ? "border-red-500" : "border-gray-200"} bg-gray-50 focus-within:ring-1 focus-within:ring-gray-900 focus-within:border-gray-900 transition-all`}
+            >
               <div className="pl-3 pr-2 flex items-center justify-center">
                 <AtSign className="h-4 w-4 text-gray-400" />
               </div>
               <input
                 id="email"
-                name="email"
                 type="email"
                 placeholder="name@example.com"
                 value={formData.email || ""}
@@ -114,6 +108,7 @@ export default function LoginPage() {
             </div>
           </div>
 
+          {/* Password Field */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label
@@ -129,13 +124,14 @@ export default function LoginPage() {
                 Forgot password?
               </Link>
             </div>
-            <div className="flex items-center h-[42px] w-full rounded-md border border-gray-200 bg-gray-50 focus-within:ring-1 focus-within:ring-gray-900 focus-within:border-gray-900 transition-all">
+            <div
+              className={`flex items-center h-[42px] w-full rounded-md border ${error ? "border-red-500" : "border-gray-200"} bg-gray-50 focus-within:ring-1 focus-within:ring-gray-900 focus-within:border-gray-900 transition-all`}
+            >
               <div className="pl-3 pr-2 flex items-center justify-center">
                 <Lock className="h-4 w-4 text-gray-400" />
               </div>
               <input
                 id="password"
-                name="password"
                 type="password"
                 placeholder="password"
                 value={formData.password || ""}
