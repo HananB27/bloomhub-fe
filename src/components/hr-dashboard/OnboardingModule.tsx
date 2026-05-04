@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
@@ -109,9 +109,8 @@ export function OnboardingModule() {
   const [selectedChecklistFilter, setSelectedChecklistFilter] = useState<
     "all" | string
   >("all");
-  const [selectedEmployeeForView, setSelectedEmployeeForView] = useState<
-    "all" | string
-  >("all");
+  const [selectedEmployeeForView, setSelectedEmployeeForView] =
+    useState<string>("");
   const [myTasks, setMyTasks] = useState<ChecklistTask[]>([]);
   const [myTasksLoading, setMyTasksLoading] = useState(false);
   const [myTasksError, setMyTasksError] = useState<string | null>(null);
@@ -120,6 +119,7 @@ export function OnboardingModule() {
   const [employeeTasksError, setEmployeeTasksError] = useState<string | null>(
     null
   );
+  const [employeeTasksLoaded, setEmployeeTasksLoaded] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   // Template management state
@@ -357,15 +357,17 @@ export function OnboardingModule() {
   };
 
   const loadEmployeeTasks = async () => {
-    if (selectedEmployeeForView === "all") return;
+    if (!selectedEmployeeForView.trim()) return;
     setEmployeeTasksLoading(true);
     setEmployeeTasksError(null);
+    setEmployeeTasksLoaded(false);
     try {
       const tasks = await fetchEmployeeTasks(
-        selectedEmployeeForView,
+        selectedEmployeeForView.trim(),
         accessToken
       );
       setEmployeeTasks(tasks);
+      setEmployeeTasksLoaded(true);
     } catch (error) {
       setEmployeeTasksError(
         error instanceof Error
@@ -1012,7 +1014,7 @@ export function OnboardingModule() {
                     variant="primary"
                     size="sm"
                     onClick={loadEmployeeTasks}
-                    disabled={selectedEmployeeForView === "all"}
+                    disabled={!selectedEmployeeForView.trim()}
                   >
                     Load Employee Tasks
                   </Button>
@@ -1063,25 +1065,16 @@ export function OnboardingModule() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="employee-view">Employee task view</Label>
-                  <Select
+                  <Input
+                    id="employee-view"
+                    placeholder="Enter employee ID"
                     value={selectedEmployeeForView}
-                    onValueChange={setSelectedEmployeeForView}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Choose employee</SelectItem>
-                      {employeeOptions.map((employee) => (
-                        <SelectItem
-                          key={employee.id}
-                          value={String(employee.id)}
-                        >
-                          {employee.user.first_name} {employee.user.last_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    onChange={(e) => {
+                      setSelectedEmployeeForView(e.target.value);
+                      setEmployeeTasksLoaded(false);
+                      setEmployeeTasks([]);
+                    }}
+                  />
                 </div>
               </div>
             </div>
@@ -1181,7 +1174,7 @@ export function OnboardingModule() {
               <p className="text-gray-500">Loading employee tasks...</p>
             )}
 
-            {employeeTasks.length > 0 && (
+            {!employeeTasksLoading && employeeTasksLoaded && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-900">
@@ -1191,49 +1184,55 @@ export function OnboardingModule() {
                     {employeeTasks.length} tasks loaded
                   </Badge>
                 </div>
-                <div className="space-y-4">
-                  {employeeTasks.map((task) => {
-                    const status = normalizeStatus(task.status);
-                    const StatusIcon = getStatusIcon(status as TaskStatus);
-                    return (
-                      <Card key={`employee-${task.id}`} className="border">
-                        <CardHeader className="pb-3">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-start gap-3">
-                              <StatusIcon
-                                className={`w-5 h-5 mt-0.5 ${
-                                  status === "done"
-                                    ? "text-green-600"
-                                    : status === "in-progress"
-                                      ? "text-blue-600"
-                                      : "text-gray-400"
-                                }`}
-                              />
-                              <div>
-                                <h4 className="font-medium text-gray-900">
-                                  {task.title}
-                                </h4>
-                                <p className="text-xs text-gray-500">
-                                  {
-                                    task.checklist_instance.employee.user
-                                      .first_name
-                                  }{" "}
-                                  {
-                                    task.checklist_instance.employee.user
-                                      .last_name
-                                  }
-                                </p>
+                {employeeTasks.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-gray-500">
+                    No tasks found for this employee.
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {employeeTasks.map((task) => {
+                      const status = normalizeStatus(task.status);
+                      const StatusIcon = getStatusIcon(status as TaskStatus);
+                      return (
+                        <Card key={`employee-${task.id}`} className="border">
+                          <CardHeader className="pb-3">
+                            <div className="flex items-start justify-between">
+                              <div className="flex items-start gap-3">
+                                <StatusIcon
+                                  className={`w-5 h-5 mt-0.5 ${
+                                    status === "done"
+                                      ? "text-green-600"
+                                      : status === "in-progress"
+                                        ? "text-blue-600"
+                                        : "text-gray-400"
+                                  }`}
+                                />
+                                <div>
+                                  <h4 className="font-medium text-gray-900">
+                                    {task.title}
+                                  </h4>
+                                  <p className="text-xs text-gray-500">
+                                    {
+                                      task.checklist_instance.employee.user
+                                        .first_name
+                                    }{" "}
+                                    {
+                                      task.checklist_instance.employee.user
+                                        .last_name
+                                    }
+                                  </p>
+                                </div>
                               </div>
+                              <Badge variant="outline">
+                                {status.replace("_", " ")}
+                              </Badge>
                             </div>
-                            <Badge variant="outline">
-                              {status.replace("_", " ")}
-                            </Badge>
-                          </div>
-                        </CardHeader>
-                      </Card>
-                    );
-                  })}
-                </div>
+                          </CardHeader>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
           </div>
