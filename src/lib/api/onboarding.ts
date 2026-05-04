@@ -13,7 +13,7 @@ function getAuthHeaders(token?: string): Record<string, string> {
 
   if (!normalizedToken) {
     throw new ApiError(
-      "Authentication token is required for template API requests",
+      "Authentication token is required for onboarding API requests",
       401
     );
   }

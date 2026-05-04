@@ -58,6 +58,114 @@ import {
 type TaskStatus = "todo" | "in-progress" | "done";
 type TemplateType = "onboarding" | "offboarding";
 
+function getStatusIcon(status: TaskStatus | "in_progress") {
+  switch (status) {
+    case "done":
+      return CheckCircle;
+    case "in-progress":
+    case "in_progress":
+      return Play;
+    default:
+      return Circle;
+  }
+}
+
+function normalizeStatus(status: string): string {
+  return status === "in_progress" ? "in-progress" : status;
+}
+
+function statusIconClass(status: string): string {
+  if (status === "done") return "text-green-600";
+  if (status === "in-progress") return "text-blue-600";
+  return "text-gray-400";
+}
+
+type ChecklistTaskCardVariant = "my-tasks" | "employee-tasks";
+
+interface ChecklistTaskCardProps {
+  task: ChecklistTask;
+  variant: ChecklistTaskCardVariant;
+}
+
+function ChecklistTaskCard({ task, variant }: ChecklistTaskCardProps) {
+  const status = normalizeStatus(task.status);
+  const StatusIcon = getStatusIcon(status as TaskStatus);
+  const iconCls = `w-5 h-5 mt-0.5 ${statusIconClass(status)}`;
+
+  if (variant === "my-tasks") {
+    return (
+      <Card
+        className={`border transition-all hover:shadow-sm ${
+          status === "done" ? "bg-green-50/50" : ""
+        }`}
+      >
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div className="flex items-start gap-3">
+              <StatusIcon className={iconCls} />
+              <div className="flex-1">
+                <h3 className="font-medium text-gray-900">{task.title}</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Checklist: {task.checklist_instance.template.name}
+                </p>
+              </div>
+            </div>
+            <Badge variant="outline" className="text-sm">
+              {task.task_template.role_responsible}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Avatar className="w-6 h-6">
+                  <AvatarFallback className="text-xs">
+                    {task.assigned_to
+                      ? `${task.assigned_to.user.first_name.charAt(0)}${task.assigned_to.user.last_name.charAt(0)}`
+                      : "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-sm text-gray-600">
+                  {task.assigned_to
+                    ? `${task.assigned_to.user.first_name} ${task.assigned_to.user.last_name}`
+                    : "Unassigned"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-gray-400" />
+                <span className="text-sm text-gray-600">
+                  {task.due_date ?? "No due date"}
+                </span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="border">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex items-start gap-3">
+            <StatusIcon className={iconCls} />
+            <div>
+              <h4 className="font-medium text-gray-900">{task.title}</h4>
+              <p className="text-xs text-gray-500">
+                {task.checklist_instance.employee.user.first_name}{" "}
+                {task.checklist_instance.employee.user.last_name}
+              </p>
+            </div>
+          </div>
+          <Badge variant="outline">{status.replace("_", " ")}</Badge>
+        </div>
+      </CardHeader>
+    </Card>
+  );
+}
+
 interface Task {
   id: number;
   title: string;
@@ -218,18 +326,6 @@ export function OnboardingModule() {
         return "text-blue-600 bg-blue-50 border-blue-200";
       default:
         return "text-gray-600 bg-gray-50 border-gray-200";
-    }
-  };
-
-  const getStatusIcon = (status: TaskStatus | "in_progress") => {
-    switch (status) {
-      case "done":
-        return CheckCircle;
-      case "in-progress":
-      case "in_progress":
-        return Play;
-      default:
-        return Circle;
     }
   };
 
@@ -401,9 +497,6 @@ export function OnboardingModule() {
       task.checklist_instance.template.name === selectedChecklistFilter;
     return matchesEmployee && matchesChecklist;
   });
-
-  const normalizeStatus = (status: string) =>
-    status === "in_progress" ? "in-progress" : status;
 
   return (
     <div className="space-y-6">
@@ -1099,72 +1192,13 @@ export function OnboardingModule() {
                     No tasks assigned to you match the selected filters.
                   </div>
                 ) : (
-                  filteredMyTasks.map((task) => {
-                    const status = normalizeStatus(task.status);
-                    const StatusIcon = getStatusIcon(status as TaskStatus);
-                    return (
-                      <Card
-                        key={task.id}
-                        className={`border transition-all hover:shadow-sm ${
-                          status === "done" ? "bg-green-50/50" : ""
-                        }`}
-                      >
-                        <CardHeader className="pb-3">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-start gap-3">
-                              <StatusIcon
-                                className={`w-5 h-5 mt-0.5 ${
-                                  status === "done"
-                                    ? "text-green-600"
-                                    : status === "in-progress"
-                                      ? "text-blue-600"
-                                      : "text-gray-400"
-                                }`}
-                              />
-                              <div className="flex-1">
-                                <h3 className="font-medium text-gray-900">
-                                  {task.title}
-                                </h3>
-                                <p className="text-sm text-gray-600 mt-1">
-                                  Checklist:{" "}
-                                  {task.checklist_instance.template.name}
-                                </p>
-                              </div>
-                            </div>
-                            <Badge variant="outline" className="text-sm">
-                              {task.task_template.role_responsible}
-                            </Badge>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="pt-0">
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-4">
-                              <div className="flex items-center gap-2">
-                                <Avatar className="w-6 h-6">
-                                  <AvatarFallback className="text-xs">
-                                    {task.assigned_to
-                                      ? `${task.assigned_to.user.first_name.charAt(0)}${task.assigned_to.user.last_name.charAt(0)}`
-                                      : "U"}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <span className="text-sm text-gray-600">
-                                  {task.assigned_to
-                                    ? `${task.assigned_to.user.first_name} ${task.assigned_to.user.last_name}`
-                                    : "Unassigned"}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Calendar className="w-4 h-4 text-gray-400" />
-                                <span className="text-sm text-gray-600">
-                                  {task.due_date ?? "No due date"}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })
+                  filteredMyTasks.map((task) => (
+                    <ChecklistTaskCard
+                      key={task.id}
+                      task={task}
+                      variant="my-tasks"
+                    />
+                  ))
                 )}
               </div>
             )}
@@ -1195,47 +1229,13 @@ export function OnboardingModule() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {employeeTasks.map((task) => {
-                      const status = normalizeStatus(task.status);
-                      const StatusIcon = getStatusIcon(status as TaskStatus);
-                      return (
-                        <Card key={`employee-${task.id}`} className="border">
-                          <CardHeader className="pb-3">
-                            <div className="flex items-start justify-between">
-                              <div className="flex items-start gap-3">
-                                <StatusIcon
-                                  className={`w-5 h-5 mt-0.5 ${
-                                    status === "done"
-                                      ? "text-green-600"
-                                      : status === "in-progress"
-                                        ? "text-blue-600"
-                                        : "text-gray-400"
-                                  }`}
-                                />
-                                <div>
-                                  <h4 className="font-medium text-gray-900">
-                                    {task.title}
-                                  </h4>
-                                  <p className="text-xs text-gray-500">
-                                    {
-                                      task.checklist_instance.employee.user
-                                        .first_name
-                                    }{" "}
-                                    {
-                                      task.checklist_instance.employee.user
-                                        .last_name
-                                    }
-                                  </p>
-                                </div>
-                              </div>
-                              <Badge variant="outline">
-                                {status.replace("_", " ")}
-                              </Badge>
-                            </div>
-                          </CardHeader>
-                        </Card>
-                      );
-                    })}
+                    {employeeTasks.map((task) => (
+                      <ChecklistTaskCard
+                        key={`employee-${task.id}`}
+                        task={task}
+                        variant="employee-tasks"
+                      />
+                    ))}
                   </div>
                 )}
               </div>
