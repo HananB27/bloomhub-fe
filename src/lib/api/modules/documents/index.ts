@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/lib/config";
+import { resolveApiMediaUrl } from "../../helpers/resolveApiMediaUrl";
 import { get, post, del } from "../../helpers/httpClient";
 import { fetchWithAuthRetry } from "../../refresh";
 import {
@@ -314,7 +315,9 @@ export const documentsApi = {
       `${API_BASE_URL}${documentDownloadPath(documentId)}`,
       "Failed to get document download URL"
     );
-    return data.signed_url ?? data.download_url ?? data.url ?? "";
+    return resolveApiMediaUrl(
+      data.signed_url ?? data.download_url ?? data.url ?? ""
+    );
   },
 
   /**
@@ -327,7 +330,7 @@ export const documentsApi = {
       `${API_BASE_URL}${documentPreviewPath(documentId)}`,
       "Failed to get document preview URL"
     );
-    return data.preview_url ?? data.url ?? "";
+    return resolveApiMediaUrl(data.preview_url ?? data.url ?? "");
   },
 
   async resolveInlineDocumentUrl(documentId: number | string): Promise<string> {
