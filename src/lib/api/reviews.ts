@@ -42,7 +42,7 @@ export const formatErrorMessage = (error: unknown): string => {
 
   if (typeof error === "object" && error !== null) {
     const errorObj = error as Record<string, unknown>;
-    
+
     // Handle field-specific validation errors
     const fieldErrors: string[] = [];
     for (const [, messages] of Object.entries(errorObj)) {
@@ -56,7 +56,7 @@ export const formatErrorMessage = (error: unknown): string => {
         fieldErrors.push(messages);
       }
     }
-    
+
     if (fieldErrors.length > 0) {
       return fieldErrors.join(" ");
     }
@@ -166,7 +166,9 @@ interface ApiPerformanceReviewHistoryEvent {
 /**
  * Transform API response to frontend PerformanceReview format
  */
-function transformPerformanceReview(api: ApiPerformanceReview): PerformanceReview {
+function transformPerformanceReview(
+  api: ApiPerformanceReview
+): PerformanceReview {
   return {
     id: api.id,
     employeeId: api.employee_id,
@@ -182,7 +184,14 @@ function transformPerformanceReview(api: ApiPerformanceReview): PerformanceRevie
     scheduledDate: api.scheduled_date,
     nextReviewDate: api.next_review_date || undefined,
     completedAt: api.completed_at || undefined,
-    outcome: (api.outcome as "exceeds_expectations" | "meets_expectations" | "partially_meets" | "needs_improvement" | "unsatisfactory" | undefined) || undefined,
+    outcome:
+      (api.outcome as
+        | "exceeds_expectations"
+        | "meets_expectations"
+        | "partially_meets"
+        | "needs_improvement"
+        | "unsatisfactory"
+        | undefined) || undefined,
     overallRating: api.overall_rating || undefined,
     performanceScore: api.performance_score || undefined,
     cpfScore: api.cpf_score || undefined,
@@ -316,7 +325,7 @@ export const fetchPerformanceReviews = async (
     throw new Error("Failed to fetch performance reviews");
   }
 
-  const data: (ApiPerformanceReview)[] = await response.json();
+  const data: ApiPerformanceReview[] = await response.json();
 
   return data.map((item) => ({
     ...transformPerformanceReview(item),
@@ -363,9 +372,15 @@ export const createPerformanceReview = async (
   accessToken: string
 ): Promise<PerformanceReview> => {
   // Convert string IDs to numbers if needed
-  const employeeId = typeof payload.employee === 'string' ? parseInt(payload.employee, 10) : payload.employee;
-  const reviewerId = typeof payload.reviewer === 'string' ? parseInt(payload.reviewer, 10) : payload.reviewer;
-  
+  const employeeId =
+    typeof payload.employee === "string"
+      ? parseInt(payload.employee, 10)
+      : payload.employee;
+  const reviewerId =
+    typeof payload.reviewer === "string"
+      ? parseInt(payload.reviewer, 10)
+      : payload.reviewer;
+
   const requestBody = {
     employee: employeeId,
     reviewer: reviewerId,
@@ -377,7 +392,7 @@ export const createPerformanceReview = async (
     next_review_date: payload.nextReviewDate || null,
     reminder_offsets_days: payload.reminderOffsetsDays || [3, 1],
   };
-  
+
   const response = await fetch(`${API_BASE_URL}/api/performance-reviews/`, {
     method: "POST",
     headers: {
@@ -418,14 +433,20 @@ export const updatePerformanceReview = async (
   if (payload.performanceScore !== undefined)
     body.performance_score = payload.performanceScore;
   if (payload.cpfScore !== undefined) body.cpf_score = payload.cpfScore;
-  if (payload.cpfCurrentLevel !== undefined) body.cpf_current_level = payload.cpfCurrentLevel;
-  if (payload.cpfRecommendedLevel !== undefined) body.cpf_recommended_level = payload.cpfRecommendedLevel;
+  if (payload.cpfCurrentLevel !== undefined)
+    body.cpf_current_level = payload.cpfCurrentLevel;
+  if (payload.cpfRecommendedLevel !== undefined)
+    body.cpf_recommended_level = payload.cpfRecommendedLevel;
   if (payload.summary !== undefined) body.summary = payload.summary;
-  if (payload.employeeComments !== undefined) body.employee_comments = payload.employeeComments;
-  if (payload.reviewerComments !== undefined) body.reviewer_comments = payload.reviewerComments;
+  if (payload.employeeComments !== undefined)
+    body.employee_comments = payload.employeeComments;
+  if (payload.reviewerComments !== undefined)
+    body.reviewer_comments = payload.reviewerComments;
   if (payload.outcome !== undefined) body.outcome = payload.outcome;
-  if (payload.scheduledDate !== undefined) body.scheduled_date = payload.scheduledDate;
-  if (payload.nextReviewDate !== undefined) body.next_review_date = payload.nextReviewDate;
+  if (payload.scheduledDate !== undefined)
+    body.scheduled_date = payload.scheduledDate;
+  if (payload.nextReviewDate !== undefined)
+    body.next_review_date = payload.nextReviewDate;
 
   const response = await fetch(
     `${API_BASE_URL}/api/performance-reviews/${id}/`,
@@ -444,7 +465,9 @@ export const updatePerformanceReview = async (
       throw new Error("Unauthorized: Please log in again");
     }
     if (response.status === 403) {
-      throw new Error("Forbidden: You don't have permission to update this review");
+      throw new Error(
+        "Forbidden: You don't have permission to update this review"
+      );
     }
     if (response.status === 404) {
       throw new Error("Performance review not found");
@@ -939,7 +962,9 @@ export interface UserProfile {
   name: string;
 }
 
-export const fetchUserProfiles = async (accessToken: string): Promise<UserProfile[]> => {
+export const fetchUserProfiles = async (
+  accessToken: string
+): Promise<UserProfile[]> => {
   const response = await fetch(`${API_BASE_URL}/api/user-profiles/`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -958,8 +983,9 @@ export const fetchUserProfiles = async (accessToken: string): Promise<UserProfil
     const firstName = profile.user?.first_name || "";
     const lastName = profile.user?.last_name || "";
     const username = profile.user?.username || `User ${profile.id}`;
-    const displayName = [firstName, lastName].filter(Boolean).join(" ").trim() || username;
-    
+    const displayName =
+      [firstName, lastName].filter(Boolean).join(" ").trim() || username;
+
     return {
       id: profile.id,
       name: displayName,

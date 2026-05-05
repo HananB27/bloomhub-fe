@@ -19,15 +19,17 @@ describe("TrainingFilters", () => {
     );
 
     expect(
-      screen.getByPlaceholderText(/Course title, provider.../i)
+      screen.getByPlaceholderText(/Search by title, provider/i)
     ).toBeInTheDocument();
     expect(screen.getAllByRole("combobox").length).toBeGreaterThanOrEqual(2);
+    // Reset button only shown when filters are active
     expect(
-      screen.getByRole("button", { name: /Reset Filters/i })
-    ).toBeInTheDocument();
+      screen.queryByRole("button", { name: /Reset/i })
+    ).not.toBeInTheDocument();
   });
 
   it("updates filters when search input changes", () => {
+    vi.useFakeTimers();
     render(
       <TrainingFilters
         filters={{}}
@@ -37,15 +39,18 @@ describe("TrainingFilters", () => {
     );
 
     const searchInput = screen.getByPlaceholderText(
-      /Course title, provider.../i
+      /Search by title, provider/i
     );
     fireEvent.change(searchInput, { target: { value: "Python" } });
+
+    vi.advanceTimersByTime(300);
 
     expect(mockOnFiltersChange).toHaveBeenCalledWith(
       expect.objectContaining({
         search: "Python",
       })
     );
+    vi.useRealTimers();
   });
 
   it("updates filters when training type changes", () => {
@@ -71,8 +76,6 @@ describe("TrainingFilters", () => {
   it("resets all filters when reset button is clicked", () => {
     const initialFilters = {
       search: "Python",
-      training_type: "course",
-      year: "2025",
     };
 
     render(
@@ -83,13 +86,13 @@ describe("TrainingFilters", () => {
       />
     );
 
-    const resetButton = screen.getByRole("button", { name: /Reset Filters/i });
+    const resetButton = screen.getByRole("button", { name: /Reset/i });
     fireEvent.click(resetButton);
 
     expect(mockOnFiltersChange).toHaveBeenCalledWith({});
   });
 
-  it("disables reset button when no filters are active", () => {
+  it("hides reset button when no filters are active", () => {
     render(
       <TrainingFilters
         filters={{}}
@@ -98,11 +101,12 @@ describe("TrainingFilters", () => {
       />
     );
 
-    const resetButton = screen.getByRole("button", { name: /Reset Filters/i });
-    expect(resetButton).toBeDisabled();
+    expect(
+      screen.queryByRole("button", { name: /Reset/i })
+    ).not.toBeInTheDocument();
   });
 
-  it("enables reset button when filters are active", () => {
+  it("shows reset button when filters are active", () => {
     render(
       <TrainingFilters
         filters={{ search: "Python" }}
@@ -111,11 +115,10 @@ describe("TrainingFilters", () => {
       />
     );
 
-    const resetButton = screen.getByRole("button", { name: /Reset Filters/i });
-    expect(resetButton).not.toBeDisabled();
+    expect(screen.getByRole("button", { name: /Reset/i })).toBeInTheDocument();
   });
 
-  it("shows loading state", () => {
+  it("shows loading state — disables selects", () => {
     render(
       <TrainingFilters
         filters={{}}
@@ -124,10 +127,8 @@ describe("TrainingFilters", () => {
       />
     );
 
-    const searchInput = screen.getByPlaceholderText(
-      /Course title, provider.../i
-    ) as HTMLInputElement;
-    expect(searchInput).toBeDisabled();
+    const selects = screen.getAllByRole("combobox");
+    selects.forEach((s) => expect(s).toBeDisabled());
   });
 
   it("preserves filter values between renders", () => {
@@ -141,7 +142,7 @@ describe("TrainingFilters", () => {
     );
 
     let searchInput = screen.getByPlaceholderText(
-      /Course title, provider.../i
+      /Search by title, provider/i
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("Python");
 
@@ -154,7 +155,7 @@ describe("TrainingFilters", () => {
     );
 
     searchInput = screen.getByPlaceholderText(
-      /Course title, provider.../i
+      /Search by title, provider/i
     ) as HTMLInputElement;
     expect(searchInput.value).toBe("Python");
   });

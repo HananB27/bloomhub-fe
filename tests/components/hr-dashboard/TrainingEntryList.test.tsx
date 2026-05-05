@@ -151,7 +151,7 @@ describe("TrainingEntryList", () => {
       />
     );
 
-    expect(screen.getByText("Loading training entries...")).toBeInTheDocument();
+    expect(screen.getByText(/Loading training entries/i)).toBeInTheDocument();
   });
 
   it("displays empty state message when no entries", () => {
@@ -168,6 +168,7 @@ describe("TrainingEntryList", () => {
     );
 
     expect(screen.getByText(/No training entries found/i)).toBeInTheDocument();
+    // New design shows the message in an h3
   });
 
   it("disables delete button while deleting", () => {
@@ -201,15 +202,15 @@ describe("TrainingEntryList", () => {
       />
     );
 
-    // Get all headers from the table header
+    // New design uses a grid layout with role="columnheader" on divs
     const headers = screen.getAllByRole("columnheader");
     const headerTexts = headers.map((h) => h.textContent);
 
-    expect(headerTexts).toContain("Course");
-    expect(headerTexts).toContain("Provider");
-    expect(headerTexts).toContain("Type");
+    expect(headerTexts).toContain("Training");
+    expect(headerTexts).toContain("Employee");
     expect(headerTexts).toContain("Date");
     expect(headerTexts).toContain("Status");
     expect(headerTexts).toContain("Cost");
+    expect(headerTexts).toContain("Certificate");
   });
 });

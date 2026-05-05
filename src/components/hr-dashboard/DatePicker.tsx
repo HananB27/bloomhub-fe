@@ -441,6 +441,7 @@ export function DatePicker(props: DatePickerProps) {
     today.getFullYear()
   );
   const [hoverDate, setHoverDate] = React.useState<Date | undefined>();
+  const [flipUp, setFlipUp] = React.useState(false);
   const wrapRef = React.useRef<HTMLDivElement>(null);
 
   const [singleSel, setSingleSel] = React.useState<Date | undefined>(
@@ -542,6 +543,10 @@ export function DatePicker(props: DatePickerProps) {
     : ((props as RangeDatePickerProps).endPlaceholder ?? "End date");
 
   const handleOpen = () => {
+    if (wrapRef.current) {
+      const rect = wrapRef.current.getBoundingClientRect();
+      setFlipUp(window.innerHeight - rect.bottom < 340);
+    }
     setOpen((o) => !o);
     setPanel("days");
   };
@@ -584,7 +589,9 @@ export function DatePicker(props: DatePickerProps) {
 
       {/* Popover */}
       {open && !props.disabled && (
-        <div className="absolute left-0 top-[calc(100%+8px)] z-50 min-w-[300px] rounded-2xl border border-gray-100 bg-white p-5 shadow-xl shadow-black/5">
+        <div
+          className={`absolute left-0 z-50 min-w-[300px] rounded-2xl border border-gray-100 bg-white p-5 shadow-xl shadow-black/5 ${flipUp ? "bottom-[calc(100%+8px)]" : "top-[calc(100%+8px)]"}`}
+        >
           {panel === "days" && (
             <Calendar
               mode={props.mode}

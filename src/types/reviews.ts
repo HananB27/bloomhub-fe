@@ -4,11 +4,20 @@ export type ReviewStatus =
   | "completed"
   | "cancelled";
 
-export type ReviewType = "quarterly" | "mid_year" | "annual" | "probation" | "custom";
+export type ReviewType =
+  | "quarterly"
+  | "mid_year"
+  | "annual"
+  | "probation"
+  | "custom";
 
 export type NoteVisibility = "private" | "shared";
 
-export type ReminderType = "upcoming_due" | "overdue" | "pending_action" | "completion_reminder";
+export type ReminderType =
+  | "upcoming_due"
+  | "overdue"
+  | "pending_action"
+  | "completion_reminder";
 
 export type ActionPointStatus = "open" | "in_progress" | "completed";
 
@@ -45,7 +54,12 @@ export interface PerformanceReview {
   scheduledDate: string; // ISO date
   nextReviewDate?: string; // ISO date
   completedAt?: string; // ISO datetime
-  outcome?: "exceeds_expectations" | "meets_expectations" | "partially_meets" | "needs_improvement" | "unsatisfactory";
+  outcome?:
+    | "exceeds_expectations"
+    | "meets_expectations"
+    | "partially_meets"
+    | "needs_improvement"
+    | "unsatisfactory";
   overallRating?: number; // 1-5 scale
   performanceScore?: number;
   cpfScore?: number;

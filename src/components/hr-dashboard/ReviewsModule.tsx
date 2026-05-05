@@ -24,7 +24,13 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
 import {
   Plus,
   Trash2,
@@ -99,12 +105,18 @@ export function ReviewsModule() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [reviews, setReviews] = useState<PerformanceReviewListItem[]>([]);
   const [employees, setEmployees] = useState<UserProfile[]>([]);
-  const [selectedReview, setSelectedReview] = useState<PerformanceReview | null>(null);
+  const [selectedReview, setSelectedReview] =
+    useState<PerformanceReview | null>(null);
   const [notes, setNotes] = useState<PerformanceReviewNote[]>([]);
-  const [actionPoints, setActionPoints] = useState<PerformanceReviewActionPoint[]>([]);
-  const [attachments, setAttachments] = useState<PerformanceReviewAttachment[]>([]);
+  const [actionPoints, setActionPoints] = useState<
+    PerformanceReviewActionPoint[]
+  >([]);
+  const [attachments, setAttachments] = useState<PerformanceReviewAttachment[]>(
+    []
+  );
   const [newNoteContent, setNewNoteContent] = useState("");
-  const [newNoteVisibility, setNewNoteVisibility] = useState<NoteVisibility>("shared");
+  const [newNoteVisibility, setNewNoteVisibility] =
+    useState<NoteVisibility>("shared");
   const [newActionTitle, setNewActionTitle] = useState("");
   const [newActionDescription, setNewActionDescription] = useState("");
   const [newActionOwner, setNewActionOwner] = useState("");
@@ -138,7 +150,8 @@ export function ReviewsModule() {
         setReviews(reviewsData);
         setEmployees(usersData);
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to load data";
+        const message =
+          err instanceof Error ? err.message : "Failed to load data";
         setError(message);
       } finally {
         setLoading(false);
@@ -155,11 +168,12 @@ export function ReviewsModule() {
 
     const loadReviewDetails = async () => {
       try {
-        const [notesData, actionPointsData, attachmentsData] = await Promise.all([
-          fetchReviewNotes(selectedReview.id, accessToken),
-          fetchActionPoints(selectedReview.id, accessToken),
-          fetchAttachments(selectedReview.id, accessToken),
-        ]);
+        const [notesData, actionPointsData, attachmentsData] =
+          await Promise.all([
+            fetchReviewNotes(selectedReview.id, accessToken),
+            fetchActionPoints(selectedReview.id, accessToken),
+            fetchAttachments(selectedReview.id, accessToken),
+          ]);
         setNotes(notesData);
         setActionPoints(actionPointsData);
         setAttachments(attachmentsData);
@@ -189,7 +203,8 @@ export function ReviewsModule() {
           employee: newReviewEmployeeId,
           reviewer: newReviewReviewerId,
           reviewType: newReviewType,
-          scheduledDate: newReviewScheduledDate || new Date().toISOString().split('T')[0],
+          scheduledDate:
+            newReviewScheduledDate || new Date().toISOString().split("T")[0],
         },
         accessToken
       );
@@ -203,7 +218,8 @@ export function ReviewsModule() {
       setError(null);
       setCreateDialogOpen(false);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to create review";
+      const message =
+        err instanceof Error ? err.message : "Failed to create review";
       setError(message);
     }
   }, [
@@ -243,10 +259,14 @@ export function ReviewsModule() {
 
       try {
         await deleteReviewNote(selectedReview.id, noteId, accessToken);
-        const notesData = await fetchReviewNotes(selectedReview.id, accessToken);
+        const notesData = await fetchReviewNotes(
+          selectedReview.id,
+          accessToken
+        );
         setNotes(notesData);
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to delete note";
+        const message =
+          err instanceof Error ? err.message : "Failed to delete note";
         setError(message);
       }
     },
@@ -275,21 +295,37 @@ export function ReviewsModule() {
           title: newActionTitle,
           description: newActionDescription,
           ownerId,
-          dueDate: newActionDueDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          dueDate:
+            newActionDueDate ||
+            new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+              .toISOString()
+              .split("T")[0],
         },
         accessToken
       );
-      const actionPointsData = await fetchActionPoints(selectedReview.id, accessToken);
+      const actionPointsData = await fetchActionPoints(
+        selectedReview.id,
+        accessToken
+      );
       setActionPoints(actionPointsData);
       setNewActionTitle("");
       setNewActionDescription("");
       setNewActionOwner("");
       setNewActionDueDate("");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to add action point";
+      const message =
+        err instanceof Error ? err.message : "Failed to add action point";
       setError(message);
     }
-  }, [selectedReview, session?.accessToken, session?.user?.id, newActionTitle, newActionDescription, newActionOwner, newActionDueDate]);
+  }, [
+    selectedReview,
+    session?.accessToken,
+    session?.user?.id,
+    newActionTitle,
+    newActionDescription,
+    newActionOwner,
+    newActionDueDate,
+  ]);
 
   const handleDeleteActionPoint = useCallback(
     async (actionPointId: string) => {
@@ -298,10 +334,14 @@ export function ReviewsModule() {
 
       try {
         await deleteActionPoint(selectedReview.id, actionPointId, accessToken);
-        const actionPointsData = await fetchActionPoints(selectedReview.id, accessToken);
+        const actionPointsData = await fetchActionPoints(
+          selectedReview.id,
+          accessToken
+        );
         setActionPoints(actionPointsData);
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to delete action point";
+        const message =
+          err instanceof Error ? err.message : "Failed to delete action point";
         setError(message);
       }
     },
@@ -315,10 +355,14 @@ export function ReviewsModule() {
 
       try {
         await uploadAttachment(selectedReview.id, file, accessToken);
-        const attachmentsData = await fetchAttachments(selectedReview.id, accessToken);
+        const attachmentsData = await fetchAttachments(
+          selectedReview.id,
+          accessToken
+        );
         setAttachments(attachmentsData);
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to upload attachment";
+        const message =
+          err instanceof Error ? err.message : "Failed to upload attachment";
         setError(message);
       }
     },
@@ -332,10 +376,14 @@ export function ReviewsModule() {
 
       try {
         await deleteAttachment(selectedReview.id, attachmentId, accessToken);
-        const attachmentsData = await fetchAttachments(selectedReview.id, accessToken);
+        const attachmentsData = await fetchAttachments(
+          selectedReview.id,
+          accessToken
+        );
         setAttachments(attachmentsData);
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to delete attachment";
+        const message =
+          err instanceof Error ? err.message : "Failed to delete attachment";
         setError(message);
       }
     },
@@ -361,10 +409,18 @@ export function ReviewsModule() {
       const data = await fetchPerformanceReviews(accessToken);
       setReviews(data);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to update review";
+      const message =
+        err instanceof Error ? err.message : "Failed to update review";
       setError(message);
     }
-  }, [selectedReview, session?.accessToken, overallRating, reviewSummary, cpfScore, performanceScore]);
+  }, [
+    selectedReview,
+    session?.accessToken,
+    overallRating,
+    reviewSummary,
+    cpfScore,
+    performanceScore,
+  ]);
 
   const handleStatusChange = useCallback(
     async (newStatus: ReviewStatus) => {
@@ -381,7 +437,8 @@ export function ReviewsModule() {
         const data = await fetchPerformanceReviews(accessToken);
         setReviews(data);
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to update status";
+        const message =
+          err instanceof Error ? err.message : "Failed to update status";
         setError(message);
       }
     },
@@ -405,13 +462,16 @@ export function ReviewsModule() {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>Performance Reviews</span>
-          <Dialog open={createDialogOpen} onOpenChange={(open) => {
-            setCreateDialogOpen(open);
-            if (!open) {
-              // Clear error when dialog closes
-              setError(null);
-            }
-          }}>
+          <Dialog
+            open={createDialogOpen}
+            onOpenChange={(open) => {
+              setCreateDialogOpen(open);
+              if (!open) {
+                // Clear error when dialog closes
+                setError(null);
+              }
+            }}
+          >
             <DialogTrigger asChild>
               <Button size="sm" className="gap-2">
                 <Plus className="w-4 h-4" />
@@ -431,7 +491,10 @@ export function ReviewsModule() {
                 )}
                 <div>
                   <Label>Employee</Label>
-                  <Select value={newReviewEmployeeId} onValueChange={setNewReviewEmployeeId}>
+                  <Select
+                    value={newReviewEmployeeId}
+                    onValueChange={setNewReviewEmployeeId}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select employee" />
                     </SelectTrigger>
@@ -446,7 +509,10 @@ export function ReviewsModule() {
                 </div>
                 <div>
                   <Label>Reviewer</Label>
-                  <Select value={newReviewReviewerId} onValueChange={setNewReviewReviewerId}>
+                  <Select
+                    value={newReviewReviewerId}
+                    onValueChange={setNewReviewReviewerId}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select reviewer" />
                     </SelectTrigger>
@@ -461,7 +527,10 @@ export function ReviewsModule() {
                 </div>
                 <div>
                   <Label>Review Type</Label>
-                  <Select value={newReviewType} onValueChange={(v) => setNewReviewType(v as ReviewType)}>
+                  <Select
+                    value={newReviewType}
+                    onValueChange={(v) => setNewReviewType(v as ReviewType)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -501,7 +570,9 @@ export function ReviewsModule() {
 
               <TabsContent value={activeTab} className="space-y-4 mt-4">
                 {filteredReviews.length === 0 ? (
-                  <p className="text-center py-8 text-gray-500">No reviews in this category</p>
+                  <p className="text-center py-8 text-gray-500">
+                    No reviews in this category
+                  </p>
                 ) : (
                   <div className="overflow-x-auto">
                     <Table>
@@ -518,13 +589,22 @@ export function ReviewsModule() {
                       </TableHeader>
                       <TableBody>
                         {filteredReviews.map((review) => (
-                          <TableRow key={review.id} className="hover:bg-gray-50">
+                          <TableRow
+                            key={review.id}
+                            className="hover:bg-gray-50"
+                          >
                             <TableCell>{review.employeeName}</TableCell>
                             <TableCell>{review.reviewerName}</TableCell>
-                            <TableCell>{REVIEW_TYPE_LABELS[review.reviewType]}</TableCell>
-                            <TableCell>{formatDate(review.scheduledDate)}</TableCell>
                             <TableCell>
-                              <Badge className={REVIEW_STATUS_COLORS[review.status]}>
+                              {REVIEW_TYPE_LABELS[review.reviewType]}
+                            </TableCell>
+                            <TableCell>
+                              {formatDate(review.scheduledDate)}
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                className={REVIEW_STATUS_COLORS[review.status]}
+                              >
                                 {REVIEW_STATUS_LABELS[review.status]}
                               </Badge>
                             </TableCell>
@@ -535,7 +615,9 @@ export function ReviewsModule() {
                                     <Star
                                       key={i}
                                       className={`w-4 h-4 ${
-                                        i <= (review.overallRating ?? 0) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                                        i <= (review.overallRating ?? 0)
+                                          ? "fill-yellow-400 text-yellow-400"
+                                          : "text-gray-300"
                                       }`}
                                     />
                                   ))}
@@ -572,7 +654,10 @@ export function ReviewsModule() {
               >
                 ← Back to List
               </Button>
-              <Select value={selectedReview.status} onValueChange={(v) => handleStatusChange(v as ReviewStatus)}>
+              <Select
+                value={selectedReview.status}
+                onValueChange={(v) => handleStatusChange(v as ReviewStatus)}
+              >
                 <SelectTrigger className="w-48">
                   <SelectValue />
                 </SelectTrigger>
@@ -588,21 +673,27 @@ export function ReviewsModule() {
             <div className="grid grid-cols-2 gap-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">{selectedReview.employeeName}</CardTitle>
+                  <CardTitle className="text-lg">
+                    {selectedReview.employeeName}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
                   <div>
-                    <span className="text-gray-600">Reviewer:</span> {selectedReview.reviewerName}
+                    <span className="text-gray-600">Reviewer:</span>{" "}
+                    {selectedReview.reviewerName}
                   </div>
                   <div>
-                    <span className="text-gray-600">Type:</span> {REVIEW_TYPE_LABELS[selectedReview.reviewType]}
+                    <span className="text-gray-600">Type:</span>{" "}
+                    {REVIEW_TYPE_LABELS[selectedReview.reviewType]}
                   </div>
                   <div>
-                    <span className="text-gray-600">Scheduled:</span> {formatDate(selectedReview.scheduledDate)}
+                    <span className="text-gray-600">Scheduled:</span>{" "}
+                    {formatDate(selectedReview.scheduledDate)}
                   </div>
                   {selectedReview.nextReviewDate && (
                     <div>
-                      <span className="text-gray-600">Next Review:</span> {formatDate(selectedReview.nextReviewDate)}
+                      <span className="text-gray-600">Next Review:</span>{" "}
+                      {formatDate(selectedReview.nextReviewDate)}
                     </div>
                   )}
                 </CardContent>
@@ -628,7 +719,11 @@ export function ReviewsModule() {
                       </button>
                     ))}
                   </div>
-                  {overallRating && <p className="text-sm text-gray-600">{RATING_LABELS[overallRating]}</p>}
+                  {overallRating && (
+                    <p className="text-sm text-gray-600">
+                      {RATING_LABELS[overallRating]}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -665,7 +760,12 @@ export function ReviewsModule() {
                     />
                   </div>
                   <div className="flex gap-3">
-                    <Select value={newNoteVisibility} onValueChange={(v) => setNewNoteVisibility(v as NoteVisibility)}>
+                    <Select
+                      value={newNoteVisibility}
+                      onValueChange={(v) =>
+                        setNewNoteVisibility(v as NoteVisibility)
+                      }
+                    >
                       <SelectTrigger className="w-32">
                         <SelectValue />
                       </SelectTrigger>
@@ -682,13 +782,17 @@ export function ReviewsModule() {
 
                 <div className="space-y-3 mt-6">
                   {notes.length === 0 ? (
-                    <p className="text-center text-gray-500 py-4">No notes yet</p>
+                    <p className="text-center text-gray-500 py-4">
+                      No notes yet
+                    </p>
                   ) : (
                     notes.map((note) => (
                       <Card key={note.id} className="p-4">
                         <div className="flex justify-between items-start mb-2">
                           <div>
-                            <p className="font-medium text-sm">{note.authorName}</p>
+                            <p className="font-medium text-sm">
+                              {note.authorName}
+                            </p>
                             <Badge variant="outline" className="text-xs mt-1">
                               {NOTE_VISIBILITY_LABELS[note.visibility]}
                             </Badge>
@@ -702,7 +806,9 @@ export function ReviewsModule() {
                           </Button>
                         </div>
                         <p className="text-sm text-gray-700">{note.content}</p>
-                        <p className="text-xs text-gray-500 mt-2">{formatDate(note.updatedAt)}</p>
+                        <p className="text-xs text-gray-500 mt-2">
+                          {formatDate(note.updatedAt)}
+                        </p>
                       </Card>
                     ))
                   )}
@@ -732,7 +838,10 @@ export function ReviewsModule() {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Label>Owner</Label>
-                      <Select value={newActionOwner} onValueChange={setNewActionOwner}>
+                      <Select
+                        value={newActionOwner}
+                        onValueChange={setNewActionOwner}
+                      >
                         <SelectTrigger className="mt-2">
                           <SelectValue placeholder="Select owner" />
                         </SelectTrigger>
@@ -762,7 +871,9 @@ export function ReviewsModule() {
 
                 <div className="space-y-2 mt-6">
                   {actionPoints.length === 0 ? (
-                    <p className="text-center text-gray-500 py-4">No action points</p>
+                    <p className="text-center text-gray-500 py-4">
+                      No action points
+                    </p>
                   ) : (
                     actionPoints.map((ap) => (
                       <Card key={ap.id} className="p-4">
@@ -774,7 +885,9 @@ export function ReviewsModule() {
                                 {ACTION_POINT_STATUS_LABELS[ap.status]}
                               </Badge>
                             </div>
-                            <p className="text-sm text-gray-600 mb-2">{ap.description}</p>
+                            <p className="text-sm text-gray-600 mb-2">
+                              {ap.description}
+                            </p>
                             <div className="flex justify-between text-xs text-gray-500">
                               <span>Owner: {ap.ownerName}</span>
                               <span>Due: {formatDate(ap.dueDate)}</span>
@@ -810,29 +923,46 @@ export function ReviewsModule() {
                     />
                     <label htmlFor="file-upload" className="cursor-pointer">
                       <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                      <p className="text-sm text-gray-600">Click to upload or drag and drop</p>
+                      <p className="text-sm text-gray-600">
+                        Click to upload or drag and drop
+                      </p>
                     </label>
                   </div>
                 </div>
 
                 <div className="space-y-2 mt-4">
                   {attachments.length === 0 ? (
-                    <p className="text-center text-gray-500 py-4">No documents</p>
+                    <p className="text-center text-gray-500 py-4">
+                      No documents
+                    </p>
                   ) : (
                     attachments.map((att) => (
-                      <Card key={att.id} className="p-4 flex items-center justify-between">
+                      <Card
+                        key={att.id}
+                        className="p-4 flex items-center justify-between"
+                      >
                         <div className="flex items-center gap-3">
                           <FileText className="w-5 h-5 text-gray-400" />
                           <div>
-                            <p className="font-medium text-sm">{att.fileName}</p>
-                            <p className="text-xs text-gray-500">{att.uploadedByName}</p>
+                            <p className="font-medium text-sm">
+                              {att.fileName}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {att.uploadedByName}
+                            </p>
                           </div>
                         </div>
                         <div className="flex gap-2">
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => window.open(att.fileUrl, "_blank", "noopener,noreferrer")}
+                            onClick={() =>
+                              window.open(
+                                att.fileUrl,
+                                "_blank",
+                                "noopener,noreferrer"
+                              )
+                            }
                           >
                             <Download className="w-4 h-4" />
                           </Button>
@@ -859,7 +989,11 @@ export function ReviewsModule() {
                       min="0"
                       max="100"
                       value={cpfScore || ""}
-                      onChange={(e) => setCpfScore(e.target.value ? parseInt(e.target.value) : null)}
+                      onChange={(e) =>
+                        setCpfScore(
+                          e.target.value ? parseInt(e.target.value) : null
+                        )
+                      }
                       placeholder="0-100"
                       className="mt-2"
                     />
@@ -871,7 +1005,11 @@ export function ReviewsModule() {
                       min="0"
                       max="100"
                       value={performanceScore || ""}
-                      onChange={(e) => setPerformanceScore(e.target.value ? parseInt(e.target.value) : null)}
+                      onChange={(e) =>
+                        setPerformanceScore(
+                          e.target.value ? parseInt(e.target.value) : null
+                        )
+                      }
                       placeholder="0-100"
                       className="mt-2"
                     />

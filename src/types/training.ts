@@ -29,6 +29,7 @@ export interface TrainingEntry {
   cost?: number;
   completedAt?: string; // ISO datetime format
   description?: string;
+  certificateLink?: string; // HTTPS URL to certificate
   status: TrainingStatus;
   createdAt: string;
   updatedAt: string;
@@ -56,6 +57,7 @@ export interface CreateTrainingEntryPayload {
   cost?: number;
   description?: string;
   completedAt?: string; // ISO datetime format
+  certificateLink?: string; // HTTPS URL to certificate
   employeeId?: number; // HR only: assign to different employee
 }
 

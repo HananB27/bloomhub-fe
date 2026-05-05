@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { Search, Filter } from "lucide-react";
+import React, { useRef, useState } from "react";
+import { Search, X } from "lucide-react";
 import { Input } from "@/components/hr-dashboard/ui/input";
 import { Button } from "@/components/hr-dashboard/ui/button";
 import type { TrainingEntryFilters, TrainingType } from "@/types/training";
@@ -21,18 +21,25 @@ const TRAINING_TYPES: { value: TrainingType; label: string }[] = [
   { value: "other", label: "Other" },
 ];
 
-const YEARS = Array.from({ length: 10 }, (_, i) => {
-  const year = new Date().getFullYear() - i;
-  return year;
-});
+const YEARS = Array.from(
+  { length: 10 },
+  (_, i) => new Date().getFullYear() - i
+);
 
 export function TrainingFilters({
   filters,
   onFiltersChange,
   isLoading = false,
 }: TrainingFiltersProps) {
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [searchValue, setSearchValue] = useState(filters.search || "");
+
   const handleSearchChange = (value: string) => {
-    onFiltersChange({ ...filters, search: value || undefined });
+    setSearchValue(value);
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = setTimeout(() => {
+      onFiltersChange({ ...filters, search: value || undefined });
+    }, 300);
   };
 
   const handleTypeChange = (type: TrainingType | undefined) => {
@@ -44,6 +51,7 @@ export function TrainingFilters({
   };
 
   const handleReset = () => {
+    setSearchValue("");
     onFiltersChange({});
   };
 
@@ -53,87 +61,75 @@ export function TrainingFilters({
     filters.year ||
     filters.employeeId;
 
+  const selectCls =
+    "rounded-md border border-input bg-white px-3 py-[7px] text-sm text-gray-800 focus:outline-none disabled:opacity-50 cursor-pointer";
+
   return (
-    <div className="space-y-4 rounded-lg border bg-white p-4">
-      <div className="flex items-center gap-2">
-        <Filter className="h-5 w-5 text-gray-600" />
-        <h3 className="font-semibold text-gray-900">Filters</h3>
+    <div className="flex flex-1 items-center gap-2">
+      {/* Search */}
+      <div className="relative flex-1">
+        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
+        <Input
+          placeholder="Search by title, provider, employee…"
+          value={searchValue}
+          onChange={(e) => handleSearchChange(e.target.value)}
+          className="h-9 pl-9 text-sm text-gray-900"
+        />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {/* Search */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Search</label>
-          <div className="relative">
-            <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <Input
-              placeholder="Course title, provider..."
-              value={filters.search || ""}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              disabled={isLoading}
-              className="pl-8"
-            />
-          </div>
-        </div>
+      {/* Type filter */}
+      <select
+        value={filters.trainingType || ""}
+        onChange={(e) =>
+          handleTypeChange(
+            e.target.value ? (e.target.value as TrainingType) : undefined
+          )
+        }
+        disabled={isLoading}
+        className={selectCls}
+        style={{ minWidth: 130 }}
+      >
+        <option value="">All types</option>
+        {TRAINING_TYPES.map((type) => (
+          <option key={type.value} value={type.value}>
+            {type.label}
+          </option>
+        ))}
+      </select>
 
-        {/* Training Type */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">
-            Training Type
-          </label>
-          <select
-            value={filters.trainingType || ""}
-            onChange={(e) =>
-              handleTypeChange(
-                e.target.value ? (e.target.value as TrainingType) : undefined
-              )
-            }
-            disabled={isLoading}
-            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100"
-          >
-            <option value="">All Types</option>
-            {TRAINING_TYPES.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Year filter */}
+      <select
+        value={filters.year || ""}
+        onChange={(e) =>
+          handleYearChange(
+            e.target.value ? parseInt(e.target.value) : undefined
+          )
+        }
+        disabled={isLoading}
+        className={selectCls}
+        style={{ minWidth: 110 }}
+      >
+        <option value="">All years</option>
+        {YEARS.map((year) => (
+          <option key={year} value={year}>
+            {year}
+          </option>
+        ))}
+      </select>
 
-        {/* Year */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Year</label>
-          <select
-            value={filters.year || ""}
-            onChange={(e) =>
-              handleYearChange(
-                e.target.value ? parseInt(e.target.value) : undefined
-              )
-            }
-            disabled={isLoading}
-            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100"
-          >
-            <option value="">All Years</option>
-            {YEARS.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Reset Button */}
-        <div className="flex items-end">
-          <Button
-            variant="outline"
-            onClick={handleReset}
-            disabled={!hasActiveFilters || isLoading}
-            className="w-full"
-          >
-            Reset Filters
-          </Button>
-        </div>
-      </div>
+      {/* Reset */}
+      {hasActiveFilters && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleReset}
+          disabled={isLoading}
+          className="h-9 gap-1.5 text-gray-500 hover:text-gray-800"
+        >
+          <X className="h-3.5 w-3.5" />
+          Reset
+        </Button>
+      )}
     </div>
   );
 }
