@@ -1861,7 +1861,6 @@ function TemplateBuilderStep4({
         <div
           className="border border-gray-200 rounded-lg p-5 bg-white prose prose-sm max-w-none min-h-[120px] text-[13.5px] text-gray-800"
           style={{ lineHeight: 1.7 }}
-           
           dangerouslySetInnerHTML={{
             __html:
               state.content ||

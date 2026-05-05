@@ -13,6 +13,39 @@ const API_BASE_URL = getApiBaseUrl();
 
 const UNKNOWN_FALLBACK = "Unknown";
 
+function getApiErrorMessage(error: unknown, fallback: string): string {
+  if (!error || typeof error !== "object") return fallback;
+
+  const errorRecord = error as Record<string, unknown>;
+  const directMessage =
+    errorRecord.detail ?? errorRecord.error ?? errorRecord.message;
+
+  if (typeof directMessage === "string" && directMessage.trim()) {
+    return directMessage;
+  }
+
+  const validationKeys = ["non_field_errors", "start_date", "end_date"];
+  for (const key of validationKeys) {
+    const value = errorRecord[key];
+
+    if (Array.isArray(value) && typeof value[0] === "string") {
+      return value[0];
+    }
+
+    if (typeof value === "string" && value.trim()) {
+      return value;
+    }
+  }
+
+  for (const value of Object.values(errorRecord)) {
+    if (Array.isArray(value) && typeof value[0] === "string") {
+      return value[0];
+    }
+  }
+
+  return fallback;
+}
+
 // ============================================
 // TRANSFORMATION UTILITIES (snake_case <-> camelCase)
 // ============================================
@@ -266,7 +299,9 @@ export const updateLeaveBalance = async (
       throw new Error("Forbidden: Only HR admins can adjust balances");
     }
     const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || "Failed to update leave balance");
+    throw new Error(
+      getApiErrorMessage(error, "Failed to update leave balance")
+    );
   }
 
   const data: ApiLeaveBalance = await response.json();
@@ -354,20 +389,9 @@ export const createLeaveRequest = async (
       throw new Error("Unauthorized: Please log in again");
     }
     const error = await response.json().catch(() => ({}));
-    // Extract validation errors
-    if (error.non_field_errors) {
-      throw new Error(error.non_field_errors[0]);
-    }
-    if (error.start_date) {
-      throw new Error(error.start_date[0]);
-    }
-    if (error.end_date) {
-      throw new Error(error.end_date[0]);
-    }
-    if (error.error) {
-      throw new Error(error.error);
-    }
-    throw new Error("Failed to create leave request");
+    throw new Error(
+      getApiErrorMessage(error, "Failed to create leave request")
+    );
   }
 
   const data: ApiLeaveRequest = await response.json();
@@ -402,7 +426,9 @@ export const approveLeaveRequest = async (
       throw new Error("Forbidden: Only managers can approve requests");
     }
     const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || "Failed to approve leave request");
+    throw new Error(
+      getApiErrorMessage(error, "Failed to approve leave request")
+    );
   }
 
   const data: ApiLeaveRequest = await response.json();
@@ -437,7 +463,9 @@ export const rejectLeaveRequest = async (
       throw new Error("Forbidden: Only managers can reject requests");
     }
     const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || "Failed to reject leave request");
+    throw new Error(
+      getApiErrorMessage(error, "Failed to reject leave request")
+    );
   }
 
   const data: ApiLeaveRequest = await response.json();
@@ -470,7 +498,9 @@ export const cancelLeaveRequest = async (
       throw new Error("Forbidden: You can only cancel your own requests");
     }
     const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || "Failed to cancel leave request");
+    throw new Error(
+      getApiErrorMessage(error, "Failed to cancel leave request")
+    );
   }
 
   const data: ApiLeaveRequest = await response.json();
