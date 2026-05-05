@@ -11,6 +11,8 @@ import type {
 
 const API_BASE_URL = getApiBaseUrl();
 
+const UNKNOWN_FALLBACK = "Unknown";
+
 // ============================================
 // TRANSFORMATION UTILITIES (snake_case <-> camelCase)
 // ============================================
@@ -84,7 +86,7 @@ function transformLeaveRequest(api: ApiLeaveRequest): LeaveRequest {
   return {
     id: String(api.id),
     employeeId: String(api.employee_id),
-    employeeName: api.employee_name || "Unknown",
+    employeeName: api.employee_name || UNKNOWN_FALLBACK,
     employeeAvatar: api.employee_avatar || undefined,
     leaveType: api.leave_type as LeaveType,
     startDate: api.start_date,
@@ -112,7 +114,7 @@ function transformLeaveBalance(api: ApiLeaveBalance): LeaveBalance {
   return {
     id: String(api.id),
     employeeId: String(api.employee_id),
-    employeeName: api.employee_name || "Unknown employee",
+    employeeName: api.employee_name || UNKNOWN_FALLBACK,
     leaveType: api.leave_type as LeaveType,
     allocated: api.allocated,
     used: api.used,
@@ -146,7 +148,7 @@ function transformTeamCalendarEvent(
   return {
     id: api.id,
     employeeId: api.employeeId,
-    employeeName: api.employeeName || "Unknown",
+    employeeName: api.employeeName || UNKNOWN_FALLBACK,
     leaveType: api.leaveType as LeaveType,
     startDate: api.startDate,
     endDate: api.endDate,
