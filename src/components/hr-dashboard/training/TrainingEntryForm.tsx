@@ -1,16 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { Calendar, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/hr-dashboard/ui/card";
+import { AlertCircle, CheckCircle, Loader2, Link2 } from "lucide-react";
 import { Button } from "@/components/hr-dashboard/ui/button";
 import { Input } from "@/components/hr-dashboard/ui/input";
 import { Label } from "@/components/hr-dashboard/ui/label";
+import { DatePicker } from "../DatePicker";
 import type {
   CreateTrainingEntryPayload,
   UpdateTrainingEntryPayload,
@@ -27,12 +22,36 @@ interface TrainingEntryFormProps {
 }
 
 const TRAINING_TYPES = [
-  { value: "course", label: "Course" },
-  { value: "workshop", label: "Workshop" },
-  { value: "conference", label: "Conference" },
-  { value: "certification", label: "Certification" },
-  { value: "seminar", label: "Seminar" },
-  { value: "other", label: "Other" },
+  {
+    value: "course",
+    label: "Course",
+    activeClass: "bg-indigo-50 text-indigo-700 border-indigo-200",
+  },
+  {
+    value: "workshop",
+    label: "Workshop",
+    activeClass: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  {
+    value: "conference",
+    label: "Conference",
+    activeClass: "bg-sky-50 text-sky-700 border-sky-200",
+  },
+  {
+    value: "certification",
+    label: "Certification",
+    activeClass: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  },
+  {
+    value: "seminar",
+    label: "Seminar",
+    activeClass: "bg-rose-50 text-rose-700 border-rose-200",
+  },
+  {
+    value: "other",
+    label: "Other",
+    activeClass: "bg-slate-100 text-slate-700 border-slate-300",
+  },
 ];
 
 export function TrainingEntryForm({
@@ -54,16 +73,12 @@ export function TrainingEntryForm({
     cost: editingEntry?.cost,
     description: editingEntry?.description || "",
     completedAt: editingEntry?.completedAt,
+    certificateLink: editingEntry?.certificateLink || "",
     employeeId,
   });
 
-  // Get max date (today)
-  const today = new Date().toISOString().split("T")[0];
-
   const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
@@ -97,21 +112,24 @@ export function TrainingEntryForm({
       return false;
     }
     if (formData.completedAt && formData.trainingDate) {
-      const completedDate = new Date(formData.completedAt);
-      const trainingDate = new Date(formData.trainingDate);
-      // Compare dates only (not time), normalize to midnight for fair comparison
-      const completedDateOnly = new Date(
-        completedDate.getFullYear(),
-        completedDate.getMonth(),
-        completedDate.getDate()
-      );
-      const trainingDateOnly = new Date(
-        trainingDate.getFullYear(),
-        trainingDate.getMonth(),
-        trainingDate.getDate()
-      );
-      if (completedDateOnly < trainingDateOnly) {
+      const cd = new Date(formData.completedAt);
+      const td = new Date(formData.trainingDate);
+      const cdOnly = new Date(cd.getFullYear(), cd.getMonth(), cd.getDate());
+      const tdOnly = new Date(td.getFullYear(), td.getMonth(), td.getDate());
+      if (cdOnly < tdOnly) {
         setError("Completion date cannot be before training date");
+        return false;
+      }
+    }
+    if (formData.certificateLink && formData.certificateLink.trim()) {
+      try {
+        const url = new URL(formData.certificateLink);
+        if (!url.protocol.startsWith("https")) {
+          setError("Certificate link must be an HTTPS URL");
+          return false;
+        }
+      } catch {
+        setError("Certificate link must be a valid HTTPS URL");
         return false;
       }
     }
@@ -128,9 +146,7 @@ export function TrainingEntryForm({
       return;
     }
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsLoading(true);
     try {
@@ -143,7 +159,6 @@ export function TrainingEntryForm({
         );
       } else {
         result = await createTrainingEntry(formData, accessToken);
-        // Reset form after successful creation
         setFormData({
           courseTitle: "",
           provider: "",
@@ -152,185 +167,253 @@ export function TrainingEntryForm({
           cost: undefined,
           description: "",
           completedAt: undefined,
+          certificateLink: "",
           employeeId,
         });
       }
-
-      // Call success callback immediately for instant UI update
-      if (onSuccess) {
-        onSuccess(result);
-      }
+      if (onSuccess) onSuccess(result);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "An error occurred";
-      setError(errorMessage);
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsLoading(false);
     }
   };
 
+  const inputCls =
+    "w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-gray-400 focus:bg-white disabled:opacity-50";
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="h-5 w-5" />
-          {isEditing ? "Edit Training Entry" : "Add Training Entry"}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {error && (
-            <div className="flex gap-2 rounded-md bg-red-50 p-3 text-red-700">
-              <AlertCircle className="h-5 w-5 shrink-0" />
-              <span className="text-sm">{error}</span>
-            </div>
-          )}
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {error && (
+        <div className="flex gap-2 rounded-lg bg-red-50 p-3 text-red-700">
+          <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+          <span className="text-sm">{error}</span>
+        </div>
+      )}
+      {success && (
+        <div className="flex gap-2 rounded-lg bg-green-50 p-3 text-green-700">
+          <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" />
+          <span className="text-sm">{success}</span>
+        </div>
+      )}
 
-          {success && (
-            <div className="flex gap-2 rounded-md bg-green-50 p-3 text-green-700">
-              <CheckCircle className="h-5 w-5 shrink-0" />
-              <span className="text-sm">{success}</span>
-            </div>
-          )}
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="courseTitle">Course Title *</Label>
-              <Input
-                id="courseTitle"
-                name="courseTitle"
-                value={formData.courseTitle}
-                onChange={handleInputChange}
-                placeholder="e.g., Advanced Python Programming"
+      {/* Type chips */}
+      <div className="space-y-2">
+        <Label
+          htmlFor="trainingType"
+          className="text-xs font-medium text-gray-700"
+        >
+          Training Type
+        </Label>
+        {/* Hidden select keeps label association for accessibility / tests */}
+        <select
+          id="trainingType"
+          name="trainingType"
+          value={formData.trainingType}
+          onChange={(e) =>
+            setFormData((prev) => ({
+              ...prev,
+              trainingType: e.target
+                .value as CreateTrainingEntryPayload["trainingType"],
+            }))
+          }
+          className="sr-only"
+          aria-hidden="true"
+          tabIndex={-1}
+          disabled={isLoading}
+        >
+          {TRAINING_TYPES.map((t) => (
+            <option key={t.value} value={t.value}>
+              {t.label}
+            </option>
+          ))}
+        </select>
+        <div className="flex flex-wrap gap-2">
+          {TRAINING_TYPES.map((type) => {
+            const isActive = formData.trainingType === type.value;
+            return (
+              <button
+                key={type.value}
+                type="button"
                 disabled={isLoading}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="provider">Provider *</Label>
-              <Input
-                id="provider"
-                name="provider"
-                value={formData.provider}
-                onChange={handleInputChange}
-                placeholder="e.g., Coursera"
-                disabled={isLoading}
-              />
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="trainingType">Training Type *</Label>
-              <select
-                id="trainingType"
-                name="trainingType"
-                value={formData.trainingType}
-                onChange={handleInputChange}
-                disabled={isLoading}
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {TRAINING_TYPES.map((type) => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="trainingDate">Training Date *</Label>
-              <Input
-                id="trainingDate"
-                name="trainingDate"
-                type="date"
-                value={formData.trainingDate}
-                onChange={handleInputChange}
-                max={today}
-                disabled={isLoading}
-              />
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="completedAt">Completion Date</Label>
-              <Input
-                id="completedAt"
-                name="completedAt"
-                type="date"
-                value={
-                  formData.completedAt ? formData.completedAt.split("T")[0] : ""
-                }
-                onChange={(e) => {
-                  const dateOnly = e.target.value;
+                onClick={() =>
                   setFormData((prev) => ({
                     ...prev,
-                    completedAt: dateOnly || undefined,
-                  }));
-                }}
-                max={today}
-                disabled={isLoading}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="cost">Cost ($)</Label>
-              <Input
-                id="cost"
-                name="cost"
-                type="number"
-                step="0.01"
-                min="0"
-                value={formData.cost ?? ""}
-                onChange={handleInputChange}
-                placeholder="0.00"
-                disabled={isLoading}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              placeholder="Any additional details about the training..."
-              disabled={isLoading}
-              rows={3}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Button type="submit" disabled={isLoading} className="w-full">
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {isEditing ? "Updating..." : "Creating..."}
-                </>
-              ) : isEditing ? (
-                "Update Entry"
-              ) : (
-                "Add Entry"
-              )}
-            </Button>
-
-            {onCancel && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onCancel}
-                disabled={isLoading}
+                    trainingType:
+                      type.value as CreateTrainingEntryPayload["trainingType"],
+                  }))
+                }
+                className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all disabled:opacity-50 ${
+                  isActive
+                    ? type.activeClass
+                    : "border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                }`}
               >
-                Cancel
-              </Button>
-            )}
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+                {type.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Title */}
+      <div className="space-y-1.5">
+        <Label
+          htmlFor="courseTitle"
+          className="text-xs font-medium text-gray-700"
+        >
+          Course Title <span className="text-gray-400">*</span>
+        </Label>
+        <input
+          id="courseTitle"
+          name="courseTitle"
+          value={formData.courseTitle}
+          onChange={handleInputChange}
+          placeholder="e.g. AWS Solutions Architect"
+          disabled={isLoading}
+          className={inputCls}
+        />
+      </div>
+
+      {/* Provider + Cost */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label
+            htmlFor="provider"
+            className="text-xs font-medium text-gray-700"
+          >
+            Provider <span className="text-gray-400">*</span>
+          </Label>
+          <input
+            id="provider"
+            name="provider"
+            value={formData.provider}
+            onChange={handleInputChange}
+            placeholder="e.g. Coursera"
+            disabled={isLoading}
+            className={inputCls}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="cost" className="text-xs font-medium text-gray-700">
+            Cost ($)
+          </Label>
+          <input
+            id="cost"
+            name="cost"
+            type="number"
+            step="0.01"
+            min="0"
+            value={formData.cost ?? ""}
+            onChange={handleInputChange}
+            placeholder="0.00"
+            disabled={isLoading}
+            className={inputCls}
+          />
+        </div>
+      </div>
+
+      {/* Training Date + Completion Date */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label
+            htmlFor="trainingDate"
+            className="text-xs font-medium text-gray-700"
+          >
+            Training Date <span className="text-gray-400">*</span>
+          </Label>
+          <DatePicker
+            mode="single"
+            value={formData.trainingDate}
+            onChange={(date) =>
+              setFormData((prev) => ({ ...prev, trainingDate: date }))
+            }
+            disabled={isLoading}
+            disabledDates={(date) => date > new Date()}
+            size="compact"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs font-medium text-gray-700">
+            Completion Date
+          </Label>
+          <DatePicker
+            mode="single"
+            value={
+              formData.completedAt
+                ? formData.completedAt.split("T")[0]
+                : undefined
+            }
+            onChange={(date) =>
+              setFormData((prev) => ({
+                ...prev,
+                completedAt: date || undefined,
+              }))
+            }
+            disabled={isLoading}
+            disabledDates={(date) => date > new Date()}
+            size="compact"
+          />
+        </div>
+      </div>
+
+      {/* Certificate link */}
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium text-gray-700">
+          Certificate Link (HTTPS)
+        </Label>
+        <div className="relative">
+          <Link2 className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
+          <Input
+            name="certificateLink"
+            value={formData.certificateLink || ""}
+            onChange={handleInputChange}
+            placeholder="https://example.com/certificate"
+            disabled={isLoading}
+            className="pl-9 text-sm"
+          />
+        </div>
+      </div>
+
+      {/* Notes / description */}
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium text-gray-700">Notes</Label>
+        <textarea
+          name="description"
+          value={formData.description}
+          onChange={handleInputChange}
+          placeholder="Why this training, manager notes, links…"
+          disabled={isLoading}
+          rows={3}
+          className={`${inputCls} resize-none font-inherit`}
+        />
+      </div>
+
+      {/* Footer actions */}
+      <div className="flex justify-end gap-2 pt-1">
+        {onCancel && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+        )}
+        <Button type="submit" disabled={isLoading} className="gap-1.5">
+          {isLoading ? (
+            <>
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              {isEditing ? "Updating…" : "Adding…"}
+            </>
+          ) : isEditing ? (
+            "Update Entry"
+          ) : (
+            "Add Entry"
+          )}
+        </Button>
+      </div>
+    </form>
   );
 }
