@@ -12,7 +12,6 @@ import {
   Trash2,
   Loader2,
   LinkIcon,
-  Upload,
 } from "lucide-react";
 import { Button } from "@/components/hr-dashboard/ui/button";
 import type { TrainingEntry } from "@/types/training";
@@ -266,12 +265,6 @@ export function TrainingEntryList({
                     <LinkIcon className="h-3 w-3" />
                     Certificate
                   </a>
-                ) : entry.status === "completed" &&
-                  entry.trainingType === "certification" ? (
-                  <button className="inline-flex items-center gap-1 rounded border border-dashed border-gray-300 px-1.5 py-1 text-[11px] text-gray-500 transition-colors hover:border-gray-500 hover:text-gray-700">
-                    <Upload className="h-3 w-3" />
-                    Upload
-                  </button>
                 ) : (
                   <span className="text-[11.5px] text-gray-400">—</span>
                 )}

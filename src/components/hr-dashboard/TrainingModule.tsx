@@ -245,7 +245,7 @@ export function TrainingModule() {
 
       {/* Add / Edit dialog */}
       <Dialog open={showFormDialog} onOpenChange={setShowFormDialog}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg overflow-visible">
           <DialogHeader>
             <DialogTitle>
               {editingEntry ? "Edit Training Entry" : "Add Training Entry"}
@@ -256,23 +256,21 @@ export function TrainingModule() {
                 : "Log a course, conference, certification, or seminar."}
             </DialogDescription>
           </DialogHeader>
-          <div className="max-h-[70vh] overflow-y-auto pr-1">
-            {!accessToken ? (
-              <div className="flex items-center justify-center gap-2 py-8 text-red-600">
-                <AlertCircle className="h-4 w-4" />
-                <span className="text-sm">
-                  Authentication error. Please refresh.
-                </span>
-              </div>
-            ) : (
-              <TrainingEntryForm
-                accessToken={accessToken}
-                onSuccess={handleFormSuccess}
-                onCancel={handleFormCancel}
-                editingEntry={editingEntry || undefined}
-              />
-            )}
-          </div>
+          {!accessToken ? (
+            <div className="flex items-center justify-center gap-2 py-8 text-red-600">
+              <AlertCircle className="h-4 w-4" />
+              <span className="text-sm">
+                Authentication error. Please refresh.
+              </span>
+            </div>
+          ) : (
+            <TrainingEntryForm
+              accessToken={accessToken}
+              onSuccess={handleFormSuccess}
+              onCancel={handleFormCancel}
+              editingEntry={editingEntry || undefined}
+            />
+          )}
         </DialogContent>
       </Dialog>
 
