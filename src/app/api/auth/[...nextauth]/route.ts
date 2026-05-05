@@ -5,6 +5,22 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getApiBaseUrl } from "@/lib/config";
 
+function getRoleNameFromUser(user: unknown): string | undefined {
+  if (!user || typeof user !== "object") return undefined;
+
+  const userRecord = user as Record<string, unknown>;
+  const role = userRecord.role;
+
+  if (typeof userRecord.role_name === "string") return userRecord.role_name;
+  if (typeof role === "string") return role;
+  if (role && typeof role === "object") {
+    const roleRecord = role as Record<string, unknown>;
+    if (typeof roleRecord.name === "string") return roleRecord.name;
+  }
+
+  return undefined;
+}
+
 const handler = NextAuth({
   providers: [
     GoogleProvider({
@@ -43,6 +59,7 @@ const handler = NextAuth({
             image: data.user.avatar_url,
             is_staff: data.user.is_staff,
             is_superuser: data.user.is_superuser,
+            role: getRoleNameFromUser(data.user),
           };
         }
 
@@ -63,6 +80,7 @@ const handler = NextAuth({
         refreshToken?: string;
         career_level?: string;
         picture?: string;
+        role?: string;
         error?: string;
         [key: string]: unknown;
       };
@@ -137,6 +155,7 @@ const handler = NextAuth({
         if (typeof u.is_staff === "boolean") token.is_staff = u.is_staff;
         if (typeof u.is_superuser === "boolean")
           token.is_superuser = u.is_superuser;
+        if (typeof u.role === "string") token.role = u.role;
       }
 
       // For Google provider, we exchange the id_token for a local JWT
@@ -174,6 +193,24 @@ const handler = NextAuth({
               token.picture = (data.user as Record<string, unknown>)
                 .avatar_url as string;
             }
+            if (
+              data.user &&
+              typeof (data.user as Record<string, unknown>).is_staff ===
+                "boolean"
+            ) {
+              token.is_staff = (data.user as Record<string, unknown>).is_staff;
+            }
+            if (
+              data.user &&
+              typeof (data.user as Record<string, unknown>).is_superuser ===
+                "boolean"
+            ) {
+              token.is_superuser = (
+                data.user as Record<string, unknown>
+              ).is_superuser;
+            }
+            const roleName = getRoleNameFromUser(data.user);
+            if (roleName) token.role = roleName;
           }
         } catch (error) {
           console.error("[NextAuth] Exchange error:", error);
@@ -185,11 +222,13 @@ const handler = NextAuth({
           refreshToken?: string;
           career_level?: string;
           image?: string;
+          role?: string;
         };
         token.accessToken = u.accessToken;
         token.refreshToken = u.refreshToken;
         token.career_level = u.career_level;
         token.picture = u.image;
+        token.role = u.role;
       }
 
       // Try to refresh the token if it's expired (or missing expiry info)
@@ -221,6 +260,9 @@ const handler = NextAuth({
         if (typeof t.is_superuser === "boolean") {
           (session.user as Record<string, unknown>).is_superuser =
             t.is_superuser;
+        }
+        if (typeof t.role === "string") {
+          (session.user as Record<string, unknown>).role = t.role;
         }
 
         // Add picture

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
@@ -16,8 +16,14 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Badge } from "./ui/badge";
-import { Calendar } from "./ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 import {
   Table,
   TableBody,
@@ -29,6 +35,7 @@ import {
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Progress } from "./ui/progress";
 import { Switch } from "./ui/switch";
+import { DatePicker } from "./DatePicker";
 import {
   Calendar as CalendarIcon,
   Check,
@@ -44,6 +51,7 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
+  Eye,
 } from "lucide-react";
 import { formatDate } from "@/utils";
 import { format } from "date-fns";
@@ -80,6 +88,8 @@ interface ExtendedSession {
     image?: string | null;
     is_staff?: boolean;
     is_superuser?: boolean;
+    role?: string | { name?: string | null } | null;
+    role_name?: string | null;
   };
 }
 
@@ -129,6 +139,45 @@ const getLeaveTypeIcon = (type: LeaveType) => {
   }
 };
 
+const LOW_BALANCE_THRESHOLD_DAYS = 2;
+
+const getBalanceUsagePercent = (balance: LeaveBalance): number => {
+  if (balance.allocated <= 0) return 0;
+  return Math.min(100, Math.round((balance.used / balance.allocated) * 100));
+};
+
+const formatLocalDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const parseLocalDate = (value: string): Date | undefined => {
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return undefined;
+  return new Date(year, month - 1, day);
+};
+
+const isLowBalance = (balance: LeaveBalance): boolean =>
+  balance.remaining <= LOW_BALANCE_THRESHOLD_DAYS;
+
+const ADMIN_VACATION_ROLES = new Set(["admin", "hr"]);
+const APPROVER_VACATION_ROLES = new Set(["manager", "mgr", "mgr+"]);
+
+function getSessionRoleName(session?: ExtendedSession | null): string {
+  const user = session?.user;
+  const role = user?.role;
+
+  if (typeof user?.role_name === "string") return user.role_name;
+  if (typeof role === "string") return role;
+  if (role && typeof role === "object" && typeof role.name === "string") {
+    return role.name;
+  }
+
+  return "";
+}
+
 interface VacationsModuleProps {
   addNotification?: (
     module: "vacations",
@@ -136,6 +185,12 @@ interface VacationsModuleProps {
     title: string,
     message: string
   ) => void;
+}
+
+interface EmployeeLeaveBalanceGroup {
+  employeeId: string;
+  employeeName: string;
+  balances: LeaveBalance[];
 }
 
 export function VacationsModule({ addNotification }: VacationsModuleProps) {
@@ -146,18 +201,36 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
   // Loading and error states
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [requestFormError, setRequestFormError] = useState<string | null>(null);
+  const [adminActionError, setAdminActionError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Determine if user is HR admin from session
-  const isHRUser =
-    (session as ExtendedSession)?.user?.is_staff ||
-    (session as ExtendedSession)?.user?.is_superuser ||
-    true; // Fallback to true for now
+  // Balance and policy administration is stricter than request approval.
+  const extSession = session as ExtendedSession | null;
+  const sessionRoleName = getSessionRoleName(extSession).trim().toLowerCase();
+  const canAccessVacationAdmin =
+    extSession?.user?.is_staff === true ||
+    extSession?.user?.is_superuser === true ||
+    ADMIN_VACATION_ROLES.has(sessionRoleName);
+  const canApproveVacationRequests =
+    canAccessVacationAdmin ||
+    APPROVER_VACATION_ROLES.has(sessionRoleName) ||
+    sessionRoleName.includes("manager");
 
   // Data states - initialize as empty, will be populated from API
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [leaveBalances, setLeaveBalances] = useState<LeaveBalance[]>([]);
   const [teamEvents, setTeamEvents] = useState<TeamCalendarEvent[]>([]);
+  const [selectedPolicyEmployeeId, setSelectedPolicyEmployeeId] = useState<
+    string | null
+  >(null);
+  const [policyEmployeeSearch, setPolicyEmployeeSearch] = useState("");
+  const [policyLeaveTypeFilter, setPolicyLeaveTypeFilter] = useState<
+    LeaveType | "all"
+  >("all");
+  const [policyBalanceFilter, setPolicyBalanceFilter] = useState<"all" | "low">(
+    "all"
+  );
 
   const [selectedStartDate, setSelectedStartDate] = useState<Date>();
   const [selectedEndDate, setSelectedEndDate] = useState<Date>();
@@ -180,9 +253,62 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
     : null;
 
   // Filter balances for current user (non-admin view) vs all balances (admin view)
-  const displayedBalances = isAdminMode
-    ? leaveBalances
-    : leaveBalances.filter((b) => b.employeeId === currentUserEmployeeId);
+  const displayedBalances = useMemo(
+    () =>
+      isAdminMode
+        ? leaveBalances
+        : leaveBalances.filter((b) => b.employeeId === currentUserEmployeeId),
+    [currentUserEmployeeId, isAdminMode, leaveBalances]
+  );
+  const groupedDisplayedBalances = useMemo(() => {
+    return Array.from(
+      displayedBalances
+        .reduce((groups, balance) => {
+          const employeeGroup = groups.get(balance.employeeId) ?? {
+            employeeId: balance.employeeId,
+            employeeName:
+              balance.employeeName?.trim() || `Employee ${balance.employeeId}`,
+            balances: [] as LeaveBalance[],
+          };
+
+          employeeGroup.balances.push(balance);
+          groups.set(balance.employeeId, employeeGroup);
+          return groups;
+        }, new Map<string, EmployeeLeaveBalanceGroup>())
+        .values()
+    ).sort((a, b) => a.employeeName.localeCompare(b.employeeName));
+  }, [displayedBalances]);
+  const selectedPolicyEmployee = useMemo(
+    () =>
+      groupedDisplayedBalances.find(
+        (group) => group.employeeId === selectedPolicyEmployeeId
+      ) ?? null,
+    [groupedDisplayedBalances, selectedPolicyEmployeeId]
+  );
+  const filteredPolicyEmployeeGroups = useMemo(() => {
+    const normalizedSearch = policyEmployeeSearch.trim().toLowerCase();
+
+    return groupedDisplayedBalances.filter((group) => {
+      const matchesSearch =
+        normalizedSearch.length === 0 ||
+        group.employeeName.toLowerCase().includes(normalizedSearch);
+      const matchesLeaveType =
+        policyLeaveTypeFilter === "all" ||
+        group.balances.some(
+          (balance) => balance.leaveType === policyLeaveTypeFilter
+        );
+      const matchesBalanceFilter =
+        policyBalanceFilter === "all" ||
+        group.balances.some((balance) => isLowBalance(balance));
+
+      return matchesSearch && matchesLeaveType && matchesBalanceFilter;
+    });
+  }, [
+    groupedDisplayedBalances,
+    policyBalanceFilter,
+    policyEmployeeSearch,
+    policyLeaveTypeFilter,
+  ]);
 
   // Get access token from session
   const getAccessToken = useCallback((): string | null => {
@@ -237,6 +363,15 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
     loadData();
   }, [sessionStatus, loadData]);
 
+  useEffect(() => {
+    if (canAccessVacationAdmin) return;
+
+    setIsAdminMode(false);
+    if (["admin", "policies"].includes(activeTab)) {
+      setActiveTab("request");
+    }
+  }, [activeTab, canAccessVacationAdmin]);
+
   const calculateDays = (start?: Date, end?: Date): number => {
     if (!start || !end) return 0;
     return (
@@ -248,27 +383,20 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
 
   const handleSubmitRequest = async () => {
     if (!leaveType || !selectedStartDate || !selectedEndDate || !reason) {
-      alert("Please fill in all required fields");
+      setRequestFormError("Please fill in all required fields.");
       return;
     }
 
     const token = getAccessToken();
     if (!token) {
-      // Notification removed - using global notification system
+      setRequestFormError("Not authenticated. Please log in.");
       return;
     }
 
     setIsSubmitting(true);
+    setRequestFormError(null);
 
     try {
-      // Format dates as local YYYY-MM-DD (avoid timezone conversion)
-      const formatLocalDate = (date: Date): string => {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
-      };
-
       const payload: CreateLeaveRequestPayload = {
         leaveType: leaveType as LeaveType,
         startDate: formatLocalDate(selectedStartDate),
@@ -297,14 +425,11 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
         );
       }
     } catch (err) {
-      console.error("Failed to submit leave request:", err);
+      const message =
+        err instanceof Error ? err.message : "Failed to submit request";
+      setRequestFormError(message);
       if (addNotification) {
-        addNotification(
-          "vacations",
-          "alert",
-          "Request Failed",
-          err instanceof Error ? err.message : "Failed to submit request"
-        );
+        addNotification("vacations", "alert", "Request Failed", message);
       }
     } finally {
       setIsSubmitting(false);
@@ -317,9 +442,11 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
 
     const token = getAccessToken();
     if (!token) {
-      // Notification removed - using global notification system
+      setAdminActionError("Not authenticated. Please log in.");
       return;
     }
+
+    setAdminActionError(null);
 
     try {
       let updatedRequest: LeaveRequest;
@@ -371,13 +498,15 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
         );
       }
     } catch (err) {
-      console.error(`Failed to ${status} leave request:`, err);
+      const message =
+        err instanceof Error ? err.message : `Failed to ${status} request`;
+      setAdminActionError(message);
       if (addNotification) {
         addNotification(
           "vacations",
           "alert",
           `Request ${status === "approved" ? "Approval" : "Rejection"} Failed`,
-          err instanceof Error ? err.message : `Failed to ${status} request`
+          message
         );
       }
     }
@@ -389,13 +518,13 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
       !adminBalanceForm.newBalance ||
       !adminBalanceForm.reason
     ) {
-      alert("Please fill in all fields");
+      setAdminActionError("Please fill in all fields.");
       return;
     }
 
     const token = getAccessToken();
     if (!token) {
-      // Notification removed - using global notification system
+      setAdminActionError("Not authenticated. Please log in.");
       return;
     }
 
@@ -407,11 +536,14 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
     );
 
     if (!balanceToUpdate) {
-      alert(`Balance for ${adminBalanceForm.leaveType} not found`);
+      setAdminActionError(
+        `Balance for ${adminBalanceForm.leaveType} not found.`
+      );
       return;
     }
 
     try {
+      setAdminActionError(null);
       const newAllocated = parseInt(adminBalanceForm.newBalance);
       const updatedBalance = await updateLeaveBalance(
         balanceToUpdate.id,
@@ -438,14 +570,11 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
         );
       }
     } catch (err) {
-      console.error("Failed to update balance:", err);
+      const message =
+        err instanceof Error ? err.message : "Failed to update balance";
+      setAdminActionError(message);
       if (addNotification) {
-        addNotification(
-          "vacations",
-          "alert",
-          "Balance Update Failed",
-          err instanceof Error ? err.message : "Failed to update balance"
-        );
+        addNotification("vacations", "alert", "Balance Update Failed", message);
       }
     }
   };
@@ -506,7 +635,7 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
           </p>
         </div>
         <div className="flex gap-2">
-          {isHRUser && (
+          {canAccessVacationAdmin && (
             <div className="flex items-center gap-2">
               <Label htmlFor="admin-mode" className="text-sm">
                 Admin Mode
@@ -514,59 +643,74 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
               <Switch
                 id="admin-mode"
                 checked={isAdminMode}
-                onCheckedChange={setIsAdminMode}
+                onCheckedChange={(checked) => {
+                  setIsAdminMode(checked);
+                  if (!checked && ["admin", "policies"].includes(activeTab)) {
+                    setActiveTab("request");
+                  }
+                }}
               />
             </div>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {displayedBalances.map((balance) => (
-          <Card key={balance.id} className="border-gray-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  {getLeaveTypeIcon(balance.leaveType)}
-                  <h3 className="font-semibold text-gray-900">
-                    {LEAVE_TYPE_LABELS[balance.leaveType]}
-                  </h3>
+      {!isAdminMode && (
+        <Card className="border-gray-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-semibold text-gray-950">
+              My Leave Policies
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+              {displayedBalances.map((balance) => (
+                <div
+                  key={balance.id}
+                  className="rounded-lg border border-gray-200 p-3"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      {getLeaveTypeIcon(balance.leaveType)}
+                      <h3 className="text-sm font-medium text-gray-900">
+                        {LEAVE_TYPE_LABELS[balance.leaveType]}
+                      </h3>
+                    </div>
+                    <span
+                      className={`text-sm font-semibold ${isLowBalance(balance) ? "text-red-600" : "text-green-600"}`}
+                    >
+                      {balance.remaining}
+                    </span>
+                  </div>
+                  <Progress
+                    value={getBalanceUsagePercent(balance)}
+                    className="mt-3 h-1.5"
+                  />
+                  <div className="mt-2 flex justify-between text-xs text-gray-500">
+                    <span>{balance.used} used</span>
+                    <span>{balance.allocated} allocated</span>
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Used:</span>
-                  <span className="font-medium">
-                    {balance.used}/{balance.allocated} days
-                  </span>
-                </div>
-                <Progress
-                  value={(balance.used / balance.allocated) * 100}
-                  className="h-2"
-                />
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Remaining:</span>
-                  <span
-                    className={`font-medium ${balance.remaining <= 2 ? "text-red-600" : "text-green-600"}`}
-                  >
-                    {balance.remaining} days
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
         className="space-y-6"
       >
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList
+          className={`grid w-full ${isAdminMode && canAccessVacationAdmin ? "grid-cols-4" : "grid-cols-2"}`}
+        >
           <TabsTrigger value="request">Request Leave</TabsTrigger>
           <TabsTrigger value="calendar">Team Calendar</TabsTrigger>
-          {isAdminMode && isHRUser && (
+          {isAdminMode && canAccessVacationAdmin && (
+            <TabsTrigger value="policies">Leave Policies</TabsTrigger>
+          )}
+          {isAdminMode && canAccessVacationAdmin && (
             <TabsTrigger value="admin">Admin Panel</TabsTrigger>
           )}
         </TabsList>
@@ -621,51 +765,35 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Start Date *</Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className="w-full justify-start text-left font-normal"
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {selectedStartDate
-                              ? format(selectedStartDate, "PPP")
-                              : "Pick a date"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={selectedStartDate}
-                            onSelect={setSelectedStartDate}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <DatePicker
+                        key={`start-${selectedStartDate ? formatLocalDate(selectedStartDate) : "empty"}`}
+                        mode="single"
+                        value={
+                          selectedStartDate
+                            ? formatLocalDate(selectedStartDate)
+                            : ""
+                        }
+                        onChange={(date) =>
+                          setSelectedStartDate(parseLocalDate(date))
+                        }
+                        placeholder="Pick a date"
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label>End Date *</Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className="w-full justify-start text-left font-normal"
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {selectedEndDate
-                              ? format(selectedEndDate, "PPP")
-                              : "Pick a date"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={selectedEndDate}
-                            onSelect={setSelectedEndDate}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <DatePicker
+                        key={`end-${selectedEndDate ? formatLocalDate(selectedEndDate) : "empty"}`}
+                        mode="single"
+                        value={
+                          selectedEndDate
+                            ? formatLocalDate(selectedEndDate)
+                            : ""
+                        }
+                        onChange={(date) =>
+                          setSelectedEndDate(parseLocalDate(date))
+                        }
+                        placeholder="Pick a date"
+                      />
                     </div>
                   </div>
 
@@ -687,6 +815,14 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                       onChange={(e) => setReason(e.target.value)}
                     />
                   </div>
+
+                  {requestFormError && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Unable to submit request</AlertTitle>
+                      <AlertDescription>{requestFormError}</AlertDescription>
+                    </Alert>
+                  )}
 
                   <Button
                     onClick={handleSubmitRequest}
@@ -712,7 +848,9 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
             <div className="space-y-6">
               <Card className="border-gray-200">
                 <CardHeader>
-                  <CardTitle className="text-lg">Quick Stats</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-gray-950">
+                    Quick Stats
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="flex justify-between">
@@ -894,7 +1032,192 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
           </Card>
         </TabsContent>
 
-        {isAdminMode && isHRUser && (
+        {isAdminMode && canAccessVacationAdmin && (
+          <TabsContent value="policies" className="space-y-6">
+            <Card className="border-gray-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-semibold text-gray-950">
+                  Employee Leave Policies
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_220px_180px]">
+                  <div className="space-y-2">
+                    <Label htmlFor="policy-employee-search">
+                      Search employees
+                    </Label>
+                    <Input
+                      id="policy-employee-search"
+                      placeholder="Search by employee name"
+                      value={policyEmployeeSearch}
+                      onChange={(event) =>
+                        setPolicyEmployeeSearch(event.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Leave type</Label>
+                    <Select
+                      value={policyLeaveTypeFilter}
+                      onValueChange={(value) =>
+                        setPolicyLeaveTypeFilter(value as LeaveType | "all")
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All leave types</SelectItem>
+                        {ALL_LEAVE_TYPES.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {LEAVE_TYPE_LABELS[type]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Balance</Label>
+                    <Select
+                      value={policyBalanceFilter}
+                      onValueChange={(value) =>
+                        setPolicyBalanceFilter(value as "all" | "low")
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All balances</SelectItem>
+                        <SelectItem value="low">Low balances</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="divide-y divide-gray-100">
+                  {filteredPolicyEmployeeGroups.length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500">
+                      No employees match the selected filters.
+                    </div>
+                  ) : (
+                    filteredPolicyEmployeeGroups.map((group) => {
+                      const totalRemaining = group.balances.reduce(
+                        (sum, balance) => sum + balance.remaining,
+                        0
+                      );
+                      const totalAllocated = group.balances.reduce(
+                        (sum, balance) => sum + balance.allocated,
+                        0
+                      );
+                      const lowBalanceCount = group.balances.filter((balance) =>
+                        isLowBalance(balance)
+                      ).length;
+
+                      return (
+                        <div
+                          key={group.employeeId}
+                          className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+                        >
+                          <div>
+                            <h2 className="font-medium text-gray-900">
+                              {group.employeeName}
+                            </h2>
+                            <p className="text-sm text-gray-500">
+                              {group.balances.length} leave types ·{" "}
+                              {totalRemaining}/{totalAllocated} days remaining
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            {lowBalanceCount > 0 && (
+                              <Badge className="bg-red-100 text-red-800 border-red-200">
+                                {lowBalanceCount} low
+                              </Badge>
+                            )}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                setSelectedPolicyEmployeeId(group.employeeId)
+                              }
+                            >
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Dialog
+              open={selectedPolicyEmployee !== null}
+              onOpenChange={(open) => {
+                if (!open) setSelectedPolicyEmployeeId(null);
+              }}
+            >
+              <DialogContent className="max-w-2xl grid-rows-[auto_minmax(0,1fr)]">
+                <DialogHeader>
+                  <DialogTitle>
+                    {selectedPolicyEmployee?.employeeName ?? "Leave policies"}
+                  </DialogTitle>
+                  <DialogDescription>
+                    Allocations, usage, and remaining days by leave type.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="min-h-0 space-y-3 overflow-y-auto pr-2">
+                  {selectedPolicyEmployee?.balances.map((balance) => (
+                    <div
+                      key={balance.id}
+                      className="rounded-lg border border-gray-200 p-4"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-center gap-2">
+                          {getLeaveTypeIcon(balance.leaveType)}
+                          <h3 className="font-medium text-gray-900">
+                            {LEAVE_TYPE_LABELS[balance.leaveType]}
+                          </h3>
+                        </div>
+                        <span
+                          className={`text-sm font-medium ${isLowBalance(balance) ? "text-red-600" : "text-green-600"}`}
+                        >
+                          {balance.remaining} remaining
+                        </span>
+                      </div>
+                      <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
+                        <div>
+                          <p className="text-gray-500">Allocated</p>
+                          <p className="font-medium">
+                            {balance.allocated} days
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-500">Used</p>
+                          <p className="font-medium">{balance.used} days</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-500">Carryover</p>
+                          <p className="font-medium">
+                            {balance.carryOver} days
+                          </p>
+                        </div>
+                      </div>
+                      <Progress
+                        value={getBalanceUsagePercent(balance)}
+                        className="mt-3 h-2"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
+          </TabsContent>
+        )}
+
+        {isAdminMode && canAccessVacationAdmin && (
           <TabsContent value="admin" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="border-gray-200">
@@ -902,6 +1225,14 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                   <CardTitle>Adjust Leave Balance</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {adminActionError && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Action failed</AlertTitle>
+                      <AlertDescription>{adminActionError}</AlertDescription>
+                    </Alert>
+                  )}
+
                   <div className="space-y-2">
                     <Label>Leave Type *</Label>
                     <Select
@@ -1007,12 +1338,20 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
         )}
       </Tabs>
 
-      {isHRUser && (
+      {canApproveVacationRequests && (
         <Card className="border-gray-200">
           <CardHeader>
             <CardTitle>Pending Approvals</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            {adminActionError && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Action failed</AlertTitle>
+                <AlertDescription>{adminActionError}</AlertDescription>
+              </Alert>
+            )}
+
             <Table>
               <TableHeader>
                 <TableRow>
@@ -1057,10 +1396,10 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                       </span>
                     </TableCell>
                     <TableCell>{request.days}</TableCell>
-                    <TableCell>
-                      <span className="text-sm text-gray-600 truncate max-w-xs">
-                        {request.reason}
-                      </span>
+                    <TableCell className="max-w-sm">
+                      <p className="whitespace-normal break-words text-sm text-gray-700">
+                        {request.reason?.trim() || "No reason provided"}
+                      </p>
                     </TableCell>
                     <TableCell>{getStatusBadge(request.status)}</TableCell>
                     <TableCell>
