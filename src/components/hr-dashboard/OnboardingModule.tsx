@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
@@ -58,18 +58,6 @@ import {
 type TaskStatus = "todo" | "in-progress" | "done";
 type TemplateType = "onboarding" | "offboarding";
 
-function getStatusIcon(status: TaskStatus | "in_progress") {
-  switch (status) {
-    case "done":
-      return CheckCircle;
-    case "in-progress":
-    case "in_progress":
-      return Play;
-    default:
-      return Circle;
-  }
-}
-
 function normalizeStatus(status: string): string {
   return status === "in_progress" ? "in-progress" : status;
 }
@@ -78,6 +66,40 @@ function statusIconClass(status: string): string {
   if (status === "done") return "text-green-600";
   if (status === "in-progress") return "text-blue-600";
   return "text-gray-400";
+}
+
+interface TaskStatusIconProps {
+  status: string;
+  className: string;
+}
+
+function TaskStatusIcon({ status, className }: TaskStatusIconProps) {
+  if (status === "done") return <CheckCircle className={className} />;
+  if (status === "in-progress" || status === "in_progress")
+    return <Play className={className} />;
+  return <Circle className={className} />;
+}
+
+function mapChecklistTaskToTask(task: ChecklistTask): Task {
+  const assigneeName = task.assigned_to
+    ? `${task.assigned_to.user.first_name} ${task.assigned_to.user.last_name}`
+    : "Unassigned";
+  const assigneeAvatar = task.assigned_to
+    ? `${task.assigned_to.user.first_name.charAt(0)}${task.assigned_to.user.last_name.charAt(0)}`
+    : "UA";
+  return {
+    id: task.id,
+    title: task.title,
+    description: "",
+    assignee: assigneeName,
+    assigneeAvatar,
+    dueDate: task.due_date ?? "No due date",
+    status: normalizeStatus(task.status) as TaskStatus,
+    category: task.task_template.role_responsible,
+    priority: "medium",
+    estimatedHours: 0,
+    comments: [],
+  };
 }
 
 type ChecklistTaskCardVariant = "my-tasks" | "employee-tasks";
@@ -89,7 +111,6 @@ interface ChecklistTaskCardProps {
 
 function ChecklistTaskCard({ task, variant }: ChecklistTaskCardProps) {
   const status = normalizeStatus(task.status);
-  const StatusIcon = getStatusIcon(status as TaskStatus);
   const iconClassName = `w-5 h-5 mt-0.5 ${statusIconClass(status)}`;
 
   if (variant === "my-tasks") {
@@ -102,7 +123,7 @@ function ChecklistTaskCard({ task, variant }: ChecklistTaskCardProps) {
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3">
-              <StatusIcon className={iconClassName} />
+              <TaskStatusIcon status={status} className={iconClassName} />
               <div className="flex-1">
                 <h3 className="font-medium text-gray-900">{task.title}</h3>
                 <p className="text-sm text-gray-600 mt-1">
@@ -150,7 +171,7 @@ function ChecklistTaskCard({ task, variant }: ChecklistTaskCardProps) {
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-3">
-            <StatusIcon className={iconClassName} />
+            <TaskStatusIcon status={status} className={iconClassName} />
             <div>
               <h4 className="font-medium text-gray-900">{task.title}</h4>
               <p className="text-xs text-gray-500">
@@ -244,22 +265,40 @@ export function OnboardingModule() {
   });
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskRole, setNewTaskRole] = useState<"HR" | "IT" | "Manager">("HR");
+  const [trackerLoading, setTrackerLoading] = useState(false);
+  const [trackerError, setTrackerError] = useState<string | null>(null);
+  const [offboardingTasksState, setOffboardingTasksState] = useState<Task[]>(
+    []
+  );
 
-  const employees: Employee[] = [];
+  const employees: Employee[] = Array.from(
+    new Map(
+      myTasks.map((t) => {
+        const emp = t.checklist_instance.employee;
+        const id = String(emp.id);
+        return [
+          id,
+          {
+            id,
+            name: `${emp.user.first_name} ${emp.user.last_name}`,
+            department: emp.department ?? "",
+            role: t.task_template.role_responsible,
+            type: t.checklist_instance.template.type,
+          } as Employee,
+        ];
+      })
+    ).values()
+  );
 
   const [tasks, setTasks] = useState<Task[]>([]);
-
-  const offboardingTasks: Task[] = [];
 
   const selectedEmployeeData = employees.find(
     (emp) => emp.id === selectedEmployee
   );
   const currentTasks =
-    selectedTemplate === "onboarding"
-      ? tasks.filter((task) => task.id <= 7)
-      : offboardingTasks;
+    selectedTemplate === "onboarding" ? tasks : offboardingTasksState;
 
-  const allTasks = [...tasks, ...offboardingTasks];
+  const allTasks = [...tasks, ...offboardingTasksState];
   const completedTasks = currentTasks.filter(
     (task) => task.status === "done"
   ).length;
@@ -268,7 +307,7 @@ export function OnboardingModule() {
     totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   const activeOnboardingCount = tasks.length;
-  const activeOffboardingCount = offboardingTasks.length;
+  const activeOffboardingCount = offboardingTasksState.length;
   const overdueTasksCount = allTasks.filter((task) => {
     const due = new Date(task.dueDate);
     return (
@@ -285,14 +324,16 @@ export function OnboardingModule() {
       : 0;
 
   const handleTaskStatusChange = (taskId: number, newStatus: TaskStatus) => {
-    if (selectedTemplate === "onboarding") {
-      setTasks((prev) =>
-        prev.map((task) =>
-          task.id === taskId ? { ...task, status: newStatus } : task
-        )
-      );
-    }
-    // Handle offboarding tasks similarly
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === taskId ? { ...task, status: newStatus } : task
+      )
+    );
+    setOffboardingTasksState((prev) =>
+      prev.map((task) =>
+        task.id === taskId ? { ...task, status: newStatus } : task
+      )
+    );
   };
 
   const handleAddComment = (taskId: number) => {
@@ -430,7 +471,7 @@ export function OnboardingModule() {
     if (value === "templates") {
       loadTemplates();
     }
-    if (value === "my-tasks") {
+    if (value === "my-tasks" || value === "tracker") {
       loadMyTasks();
     }
   };
@@ -451,6 +492,45 @@ export function OnboardingModule() {
       setMyTasksLoading(false);
     }
   };
+
+  const loadTrackerTasks = async (employeeId: string) => {
+    if (!employeeId) return;
+    setTrackerLoading(true);
+    setTrackerError(null);
+    setTasks([]);
+    setOffboardingTasksState([]);
+    try {
+      const apiTasks = await fetchEmployeeTasks(
+        Number(employeeId),
+        accessToken
+      );
+      const onboarding: Task[] = [];
+      const offboarding: Task[] = [];
+      for (const t of apiTasks) {
+        const mapped = mapChecklistTaskToTask(t);
+        if (t.checklist_instance.template.type === "onboarding") {
+          onboarding.push(mapped);
+        } else {
+          offboarding.push(mapped);
+        }
+      }
+      setTasks(onboarding);
+      setOffboardingTasksState(offboarding);
+    } catch (error) {
+      setTrackerError(
+        error instanceof Error
+          ? error.message
+          : "Failed to load tasks for this employee."
+      );
+    } finally {
+      setTrackerLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadMyTasks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const loadEmployeeTasks = async () => {
     const employeeId = parseInt(selectedEmployeeForView.trim(), 10);
@@ -585,35 +665,41 @@ export function OnboardingModule() {
               <Label htmlFor="employee-select">Select Employee</Label>
               <Select
                 value={selectedEmployee}
-                onValueChange={setSelectedEmployee}
+                onValueChange={(empId) => {
+                  setSelectedEmployee(empId);
+                  void loadTrackerTasks(empId);
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Choose an employee" />
                 </SelectTrigger>
                 <SelectContent>
-                  {employees.map((employee) => (
-                    <SelectItem key={employee.id} value={employee.id}>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="w-6 h-6">
-                          <AvatarFallback className="text-xs">
-                            {employee.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{employee.name}</p>
-                          <p className="text-xs text-gray-500">
-                            {employee.department} -{" "}
-                            {employee.type === "onboarding"
-                              ? `Starts ${employee.startDate}`
-                              : `Ends ${employee.endDate}`}
-                          </p>
-                        </div>
-                      </div>
+                  {employees.length === 0 ? (
+                    <SelectItem value="_none" disabled>
+                      No employees found
                     </SelectItem>
-                  ))}
+                  ) : (
+                    employees.map((employee) => (
+                      <SelectItem key={employee.id} value={employee.id}>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="w-6 h-6">
+                            <AvatarFallback className="text-xs">
+                              {employee.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">{employee.name}</p>
+                            <p className="text-xs text-gray-500">
+                              {employee.department}
+                            </p>
+                          </div>
+                        </div>
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -719,9 +805,34 @@ export function OnboardingModule() {
 
               {/* Task Cards */}
               <div className="space-y-4">
-                {currentTasks.map((task) => {
-                  const StatusIcon = getStatusIcon(task.status);
-                  return (
+                {trackerLoading && (
+                  <p className="text-gray-500 text-sm">
+                    Loading tasks for this employee...
+                  </p>
+                )}
+                {trackerError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+                    {trackerError}
+                  </div>
+                )}
+                {!trackerLoading && !selectedEmployee && (
+                  <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-gray-500">
+                    Select an employee above to view their checklist progress.
+                  </div>
+                )}
+                {!trackerLoading &&
+                  selectedEmployee &&
+                  currentTasks.length === 0 &&
+                  !trackerError && (
+                    <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-gray-500">
+                      No{" "}
+                      {selectedTemplate === "onboarding"
+                        ? "onboarding"
+                        : "offboarding"}{" "}
+                      tasks found for this employee.
+                    </div>
+                  )}
+                {currentTasks.map((task) => (
                     <Card
                       key={task.id}
                       className={`border transition-all hover:shadow-sm ${task.status === "done" ? "bg-green-50/50" : ""}`}
@@ -729,14 +840,9 @@ export function OnboardingModule() {
                       <CardHeader className="pb-3">
                         <div className="flex items-start justify-between">
                           <div className="flex items-start gap-3">
-                            <StatusIcon
-                              className={`w-5 h-5 mt-0.5 ${
-                                task.status === "done"
-                                  ? "text-green-600"
-                                  : task.status === "in-progress"
-                                    ? "text-blue-600"
-                                    : "text-gray-400"
-                              }`}
+                            <TaskStatusIcon
+                              status={task.status}
+                              className={`w-5 h-5 mt-0.5 ${statusIconClass(task.status)}`}
                             />
                             <div className="flex-1">
                               <h3
@@ -899,9 +1005,8 @@ export function OnboardingModule() {
                         </div>
                       </CardContent>
                     </Card>
-                  );
-                })}
-              </div>
+                  ))}
+                </div>
             </div>
 
             {/* Sidebar */}
