@@ -34,6 +34,7 @@ export interface LeaveRequest {
 export interface LeaveBalance {
   id: string;
   employeeId: string;
+  employeeName: string;
   leaveType: LeaveType;
   allocated: number;
   used: number;
