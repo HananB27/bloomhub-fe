@@ -58,7 +58,6 @@ function PreviewModal({
           <div
             className="prose prose-sm max-w-none text-[13.5px] text-gray-800 [&_.tpl-field]:bg-cyan-100 [&_.tpl-field]:text-cyan-800 [&_.tpl-field]:px-1.5 [&_.tpl-field]:py-0.5 [&_.tpl-field]:rounded [&_.tpl-field]:text-[12px] [&_.tpl-field]:font-medium"
             style={{ lineHeight: 1.7 }}
-             
             dangerouslySetInnerHTML={{
               __html:
                 template.content ||
