@@ -36,8 +36,8 @@ describe("TrainingEntryForm", () => {
 
     expect(screen.getByLabelText(/Course Title/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Provider/i)).toBeInTheDocument();
+    // Training Type is now a chip selector; the hidden select keeps the label association
     expect(screen.getByLabelText(/Training Type/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Training Date/i)).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Add Entry/i })
     ).toBeInTheDocument();
