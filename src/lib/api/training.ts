@@ -27,6 +27,7 @@ interface ApiTrainingEntry {
   cost?: number;
   completed_at?: string;
   description?: string;
+  certificate_link?: string;
   status: string;
   created_at: string;
   updated_at: string;
@@ -51,6 +52,7 @@ function transformTrainingEntry(api: ApiTrainingEntry): TrainingEntry {
         : undefined,
     completedAt: api.completed_at,
     description: api.description,
+    certificateLink: api.certificate_link,
     status: api.status as TrainingStatus,
     createdAt: api.created_at,
     updatedAt: api.updated_at,
@@ -166,6 +168,9 @@ export const createTrainingEntry = async (
   if (payload.completedAt) {
     requestBody.completed_at = payload.completedAt;
   }
+  if (payload.certificateLink !== undefined) {
+    requestBody.certificate_link = payload.certificateLink || "";
+  }
   if (payload.employeeId !== undefined) {
     requestBody.employee_id = payload.employeeId;
   }
@@ -246,6 +251,9 @@ export const updateTrainingEntry = async (
   }
   if (payload.completedAt !== undefined) {
     requestBody.completed_at = payload.completedAt;
+  }
+  if (payload.certificateLink !== undefined) {
+    requestBody.certificate_link = payload.certificateLink || "";
   }
 
   const response = await fetch(`${API_BASE_URL}/api/training-entries/${id}/`, {

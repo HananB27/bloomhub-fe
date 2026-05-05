@@ -183,7 +183,7 @@ export function TrainingEntryForm({
     "w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-gray-400 focus:bg-white disabled:opacity-50";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
         <div className="flex gap-2 rounded-lg bg-red-50 p-3 text-red-700">
           <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
@@ -384,7 +384,7 @@ export function TrainingEntryForm({
           onChange={handleInputChange}
           placeholder="Why this training, manager notes, links…"
           disabled={isLoading}
-          rows={3}
+          rows={2}
           className={`${inputCls} resize-none font-inherit`}
         />
       </div>
