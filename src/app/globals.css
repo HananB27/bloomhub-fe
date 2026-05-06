@@ -533,6 +533,29 @@ tr:hover {
   color: #2563eb;
   text-decoration: underline;
 }
+.template-editor table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0;
+  font-size: inherit;
+}
+.template-editor th,
+.template-editor td {
+  vertical-align: top;
+}
+.template-editor blockquote {
+  margin: 0.5rem 0;
+  padding-left: 1rem;
+  border-left: 3px solid #e5e7eb;
+  color: #4b5563;
+}
+.template-editor u {
+  text-decoration: underline;
+}
+.template-editor s,
+.template-editor strike {
+  text-decoration: line-through;
+}
 .template-editor .tpl-field {
   background: #cffafe;
   color: #0e7490;

@@ -472,25 +472,36 @@ export function TemplatePicker({
     }
   }, []);
 
-  // Load on open
+  // Single effect: on open, reset filters and fetch immediately; while open,
+  // debounce refetches when the user changes search / category. Consolidated
+  // to avoid duplicate /templates calls on the open transition.
+  const wasOpenRef = useRef(false);
   useEffect(() => {
-    if (!open) return;
-    setSearch("");
-    setActiveCategory("all");
-    void fetchTemplates("", "all");
-  }, [open, fetchTemplates]);
+    if (!open) {
+      wasOpenRef.current = false;
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      return;
+    }
 
-  // Debounced refetch on search / category
-  useEffect(() => {
-    if (!open) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (!wasOpenRef.current) {
+      // Just opened — reset filters and fetch immediately
+      wasOpenRef.current = true;
+      setSearch("");
+      setActiveCategory("all");
+      void fetchTemplates("", "all");
+      return;
+    }
+
+    // Filters changed while open — debounce
     debounceRef.current = setTimeout(() => {
       void fetchTemplates(search, activeCategory);
     }, 300);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [search, activeCategory, open, fetchTemplates]);
+  }, [open, search, activeCategory, fetchTemplates]);
 
   function handleUseTemplate(template: DocumentTemplate) {
     if (template.fields.length > 0) {

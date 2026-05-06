@@ -207,3 +207,51 @@ export function getTemplateCategoryLabel(cat: TemplateCategory): string {
 export function generateFieldId(): string {
   return String(Date.now() + Math.random());
 }
+
+export function humanizePlaceholderInnerToLabel(innerTrimmed: string): string {
+  const parts = innerTrimmed.split("_").filter(Boolean);
+  if (parts.length <= 1) {
+    const w = innerTrimmed;
+    if (!w) return "";
+    return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+  }
+  return parts
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
+export function displayLabelForPlaceholder(p: {
+  key: string;
+  label: string;
+}): string {
+  const raw = p.label.trim();
+  if (!raw) return p.key;
+  if (raw.includes(" ") || raw.includes("-")) return raw;
+  if (raw.includes("_")) return humanizePlaceholderInnerToLabel(raw);
+  return raw;
+}
+
+export function mergeTemplateFieldsFromPlaceholders(
+  existing: TemplateField[],
+  html: string
+): TemplateField[] {
+  const placeholders = extractPlaceholders(html);
+  const existingKeys = new Set(existing.map((f) => f.key));
+  const additions: TemplateField[] = [];
+  for (const p of placeholders) {
+    if (!existingKeys.has(p.key)) {
+      existingKeys.add(p.key);
+      additions.push({
+        id: generateFieldId(),
+        key: p.key,
+        label: displayLabelForPlaceholder(p),
+        type: TemplateFieldType.Text,
+        placeholder: "",
+        required: false,
+        defaultValue: "",
+        options: "",
+      });
+    }
+  }
+  return additions.length > 0 ? [...existing, ...additions] : existing;
+}

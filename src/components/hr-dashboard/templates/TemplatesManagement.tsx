@@ -451,22 +451,26 @@ export function TemplatesManagement({
     []
   );
 
-  // Initial fetch
+  // Single effect: immediate fetch on first mount, debounced refetch on filter changes.
+  // Consolidated to avoid the duplicate /templates calls that occurred when both an
+  // "initial fetch" effect and a filter-deps effect fired on the same mount.
+  const isInitialMountRef = useRef(true);
   useEffect(() => {
-    void fetchTemplates(search, categoryFilter, visibilityFilter, statusFilter);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const isInitial = isInitialMountRef.current;
+    isInitialMountRef.current = false;
 
-  // Re-fetch when parent signals a save (create / edit)
-  useEffect(() => {
-    if (refreshSignal === undefined || refreshSignal === 0) return;
-    void fetchTemplates(search, categoryFilter, visibilityFilter, statusFilter);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshSignal]);
-
-  // Debounced refetch on filter change
-  useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (isInitial) {
+      void fetchTemplates(
+        search,
+        categoryFilter,
+        visibilityFilter,
+        statusFilter
+      );
+      return;
+    }
+
     debounceRef.current = setTimeout(() => {
       void fetchTemplates(
         search,
@@ -479,6 +483,13 @@ export function TemplatesManagement({
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, [search, categoryFilter, visibilityFilter, statusFilter, fetchTemplates]);
+
+  // Re-fetch immediately when parent signals a save (create / edit)
+  useEffect(() => {
+    if (refreshSignal === undefined || refreshSignal === 0) return;
+    void fetchTemplates(search, categoryFilter, visibilityFilter, statusFilter);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshSignal]);
 
   async function handleDuplicate(template: DocumentTemplate) {
     try {
