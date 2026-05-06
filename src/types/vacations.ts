@@ -8,7 +8,36 @@ export type LeaveType =
   | "bereavement"
   | "unpaid";
 
-export type LeaveStatus = "pending" | "approved" | "rejected" | "cancelled";
+export type LeaveStatus =
+  | "pending"
+  | "lead_approved"
+  | "approved"
+  | "rejected"
+  | "cancelled";
+
+export const LEAVE_STATUS_LABELS: Record<LeaveStatus, string> = {
+  pending: "Pending",
+  lead_approved: "Lead Approved",
+  approved: "Approved",
+  rejected: "Rejected",
+  cancelled: "Cancelled",
+};
+
+export const LEAVE_STATUS_BADGE_COLORS: Record<LeaveStatus, string> = {
+  pending: "bg-amber-100 text-amber-800 border-amber-200",
+  lead_approved: "bg-blue-100 text-blue-800 border-blue-200",
+  approved: "bg-green-100 text-green-800 border-green-200",
+  rejected: "bg-red-100 text-red-800 border-red-200",
+  cancelled: "bg-gray-100 text-gray-800 border-gray-200",
+};
+
+export const ALL_LEAVE_STATUSES: LeaveStatus[] = [
+  "pending",
+  "lead_approved",
+  "approved",
+  "rejected",
+  "cancelled",
+];
 
 export interface LeaveRequest {
   id: string;
@@ -24,6 +53,12 @@ export interface LeaveRequest {
   submittedDate: string;
   coveringEmployeeId?: string;
   coveringEmployeeName?: string;
+  // Tech Lead (first stage) approval fields
+  leadApproverId?: string;
+  leadApproverName?: string;
+  leadApprovedDate?: string;
+  leadApprovalComments?: string;
+  // HR (final stage) approval fields
   approverComments?: string;
   rejectionReason?: string;
   approverId?: string;
@@ -74,12 +109,18 @@ export interface LeavePolicy {
   minNoticeInDays: number;
 }
 
+export type ApprovalWorkflowStatus =
+  | "pending"
+  | "in_review"
+  | "approved"
+  | "rejected";
+
 export interface LeaveApprovalWorkflow {
   requestId: string;
   currentApproverId: string;
   approvalChain: string[]; // List of approver IDs in order
   currentApprovalStep: number;
-  status: "pending" | "in_review" | "approved" | "rejected";
+  status: ApprovalWorkflowStatus;
   comments: string[];
 }
 
@@ -94,6 +135,10 @@ export interface CreateLeaveRequestPayload {
 export interface ApproveLeaveRequestPayload {
   requestId: string;
   status: "approved" | "rejected";
+  comments?: string;
+}
+
+export interface HrApproveLeaveRequestPayload {
   comments?: string;
 }
 
