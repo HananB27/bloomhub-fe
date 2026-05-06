@@ -511,7 +511,10 @@ function TemplateBuilderStep2({
     null
   );
   const onContentChangeRef = useRef(onContentChange);
-  onContentChangeRef.current = onContentChange;
+
+  useEffect(() => {
+    onContentChangeRef.current = onContentChange;
+  }, [onContentChange]);
 
   useEffect(() => {
     if (editorRef.current) {
@@ -1156,6 +1159,38 @@ function TemplateBuilderStep2({
       block.classList.remove("dx-left", "dx-center", "dx-right", "dx-justify");
     }
     pushEditorContent();
+  }
+
+  function handleChipStyleReset() {
+    if (!fieldEditTarget) return;
+    const span = fieldEditTarget.span;
+    span.style.cssText =
+      "background:#cffafe;color:#0e7490;border-radius:4px;padding:1px 6px;font-size:13px;font-weight:500;display:inline-block;";
+    setChipFontFamily("");
+    setChipFontSize("13");
+    setChipTextColor("#0e7490");
+    setChipBgColor("#cffafe");
+    setChipBold(false);
+    setChipItalic(false);
+    pushEditorContent();
+  }
+
+  function handleChipBlockAlign(
+    value: "left" | "center" | "right" | "justify"
+  ) {
+    setChipBlockAlign(value);
+    applyChipBlockStyle("textAlign", value);
+  }
+
+  function handleChipBlockAlignClick(e: React.MouseEvent<HTMLButtonElement>) {
+    const value = e.currentTarget.dataset.align as
+      | "left"
+      | "center"
+      | "right"
+      | "justify"
+      | undefined;
+    if (!value) return;
+    handleChipBlockAlign(value);
   }
 
   /** Open the chip font dropdown anchored to the font button. */
@@ -2753,18 +2788,7 @@ function TemplateBuilderStep2({
                     <button
                       type="button"
                       title="Reset to default"
-                      onClick={() => {
-                        const span = fieldEditTarget.span;
-                        span.style.cssText =
-                          "background:#cffafe;color:#0e7490;border-radius:4px;padding:1px 6px;font-size:13px;font-weight:500;display:inline-block;";
-                        setChipFontFamily("");
-                        setChipFontSize("13");
-                        setChipTextColor("#0e7490");
-                        setChipBgColor("#cffafe");
-                        setChipBold(false);
-                        setChipItalic(false);
-                        pushEditorContent();
-                      }}
+                      onClick={handleChipStyleReset}
                       className="ml-auto h-8 rounded-md border border-gray-200 bg-white px-2 text-[10px] font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-700"
                     >
                       Reset
@@ -2825,10 +2849,8 @@ function TemplateBuilderStep2({
                           key={opt.value}
                           type="button"
                           title={opt.title}
-                          onClick={() => {
-                            setChipBlockAlign(opt.value);
-                            applyChipBlockStyle("textAlign", opt.value);
-                          }}
+                          data-align={opt.value}
+                          onClick={handleChipBlockAlignClick}
                           className={`h-8 flex-1 rounded-md border text-[12px] font-semibold transition-colors ${
                             active
                               ? "border-gray-800 bg-gray-800 text-white"
