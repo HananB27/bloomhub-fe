@@ -14,7 +14,6 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isConverting, setIsConverting] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  // Avatar file is stored but not read elsewhere; prefix with _ to mark unused variable
   const [_avatarFile, setAvatarFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     firstName: "",
