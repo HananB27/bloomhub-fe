@@ -860,7 +860,13 @@ export function AssetsModule() {
     setAssetCapabilities(capabilitiesPayload);
 
     const loadedCapabilities = toAssetCapabilities(capabilitiesPayload);
-    if (!loadedCapabilities.can_view_any_assets) {
+    const normalizedScope = String(
+      capabilitiesPayload.scope || ""
+    ).toLowerCase();
+    const hasScopedViewAccess = ["own", "team", "all"].includes(
+      normalizedScope
+    );
+    if (!loadedCapabilities.can_view_any_assets && !hasScopedViewAccess) {
       setAssets([]);
       setAssignments([]);
       setPendingReturnRequests([]);
@@ -1270,6 +1276,9 @@ export function AssetsModule() {
     }
 
     try {
+      const parsedSpecifications = newAsset.specifications.trim()
+        ? (JSON.parse(newAsset.specifications) as Record<string, string>)
+        : undefined;
       const purchaseDate =
         newAsset.purchaseDate || new Date().toISOString().split("T")[0];
       const normalizedAssetId =
@@ -1290,6 +1299,10 @@ export function AssetsModule() {
           purchase_price: newAsset.purchasePrice
             ? Number(newAsset.purchasePrice)
             : undefined,
+          warranty: newAsset.warranty || undefined,
+          warranty_until: newAsset.warranty || undefined,
+          location: newAsset.location || undefined,
+          specifications: parsedSpecifications,
           condition: "good",
           status: "active",
         },
@@ -1454,6 +1467,9 @@ export function AssetsModule() {
 
     setIsActionSubmitting(true);
     try {
+      const parsedSpecifications = editAsset.specifications.trim()
+        ? (JSON.parse(editAsset.specifications) as Record<string, string>)
+        : undefined;
       const updated = await updateAsset(
         selectedAsset.id,
         {
@@ -1468,6 +1484,10 @@ export function AssetsModule() {
           purchase_price: editAsset.purchasePrice
             ? Number(editAsset.purchasePrice)
             : undefined,
+          warranty: editAsset.warranty || undefined,
+          warranty_until: editAsset.warranty || undefined,
+          location: editAsset.location || undefined,
+          specifications: parsedSpecifications,
           status: toApiAssetStatus(editAsset.status),
           condition: toApiAssetCondition(editAsset.condition),
         },

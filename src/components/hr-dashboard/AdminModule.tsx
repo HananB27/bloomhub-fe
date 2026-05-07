@@ -54,6 +54,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ApiError, uploadRolePermissionsCsv } from "@/utils/api";
+import { fetchEmployees, type Employee } from "@/lib/api/employees";
 import { useAdminAccess } from "@/hooks/useAdminAccess";
 
 interface UserData {
@@ -79,25 +80,6 @@ interface AssetData {
   assignedTo: string;
   status: "available" | "assigned" | "maintenance";
 }
-
-const INITIAL_USERS: UserData[] = [
-  {
-    id: "BLQ-001",
-    name: "Alex Thompson",
-    email: "alex.thompson@bloomteq.com",
-    role: "Senior Software Engineer",
-    status: "active",
-    department: "Engineering",
-  },
-  {
-    id: "BLQ-002",
-    name: "Sarah Johnson",
-    email: "sarah.johnson@bloomteq.com",
-    role: "HR Director",
-    status: "active",
-    department: "Human Resources",
-  },
-];
 
 const INITIAL_ROLES: RoleData[] = [
   { id: "1", name: "Admin", permissions: ["all"], userCount: 2 },
@@ -171,12 +153,30 @@ function getInitialAccessToken() {
   );
 }
 
+function mapEmployeeToUserData(employee: Employee): UserData {
+  return {
+    id: employee.employee_id || String(employee.id),
+    name:
+      employee.full_name?.trim() ||
+      `${employee.first_name || ""} ${employee.last_name || ""}`.trim() ||
+      employee.username,
+    email: employee.email || employee.email_address || "",
+    role: employee.role_name || String(employee.role || ""),
+    status:
+      employee.employment_status ||
+      (employee.is_active ? "active" : "inactive"),
+    department: employee.department || "Unassigned",
+  };
+}
+
 export function AdminModule() {
   const router = useRouter();
   const { data: session } = useSession();
   const { isAdmin, isLoading: isCheckingAdmin } = useAdminAccess();
-  
-  const [users, setUsers] = useState<UserData[]>(INITIAL_USERS);
+
+  const [users, setUsers] = useState<UserData[]>([]);
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState(true);
+  const [employeesError, setEmployeesError] = useState<string | null>(null);
   const [roles, setRoles] = useState<RoleData[]>(INITIAL_ROLES);
   const [assets] = useState<AssetData[]>(INITIAL_ASSETS);
   const [searchQuery, setSearchQuery] = useState("");
@@ -195,6 +195,48 @@ export function AdminModule() {
       router.push("/");
     }
   }, [isAdmin, isCheckingAdmin, router]);
+
+  useEffect(() => {
+    const token = (session as { accessToken?: string } | null)?.accessToken;
+
+    if (!isAdmin) return;
+
+    if (!token) {
+      setUsers([]);
+      setEmployeesError("No access token found");
+      setIsLoadingEmployees(false);
+      return;
+    }
+
+    let isMounted = true;
+
+    const loadEmployees = async () => {
+      try {
+        setIsLoadingEmployees(true);
+        setEmployeesError(null);
+        const employees = await fetchEmployees({ accessToken: token });
+        if (!isMounted) return;
+        setUsers(employees.map(mapEmployeeToUserData));
+      } catch (error) {
+        if (!isMounted) return;
+        const message =
+          error instanceof Error ? error.message : "Failed to load employees";
+        setUsers([]);
+        setEmployeesError(message);
+        toast.error("Failed to load employees");
+      } finally {
+        if (isMounted) {
+          setIsLoadingEmployees(false);
+        }
+      }
+    };
+
+    void loadEmployees();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isAdmin, session]);
 
   const filteredUsers = users.filter(
     (u) =>
@@ -313,7 +355,9 @@ export function AdminModule() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center">
-            <Button onClick={() => router.push("/")}>Return to Dashboard</Button>
+            <Button onClick={() => router.push("/")}>
+              Return to Dashboard
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -400,60 +444,72 @@ export function AdminModule() {
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Department</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredUsers.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.name}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="font-normal">
-                          {user.role}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{user.department}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            user.status === "active" ? "success" : "secondary"
-                          }
-                          className="capitalize"
-                        >
-                          {user.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEditUser(user)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-red-500"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+              {isLoadingEmployees ? (
+                <div className="flex items-center justify-center py-10">
+                  <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                </div>
+              ) : employeesError ? (
+                <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                  {employeesError}
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Department</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredUsers.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium">
+                          {user.name}
+                        </TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="font-normal">
+                            {user.role}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{user.department}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              user.status === "active" ? "success" : "secondary"
+                            }
+                            className="capitalize"
+                          >
+                            {user.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEditUser(user)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-red-500"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

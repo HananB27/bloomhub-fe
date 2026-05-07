@@ -558,7 +558,8 @@ export function DatePicker(props: DatePickerProps) {
       setAlignEnd(
         props.popoverAlign === "end" ||
           (props.popoverAlign !== "start" &&
-            rect.left + POPOVER_MIN_WIDTH_PX > window.innerWidth - EDGE_PADDING_PX)
+            rect.left + POPOVER_MIN_WIDTH_PX >
+              window.innerWidth - EDGE_PADDING_PX)
       );
     }
     setOpen((o) => !o);
