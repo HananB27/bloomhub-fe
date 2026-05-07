@@ -54,9 +54,11 @@ import {
   ChecklistTask,
   ChecklistTaskStatus,
   TaskTemplate,
+  TemplateRole,
   TASK_STATUS_LABELS,
   TASK_STATUS_BADGE_COLORS,
   cloneTemplate,
+  createChecklistInstance,
   createTemplate,
   deleteTemplate,
   fetchEmployeeTasks,
@@ -150,7 +152,7 @@ function mapChecklistTaskToTask(task: ChecklistTask): Task {
     assigneeAvatar,
     dueDate: task.due_date ?? "No due date",
     status: normalizeStatus(task.status) as TaskStatus,
-    category: task.task_template.role_responsible,
+    category: task.checklist_instance.template.role_responsible ?? "",
     priority: "medium",
     estimatedHours: 0,
     comments: [],
@@ -200,7 +202,7 @@ function ChecklistTaskCard({
                 {TASK_STATUS_LABELS[apiStatus]}
               </Badge>
               <Badge variant="outline" className="text-sm">
-                {task.task_template.role_responsible}
+                {task.checklist_instance.template.role_responsible}
               </Badge>
             </div>
           </div>
@@ -372,10 +374,17 @@ export function OnboardingModule() {
   const [templateForm, setTemplateForm] = useState({
     name: "",
     type: "onboarding" as "onboarding" | "offboarding",
+    role_responsible: "HR" as TemplateRole,
     task_templates: [] as TaskTemplate[],
   });
   const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskRole, setNewTaskRole] = useState<"HR" | "IT" | "Manager">("HR");
+  const [assignModalTemplate, setAssignModalTemplate] =
+    useState<ChecklistTemplate | null>(null);
+  const [assignTargetEmployee, setAssignTargetEmployee] = useState<
+    string | null
+  >(null);
+  const [assignLoading, setAssignLoading] = useState(false);
+  const [assignError, setAssignError] = useState<string | null>(null);
   const [trackerLoading, setTrackerLoading] = useState(false);
   const [trackerError, setTrackerError] = useState<string | null>(null);
   const [offboardingTasksState, setOffboardingTasksState] = useState<Task[]>(
@@ -535,6 +544,7 @@ export function OnboardingModule() {
       setTemplateForm({
         name: "",
         type: "onboarding",
+        role_responsible: "HR",
         task_templates: [],
       });
     } catch {
@@ -569,11 +579,31 @@ export function OnboardingModule() {
         {
           title: newTaskTitle,
           order: prev.task_templates.length + 1,
-          role_responsible: newTaskRole,
         },
       ],
     }));
     setNewTaskTitle("");
+  };
+
+  const handleAssignTemplate = async () => {
+    if (!assignModalTemplate || !assignTargetEmployee) return;
+    setAssignLoading(true);
+    setAssignError(null);
+    try {
+      await createChecklistInstance(
+        Number(assignTargetEmployee),
+        assignModalTemplate.id,
+        accessToken
+      );
+      setAssignModalTemplate(null);
+      setAssignTargetEmployee(null);
+    } catch (err) {
+      setAssignError(
+        err instanceof Error ? err.message : "Failed to assign template."
+      );
+    } finally {
+      setAssignLoading(false);
+    }
   };
 
   const handleEditTemplate = (template: ChecklistTemplate) => {
@@ -581,6 +611,7 @@ export function OnboardingModule() {
     setTemplateForm({
       name: template.name,
       type: template.type,
+      role_responsible: template.role_responsible,
       task_templates: template.task_templates,
     });
     setShowTemplateForm(true);
@@ -1371,6 +1402,7 @@ export function OnboardingModule() {
                   setTemplateForm({
                     name: "",
                     type: "onboarding",
+                    role_responsible: "HR",
                     task_templates: [],
                   });
                   setShowTemplateForm(true);
@@ -1431,6 +1463,28 @@ export function OnboardingModule() {
                     </Select>
                   </div>
 
+                  <div className="space-y-2">
+                    <Label>Responsible Team</Label>
+                    <Select
+                      value={templateForm.role_responsible}
+                      onValueChange={(val: TemplateRole) =>
+                        setTemplateForm((prev) => ({
+                          ...prev,
+                          role_responsible: val,
+                        }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="HR">HR</SelectItem>
+                        <SelectItem value="IT">IT</SelectItem>
+                        <SelectItem value="Manager">Manager</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   {/* Tasks */}
                   <div className="space-y-2">
                     <Label>Tasks</Label>
@@ -1440,7 +1494,6 @@ export function OnboardingModule() {
                         className="flex items-center justify-between p-2 bg-gray-50 rounded border text-sm"
                       >
                         <span>{task.title}</span>
-                        <Badge variant="outline">{task.role_responsible}</Badge>
                       </div>
                     ))}
                     <div className="flex gap-2 mt-2">
@@ -1448,22 +1501,8 @@ export function OnboardingModule() {
                         placeholder="Task title"
                         value={newTaskTitle}
                         onChange={(e) => setNewTaskTitle(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleAddTask()}
                       />
-                      <Select
-                        value={newTaskRole}
-                        onValueChange={(val: "HR" | "IT" | "Manager") =>
-                          setNewTaskRole(val)
-                        }
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="HR">HR</SelectItem>
-                          <SelectItem value="IT">IT</SelectItem>
-                          <SelectItem value="Manager">Manager</SelectItem>
-                        </SelectContent>
-                      </Select>
                       <Button
                         variant="outline"
                         size="sm"
@@ -1508,8 +1547,23 @@ export function OnboardingModule() {
                       >
                         {template.type}
                       </Badge>
+                      <Badge variant="outline">
+                        {template.role_responsible}
+                      </Badge>
                     </div>
                     <div className="flex gap-2">
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => {
+                          setAssignModalTemplate(template);
+                          setAssignTargetEmployee(null);
+                          setAssignError(null);
+                        }}
+                      >
+                        <UserPlus className="w-4 h-4 mr-1" />
+                        Assign
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"
@@ -1544,17 +1598,71 @@ export function OnboardingModule() {
                   <div className="space-y-1">
                     {template.task_templates.map((task) => (
                       <div
-                        key={`${template.id}-${task.title}-${task.role_responsible}`}
-                        className="flex items-center justify-between text-sm p-2 bg-gray-50 rounded"
+                        key={`${template.id}-${task.title}-${task.order}`}
+                        className="text-sm p-2 bg-gray-50 rounded"
                       >
-                        <span>{task.title}</span>
-                        <Badge variant="outline">{task.role_responsible}</Badge>
+                        {task.title}
                       </div>
                     ))}
                   </div>
                 </CardContent>
               </Card>
             ))}
+
+            {/* Assign to Employee Modal */}
+            {assignModalTemplate && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                <Card className="w-full max-w-md mx-4">
+                  <CardHeader>
+                    <CardTitle>Assign Template to Employee</CardTitle>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {assignModalTemplate.name}
+                    </p>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Employee</Label>
+                      <Select
+                        value={assignTargetEmployee ?? ""}
+                        onValueChange={(val) => setAssignTargetEmployee(val)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an employee..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {allEmployees.map((emp) => (
+                            <SelectItem key={emp.id} value={String(emp.id)}>
+                              {`${emp.first_name} ${emp.last_name}`.trim() ||
+                                emp.email ||
+                                `Employee #${emp.id}`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {assignError && (
+                      <p className="text-sm text-red-600">{assignError}</p>
+                    )}
+                    <div className="flex gap-2 justify-end">
+                      <Button
+                        variant="outline"
+                        onClick={() => setAssignModalTemplate(null)}
+                        disabled={assignLoading}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="primary"
+                        onClick={() => void handleAssignTemplate()}
+                        disabled={!assignTargetEmployee || assignLoading}
+                      >
+                        {assignLoading ? "Assigning..." : "Assign"}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
             {!templatesLoading &&
               templates.length === 0 &&

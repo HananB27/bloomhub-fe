@@ -24,17 +24,19 @@ function getAuthHeaders(token?: string): Record<string, string> {
   };
 }
 
+export type TemplateRole = "HR" | "IT" | "Manager";
+
 export interface TaskTemplate {
   id?: number;
   title: string;
   order: number;
-  role_responsible: "HR" | "IT" | "Manager";
 }
 
 export interface ChecklistTemplate {
   id: number;
   name: string;
   type: "onboarding" | "offboarding";
+  role_responsible: TemplateRole;
   task_templates: TaskTemplate[];
 }
 
@@ -50,11 +52,15 @@ export interface UserProfileSummary {
   };
 }
 
-export interface ChecklistInstanceSummary {
+export interface ChecklistInstance {
   id: number;
   employee: UserProfileSummary;
   template: ChecklistTemplate;
+  status: string;
+  created_at: string;
 }
+
+export type ChecklistInstanceSummary = ChecklistInstance;
 
 export type ChecklistTaskStatus = "todo" | "in_progress" | "done";
 
@@ -216,4 +222,42 @@ export async function updateTaskStatus(
     }
   );
   return parseResponse<ChecklistTask>(response);
+}
+
+export async function fetchInstances(
+  token?: string
+): Promise<ChecklistInstance[]> {
+  const response = await fetch(buildApiUrl("/api/onboarding/instances/"), {
+    headers: getAuthHeaders(token),
+  });
+  return parseResponse<ChecklistInstance[]>(response);
+}
+
+export async function createChecklistInstance(
+  employeeId: number,
+  templateId: number,
+  token?: string
+): Promise<ChecklistInstance> {
+  const response = await fetch(buildApiUrl("/api/onboarding/instances/"), {
+    method: "POST",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({ employee: employeeId, template: templateId }),
+  });
+  return parseResponse<ChecklistInstance>(response);
+}
+
+export async function deleteInstance(
+  instanceId: number,
+  token?: string
+): Promise<void> {
+  const response = await fetch(
+    buildApiUrl(`/api/onboarding/instances/${instanceId}/`),
+    {
+      method: "DELETE",
+      headers: getAuthHeaders(token),
+    }
+  );
+  if (!response.ok) {
+    throw new ApiError(`Failed to delete instance`, response.status);
+  }
 }
