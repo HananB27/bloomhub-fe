@@ -45,6 +45,7 @@ import {
   Trash2,
   Copy,
   CalendarClock,
+  ChevronDown,
 } from "lucide-react";
 import { employeeApi } from "@/lib/api/modules/employees";
 import type { EmployeeProfileData } from "@/lib/api/modules/employees";
@@ -747,6 +748,7 @@ export function OnboardingModule() {
                         <Button variant="outline" size="sm">
                           <Filter className="w-4 h-4 mr-2" />
                           Sort
+                          <ChevronDown className="w-3 h-3 ml-1" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-56">
