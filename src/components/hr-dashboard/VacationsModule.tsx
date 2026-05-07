@@ -66,6 +66,8 @@ import type {
 import {
   LEAVE_TYPE_LABELS,
   LEAVE_TYPE_COLORS,
+  LEAVE_STATUS_LABELS,
+  LEAVE_STATUS_BADGE_COLORS,
   ALL_LEAVE_TYPES,
 } from "@/types/vacations";
 import {
@@ -74,6 +76,7 @@ import {
   fetchTeamCalendar,
   createLeaveRequest,
   approveLeaveRequest,
+  hrApproveLeaveRequest,
   rejectLeaveRequest,
   updateLeaveBalance,
 } from "@/lib/api/vacations";
@@ -436,7 +439,7 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
     }
   };
 
-  const handleApprove = async (id: string, status: "approved" | "rejected") => {
+  const handleLeadApprove = async (id: string) => {
     const request = leaveRequests.find((r) => r.id === id);
     if (!request) return;
 
@@ -449,65 +452,133 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
     setAdminActionError(null);
 
     try {
-      let updatedRequest: LeaveRequest;
+      const comments = window.prompt("Add approval comments (optional):");
+      const updatedRequest = await approveLeaveRequest(
+        id,
+        comments || "",
+        token
+      );
 
-      if (status === "approved") {
-        const comments = window.prompt("Add approval comments (optional):");
-        updatedRequest = await approveLeaveRequest(id, comments || "", token);
-
-        // Add to calendar if not already there
-        if (!teamEvents.find((e) => e.id === id)) {
-          setTeamEvents((prev) => [
-            ...prev,
-            {
-              id,
-              employeeId: request.employeeId,
-              employeeName: request.employeeName,
-              leaveType: request.leaveType,
-              startDate: request.startDate,
-              endDate: request.endDate,
-              status: "approved",
-            },
-          ]);
-        }
-      } else {
-        const reason = window.prompt("Reason for rejection:");
-        if (!reason) return; // Cancelled
-
-        updatedRequest = await rejectLeaveRequest(id, reason, token);
-      }
-
-      // Update the request in state with API response
       setLeaveRequests((prev) =>
         prev.map((r) => (r.id === id ? updatedRequest : r))
       );
 
-      // Refresh balances since approval affects balance
-      if (status === "approved") {
-        const balancesData = await fetchLeaveBalances(token);
-        setLeaveBalances(balancesData);
-      }
-
-      // Send success notification
       if (addNotification) {
         addNotification(
           "vacations",
           "success",
-          `Request ${status === "approved" ? "Approved" : "Rejected"}`,
-          `Leave request for ${request.employeeName} has been ${status}.`
+          "Request Lead-Approved",
+          `Leave request for ${request.employeeName} has been approved by lead and is pending HR review.`
         );
       }
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : `Failed to ${status} request`;
+        err instanceof Error ? err.message : "Failed to approve request";
       setAdminActionError(message);
+      if (addNotification) {
+        addNotification("vacations", "alert", "Approval Failed", message);
+      }
+    }
+  };
+
+  const handleHrApprove = async (id: string) => {
+    const request = leaveRequests.find((r) => r.id === id);
+    if (!request) return;
+
+    const token = getAccessToken();
+    if (!token) {
+      setAdminActionError("Not authenticated. Please log in.");
+      return;
+    }
+
+    setAdminActionError(null);
+
+    try {
+      const comments = window.prompt("Add HR approval comments (optional):");
+      const updatedRequest = await hrApproveLeaveRequest(
+        id,
+        comments || "",
+        token
+      );
+
+      setLeaveRequests((prev) =>
+        prev.map((r) => (r.id === id ? updatedRequest : r))
+      );
+
+      // Add to calendar now that it's fully approved
+      if (!teamEvents.find((e) => e.id === id)) {
+        setTeamEvents((prev) => [
+          ...prev,
+          {
+            id,
+            employeeId: request.employeeId,
+            employeeName: request.employeeName,
+            leaveType: request.leaveType,
+            startDate: request.startDate,
+            endDate: request.endDate,
+            status: "approved",
+          },
+        ]);
+      }
+
+      // Refresh balances since final approval deducts the balance
+      const balancesData = await fetchLeaveBalances(token);
+      setLeaveBalances(balancesData);
+
       if (addNotification) {
         addNotification(
           "vacations",
-          "alert",
-          `Request ${status === "approved" ? "Approval" : "Rejection"} Failed`,
-          message
+          "success",
+          "Request Fully Approved",
+          `Leave request for ${request.employeeName} has been fully approved.`
         );
+      }
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to HR-approve request";
+      setAdminActionError(message);
+      if (addNotification) {
+        addNotification("vacations", "alert", "HR Approval Failed", message);
+      }
+    }
+  };
+
+  const handleReject = async (id: string) => {
+    const request = leaveRequests.find((r) => r.id === id);
+    if (!request) return;
+
+    const token = getAccessToken();
+    if (!token) {
+      setAdminActionError("Not authenticated. Please log in.");
+      return;
+    }
+
+    setAdminActionError(null);
+
+    try {
+      const reason = window.prompt("Reason for rejection:");
+      if (!reason) return; // Cancelled
+
+      const updatedRequest = await rejectLeaveRequest(id, reason, token);
+
+      setLeaveRequests((prev) =>
+        prev.map((r) => (r.id === id ? updatedRequest : r))
+      );
+
+      if (addNotification) {
+        addNotification(
+          "vacations",
+          "success",
+          "Request Rejected",
+          `Leave request for ${request.employeeName} has been rejected.`
+        );
+      }
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to reject request";
+      setAdminActionError(message);
+      if (addNotification) {
+        addNotification("vacations", "alert", "Rejection Failed", message);
       }
     }
   };
@@ -580,19 +651,16 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
   };
 
   const getStatusBadge = (status: LeaveStatus) => {
-    const config = {
-      pending: "bg-amber-100 text-amber-800 border-amber-200",
-      approved: "bg-green-100 text-green-800 border-green-200",
-      rejected: "bg-red-100 text-red-800 border-red-200",
-      cancelled: "bg-gray-100 text-gray-800 border-gray-200",
-    };
-    // Defensive check for undefined status
     if (!status) {
       return <Badge className="bg-gray-100 text-gray-800">Unknown</Badge>;
     }
     return (
-      <Badge className={config[status] || config.pending}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+      <Badge
+        className={
+          LEAVE_STATUS_BADGE_COLORS[status] ?? "bg-gray-100 text-gray-800"
+        }
+      >
+        {LEAVE_STATUS_LABELS[status] ?? status}
       </Badge>
     );
   };
@@ -865,6 +933,16 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                       {
                         leaveRequests.filter((r) => r.status === "pending")
                           .length
+                      }
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Lead Approved</span>
+                    <span className="font-medium text-blue-600">
+                      {
+                        leaveRequests.filter(
+                          (r) => r.status === "lead_approved"
+                        ).length
                       }
                     </span>
                   </div>
@@ -1338,100 +1416,137 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
         )}
       </Tabs>
 
-      {canApproveVacationRequests && (
-        <Card className="border-gray-200">
-          <CardHeader>
-            <CardTitle>Pending Approvals</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {adminActionError && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Action failed</AlertTitle>
-                <AlertDescription>{adminActionError}</AlertDescription>
-              </Alert>
-            )}
+      {canApproveVacationRequests &&
+        (() => {
+          const pendingApprovalRequests = leaveRequests.filter((r) => {
+            if (canApproveVacationRequests && r.status === "pending")
+              return true;
+            if (canAccessVacationAdmin && r.status === "lead_approved")
+              return true;
+            return false;
+          });
 
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Employee</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Dates</TableHead>
-                  <TableHead>Days</TableHead>
-                  <TableHead>Reason</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {leaveRequests.map((request) => (
-                  <TableRow key={request.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="w-8 h-8">
-                          {request.employeeAvatar && (
-                            <img
-                              src={request.employeeAvatar}
-                              alt={request.employeeName}
-                            />
-                          )}
-                          <AvatarFallback>
-                            {request.employeeName
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <p className="font-medium">{request.employeeName}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge>{LEAVE_TYPE_LABELS[request.leaveType]}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sm">
-                        {formatDate(request.startDate)} to{" "}
-                        {formatDate(request.endDate)}
-                      </span>
-                    </TableCell>
-                    <TableCell>{request.days}</TableCell>
-                    <TableCell className="max-w-sm">
-                      <p className="whitespace-normal break-words text-sm text-gray-700">
-                        {request.reason?.trim() || "No reason provided"}
-                      </p>
-                    </TableCell>
-                    <TableCell>{getStatusBadge(request.status)}</TableCell>
-                    <TableCell>
-                      {request.status === "pending" && (
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            onClick={() =>
-                              handleApprove(request.id, "approved")
-                            }
-                          >
-                            <Check className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() =>
-                              handleApprove(request.id, "rejected")
-                            }
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
+          return (
+            <Card className="border-gray-200">
+              <CardHeader>
+                <CardTitle>Pending Approvals</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {adminActionError && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Action failed</AlertTitle>
+                    <AlertDescription>{adminActionError}</AlertDescription>
+                  </Alert>
+                )}
+
+                {pendingApprovalRequests.length === 0 ? (
+                  <p className="text-sm text-gray-500 text-center py-6">
+                    No requests pending your approval.
+                  </p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Employee</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Dates</TableHead>
+                        <TableHead>Days</TableHead>
+                        <TableHead>Reason</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {pendingApprovalRequests.map((request) => (
+                        <TableRow key={request.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <Avatar className="w-8 h-8">
+                                {request.employeeAvatar && (
+                                  <img
+                                    src={request.employeeAvatar}
+                                    alt={request.employeeName}
+                                  />
+                                )}
+                                <AvatarFallback>
+                                  {request.employeeName
+                                    .split(" ")
+                                    .map((n) => n[0])
+                                    .join("")}
+                                </AvatarFallback>
+                              </Avatar>
+                              <p className="font-medium">
+                                {request.employeeName}
+                              </p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge>
+                              {LEAVE_TYPE_LABELS[request.leaveType]}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <span className="text-sm">
+                              {formatDate(request.startDate)} to{" "}
+                              {formatDate(request.endDate)}
+                            </span>
+                          </TableCell>
+                          <TableCell>{request.days}</TableCell>
+                          <TableCell className="max-w-sm">
+                            <p className="whitespace-normal break-words text-sm text-gray-700">
+                              {request.reason?.trim() || "No reason provided"}
+                            </p>
+                          </TableCell>
+                          <TableCell>
+                            {getStatusBadge(request.status)}
+                          </TableCell>
+                          <TableCell>
+                            {request.status === "pending" && (
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleLeadApprove(request.id)}
+                                >
+                                  <Check className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => handleReject(request.id)}
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            )}
+                            {request.status === "lead_approved" &&
+                              canAccessVacationAdmin && (
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleHrApprove(request.id)}
+                                  >
+                                    <Check className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => handleReject(request.id)}
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })()}
     </div>
   );
 }
