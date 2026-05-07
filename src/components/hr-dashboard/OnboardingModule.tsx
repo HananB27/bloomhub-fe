@@ -328,15 +328,11 @@ interface Employee {
 export function OnboardingModule() {
   const { data: session } = useSession();
   const sessionUser = session?.user as
-    | {
-        accessToken?: string;
-        is_staff?: boolean;
-        role?: string;
-        image?: string;
-      }
+    | { is_staff?: boolean; role?: string; image?: string }
     | null
     | undefined;
-  const rawAccessToken = sessionUser?.accessToken;
+  const rawAccessToken = (session as Record<string, unknown> | null)
+    ?.accessToken;
   const accessToken =
     typeof rawAccessToken === "string" ? rawAccessToken : undefined;
   const isHrOrStaff =
