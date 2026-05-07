@@ -7,10 +7,12 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: dev
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Strip Git metadata for Vercel
+        run: rm -rf .git
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
