@@ -142,6 +142,13 @@ function mapTemplate(raw: ApiDocumentTemplate): DocumentTemplate {
   };
 }
 
+const listRequestsInFlight = new Map<string, Promise<DocumentTemplate[]>>();
+const listResponseCache = new Map<
+  string,
+  { value: DocumentTemplate[]; cachedAtMs: number }
+>();
+const LIST_RESPONSE_CACHE_TTL_MS = 1500;
+
 // ─── Error parser ─────────────────────────────────────────────────────────────
 
 async function parseResponseError(
@@ -174,14 +181,36 @@ export const templatesApi = {
     status?: TemplateStatus;
     visibility?: TemplateVisibility;
   }): Promise<DocumentTemplate[]> {
-    const data = await get<
-      ApiDocumentTemplate[] | { results?: ApiDocumentTemplate[] }
-    >(
-      `${API_BASE_URL}${templatesListPath(query)}`,
-      "Failed to fetch templates"
-    );
-    const rows = Array.isArray(data) ? data : (data.results ?? []);
-    return rows.map(mapTemplate);
+    const path = templatesListPath(query);
+    const nowMs = Date.now();
+    const cached = listResponseCache.get(path);
+    if (cached && nowMs - cached.cachedAtMs < LIST_RESPONSE_CACHE_TTL_MS) {
+      return cached.value;
+    }
+    const existingRequest = listRequestsInFlight.get(path);
+    if (existingRequest) {
+      return existingRequest;
+    }
+
+    const request = (async () => {
+      const data = await get<
+        ApiDocumentTemplate[] | { results?: ApiDocumentTemplate[] }
+      >(`${API_BASE_URL}${path}`, "Failed to fetch templates");
+      const rows = Array.isArray(data) ? data : (data.results ?? []);
+      const mappedRows = rows.map(mapTemplate);
+      listResponseCache.set(path, {
+        value: mappedRows,
+        cachedAtMs: Date.now(),
+      });
+      return mappedRows;
+    })();
+
+    listRequestsInFlight.set(path, request);
+    try {
+      return await request;
+    } finally {
+      listRequestsInFlight.delete(path);
+    }
   },
 
   /**
