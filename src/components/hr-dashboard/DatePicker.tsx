@@ -3,6 +3,12 @@
 import * as React from "react";
 import { Calendar as CalendarIcon, ChevronDown } from "lucide-react";
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const POPOVER_HEIGHT_PX = 340;
+const POPOVER_MIN_WIDTH_PX = 300;
+const EDGE_PADDING_PX = 16;
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface SingleDatePickerProps {
@@ -13,6 +19,7 @@ interface SingleDatePickerProps {
   placeholder?: string;
   disabledDates?: (date: Date) => boolean;
   size?: "default" | "compact";
+  popoverAlign?: "start" | "end" | "auto";
 }
 
 interface RangeDatePickerProps {
@@ -25,6 +32,7 @@ interface RangeDatePickerProps {
   endPlaceholder?: string;
   disabledDates?: (date: Date) => boolean;
   size?: "default" | "compact";
+  popoverAlign?: "start" | "end" | "auto";
 }
 
 type DatePickerProps = SingleDatePickerProps | RangeDatePickerProps;
@@ -419,7 +427,7 @@ function Trigger({
         ].join(" ")}
       >
         <span
-          className={`${compact ? "text-[13px]" : "text-sm"} ${hasValue ? "text-gray-900" : "text-gray-400"}`}
+          className={`min-w-0 truncate whitespace-nowrap ${compact ? "text-[13px]" : "text-sm"} ${hasValue ? "text-gray-900" : "text-gray-400"}`}
         >
           {text}
         </span>
@@ -442,6 +450,7 @@ export function DatePicker(props: DatePickerProps) {
   );
   const [hoverDate, setHoverDate] = React.useState<Date | undefined>();
   const [flipUp, setFlipUp] = React.useState(false);
+  const [alignEnd, setAlignEnd] = React.useState(false);
   const wrapRef = React.useRef<HTMLDivElement>(null);
 
   const [singleSel, setSingleSel] = React.useState<Date | undefined>(
@@ -545,7 +554,13 @@ export function DatePicker(props: DatePickerProps) {
   const handleOpen = () => {
     if (wrapRef.current) {
       const rect = wrapRef.current.getBoundingClientRect();
-      setFlipUp(window.innerHeight - rect.bottom < 340);
+      setFlipUp(window.innerHeight - rect.bottom < POPOVER_HEIGHT_PX);
+      setAlignEnd(
+        props.popoverAlign === "end" ||
+          (props.popoverAlign !== "start" &&
+            rect.left + POPOVER_MIN_WIDTH_PX >
+              window.innerWidth - EDGE_PADDING_PX)
+      );
     }
     setOpen((o) => !o);
     setPanel("days");
@@ -590,7 +605,7 @@ export function DatePicker(props: DatePickerProps) {
       {/* Popover */}
       {open && !props.disabled && (
         <div
-          className={`absolute left-0 z-50 min-w-[300px] rounded-2xl border border-gray-100 bg-white p-5 shadow-xl shadow-black/5 ${flipUp ? "bottom-[calc(100%+8px)]" : "top-[calc(100%+8px)]"}`}
+          className={`absolute z-50 min-w-[300px] rounded-2xl border border-gray-100 bg-white p-5 shadow-xl shadow-black/5 ${alignEnd ? "right-0" : "left-0"} ${flipUp ? "bottom-[calc(100%+8px)]" : "top-[calc(100%+8px)]"}`}
         >
           {panel === "days" && (
             <Calendar

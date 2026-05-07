@@ -206,8 +206,6 @@ export function TimeTrackingModule() {
       weekEntries.length > 0 &&
       weekEntries.every((entry) => entry.status === "approved");
     const hasPending = weekEntries.some((entry) => entry.status === "pending");
-    const _hasDraft = weekEntries.some((entry) => entry.status === "draft");
-
     let status: ApprovalStatus = "draft";
     if (allApproved) status = "approved";
     else if (hasPending) status = "pending";
@@ -375,7 +373,7 @@ export function TimeTrackingModule() {
       a.download = `timesheet-${formatWeekRange(selectedWeek).replace(" - ", "-to-")}.csv`;
       a.click();
     } else {
-      // Mock PDF export
+      // TODO: Implement PDF export with a PDF generation library
       alert(
         "PDF export functionality would be implemented with a PDF generation library"
       );

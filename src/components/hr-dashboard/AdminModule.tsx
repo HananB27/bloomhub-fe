@@ -50,16 +50,21 @@ import {
   Edit,
   Upload,
   Trash2,
-  AlertCircle,
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ApiError, uploadRolePermissionsCsv } from "@/utils/api";
-import { fetchEmployees, Employee } from "@/lib/api/employees";
+import { fetchEmployees, type Employee } from "@/lib/api/employees";
 import { useAdminAccess } from "@/hooks/useAdminAccess";
 
-// Using Employee interface from API
-type UserData = Employee;
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  status: "active" | "inactive";
+  department: string;
+}
 
 interface RoleData {
   id: string;
@@ -135,19 +140,38 @@ const PERMISSIONS_LIST = [
 
 const TOKEN_STORAGE_KEY = "access";
 
-// Extend session type to include accessToken
-interface ExtendedSession {
-  accessToken?: string;
-  user?: {
-    name?: string;
-    email?: string;
-    image?: string;
+function getInitialAccessToken() {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  const tokenKeys = ["access", "accessToken", "token", "authToken", "jwt"];
+  return (
+    tokenKeys
+      .map((key) => window.localStorage.getItem(key))
+      .find((token) => Boolean(token)) ?? ""
+  );
+}
+
+function mapEmployeeToUserData(employee: Employee): UserData {
+  return {
+    id: employee.employee_id || String(employee.id),
+    name:
+      employee.full_name?.trim() ||
+      `${employee.first_name || ""} ${employee.last_name || ""}`.trim() ||
+      employee.username,
+    email: employee.email || employee.email_address || "",
+    role: employee.role_name || String(employee.role || ""),
+    status:
+      employee.employment_status ||
+      (employee.is_active ? "active" : "inactive"),
+    department: employee.department || "Unassigned",
   };
 }
 
 export function AdminModule() {
-  const { data: session } = useSession();
   const router = useRouter();
+  const { data: session } = useSession();
   const { isAdmin, isLoading: isCheckingAdmin } = useAdminAccess();
 
   const [users, setUsers] = useState<UserData[]>([]);
@@ -159,7 +183,7 @@ export function AdminModule() {
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isUploadingCsv, setIsUploadingCsv] = useState(false);
-  const [accessToken, setAccessToken] = useState("");
+  const [accessToken, setAccessToken] = useState(getInitialAccessToken);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Check admin access and redirect if not admin
@@ -172,57 +196,52 @@ export function AdminModule() {
     }
   }, [isAdmin, isCheckingAdmin, router]);
 
-  // Fetch employees from backend
   useEffect(() => {
-    async function loadEmployees() {
-      const token = (session as ExtendedSession)?.accessToken;
+    const token = (session as { accessToken?: string } | null)?.accessToken;
 
-      if (!token) {
-        setEmployeesError("No access token found");
-        setIsLoadingEmployees(false);
-        return;
-      }
+    if (!isAdmin) return;
 
+    if (!token) {
+      setUsers([]);
+      setEmployeesError("No access token found");
+      setIsLoadingEmployees(false);
+      return;
+    }
+
+    let isMounted = true;
+
+    const loadEmployees = async () => {
       try {
         setIsLoadingEmployees(true);
         setEmployeesError(null);
         const employees = await fetchEmployees({ accessToken: token });
-        setUsers(employees);
+        if (!isMounted) return;
+        setUsers(employees.map(mapEmployeeToUserData));
       } catch (error) {
-        console.error("Error fetching employees:", error);
-        setEmployeesError(
-          error instanceof Error ? error.message : "Failed to load employees"
-        );
+        if (!isMounted) return;
+        const message =
+          error instanceof Error ? error.message : "Failed to load employees";
+        setUsers([]);
+        setEmployeesError(message);
         toast.error("Failed to load employees");
       } finally {
-        setIsLoadingEmployees(false);
+        if (isMounted) {
+          setIsLoadingEmployees(false);
+        }
       }
-    }
+    };
 
-    if ((session as ExtendedSession)?.accessToken && isAdmin) {
-      loadEmployees();
-    }
-  }, [session, isAdmin]);
+    void loadEmployees();
 
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const tokenKeys = ["access", "accessToken", "token", "authToken", "jwt"];
-    const storedToken =
-      tokenKeys
-        .map((key) => window.localStorage.getItem(key))
-        .find((token) => Boolean(token)) ?? "";
-
-    setAccessToken(storedToken);
-  }, []);
+    return () => {
+      isMounted = false;
+    };
+  }, [isAdmin, session]);
 
   const filteredUsers = users.filter(
     (u) =>
-      u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.email_address?.toLowerCase().includes(searchQuery.toLowerCase())
+      u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleEditUser = (user: UserData) => {
@@ -313,52 +332,34 @@ export function AdminModule() {
   };
 
   // Show loading state while checking admin access
-  if (isCheckingAdmin || isLoadingEmployees) {
+  if (isCheckingAdmin) {
     return (
       <div className="flex h-full w-full items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
+        <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-          <p className="text-sm text-gray-500">
-            {isCheckingAdmin
-              ? "Verifying admin access..."
-              : "Loading employees..."}
-          </p>
+          <p className="text-sm text-gray-500">Checking admin access...</p>
         </div>
       </div>
     );
   }
 
-  // Show error if not admin
+  // Show access denied if not admin
   if (!isAdmin) {
     return (
       <div className="flex h-full w-full items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-center">
-          <AlertCircle className="h-12 w-12 text-red-500" />
-          <h2 className="text-xl font-semibold">Access Denied</h2>
-          <p className="text-sm text-gray-500 max-w-md">
-            You don&apos;t have permission to access the admin panel. Only
-            administrators can view this page.
-          </p>
-          <Button onClick={() => router.push("/")} className="mt-4">
-            Return to Dashboard
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Show error if employees failed to load
-  if (employeesError && users.length === 0) {
-    return (
-      <div className="flex h-full w-full items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-center">
-          <AlertCircle className="h-12 w-12 text-red-500" />
-          <h2 className="text-xl font-semibold">Failed to Load Data</h2>
-          <p className="text-sm text-gray-500 max-w-md">{employeesError}</p>
-          <Button onClick={() => window.location.reload()} className="mt-4">
-            Retry
-          </Button>
-        </div>
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center">Access Denied</CardTitle>
+            <CardDescription className="text-center">
+              You do not have permission to access the Admin Panel.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex justify-center">
+            <Button onClick={() => router.push("/")}>
+              Return to Dashboard
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -443,67 +444,72 @@ export function AdminModule() {
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Department</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredUsers.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">
-                        {user.full_name ||
-                          `${user.first_name} ${user.last_name}`}
-                      </TableCell>
-                      <TableCell>{user.email || user.email_address}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="font-normal">
-                          {user.role_name || `Role ${user.role}`}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{user.department}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            user.employment_status === "active" ||
-                            user.is_active
-                              ? "success"
-                              : "secondary"
-                          }
-                          className="capitalize"
-                        >
-                          {user.employment_status ||
-                            (user.is_active ? "active" : "inactive")}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEditUser(user)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-red-500"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+              {isLoadingEmployees ? (
+                <div className="flex items-center justify-center py-10">
+                  <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                </div>
+              ) : employeesError ? (
+                <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                  {employeesError}
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Department</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredUsers.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium">
+                          {user.name}
+                        </TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="font-normal">
+                            {user.role}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{user.department}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              user.status === "active" ? "success" : "secondary"
+                            }
+                            className="capitalize"
+                          >
+                            {user.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEditUser(user)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-red-500"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -733,12 +739,9 @@ export function AdminModule() {
                 <Label htmlFor="name">Full Name</Label>
                 <Input
                   id="name"
-                  value={editingUser.full_name || ""}
+                  value={editingUser.name}
                   onChange={(e) =>
-                    setEditingUser({
-                      ...editingUser,
-                      full_name: e.target.value,
-                    })
+                    setEditingUser({ ...editingUser, name: e.target.value })
                   }
                 />
               </div>
@@ -747,13 +750,9 @@ export function AdminModule() {
                 <Input
                   id="email"
                   type="email"
-                  value={editingUser.email || editingUser.email_address || ""}
+                  value={editingUser.email}
                   onChange={(e) =>
-                    setEditingUser({
-                      ...editingUser,
-                      email: e.target.value,
-                      email_address: e.target.value,
-                    })
+                    setEditingUser({ ...editingUser, email: e.target.value })
                   }
                 />
               </div>
@@ -761,9 +760,9 @@ export function AdminModule() {
                 <div className="space-y-2">
                   <Label htmlFor="role">Role</Label>
                   <Select
-                    value={editingUser.role_name || ""}
+                    value={editingUser.role}
                     onValueChange={(val) =>
-                      setEditingUser({ ...editingUser, role_name: val })
+                      setEditingUser({ ...editingUser, role: val })
                     }
                   >
                     <SelectTrigger id="role">
@@ -781,9 +780,9 @@ export function AdminModule() {
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
                   <Select
-                    value={editingUser.employment_status || ""}
+                    value={editingUser.status}
                     onValueChange={(val: "active" | "inactive") =>
-                      setEditingUser({ ...editingUser, employment_status: val })
+                      setEditingUser({ ...editingUser, status: val })
                     }
                   >
                     <SelectTrigger id="status">

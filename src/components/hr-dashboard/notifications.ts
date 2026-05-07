@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { HrModuleId } from "./hr-modules";
 
 export type NotificationType = "info" | "warning" | "success" | "alert";
@@ -13,10 +13,15 @@ export interface Notification {
   isRead: boolean;
 }
 
+export type AddNotification = (
+  module: HrModuleId,
+  type: NotificationType,
+  title: string,
+  message: string
+) => void;
+
 // TODO: Implement - fetch notifications from API
 export const DEFAULT_NOTIFICATIONS: Notification[] = [];
-
-let notificationIdCounter = 1;
 
 export function useNotifications(
   initialNotifications: Notification[] = DEFAULT_NOTIFICATIONS
@@ -39,27 +44,6 @@ export function useNotifications(
     [notifications]
   );
 
-  const addNotification = useCallback(
-    (
-      module: HrModuleId,
-      type: NotificationType,
-      title: string,
-      message: string
-    ) => {
-      const notification: Notification = {
-        id: `notif-${notificationIdCounter++}`,
-        module,
-        type,
-        title,
-        message,
-        timestamp: new Date().toISOString(),
-        isRead: false,
-      };
-      setNotifications((prev) => [notification, ...prev]);
-    },
-    []
-  );
-
   const markAsRead = (notificationId: string) => {
     setNotifications((prev) =>
       prev.map((notification) =>
@@ -76,12 +60,30 @@ export function useNotifications(
     );
   };
 
+  const addNotification = useCallback<AddNotification>(
+    (module, type, title, message) => {
+      setNotifications((prev) => [
+        {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          module,
+          type,
+          title,
+          message,
+          timestamp: new Date().toISOString(),
+          isRead: false,
+        },
+        ...prev,
+      ]);
+    },
+    []
+  );
+
   return {
     notifications,
     notificationCounts,
     unreadCount,
-    addNotification,
     markAsRead,
     markAllAsRead,
+    addNotification,
   };
 }

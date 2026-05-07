@@ -67,6 +67,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { formatRelativeTimestamp } from "@/utils";
 import { useSession } from "next-auth/react";
+import { isHrLikeRole } from "@/lib/permissions/assets-permissions";
 
 type PostType =
   | "announcement"
@@ -131,7 +132,12 @@ export function AnnouncementsModule() {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isHRUser] = useState(true); // Mock HR permission
+  const roleSource =
+    (session?.user as { role?: string; career_level?: string } | undefined)
+      ?.role ||
+    (session?.user as { role?: string; career_level?: string } | undefined)
+      ?.career_level;
+  const isHRUser = isHrLikeRole(roleSource);
   const [showCommentsFor, setShowCommentsFor] = useState<number | null>(null);
   const [newComment, setNewComment] = useState("");
 

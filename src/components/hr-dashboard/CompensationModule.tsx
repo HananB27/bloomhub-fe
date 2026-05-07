@@ -64,6 +64,8 @@ import {
   Save,
   Trash2,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { isHrLikeRole } from "@/lib/permissions/assets-permissions";
 
 interface CompensationTooltipProps {
   active?: boolean;
@@ -126,9 +128,15 @@ interface PayoutData {
 }
 
 export function CompensationModule() {
+  const { data: session } = useSession();
   const [selectedEmployee, setSelectedEmployee] = useState("all");
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [isHRUser] = useState(true); // Mock HR permission
+  const roleSource =
+    (session?.user as { role?: string; career_level?: string } | undefined)
+      ?.role ||
+    (session?.user as { role?: string; career_level?: string } | undefined)
+      ?.career_level;
+  const isHRUser = isHrLikeRole(roleSource);
   const [newBonus, setNewBonus] = useState({
     employeeId: "",
     type: "" as BonusType | "",

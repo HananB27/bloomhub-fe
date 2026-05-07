@@ -14,8 +14,6 @@ import {
 } from "lucide-react";
 import { QuickActionButton } from "./QuickActionButton";
 import { useSession } from "next-auth/react";
-import type { NotificationType } from "./notifications";
-import type { HrModuleId } from "./hr-modules";
 
 // Import all modules
 // ... (rest of imports unchanged)
@@ -34,15 +32,11 @@ import { OrgChartModule } from "./OrgChartModule";
 import { AnalyticsModule } from "./AnalyticsModule";
 import { AnnouncementsModule } from "./AnnouncementsModule";
 import { AdminModule } from "./AdminModule";
+import type { AddNotification } from "./notifications";
 
 interface DashboardViewProps {
   activeModule: string;
-  addNotification?: (
-    module: HrModuleId,
-    type: NotificationType,
-    title: string,
-    message: string
-  ) => void;
+  addNotification?: AddNotification;
 }
 
 // Dashboard Overview Component

@@ -1,11 +1,10 @@
 import { API_BASE_URL } from "../config";
-import { storeTokens } from "./tokens";
 
 export interface LoginCredentials {
   email: string;
   password?: string;
   provider?: "email" | "google" | "microsoft";
-  token?: string;
+  token?: string; // For OAuth
 }
 
 export interface RegistrationPayload {
@@ -13,15 +12,17 @@ export interface RegistrationPayload {
   lastName: string;
   email: string;
   password?: string;
-  avatarFile?: File;
+  avatarFile?: File; // Native upload
   provider?: "email" | "google" | "microsoft";
-  providerAvatarUrl?: string;
+  providerAvatarUrl?: string; // Fallback from provider
 }
 
 export const loginWithEmail = async (credentials: LoginCredentials) => {
   const response = await fetch(`${API_BASE_URL}/api/auth/login/`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(credentials),
   });
 
@@ -30,9 +31,7 @@ export const loginWithEmail = async (credentials: LoginCredentials) => {
     throw new Error(error.detail || "Failed to log in");
   }
 
-  const data = await response.json();
-  storeTokens(data);
-  return data;
+  return response.json();
 };
 
 export const registerUser = async (payload: RegistrationPayload) => {
@@ -41,8 +40,14 @@ export const registerUser = async (payload: RegistrationPayload) => {
   formData.append("last_name", payload.lastName);
   formData.append("email", payload.email);
 
-  if (payload.password) formData.append("password", payload.password);
-  if (payload.provider) formData.append("provider", payload.provider);
+  if (payload.password) {
+    formData.append("password", payload.password);
+  }
+
+  if (payload.provider) {
+    formData.append("provider", payload.provider);
+  }
+
   if (payload.avatarFile) {
     formData.append("avatar", payload.avatarFile);
   } else if (payload.providerAvatarUrl) {
@@ -51,7 +56,7 @@ export const registerUser = async (payload: RegistrationPayload) => {
 
   const response = await fetch(`${API_BASE_URL}/api/auth/register/`, {
     method: "POST",
-    body: formData,
+    body: formData, // Sending as FormData to support file upload
   });
 
   if (!response.ok) {
@@ -64,6 +69,7 @@ export const registerUser = async (payload: RegistrationPayload) => {
 
 export const logoutUser = async (refreshToken?: string) => {
   if (refreshToken) {
+    // Attempt to blacklist the refresh token on the backend
     try {
       await fetch(`${API_BASE_URL}/api/auth/logout/`, {
         method: "POST",
