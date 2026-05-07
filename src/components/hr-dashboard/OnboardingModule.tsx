@@ -71,6 +71,11 @@ import {
 type TaskStatus = "todo" | "in-progress" | "done";
 type TemplateType = "onboarding" | "offboarding";
 
+function employeeDisplayName(emp: EmployeeProfileData): string {
+  const full = `${emp.first_name} ${emp.last_name}`.trim();
+  return full || emp.username || emp.email || `Employee #${emp.id}`;
+}
+
 function normalizeStatus(status: string): string {
   return status === "in_progress" ? "in-progress" : status;
 }
@@ -383,6 +388,7 @@ export function OnboardingModule() {
   const [assignTargetEmployee, setAssignTargetEmployee] = useState<
     string | null
   >(null);
+  const [assignDueDate, setAssignDueDate] = useState<string>("");
   const [assignLoading, setAssignLoading] = useState(false);
   const [assignError, setAssignError] = useState<string | null>(null);
   const [trackerLoading, setTrackerLoading] = useState(false);
@@ -593,10 +599,12 @@ export function OnboardingModule() {
       await createChecklistInstance(
         Number(assignTargetEmployee),
         assignModalTemplate.id,
+        assignDueDate || null,
         accessToken
       );
       setAssignModalTemplate(null);
       setAssignTargetEmployee(null);
+      setAssignDueDate("");
     } catch (err) {
       setAssignError(
         err instanceof Error ? err.message : "Failed to assign template."
@@ -898,16 +906,17 @@ export function OnboardingModule() {
                                   <AvatarImage src={emp.avatar} />
                                 ) : null}
                                 <AvatarFallback className="text-xs">
-                                  {emp.first_name.charAt(0)}
-                                  {emp.last_name.charAt(0)}
+                                  {employeeDisplayName(emp)
+                                    .charAt(0)
+                                    .toUpperCase()}
                                 </AvatarFallback>
                               </Avatar>
                               <div>
                                 <p className="font-medium">
-                                  {emp.first_name} {emp.last_name}
+                                  {employeeDisplayName(emp)}
                                 </p>
                                 <p className="text-xs text-gray-500">
-                                  {emp.department}
+                                  {emp.department ?? emp.employee_id}
                                 </p>
                               </div>
                             </div>
@@ -960,7 +969,7 @@ export function OnboardingModule() {
                             <UserMinus className="w-5 h-5" />
                           )}
                           {selectedEmployeeProfile
-                            ? `${selectedEmployeeProfile.first_name} ${selectedEmployeeProfile.last_name}`
+                            ? employeeDisplayName(selectedEmployeeProfile)
                             : "Selected Employee"}{" "}
                           —{" "}
                           {selectedTemplate === "onboarding"
@@ -1153,14 +1162,14 @@ export function OnboardingModule() {
                                 />
                               ) : null}
                               <AvatarFallback className="bg-blue-100 text-blue-600 text-lg">
-                                {selectedEmployeeProfile.first_name.charAt(0)}
-                                {selectedEmployeeProfile.last_name.charAt(0)}
+                                {employeeDisplayName(selectedEmployeeProfile)
+                                  .charAt(0)
+                                  .toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
                             <div>
                               <p className="font-semibold text-gray-900">
-                                {selectedEmployeeProfile.first_name}{" "}
-                                {selectedEmployeeProfile.last_name}
+                                {employeeDisplayName(selectedEmployeeProfile)}
                               </p>
                               <p className="text-sm text-gray-600">
                                 {selectedEmployeeProfile.role?.name ?? "—"}
@@ -1632,13 +1641,19 @@ export function OnboardingModule() {
                         <SelectContent>
                           {allEmployees.map((emp) => (
                             <SelectItem key={emp.id} value={String(emp.id)}>
-                              {`${emp.first_name} ${emp.last_name}`.trim() ||
-                                emp.email ||
-                                `Employee #${emp.id}`}
+                              {employeeDisplayName(emp)}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Due Date</Label>
+                      <Input
+                        type="date"
+                        value={assignDueDate}
+                        onChange={(e) => setAssignDueDate(e.target.value)}
+                      />
                     </div>
                     {assignError && (
                       <p className="text-sm text-red-600">{assignError}</p>
@@ -1646,7 +1661,10 @@ export function OnboardingModule() {
                     <div className="flex gap-2 justify-end">
                       <Button
                         variant="outline"
-                        onClick={() => setAssignModalTemplate(null)}
+                        onClick={() => {
+                          setAssignModalTemplate(null);
+                          setAssignDueDate("");
+                        }}
                         disabled={assignLoading}
                       >
                         Cancel

@@ -57,6 +57,7 @@ export interface ChecklistInstance {
   employee: UserProfileSummary;
   template: ChecklistTemplate;
   status: string;
+  due_date: string | null;
   created_at: string;
 }
 
@@ -236,12 +237,17 @@ export async function fetchInstances(
 export async function createChecklistInstance(
   employeeId: number,
   templateId: number,
+  dueDate: string | null,
   token?: string
 ): Promise<ChecklistInstance> {
   const response = await fetch(buildApiUrl("/api/onboarding/instances/"), {
     method: "POST",
     headers: getAuthHeaders(token),
-    body: JSON.stringify({ employee: employeeId, template: templateId }),
+    body: JSON.stringify({
+      employee: employeeId,
+      template: templateId,
+      due_date: dueDate ?? undefined,
+    }),
   });
   return parseResponse<ChecklistInstance>(response);
 }
