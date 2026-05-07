@@ -214,6 +214,14 @@ export const NotificationMessages = {
   NO_RESULTS: "No results found",
   LOADING: "Loading...",
   PROCESSING: "Processing...",
+
+  // Vacations
+  LEAVE_REQUEST_SUBMITTED: "Leave request submitted successfully",
+  LEAVE_REQUEST_LEAD_APPROVED: "Leave request approved by tech lead",
+  LEAVE_REQUEST_HR_APPROVED: "Leave request fully approved",
+  LEAVE_REQUEST_REJECTED: "Leave request rejected",
+  LEAVE_REQUEST_CANCELLED: "Leave request cancelled",
+  LEAVE_BALANCE_UPDATED: "Leave balance updated successfully",
 };
 
 /**
