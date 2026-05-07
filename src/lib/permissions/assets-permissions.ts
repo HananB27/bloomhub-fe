@@ -35,52 +35,28 @@ const ROLE_PERMISSIONS: Record<
     "log_asset_lost",
     "view_asset_history",
   ]),
-  hr: new Set<AssetPermissionAction>([
-    "view_own_assets",
-    "view_team_assets",
-    "view_all_assets",
-    "assign_assets",
-    "update_asset_condition",
-    "track_warranty",
-    "initiate_asset_return",
-    "process_asset_return",
-    "log_asset_lost",
-    "generate_qr_codes",
-    "view_asset_history",
-    "configure_asset_types",
-    "export_inventory",
-  ]),
-  hr_manager: new Set<AssetPermissionAction>([
-    "view_own_assets",
-    "view_team_assets",
-    "view_all_assets",
-    "assign_assets",
-    "update_asset_condition",
-    "track_warranty",
-    "initiate_asset_return",
-    "process_asset_return",
-    "log_asset_lost",
-    "generate_qr_codes",
-    "view_asset_history",
-    "configure_asset_types",
-    "export_inventory",
-  ]),
-  admin: new Set<AssetPermissionAction>([
-    "view_own_assets",
-    "view_team_assets",
-    "view_all_assets",
-    "assign_assets",
-    "update_asset_condition",
-    "track_warranty",
-    "initiate_asset_return",
-    "process_asset_return",
-    "log_asset_lost",
-    "generate_qr_codes",
-    "view_asset_history",
-    "configure_asset_types",
-    "export_inventory",
-  ]),
 };
+
+// Shared full permissions for HR, HR Manager, and Admin roles
+const FULL_ASSET_PERMISSIONS = new Set<AssetPermissionAction>([
+  "view_own_assets",
+  "view_team_assets",
+  "view_all_assets",
+  "assign_assets",
+  "update_asset_condition",
+  "track_warranty",
+  "initiate_asset_return",
+  "process_asset_return",
+  "log_asset_lost",
+  "generate_qr_codes",
+  "view_asset_history",
+  "configure_asset_types",
+  "export_inventory",
+]);
+
+ROLE_PERMISSIONS.hr = FULL_ASSET_PERMISSIONS;
+ROLE_PERMISSIONS.hr_manager = FULL_ASSET_PERMISSIONS;
+ROLE_PERMISSIONS.admin = FULL_ASSET_PERMISSIONS;
 
 function toNormalizedRoleValue(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, "_");

@@ -39,7 +39,6 @@ import {
   AccordionTrigger,
 } from "./ui/accordion";
 import {
-  User,
   Edit,
   Plus,
   X,
@@ -47,13 +46,9 @@ import {
   Upload,
   Search,
   Filter,
-  Phone,
-  Mail,
-  MapPin,
   Calendar,
   Building,
   DollarSign,
-  History,
   FileText,
   Laptop,
   Monitor,
@@ -61,7 +56,6 @@ import {
   Mouse,
   Headphones,
   Settings,
-  Save,
   Eye,
   EyeOff,
 } from "lucide-react";
@@ -393,10 +387,9 @@ export function ProfilesModule() {
       <CardContent className="p-6">
         <div className="flex items-start gap-4">
           <Avatar className="w-16 h-16">
-            <img
+            <AvatarImage
               src={employee.avatar}
               alt={employee.personalInfo.fullName}
-              className="object-cover"
             />
             <AvatarFallback>
               {employee.personalInfo.fullName
@@ -687,10 +680,9 @@ export function ProfilesModule() {
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-6">
                   <Avatar className="w-24 h-24">
-                    <img
+                    <AvatarImage
                       src={selectedEmployee.avatar}
                       alt={selectedEmployee.personalInfo.fullName}
-                      className="object-cover"
                     />
                     <AvatarFallback className="text-lg">
                       {selectedEmployee.personalInfo.fullName

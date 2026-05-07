@@ -3,6 +3,12 @@
 import * as React from "react";
 import { Calendar as CalendarIcon, ChevronDown } from "lucide-react";
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const POPOVER_HEIGHT_PX = 340;
+const POPOVER_MIN_WIDTH_PX = 300;
+const EDGE_PADDING_PX = 16;
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface SingleDatePickerProps {
@@ -548,11 +554,11 @@ export function DatePicker(props: DatePickerProps) {
   const handleOpen = () => {
     if (wrapRef.current) {
       const rect = wrapRef.current.getBoundingClientRect();
-      setFlipUp(window.innerHeight - rect.bottom < 340);
+      setFlipUp(window.innerHeight - rect.bottom < POPOVER_HEIGHT_PX);
       setAlignEnd(
         props.popoverAlign === "end" ||
           (props.popoverAlign !== "start" &&
-            rect.left + 300 > window.innerWidth - 16)
+            rect.left + POPOVER_MIN_WIDTH_PX > window.innerWidth - EDGE_PADDING_PX)
       );
     }
     setOpen((o) => !o);

@@ -414,8 +414,8 @@ export function OrgChartModule() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const chartRef = useRef<HTMLDivElement>(null);
 
-  // TODO: Implement - fetch employees from API and set via setEmployees(...)
-  const [employees, setEmployees] = useState<Employee[]>([]);
+  // TODO: Implement - fetch employees from API and set via _setEmployees(...)
+  const [employees, _setEmployees] = useState<Employee[]>([]);
 
   // TODO: Implement - fetch departments from API and set via setDepartments(...)
   const [departments, setDepartments] = useState<Department[]>([]);

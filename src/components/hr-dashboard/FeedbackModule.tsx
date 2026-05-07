@@ -609,8 +609,7 @@ export function FeedbackModule() {
   };
 
   const submitPulseCheck = () => {
-    // In real app, this would submit to backend
-    console.log("Pulse check submitted:", pulseRatings);
+    // TODO: Submit pulse check to backend API
     setPulseRatings({
       overallSatisfaction: 0,
       workload: 0,

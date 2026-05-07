@@ -373,8 +373,7 @@ export function TimeTrackingModule() {
       a.download = `timesheet-${formatWeekRange(selectedWeek).replace(" - ", "-to-")}.csv`;
       a.click();
     } else {
-      // Mock PDF export
-      console.log("PDF export would generate a detailed timesheet report");
+      // TODO: Implement PDF export with a PDF generation library
       alert(
         "PDF export functionality would be implemented with a PDF generation library"
       );

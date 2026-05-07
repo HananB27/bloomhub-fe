@@ -355,8 +355,7 @@ export function AnalyticsModule() {
       a.download = `leave-analytics-${new Date().toISOString().split("T")[0]}.csv`;
       a.click();
     } else {
-      // Mock PDF export
-      console.log("PDF export would generate a comprehensive analytics report");
+      // TODO: Implement PDF export with a PDF generation library
       alert(
         "PDF export functionality would be implemented with a PDF generation library"
       );

@@ -1,6 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -48,9 +50,11 @@ import {
   Edit,
   Upload,
   Trash2,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ApiError, uploadRolePermissionsCsv } from "@/utils/api";
+import { useAdminAccess } from "@/hooks/useAdminAccess";
 
 interface UserData {
   id: string;
@@ -168,6 +172,10 @@ function getInitialAccessToken() {
 }
 
 export function AdminModule() {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const { isAdmin, isLoading: isCheckingAdmin } = useAdminAccess();
+  
   const [users, setUsers] = useState<UserData[]>(INITIAL_USERS);
   const [roles, setRoles] = useState<RoleData[]>(INITIAL_ROLES);
   const [assets] = useState<AssetData[]>(INITIAL_ASSETS);
@@ -177,6 +185,16 @@ export function AdminModule() {
   const [isUploadingCsv, setIsUploadingCsv] = useState(false);
   const [accessToken, setAccessToken] = useState(getInitialAccessToken);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Check admin access and redirect if not admin
+  useEffect(() => {
+    if (isCheckingAdmin) return;
+
+    if (!isAdmin) {
+      toast.error("Access denied. Admin privileges required.");
+      router.push("/");
+    }
+  }, [isAdmin, isCheckingAdmin, router]);
 
   const filteredUsers = users.filter(
     (u) =>
@@ -270,6 +288,37 @@ export function AdminModule() {
     );
     toast.success("Permission updated");
   };
+
+  // Show loading state while checking admin access
+  if (isCheckingAdmin) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+          <p className="text-sm text-gray-500">Checking admin access...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show access denied if not admin
+  if (!isAdmin) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center">Access Denied</CardTitle>
+            <CardDescription className="text-center">
+              You do not have permission to access the Admin Panel.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex justify-center">
+            <Button onClick={() => router.push("/")}>Return to Dashboard</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-full w-full flex-col gap-4 overflow-auto p-1">
