@@ -151,7 +151,6 @@ export function AnalyticsModule() {
   const [selectedTimeRange, setSelectedTimeRange] = useState("12months");
   const [selectedDepartment, setSelectedDepartment] = useState("all");
   const [selectedLeaveType, setSelectedLeaveType] = useState("all");
-  const [_isHRUser] = useState(true);
 
   // TODO: Implement - fetch leave records from API
   const leaveRecords: LeaveRecord[] = [];
@@ -356,7 +355,7 @@ export function AnalyticsModule() {
       a.download = `leave-analytics-${new Date().toISOString().split("T")[0]}.csv`;
       a.click();
     } else {
-      // Mock PDF export
+      // TODO: Implement PDF export with a PDF generation library
       alert(
         "PDF export functionality would be implemented with a PDF generation library"
       );

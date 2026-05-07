@@ -21,3 +21,8 @@ const localStorageMock = (() => {
 Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
 });
+
+// Radix primitives call DOM APIs that are not implemented in JSDOM by default.
+if (!HTMLElement.prototype.scrollIntoView) {
+  HTMLElement.prototype.scrollIntoView = function scrollIntoView() {};
+}

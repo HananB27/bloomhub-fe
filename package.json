@@ -6,12 +6,10 @@
     "node": "^20.19.0 || ^22.13.0 || >=24"
   },
   "scripts": {
-    "dev": "next dev --turbopack",
-    "dev:webpack": "next dev --webpack",
-    "dev:turbo": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint src",
+    "lint": "eslint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
