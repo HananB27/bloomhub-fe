@@ -56,12 +56,26 @@ export interface ChecklistInstanceSummary {
   template: ChecklistTemplate;
 }
 
+export type ChecklistTaskStatus = "todo" | "in_progress" | "done";
+
+export const TASK_STATUS_LABELS: Record<ChecklistTaskStatus, string> = {
+  todo: "To Do",
+  in_progress: "In Progress",
+  done: "Done",
+};
+
+export const TASK_STATUS_BADGE_COLORS: Record<ChecklistTaskStatus, string> = {
+  todo: "bg-gray-100 text-gray-800 border-gray-200",
+  in_progress: "bg-blue-100 text-blue-800 border-blue-200",
+  done: "bg-green-100 text-green-800 border-green-200",
+};
+
 export interface ChecklistTask {
   id: number;
   checklist_instance: ChecklistInstanceSummary;
   task_template: TaskTemplate;
   title: string;
-  status: "todo" | "in_progress" | "done";
+  status: ChecklistTaskStatus;
   assigned_to: UserProfileSummary | null;
   due_date: string | null;
   completed_at: string | null;
@@ -186,4 +200,20 @@ export async function fetchEmployeeTasks(
     }
   );
   return parseResponse<ChecklistTask[]>(response);
+}
+
+export async function updateTaskStatus(
+  taskId: number,
+  status: ChecklistTaskStatus,
+  token?: string
+): Promise<ChecklistTask> {
+  const response = await fetch(
+    buildApiUrl(`/api/onboarding/tasks/${taskId}/`),
+    {
+      method: "PATCH",
+      headers: getAuthHeaders(token),
+      body: JSON.stringify({ status }),
+    }
+  );
+  return parseResponse<ChecklistTask>(response);
 }

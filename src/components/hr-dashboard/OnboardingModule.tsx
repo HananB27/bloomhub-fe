@@ -45,7 +45,10 @@ import {
 import {
   ChecklistTemplate,
   ChecklistTask,
+  ChecklistTaskStatus,
   TaskTemplate,
+  TASK_STATUS_LABELS,
+  TASK_STATUS_BADGE_COLORS,
   cloneTemplate,
   createTemplate,
   deleteTemplate,
@@ -53,6 +56,7 @@ import {
   fetchMyTasks,
   fetchTemplates,
   updateTemplate,
+  updateTaskStatus,
 } from "@/lib/api/onboarding";
 
 type TaskStatus = "todo" | "in-progress" | "done";
@@ -60,6 +64,12 @@ type TemplateType = "onboarding" | "offboarding";
 
 function normalizeStatus(status: string): string {
   return status === "in_progress" ? "in-progress" : status;
+}
+
+function toApiStatus(status: TaskStatus | string): ChecklistTaskStatus {
+  return (
+    status === "in-progress" ? "in_progress" : status
+  ) as ChecklistTaskStatus;
 }
 
 function statusIconClass(status: string): string {
@@ -107,11 +117,17 @@ type ChecklistTaskCardVariant = "my-tasks" | "employee-tasks";
 interface ChecklistTaskCardProps {
   task: ChecklistTask;
   variant: ChecklistTaskCardVariant;
+  onStatusChange?: (taskId: number, newStatus: ChecklistTaskStatus) => void;
 }
 
-function ChecklistTaskCard({ task, variant }: ChecklistTaskCardProps) {
+function ChecklistTaskCard({
+  task,
+  variant,
+  onStatusChange,
+}: ChecklistTaskCardProps) {
   const status = normalizeStatus(task.status);
   const iconClassName = `w-5 h-5 mt-0.5 ${statusIconClass(status)}`;
+  const apiStatus = task.status as ChecklistTaskStatus;
 
   if (variant === "my-tasks") {
     return (
@@ -131,13 +147,21 @@ function ChecklistTaskCard({ task, variant }: ChecklistTaskCardProps) {
                 </p>
               </div>
             </div>
-            <Badge variant="outline" className="text-sm">
-              {task.task_template.role_responsible}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge
+                className={TASK_STATUS_BADGE_COLORS[apiStatus]}
+                variant="outline"
+              >
+                {TASK_STATUS_LABELS[apiStatus]}
+              </Badge>
+              <Badge variant="outline" className="text-sm">
+                {task.task_template.role_responsible}
+              </Badge>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="pt-0">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <Avatar className="w-6 h-6">
@@ -160,6 +184,38 @@ function ChecklistTaskCard({ task, variant }: ChecklistTaskCardProps) {
                 </span>
               </div>
             </div>
+            {onStatusChange && (
+              <Select
+                value={apiStatus}
+                onValueChange={(val: ChecklistTaskStatus) =>
+                  onStatusChange(task.id, val)
+                }
+              >
+                <SelectTrigger className="w-36">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todo">
+                    <div className="flex items-center gap-2">
+                      <Circle className="w-4 h-4 text-gray-400" />
+                      To Do
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="in_progress">
+                    <div className="flex items-center gap-2">
+                      <Play className="w-4 h-4 text-blue-600" />
+                      In Progress
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="done">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      Done
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -180,7 +236,12 @@ function ChecklistTaskCard({ task, variant }: ChecklistTaskCardProps) {
               </p>
             </div>
           </div>
-          <Badge variant="outline">{status.replace("_", " ")}</Badge>
+          <Badge
+            className={TASK_STATUS_BADGE_COLORS[apiStatus]}
+            variant="outline"
+          >
+            {TASK_STATUS_LABELS[apiStatus]}
+          </Badge>
         </div>
       </CardHeader>
     </Card>
@@ -323,7 +384,11 @@ export function OnboardingModule() {
         )
       : 0;
 
-  const handleTaskStatusChange = (taskId: number, newStatus: TaskStatus) => {
+  const handleTaskStatusChange = async (
+    taskId: number,
+    newStatus: TaskStatus
+  ) => {
+    const apiStatus = toApiStatus(newStatus);
     setTasks((prev) =>
       prev.map((task) =>
         task.id === taskId ? { ...task, status: newStatus } : task
@@ -334,6 +399,26 @@ export function OnboardingModule() {
         task.id === taskId ? { ...task, status: newStatus } : task
       )
     );
+    try {
+      await updateTaskStatus(taskId, apiStatus, accessToken);
+    } catch {
+      setTrackerError("Failed to update task status.");
+      void loadTrackerTasks(selectedEmployee);
+    }
+  };
+
+  const handleMyTaskStatusChange = async (
+    taskId: number,
+    newStatus: ChecklistTaskStatus
+  ) => {
+    setMyTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t))
+    );
+    try {
+      await updateTaskStatus(taskId, newStatus, accessToken);
+    } catch {
+      void loadMyTasks();
+    }
   };
 
   const handleAddComment = (taskId: number) => {
@@ -890,7 +975,7 @@ export function OnboardingModule() {
                           <Select
                             value={task.status}
                             onValueChange={(status: TaskStatus) =>
-                              handleTaskStatusChange(task.id, status)
+                              void handleTaskStatusChange(task.id, status)
                             }
                           >
                             <SelectTrigger className="w-32">
@@ -1302,6 +1387,7 @@ export function OnboardingModule() {
                       key={task.id}
                       task={task}
                       variant="my-tasks"
+                      onStatusChange={handleMyTaskStatusChange}
                     />
                   ))
                 )}
