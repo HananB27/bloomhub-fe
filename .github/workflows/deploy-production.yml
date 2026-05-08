@@ -23,6 +23,12 @@ jobs:
     name: Deploy to Vercel production
     runs-on: ubuntu-latest
     environment: production
+    env:
+      NEXT_PUBLIC_ENV: prod
+      NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL || vars.NEXTAUTH_URL }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
     steps:
       - uses: actions/checkout@v4
 
@@ -43,6 +49,38 @@ jobs:
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Resolve production auth URL
+        run: |
+          node <<'NODE'
+          const fs = require("fs");
+          const envPath = ".vercel/.env.production.local";
+          const fallbackUrl = "https://bloomhub-fe-dev.vercel.app";
+
+          const readPulledValue = () => {
+            if (!fs.existsSync(envPath)) return "";
+            const line = fs
+              .readFileSync(envPath, "utf8")
+              .split(/\r?\n/)
+              .find((entry) => entry.startsWith("NEXTAUTH_URL="));
+            if (!line) return "";
+            const raw = line.slice("NEXTAUTH_URL=".length).trim();
+            return raw.replace(/^['"]|['"]$/g, "");
+          };
+
+          const resolved = process.env.NEXTAUTH_URL || readPulledValue() || fallbackUrl;
+          new URL(resolved);
+
+          fs.appendFileSync(process.env.GITHUB_ENV, `NEXTAUTH_URL=${resolved}\n`);
+
+          if (fs.existsSync(envPath)) {
+            const current = fs.readFileSync(envPath, "utf8");
+            const next = current.match(/^NEXTAUTH_URL=/m)
+              ? current.replace(/^NEXTAUTH_URL=.*$/m, `NEXTAUTH_URL="${resolved}"`)
+              : `${current.replace(/\s*$/, "\n")}NEXTAUTH_URL="${resolved}"\n`;
+            fs.writeFileSync(envPath, next);
+          }
+          NODE
 
       - name: Build
         run: vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
