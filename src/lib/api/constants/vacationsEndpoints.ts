@@ -5,6 +5,10 @@ export const LEAVE_REQUESTS_PENDING_PATH = "/api/leave-requests/pending/";
 export const LEAVE_REQUESTS_HR_PENDING_PATH = "/api/leave-requests/hr-pending/";
 export const LEAVE_REQUESTS_TEAM_CALENDAR_PATH =
   "/api/leave-requests/team-calendar/";
+export const LEAVE_REQUESTS_TEAM_MEMBERS_PATH =
+  "/api/leave-requests/team-members/";
+export const LEAVE_REQUESTS_CAPABILITIES_PATH =
+  "/api/leave-requests/capabilities/";
 
 export function leaveBalanceDetailPath(id: string): string {
   return `${LEAVE_BALANCES_PATH}${id}/`;
