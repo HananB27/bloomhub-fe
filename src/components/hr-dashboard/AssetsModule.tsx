@@ -367,6 +367,19 @@ function toOptionalString(value: unknown): string | undefined {
   return typeof value === "string" && value.trim() ? value : undefined;
 }
 
+function toOptionalNumber(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  return undefined;
+}
+
 function mapReturnChecklistFromApi(value: unknown): ReturnChecklistItem[] {
   if (!Array.isArray(value)) {
     return [];
@@ -548,7 +561,11 @@ function mapPendingReturnRequestFromApi(
   item: PendingReturnRequestApiItem
 ): PendingReturnRequest {
   const assignmentId =
-    item.assignment_id || item.assignment || item.assignment_details?.id || 0;
+    toOptionalNumber(item.assignment_id) ||
+    toOptionalNumber(item.assignment) ||
+    toOptionalNumber(toRecord(item.assignment)?.id) ||
+    toOptionalNumber(item.assignment_details?.id) ||
+    0;
   const requestId = String(item.id || assignmentId);
   const returnRequested = toRecord(item.return_requested);
   const assignmentReturnRequested = toRecord(
@@ -790,6 +807,26 @@ export function AssetsModule() {
   const isAssetsMountedRef = useRef(true);
 
   const accessToken = (session as { accessToken?: string } | null)?.accessToken;
+  const sessionUser = (
+    session as {
+      user?: {
+        employee_id?: string | number | null;
+        id?: string | number | null;
+        email?: string | null;
+        username?: string | null;
+      };
+    } | null
+  )?.user;
+  const currentEmployeeId =
+    sessionUser?.employee_id !== undefined && sessionUser.employee_id !== null
+      ? String(sessionUser.employee_id)
+      : undefined;
+  const currentUserId =
+    sessionUser?.id !== undefined && sessionUser.id !== null
+      ? String(sessionUser.id)
+      : undefined;
+  const currentUserEmail = sessionUser?.email?.trim().toLowerCase();
+  const currentUsername = sessionUser?.username?.trim().toLowerCase();
   const globalAssetCapabilities = toAssetCapabilities(assetCapabilities);
   const canViewAnyAssets = globalAssetCapabilities.can_view_any_assets;
   const canCreateAssets = globalAssetCapabilities.can_create_assets;
@@ -1082,6 +1119,28 @@ export function AssetsModule() {
   const isAssetCurrentlyAssigned = (asset: Asset) =>
     Boolean(getActiveAssignmentForAsset(asset.id));
 
+  const isAssignmentForCurrentUser = (assignment?: Assignment | null) => {
+    if (!assignment) {
+      return false;
+    }
+
+    const employeeId = assignment.employeeId
+      ? String(assignment.employeeId)
+      : "";
+    const employeeEmail = assignment.employeeEmail?.trim().toLowerCase();
+    const employeeUsername = assignment.employeeUsername?.trim().toLowerCase();
+
+    return Boolean(
+      (currentEmployeeId && employeeId === currentEmployeeId) ||
+      (currentUserId && employeeId === currentUserId) ||
+      (currentUserEmail && employeeEmail === currentUserEmail) ||
+      (currentUsername && employeeUsername === currentUsername)
+    );
+  };
+
+  const isAssetAssignedToCurrentUser = (asset: Asset) =>
+    isAssignmentForCurrentUser(getActiveAssignmentForAsset(asset.id));
+
   const selectedAssetAssigneeName = (() => {
     if (!selectedAsset) {
       return "Unassigned";
@@ -1098,11 +1157,20 @@ export function AssetsModule() {
     return fromAssignment || "Unassigned";
   })();
 
-  const canApproveReturnForAsset = (asset: Asset): boolean =>
-    getAssetCapability(asset, "can_process_return") ?? canProcessReturn;
+  const canApproveReturnForAsset = (_asset: Asset): boolean => false;
 
-  const canRequestReturnForAsset = (asset: Asset): boolean =>
-    getAssetCapability(asset, "can_request_return") ?? false;
+  const canRequestReturnForAsset = (asset: Asset): boolean => {
+    const assetCapability = getAssetCapability(asset, "can_request_return");
+    if (assetCapability !== undefined) {
+      return assetCapability;
+    }
+
+    return Boolean(
+      globalAssetCapabilities.can_process_return ||
+      (globalAssetCapabilities.can_request_return &&
+        isAssetAssignedToCurrentUser(asset))
+    );
+  };
 
   const canProcessReturnForAsset = (asset: Asset): boolean => {
     if (!isAssetCurrentlyAssigned(asset)) {
@@ -1226,6 +1294,11 @@ export function AssetsModule() {
   };
 
   const approvePendingReturn = async (assignmentId: number) => {
+    if (!assignmentId) {
+      setApiError("Unable to approve return request: missing assignment ID.");
+      return;
+    }
+
     try {
       await approveAssetReturn(assignmentId, {}, accessToken);
       setIsReturnRequestDetailsOpen(false);

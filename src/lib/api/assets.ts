@@ -128,7 +128,7 @@ interface UserProfileApiItem {
 export interface PendingReturnRequestApiItem {
   id?: number;
   assignment_id?: number;
-  assignment?: number;
+  assignment?: number | (Partial<AssetAssignmentApiItem> & { id?: number });
   asset?: AssetApiItem;
   employee?: UserProfileApiItem;
   requested_by?: UserProfileApiItem;

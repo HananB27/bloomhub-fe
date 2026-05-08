@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import * as ReactDOM from "react-dom";
 import { Calendar as CalendarIcon, ChevronDown } from "lucide-react";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -20,6 +21,7 @@ interface SingleDatePickerProps {
   disabledDates?: (date: Date) => boolean;
   size?: "default" | "compact";
   popoverAlign?: "start" | "end" | "auto";
+  floatPortal?: boolean;
 }
 
 interface RangeDatePickerProps {
@@ -33,6 +35,7 @@ interface RangeDatePickerProps {
   disabledDates?: (date: Date) => boolean;
   size?: "default" | "compact";
   popoverAlign?: "start" | "end" | "auto";
+  floatPortal?: boolean;
 }
 
 type DatePickerProps = SingleDatePickerProps | RangeDatePickerProps;
@@ -452,6 +455,13 @@ export function DatePicker(props: DatePickerProps) {
   const [flipUp, setFlipUp] = React.useState(false);
   const [alignEnd, setAlignEnd] = React.useState(false);
   const wrapRef = React.useRef<HTMLDivElement>(null);
+  const popoverRef = React.useRef<HTMLDivElement>(null);
+  // Position of the portaled popover (only used when floatPortal=true)
+  const [floatPos, setFloatPos] = React.useState<{
+    left: number;
+    top?: number;
+    bottom?: number;
+  }>({ left: 0, top: 0 });
 
   const [singleSel, setSingleSel] = React.useState<Date | undefined>(
     props.mode === "single" ? parseDate(props.value) : undefined
@@ -465,7 +475,10 @@ export function DatePicker(props: DatePickerProps) {
 
   React.useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+      const t = e.target as Node;
+      const inWrap = wrapRef.current && wrapRef.current.contains(t);
+      const inPopover = popoverRef.current && popoverRef.current.contains(t);
+      if (!inWrap && !inPopover) {
         setOpen(false);
         setPanel("days");
       }
@@ -554,13 +567,26 @@ export function DatePicker(props: DatePickerProps) {
   const handleOpen = () => {
     if (wrapRef.current) {
       const rect = wrapRef.current.getBoundingClientRect();
-      setFlipUp(window.innerHeight - rect.bottom < POPOVER_HEIGHT_PX);
+      const flip = window.innerHeight - rect.bottom < POPOVER_HEIGHT_PX;
+      setFlipUp(flip);
       setAlignEnd(
         props.popoverAlign === "end" ||
           (props.popoverAlign !== "start" &&
             rect.left + POPOVER_MIN_WIDTH_PX >
               window.innerWidth - EDGE_PADDING_PX)
       );
+      if (props.floatPortal) {
+        const POP_W = 320;
+        const left = Math.max(
+          8,
+          Math.min(rect.left, window.innerWidth - POP_W - 8)
+        );
+        setFloatPos(
+          flip
+            ? { left, bottom: window.innerHeight - rect.top + 8 }
+            : { left, top: rect.bottom + 8 }
+        );
+      }
     }
     setOpen((o) => !o);
     setPanel("days");
@@ -602,97 +628,126 @@ export function DatePicker(props: DatePickerProps) {
         </div>
       )}
 
-      {/* Popover */}
-      {open && !props.disabled && (
-        <div
-          className={`absolute z-50 min-w-[300px] rounded-2xl border border-gray-100 bg-white p-5 shadow-xl shadow-black/5 ${alignEnd ? "right-0" : "left-0"} ${flipUp ? "bottom-[calc(100%+8px)]" : "top-[calc(100%+8px)]"}`}
-        >
-          {panel === "days" && (
-            <Calendar
-              mode={props.mode}
-              viewYear={viewYear}
-              viewMonth={viewMonth}
-              selStart={props.mode === "single" ? singleSel : rangeStart}
-              selEnd={props.mode === "range" ? rangeEnd : undefined}
-              hoverDate={hoverDate}
-              disabledDates={props.disabledDates}
-              onDayClick={handleDayClick}
-              onDayHover={(d) => {
-                if (props.mode === "range" && rangeStart && !rangeEnd)
-                  setHoverDate(d);
-              }}
-              onPrev={() => changeMonth(-1)}
-              onNext={() => changeMonth(1)}
-              onMonthClick={() => setPanel("months")}
-              onYearClick={() => {
-                setYearRangeBase(viewYear);
-                setPanel("years");
-              }}
-            />
-          )}
-
-          {panel === "months" && (
-            <MonthPanel
-              viewMonth={viewMonth}
-              viewYear={viewYear}
-              onSelect={handleMonthSelect}
-            />
-          )}
-
-          {panel === "years" && (
-            <YearPanel
-              viewYear={viewYear}
-              onSelect={handleYearSelect}
-              onPrevDecade={() => {
-                setYearRangeBase((b) => b - 20);
-                setViewYear((y) => y - 20);
-              }}
-              onNextDecade={() => {
-                setYearRangeBase((b) => b + 20);
-                setViewYear((y) => y + 20);
-              }}
-            />
-          )}
-
-          {/* Footer — only on days panel */}
-          {panel === "days" && (
-            <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
-              <button
-                type="button"
-                onClick={handleClear}
-                className="text-xs text-gray-400 hover:text-gray-600"
-              >
-                Clear
-              </button>
-              {props.mode === "range" && rangeStart && rangeEnd && (
-                <span className="rounded-full bg-zinc-100 px-3 py-1 text-[11px] font-medium text-zinc-800 border border-zinc-200">
-                  {daysBetween} day{daysBetween !== 1 ? "s" : ""}
-                </span>
+      {/* Popover — optionally portaled at document.body to escape parent
+          overflow / width constraints (opt in via `floatPortal`). */}
+      {open &&
+        !props.disabled &&
+        (() => {
+          const popover = (
+            <div
+              ref={popoverRef}
+              onMouseDown={(e) => e.stopPropagation()}
+              style={
+                props.floatPortal
+                  ? {
+                      position: "fixed",
+                      left: floatPos.left,
+                      ...(floatPos.top !== undefined
+                        ? { top: floatPos.top }
+                        : {}),
+                      ...(floatPos.bottom !== undefined
+                        ? { bottom: floatPos.bottom }
+                        : {}),
+                      zIndex: 1000,
+                    }
+                  : undefined
+              }
+              className={
+                props.floatPortal
+                  ? "min-w-[300px] rounded-2xl border border-gray-100 bg-white p-5 shadow-xl shadow-black/5"
+                  : `absolute z-50 min-w-[300px] rounded-2xl border border-gray-100 bg-white p-5 shadow-xl shadow-black/5 ${alignEnd ? "right-0" : "left-0"} ${flipUp ? "bottom-[calc(100%+8px)]" : "top-[calc(100%+8px)]"}`
+              }
+            >
+              {panel === "days" && (
+                <Calendar
+                  mode={props.mode}
+                  viewYear={viewYear}
+                  viewMonth={viewMonth}
+                  selStart={props.mode === "single" ? singleSel : rangeStart}
+                  selEnd={props.mode === "range" ? rangeEnd : undefined}
+                  hoverDate={hoverDate}
+                  disabledDates={props.disabledDates}
+                  onDayClick={handleDayClick}
+                  onDayHover={(d) => {
+                    if (props.mode === "range" && rangeStart && !rangeEnd)
+                      setHoverDate(d);
+                  }}
+                  onPrev={() => changeMonth(-1)}
+                  onNext={() => changeMonth(1)}
+                  onMonthClick={() => setPanel("months")}
+                  onYearClick={() => {
+                    setYearRangeBase(viewYear);
+                    setPanel("years");
+                  }}
+                />
               )}
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="rounded-lg bg-zinc-800 px-5 py-2 text-xs font-semibold text-white hover:bg-zinc-900 transition-all shadow-sm active:scale-95"
-              >
-                Done
-              </button>
-            </div>
-          )}
 
-          {/* Back button on month/year panels */}
-          {panel !== "days" && (
-            <div className="mt-4 border-t border-gray-100 pt-4">
-              <button
-                type="button"
-                onClick={() => setPanel("days")}
-                className="text-xs text-gray-400 hover:text-gray-600"
-              >
-                ← Back
-              </button>
+              {panel === "months" && (
+                <MonthPanel
+                  viewMonth={viewMonth}
+                  viewYear={viewYear}
+                  onSelect={handleMonthSelect}
+                />
+              )}
+
+              {panel === "years" && (
+                <YearPanel
+                  viewYear={viewYear}
+                  onSelect={handleYearSelect}
+                  onPrevDecade={() => {
+                    setYearRangeBase((b) => b - 20);
+                    setViewYear((y) => y - 20);
+                  }}
+                  onNextDecade={() => {
+                    setYearRangeBase((b) => b + 20);
+                    setViewYear((y) => y + 20);
+                  }}
+                />
+              )}
+
+              {/* Footer — only on days panel */}
+              {panel === "days" && (
+                <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
+                  <button
+                    type="button"
+                    onClick={handleClear}
+                    className="text-xs text-gray-400 hover:text-gray-600"
+                  >
+                    Clear
+                  </button>
+                  {props.mode === "range" && rangeStart && rangeEnd && (
+                    <span className="rounded-full bg-zinc-100 px-3 py-1 text-[11px] font-medium text-zinc-800 border border-zinc-200">
+                      {daysBetween} day{daysBetween !== 1 ? "s" : ""}
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="rounded-lg bg-zinc-800 px-5 py-2 text-xs font-semibold text-white hover:bg-zinc-900 transition-all shadow-sm active:scale-95"
+                  >
+                    Done
+                  </button>
+                </div>
+              )}
+
+              {/* Back button on month/year panels */}
+              {panel !== "days" && (
+                <div className="mt-4 border-t border-gray-100 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setPanel("days")}
+                    className="text-xs text-gray-400 hover:text-gray-600"
+                  >
+                    ← Back
+                  </button>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      )}
+          );
+          return props.floatPortal && typeof document !== "undefined"
+            ? ReactDOM.createPortal(popover, document.body)
+            : popover;
+        })()}
     </div>
   );
 }
