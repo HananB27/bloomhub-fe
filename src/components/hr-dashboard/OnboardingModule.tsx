@@ -5,7 +5,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
 import {
   Select,
   SelectContent,
@@ -60,6 +59,7 @@ import {
   cloneTemplate,
   createChecklistInstance,
   createTemplate,
+  deleteInstance,
   deleteTemplate,
   fetchEmployeeTasks,
   fetchMyTasks,
@@ -217,16 +217,50 @@ function ChecklistTaskCard({
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <Avatar className="w-6 h-6">
-                  <AvatarFallback className="text-xs">
-                    {task.assigned_to
-                      ? `${task.assigned_to.user.first_name.charAt(0)}${task.assigned_to.user.last_name.charAt(0)}`
-                      : "U"}
+                  <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
+                    {(() => {
+                      const u = task.checklist_instance.employee.user;
+                      const full = `${u.first_name} ${u.last_name}`.trim();
+                      return (
+                        full ||
+                        u.username ||
+                        `#${task.checklist_instance.employee.id}`
+                      )
+                        .charAt(0)
+                        .toUpperCase();
+                    })()}
                   </AvatarFallback>
                 </Avatar>
                 <span className="text-sm text-gray-600">
-                  {task.assigned_to
-                    ? `${task.assigned_to.user.first_name} ${task.assigned_to.user.last_name}`
-                    : "Unassigned"}
+                  For:{" "}
+                  <span className="font-medium text-gray-900">
+                    {(() => {
+                      const u = task.checklist_instance.employee.user;
+                      const full = `${u.first_name} ${u.last_name}`.trim();
+                      return (
+                        full ||
+                        u.username ||
+                        `Employee #${task.checklist_instance.employee.id}`
+                      );
+                    })()}
+                  </span>
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Avatar className="w-6 h-6">
+                  <AvatarFallback className="text-xs">
+                    {task.assigned_to
+                      ? `${task.assigned_to.user.first_name.charAt(0)}${task.assigned_to.user.last_name.charAt(0)}`
+                      : "?"}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-sm text-gray-600">
+                  Assigned by:{" "}
+                  <span className="font-medium text-gray-900">
+                    {task.assigned_to
+                      ? `${task.assigned_to.user.first_name} ${task.assigned_to.user.last_name}`
+                      : "Unassigned"}
+                  </span>
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -365,17 +399,19 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
   const [selectedChecklistFilter, setSelectedChecklistFilter] = useState<
     "all" | string
   >("all");
-  const [selectedEmployeeForView, setSelectedEmployeeForView] =
-    useState<string>("");
   const [myTasks, setMyTasks] = useState<ChecklistTask[]>([]);
   const [myTasksLoading, setMyTasksLoading] = useState(false);
   const [myTasksError, setMyTasksError] = useState<string | null>(null);
-  const [employeeTasks, setEmployeeTasks] = useState<ChecklistTask[]>([]);
-  const [employeeTasksLoading, setEmployeeTasksLoading] = useState(false);
-  const [employeeTasksError, setEmployeeTasksError] = useState<string | null>(
+  const [trackerInstances, setTrackerInstances] = useState<
+    Array<{
+      id: number;
+      templateName: string;
+      type: "onboarding" | "offboarding";
+    }>
+  >([]);
+  const [confirmUnassignId, setConfirmUnassignId] = useState<number | null>(
     null
   );
-  const [employeeTasksLoaded, setEmployeeTasksLoaded] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   // Template management state
@@ -617,6 +653,9 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
       setAssignTargetEmployee(null);
       setAssignDueDate("");
       setTaskDueDates({});
+      if (assignTargetEmployee && assignTargetEmployee === selectedEmployee) {
+        void loadTrackerTasks(selectedEmployee);
+      }
     } catch (err) {
       setAssignError(
         err instanceof Error ? err.message : "Failed to assign template."
@@ -640,10 +679,22 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     if (value === "templates") {
-      loadTemplates();
+      void loadTemplates();
     }
-    if (value === "my-tasks" || value === "tracker") {
-      loadMyTasks();
+    if (value === "my-tasks") {
+      void loadMyTasks();
+    }
+    if (value === "tracker" && selectedEmployee) {
+      void loadTrackerTasks(selectedEmployee);
+    }
+  };
+
+  const handleUnassignInstance = async (instanceId: number) => {
+    try {
+      await deleteInstance(instanceId, accessToken);
+      await loadTrackerTasks(selectedEmployee);
+    } catch {
+      setTrackerError("Failed to remove assignment.");
     }
   };
 
@@ -670,6 +721,7 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
     setTrackerError(null);
     setTasks([]);
     setOffboardingTasksState([]);
+    setTrackerInstances([]);
     try {
       const apiTasks = await fetchEmployeeTasks(
         Number(employeeId),
@@ -677,9 +729,21 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
       );
       const onboarding: Task[] = [];
       const offboarding: Task[] = [];
+      const instanceMap = new Map<
+        number,
+        { id: number; templateName: string; type: "onboarding" | "offboarding" }
+      >();
       for (const t of apiTasks) {
         const mapped = mapChecklistTaskToTask(t);
-        if (t.checklist_instance.template.type === "onboarding") {
+        const inst = t.checklist_instance;
+        if (!instanceMap.has(inst.id)) {
+          instanceMap.set(inst.id, {
+            id: inst.id,
+            templateName: inst.template.name,
+            type: inst.template.type,
+          });
+        }
+        if (inst.template.type === "onboarding") {
           onboarding.push(mapped);
         } else {
           offboarding.push(mapped);
@@ -687,6 +751,7 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
       }
       setTasks(onboarding);
       setOffboardingTasksState(offboarding);
+      setTrackerInstances(Array.from(instanceMap.values()));
     } catch (error) {
       setTrackerError(
         error instanceof Error
@@ -725,29 +790,6 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
       }
     }
   }, [selectedEmployee]);
-
-  const loadEmployeeTasks = async () => {
-    const employeeId = parseInt(selectedEmployeeForView.trim(), 10);
-    if (!selectedEmployeeForView.trim() || isNaN(employeeId) || employeeId < 1)
-      return;
-    setEmployeeTasksLoading(true);
-    setEmployeeTasksError(null);
-    setEmployeeTasksLoaded(false);
-    try {
-      const tasks = await fetchEmployeeTasks(employeeId, accessToken);
-      setEmployeeTasks(tasks);
-      setEmployeeTasksLoaded(true);
-    } catch (error) {
-      setEmployeeTasksError(
-        error instanceof Error
-          ? error.message
-          : "Failed to load employee tasks."
-      );
-      setEmployeeTasks([]);
-    } finally {
-      setEmployeeTasksLoading(false);
-    }
-  };
 
   const employeeOptions = Array.from(
     new Map(
@@ -1166,6 +1208,80 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
 
                 {/* Sidebar */}
                 <div className="space-y-6">
+                  {trackerInstances.length > 0 && (
+                    <Card className="border-gray-200">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="flex items-center gap-2 text-base">
+                          <Send className="w-4 h-4" />
+                          Active Assignments
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2 pt-0">
+                        {trackerInstances.map((inst) => (
+                          <div
+                            key={inst.id}
+                            className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-medium text-gray-900">
+                                  {inst.templateName}
+                                </p>
+                                <Badge
+                                  variant={
+                                    inst.type === "onboarding"
+                                      ? "default"
+                                      : "destructive"
+                                  }
+                                  className="mt-0.5 text-xs"
+                                >
+                                  {inst.type}
+                                </Badge>
+                              </div>
+                              {confirmUnassignId === inst.id ? (
+                                <div className="flex shrink-0 gap-1">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-xs px-2"
+                                    onClick={() => setConfirmUnassignId(null)}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    className="text-xs px-2 bg-red-600 hover:bg-red-700 text-white"
+                                    onClick={() => {
+                                      setConfirmUnassignId(null);
+                                      void handleUnassignInstance(inst.id);
+                                    }}
+                                  >
+                                    Confirm
+                                  </Button>
+                                </div>
+                              ) : (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="shrink-0 text-red-600 hover:bg-red-50 hover:border-red-300"
+                                  onClick={() => setConfirmUnassignId(inst.id)}
+                                  aria-label={`Remove assignment: ${inst.templateName}`}
+                                >
+                                  <UserMinus className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </div>
+                            {confirmUnassignId === inst.id && (
+                              <p className="mt-2 text-xs text-red-600">
+                                Are you sure you want to unassign this template?
+                                All tasks will be deleted.
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  )}
                   <Card className="border-gray-200">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -1279,30 +1395,19 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">My Tasks</h2>
                   <p className="text-gray-600 mt-1">
-                    View checklist tasks assigned to you and filter by employee
-                    or checklist.
+                    Checklist tasks assigned to you.
                   </p>
                 </div>
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                  <Button variant="outline" size="sm" onClick={loadMyTasks}>
-                    Refresh
-                  </Button>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={loadEmployeeTasks}
-                    disabled={
-                      !selectedEmployeeForView.trim() ||
-                      isNaN(parseInt(selectedEmployeeForView.trim(), 10)) ||
-                      parseInt(selectedEmployeeForView.trim(), 10) < 1
-                    }
-                  >
-                    Load Employee Tasks
-                  </Button>
-                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void loadMyTasks()}
+                >
+                  Refresh
+                </Button>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
                 <div className="space-y-2">
                   <Label htmlFor="employee-filter">Filter by employee</Label>
                   <Select
@@ -1344,21 +1449,6 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="employee-view">Employee task view</Label>
-                  <Input
-                    id="employee-view"
-                    type="number"
-                    min="1"
-                    placeholder="Enter employee ID"
-                    value={selectedEmployeeForView}
-                    onChange={(e) => {
-                      setSelectedEmployeeForView(e.target.value);
-                      setEmployeeTasksLoaded(false);
-                      setEmployeeTasks([]);
-                    }}
-                  />
-                </div>
               </div>
             </div>
 
@@ -1385,44 +1475,6 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
                       onStatusChange={handleMyTaskStatusChange}
                     />
                   ))
-                )}
-              </div>
-            )}
-
-            {employeeTasksError && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
-                {employeeTasksError}
-              </div>
-            )}
-
-            {employeeTasksLoading && (
-              <p className="text-gray-500">Loading employee tasks...</p>
-            )}
-
-            {!employeeTasksLoading && employeeTasksLoaded && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Employee Tasks
-                  </h3>
-                  <Badge variant="outline">
-                    {employeeTasks.length} tasks loaded
-                  </Badge>
-                </div>
-                {employeeTasks.length === 0 ? (
-                  <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-gray-500">
-                    No tasks found for this employee.
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {employeeTasks.map((task) => (
-                      <ChecklistTaskCard
-                        key={`employee-${task.id}`}
-                        task={task}
-                        variant="employee-tasks"
-                      />
-                    ))}
-                  </div>
                 )}
               </div>
             )}
