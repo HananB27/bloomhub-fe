@@ -450,11 +450,11 @@ describe("AssetsModule", () => {
     render(<AssetsModule />);
 
     fireEvent.click(
-      await screen.findByRole("button", { name: /Approve Return/i })
+      await screen.findByRole("button", { name: /Request Return/i })
     );
 
     const processButton = await screen.findByRole("button", {
-      name: /Approve Return/i,
+      name: /Request Return/i,
     });
     expect(processButton).toBeDisabled();
 
@@ -465,7 +465,7 @@ describe("AssetsModule", () => {
     fireEvent.click(processButton);
 
     await waitFor(() => {
-      expect(mockApproveAssetReturn).toHaveBeenCalledWith(
+      expect(mockRequestAssetReturn).toHaveBeenCalledWith(
         88,
         expect.objectContaining({
           notes: "",
@@ -476,6 +476,7 @@ describe("AssetsModule", () => {
         "test-token"
       );
     });
+    expect(mockApproveAssetReturn).not.toHaveBeenCalled();
   });
 
   it("allows an employee to process return for an asset assigned to them", async () => {
@@ -914,7 +915,7 @@ describe("AssetsModule", () => {
 
   it("shows return processing error if API fails", async () => {
     sessionRole = "HR";
-    mockApproveAssetReturn.mockRejectedValueOnce(new Error("Return failed"));
+    mockRequestAssetReturn.mockRejectedValueOnce(new Error("Return failed"));
     mockListAssets.mockResolvedValueOnce([
       {
         id: 20,
@@ -942,10 +943,10 @@ describe("AssetsModule", () => {
     render(<AssetsModule />);
 
     fireEvent.click(
-      await screen.findByRole("button", { name: /Approve Return/i })
+      await screen.findByRole("button", { name: /Request Return/i })
     );
     const processButton = await screen.findByRole("button", {
-      name: /Approve Return/i,
+      name: /Request Return/i,
     });
     const checkboxes = await screen.findAllByRole("checkbox");
     checkboxes.forEach((checkbox) => fireEvent.click(checkbox));
@@ -954,6 +955,63 @@ describe("AssetsModule", () => {
     fireEvent.click(processButton);
 
     expect(await screen.findByText("Return failed")).toBeInTheDocument();
+  });
+
+  it("requests return instead of self-approving when an HR user's own asset is returned", async () => {
+    sessionRole = "HR";
+    mockListAssets.mockResolvedValueOnce([
+      {
+        id: 21,
+        name: "HR Assigned Laptop",
+        category: "laptops",
+        serial_number: "SN-HR",
+        asset_tag: "AT-HR",
+        status: "active",
+        condition: "good",
+        assigned_to: "7",
+        assigned_employee_name: "Jane Doe",
+      },
+    ]);
+    mockListAssignments.mockResolvedValueOnce([
+      {
+        id: 100,
+        asset_id: 21,
+        employee_id: "7",
+        employee_name: "Jane Doe",
+        employee_details: {
+          user: {
+            email: "jane@company.com",
+          },
+        },
+        assigned_date: "2026-04-01",
+        is_active: true,
+      },
+    ]);
+
+    render(<AssetsModule />);
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: /Request Return/i })
+    );
+    const dialog = await screen.findByRole("dialog");
+    const checkboxes = await screen.findAllByRole("checkbox");
+    checkboxes.forEach((checkbox) => fireEvent.click(checkbox));
+
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: /Request Return/i })
+    );
+
+    await waitFor(() => {
+      expect(mockRequestAssetReturn).toHaveBeenCalledWith(
+        100,
+        expect.objectContaining({
+          checklist: expect.any(Array),
+          return_checklist: expect.any(Array),
+        }),
+        "test-token"
+      );
+    });
+    expect(mockApproveAssetReturn).not.toHaveBeenCalled();
   });
 
   it("shows assignment history tab and requests assignment data", async () => {
@@ -1137,6 +1195,61 @@ describe("AssetsModule", () => {
       within(dialog).getByText("Data wiped/backed up")
     ).toBeInTheDocument();
     expect(within(dialog).getByText("Backup completed.")).toBeInTheDocument();
+  });
+
+  it("approves a pending return when backend returns a nested assignment object", async () => {
+    sessionRole = "HR";
+    mockListAssets.mockResolvedValueOnce([]);
+    mockListAssignments.mockResolvedValueOnce([]);
+    mockListPendingReturnRequests.mockResolvedValueOnce([
+      {
+        id: 602,
+        assignment: {
+          id: 552,
+          asset_id: 72,
+          employee_id: "hr-2",
+          employee_name: "HR Assignee",
+        },
+        asset: {
+          id: 72,
+          asset_id: "AST-552",
+          name: "HR Return Laptop",
+        },
+        employee: {
+          id: 52,
+          user: {
+            first_name: "HR",
+            last_name: "Assignee",
+          },
+        },
+        return_requested: {
+          notes: "Ready for HR handoff.",
+        },
+      },
+    ]);
+
+    render(<AssetsModule />);
+    await screen.findByText(/No assets found/i);
+
+    fireEvent.mouseDown(
+      screen.getByRole("tab", { name: /Assignment History/i })
+    );
+    fireEvent.click(
+      await screen.findByRole("button", { name: /View details/i })
+    );
+
+    const dialog = await screen.findByRole("dialog");
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: /Approve return/i })
+    );
+
+    await waitFor(() => {
+      expect(mockApproveAssetReturn).toHaveBeenCalledWith(
+        552,
+        {},
+        "test-token"
+      );
+    });
   });
 
   it("requires a rejection reason before rejecting a pending return", async () => {
