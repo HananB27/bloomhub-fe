@@ -332,7 +332,11 @@ interface Employee {
   endDate?: string;
 }
 
-export function OnboardingModule() {
+interface OnboardingModuleProps {
+  onNavigate?: (moduleId: string) => void;
+}
+
+export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
   const { data: session } = useSession();
   const sessionUser = session?.user as
     | { is_staff?: boolean; role?: string; image?: string }
@@ -347,7 +351,12 @@ export function OnboardingModule() {
   const isManager = sessionUser?.role?.toLowerCase() === "manager";
   const canAccessTracker = isHrOrStaff || isManager;
   const [activeTab, setActiveTab] = useState("tracker");
-  const [selectedEmployee, setSelectedEmployee] = useState("");
+  const [selectedEmployee, setSelectedEmployee] = useState<string>(
+    () =>
+      (typeof window !== "undefined" &&
+        localStorage.getItem("onboarding_tracker_employee")) ||
+      ""
+  );
   const [selectedTemplate, setSelectedTemplate] =
     useState<TemplateType>("onboarding");
   const [selectedEmployeeFilter, setSelectedEmployeeFilter] = useState<
@@ -389,6 +398,7 @@ export function OnboardingModule() {
     string | null
   >(null);
   const [assignDueDate, setAssignDueDate] = useState<string>("");
+  const [taskDueDates, setTaskDueDates] = useState<Record<number, string>>({});
   const [assignLoading, setAssignLoading] = useState(false);
   const [assignError, setAssignError] = useState<string | null>(null);
   const [trackerLoading, setTrackerLoading] = useState(false);
@@ -600,11 +610,13 @@ export function OnboardingModule() {
         Number(assignTargetEmployee),
         assignModalTemplate.id,
         assignDueDate || null,
+        taskDueDates,
         accessToken
       );
       setAssignModalTemplate(null);
       setAssignTargetEmployee(null);
       setAssignDueDate("");
+      setTaskDueDates({});
     } catch (err) {
       setAssignError(
         err instanceof Error ? err.message : "Failed to assign template."
@@ -703,6 +715,16 @@ export function OnboardingModule() {
     if (canAccessTracker) void loadAllEmployees();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (selectedEmployee) {
+        localStorage.setItem("onboarding_tracker_employee", selectedEmployee);
+      } else {
+        localStorage.removeItem("onboarding_tracker_employee");
+      }
+    }
+  }, [selectedEmployee]);
 
   const loadEmployeeTasks = async () => {
     const employeeId = parseInt(selectedEmployeeForView.trim(), 10);
@@ -1225,6 +1247,17 @@ export function OnboardingModule() {
                               </span>
                             </div>
                           </div>
+                          {onNavigate && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full mt-2"
+                              onClick={() => onNavigate("profiles")}
+                            >
+                              <User className="w-4 h-4 mr-2" />
+                              View Full Profile
+                            </Button>
+                          )}
                         </>
                       ) : (
                         <div className="py-8 text-center text-sm text-gray-500">
@@ -1648,13 +1681,52 @@ export function OnboardingModule() {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Due Date</Label>
+                      <Label>Due Date (all tasks)</Label>
                       <Input
                         type="date"
                         value={assignDueDate}
                         onChange={(e) => setAssignDueDate(e.target.value)}
                       />
+                      <p className="text-xs text-gray-500">
+                        Applied to every task unless overridden below.
+                      </p>
                     </div>
+                    {assignModalTemplate.task_templates.length > 0 && (
+                      <div className="space-y-2">
+                        <Label>Individual Task Due Dates (optional)</Label>
+                        <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                          {assignModalTemplate.task_templates.map((task) => (
+                            <div
+                              key={task.id}
+                              className="flex items-center gap-2 text-sm"
+                            >
+                              <span className="flex-1 text-gray-700 truncate">
+                                {task.title}
+                              </span>
+                              <Input
+                                type="date"
+                                className="w-36 text-xs"
+                                value={
+                                  task.id !== undefined
+                                    ? (taskDueDates[task.id] ?? "")
+                                    : ""
+                                }
+                                onChange={(e) => {
+                                  if (task.id === undefined) return;
+                                  const val = e.target.value;
+                                  setTaskDueDates((prev) => {
+                                    const next = { ...prev };
+                                    if (val) next[task.id!] = val;
+                                    else delete next[task.id!];
+                                    return next;
+                                  });
+                                }}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     {assignError && (
                       <p className="text-sm text-red-600">{assignError}</p>
                     )}
@@ -1664,6 +1736,7 @@ export function OnboardingModule() {
                         onClick={() => {
                           setAssignModalTemplate(null);
                           setAssignDueDate("");
+                          setTaskDueDates({});
                         }}
                         disabled={assignLoading}
                       >

@@ -238,6 +238,7 @@ export async function createChecklistInstance(
   employeeId: number,
   templateId: number,
   dueDate: string | null,
+  taskDueDates: Record<number, string>,
   token?: string
 ): Promise<ChecklistInstance> {
   const response = await fetch(buildApiUrl("/api/onboarding/instances/"), {
@@ -246,7 +247,9 @@ export async function createChecklistInstance(
     body: JSON.stringify({
       employee: employeeId,
       template: templateId,
-      due_date: dueDate ?? undefined,
+      due_date: dueDate || undefined,
+      task_due_dates:
+        Object.keys(taskDueDates).length > 0 ? taskDueDates : undefined,
     }),
   });
   return parseResponse<ChecklistInstance>(response);

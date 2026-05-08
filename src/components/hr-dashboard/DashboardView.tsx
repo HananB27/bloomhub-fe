@@ -37,6 +37,7 @@ import type { AddNotification } from "./notifications";
 interface DashboardViewProps {
   activeModule: string;
   addNotification?: AddNotification;
+  onNavigate?: (moduleId: string) => void;
 }
 
 // Dashboard Overview Component
@@ -384,6 +385,7 @@ function DashboardOverview() {
 export function DashboardView({
   activeModule,
   addNotification,
+  onNavigate,
 }: DashboardViewProps) {
   switch (activeModule) {
     case "dashboard":
@@ -395,7 +397,7 @@ export function DashboardView({
     case "reviews":
       return <ReviewsModule />;
     case "onboarding":
-      return <OnboardingModule />;
+      return <OnboardingModule onNavigate={onNavigate} />;
     case "training":
       return <TrainingModule />;
     case "compensation":
