@@ -516,6 +516,8 @@ export function TemplatesManagement({
         description: template.description,
         category: template.category,
         visibility: template.visibility,
+        allowedRoles: template.allowedRoles,
+        visibilityScope: template.visibilityScope,
         status: next,
         content: template.content,
         fields: template.fields,

@@ -34,6 +34,7 @@ const sampleUpload: EmployeeDocument = {
   isConfidential: false,
   tags: ["hr"],
   allowedRoles: [],
+  visibilityScope: "roles",
   currentVersion: "1.0",
   versionCount: 1,
   signers: [],

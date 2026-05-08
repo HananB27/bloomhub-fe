@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "@/lib/config";
 import { resolveApiMediaUrl } from "../../helpers/resolveApiMediaUrl";
-import { get, post, del } from "../../helpers/httpClient";
+import { get, post, patch, del } from "../../helpers/httpClient";
 import { fetchWithAuthRetry } from "../../refresh";
 import {
   DOCUMENTS_API_BASE_PATH,
@@ -15,6 +15,7 @@ import {
   documentVersionsPath,
   documentSignaturePath,
   documentReminderPath,
+  documentVisibilityPath,
 } from "../../constants/documentsEndpoints";
 import {
   DocumentAccessRole,
@@ -24,6 +25,7 @@ import {
   getFileDisplayType,
   formatFileSizeMB,
 } from "@/lib/documents/documentsHelpers";
+import type { DocumentVisibilityScope } from "@/lib/documents/documentVisibilityPresets";
 
 // ─── API-layer interfaces (raw backend shape) ─────────────────────────────────
 
@@ -55,6 +57,9 @@ interface ApiDocumentRecord {
   is_confidential?: boolean;
   tags?: string[];
   allowed_roles?: DocumentAccessRole[];
+  // TODO [BACKEND REQUIRED]: GET/POST/PATCH /api/documents/ — include visibility_scope
+  // ("roles" | "only_me" | "project_group"); defaults to "roles" for legacy rows.
+  visibility_scope?: DocumentVisibilityScope;
   // TODO [BACKEND REQUIRED]: GET /api/documents/ & GET /api/documents/{id}/
   // — include current_version (e.g. "2.1") and version_count (e.g. 3)
   current_version?: string;
@@ -116,6 +121,7 @@ export interface EmployeeDocument {
   isConfidential: boolean;
   tags: string[];
   allowedRoles: DocumentAccessRole[];
+  visibilityScope: DocumentVisibilityScope;
   currentVersion: string;
   versionCount: number;
   signers: DocumentSigner[];
@@ -130,9 +136,9 @@ export interface UploadEmployeeDocumentPayload {
   category: DocumentCategory;
   description: string;
   expiryDate?: string;
-  isConfidential: boolean;
   tags: string[];
   allowedRoles: DocumentAccessRole[];
+  visibilityScope: DocumentVisibilityScope;
   /**
    * When true, trigger signature workflow immediately after upload.
    * TODO [BACKEND REQUIRED]: POST /api/documents/{id}/request-signature/
@@ -195,6 +201,8 @@ function mapDocumentRecord(record: ApiDocumentRecord): EmployeeDocument {
     allowedRoles: Array.isArray(record.allowed_roles)
       ? record.allowed_roles
       : [],
+    visibilityScope: (record.visibility_scope ??
+      "roles") as DocumentVisibilityScope,
     currentVersion: String(record.current_version ?? "1.0"),
     versionCount: Number(record.version_count ?? 1),
     signers: Array.isArray(record.signers)
@@ -284,11 +292,13 @@ export const documentsApi = {
     formData.append("name", payload.name);
     formData.append("category", payload.category);
     formData.append("description", payload.description);
-    formData.append("is_confidential", String(payload.isConfidential));
     payload.tags.forEach((tag) => formData.append("tags", tag));
     payload.allowedRoles.forEach((role) =>
       formData.append("allowed_roles", role)
     );
+    // TODO [BACKEND REQUIRED]: POST /api/documents/ — accept visibility_scope
+    // ("roles" | "only_me" | "project_group") on the multipart payload.
+    formData.append("visibility_scope", payload.visibilityScope);
     if (payload.expiryDate) {
       formData.append("expiry_date", payload.expiryDate);
     }
@@ -301,6 +311,30 @@ export const documentsApi = {
       throw await parseResponseError(response, "Failed to upload document");
     }
     return mapDocumentRecord((await response.json()) as ApiDocumentRecord);
+  },
+
+  /**
+   * Update the visibility settings (scope + allowed roles) of an existing document.
+   * TODO [BACKEND REQUIRED]: PATCH /api/documents/{id}/visibility/
+   * Body: { allowed_roles: DocumentAccessRole[]; visibility_scope: "roles" | "only_me" | "project_group" }
+   * — HR/Admin only (or owner when scope === "only_me"); returns the updated document record.
+   */
+  async updateVisibility(
+    documentId: number | string,
+    settings: {
+      scope: DocumentVisibilityScope;
+      allowedRoles: DocumentAccessRole[];
+    }
+  ): Promise<EmployeeDocument> {
+    const data = await patch<ApiDocumentRecord>(
+      `${API_BASE_URL}${documentVisibilityPath(documentId)}`,
+      {
+        allowed_roles: settings.allowedRoles,
+        visibility_scope: settings.scope,
+      },
+      "Failed to update document visibility"
+    );
+    return mapDocumentRecord(data);
   },
 
   /**

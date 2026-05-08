@@ -51,6 +51,18 @@ export interface DocumentTemplate {
   description: string;
   category: TemplateCategory;
   visibility: TemplateVisibility;
+  /**
+   * Role-based access list mirroring documents. Admin always has access.
+   * TODO [BACKEND REQUIRED]: GET/POST/PATCH /api/documents/templates/ — include allowed_roles
+   * (DocumentAccessRole[]) on the template payload; default ["employee"] for new templates.
+   */
+  allowedRoles: import("@/lib/documents/documentsHelpers").DocumentAccessRole[];
+  /**
+   * Scope of visibility — same model as documents.
+   * TODO [BACKEND REQUIRED]: GET/POST/PATCH /api/documents/templates/ — include visibility_scope
+   * ("roles" | "only_me" | "project_group"); defaults to "roles" for legacy rows.
+   */
+  visibilityScope: import("@/lib/documents/documentVisibilityPresets").DocumentVisibilityScope;
   status: TemplateStatus;
   content: string;
   fields: TemplateField[];
@@ -65,6 +77,8 @@ export interface TemplatePayload {
   description: string;
   category: TemplateCategory;
   visibility: TemplateVisibility;
+  allowedRoles: import("@/lib/documents/documentsHelpers").DocumentAccessRole[];
+  visibilityScope: import("@/lib/documents/documentVisibilityPresets").DocumentVisibilityScope;
   status: TemplateStatus;
   content: string;
   fields: TemplateField[];

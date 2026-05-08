@@ -634,21 +634,41 @@ export function TemplatePicker({
             )}
 
             {!isLoading && !loadError && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <ScratchCard
-                  onClick={() => {
-                    onClose();
-                    onScratch();
-                  }}
-                />
-                {templates.map((template) => (
-                  <PickerCard
-                    key={template.id}
-                    template={template}
-                    onPreview={() => setPreviewTemplate(template)}
-                    onUse={() => handleUseTemplate(template)}
-                  />
-                ))}
+              <div className="space-y-6">
+                <section>
+                  <h3 className="text-[12px] font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                    Templates
+                  </h3>
+                  {templates.length === 0 ? (
+                    <p className="text-[13px] text-gray-400">
+                      No templates match your filters.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {templates.map((template) => (
+                        <PickerCard
+                          key={template.id}
+                          template={template}
+                          onPreview={() => setPreviewTemplate(template)}
+                          onUse={() => handleUseTemplate(template)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </section>
+                <section>
+                  <h3 className="text-[12px] font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                    Or start blank
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <ScratchCard
+                      onClick={() => {
+                        onClose();
+                        onScratch();
+                      }}
+                    />
+                  </div>
+                </section>
               </div>
             )}
           </div>

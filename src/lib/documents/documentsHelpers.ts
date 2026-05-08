@@ -28,9 +28,34 @@ export enum DocumentType {
 
 export enum DocumentAccessRole {
   Employee = "employee",
+  Manager = "manager",
   Hr = "hr",
   Admin = "admin",
 }
+
+export const DOCUMENT_ACCESS_ROLE_LABELS: Record<DocumentAccessRole, string> = {
+  [DocumentAccessRole.Employee]: "Employee",
+  [DocumentAccessRole.Manager]: "Manager",
+  [DocumentAccessRole.Hr]: "HR",
+  [DocumentAccessRole.Admin]: "Admin",
+};
+
+export const DOCUMENT_ACCESS_ROLE_DESCRIPTIONS: Record<
+  DocumentAccessRole,
+  string
+> = {
+  [DocumentAccessRole.Employee]: "All employees",
+  [DocumentAccessRole.Manager]: "People managers and team leads",
+  [DocumentAccessRole.Hr]: "HR staff",
+  [DocumentAccessRole.Admin]: "System administrators (always have access)",
+};
+
+export const DOCUMENT_ACCESS_ROLE_RANK: Record<DocumentAccessRole, number> = {
+  [DocumentAccessRole.Employee]: 1,
+  [DocumentAccessRole.Manager]: 2,
+  [DocumentAccessRole.Hr]: 3,
+  [DocumentAccessRole.Admin]: 4,
+};
 
 export interface DocumentCategoryOption {
   value: DocumentCategory;
@@ -78,6 +103,7 @@ export function documentExpiryBucket(
 export interface SessionUserRoleFlags {
   is_staff?: boolean;
   is_superuser?: boolean;
+  is_manager?: boolean;
 }
 
 export interface FilterableDocument {
@@ -124,14 +150,24 @@ export function normalizeCategoryFilter(
   return undefined;
 }
 
+/**
+ * Role-rank rule:
+ *   admin (4) sees all documents.
+ *   Other roles see a document iff their rank ≥ the lowest allowed-role rank.
+ *   I.e. an "employee"-tagged document is visible to everyone; an "hr"-tagged
+ *   document is visible to HR and Admin only; etc.
+ */
 export function hasDocumentAccess(
   allowedRoles: DocumentAccessRole[],
   userRole: DocumentAccessRole
 ): boolean {
-  if (allowedRoles.length === 0) return true;
-  if (allowedRoles.includes(DocumentAccessRole.Employee)) return true;
   if (userRole === DocumentAccessRole.Admin) return true;
-  return allowedRoles.includes(userRole);
+  if (allowedRoles.length === 0) return true;
+  const userRank = DOCUMENT_ACCESS_ROLE_RANK[userRole];
+  const minAllowedRank = Math.min(
+    ...allowedRoles.map((role) => DOCUMENT_ACCESS_ROLE_RANK[role])
+  );
+  return userRank >= minAllowedRank;
 }
 
 export function getDocumentUserRole(
@@ -139,6 +175,7 @@ export function getDocumentUserRole(
 ): DocumentAccessRole {
   if (user?.is_superuser) return DocumentAccessRole.Admin;
   if (user?.is_staff) return DocumentAccessRole.Hr;
+  if (user?.is_manager) return DocumentAccessRole.Manager;
   return DocumentAccessRole.Employee;
 }
 
@@ -249,14 +286,29 @@ export function documentInlinePreviewPresentation(
 
 /**
  * Derive allowed_roles from isConfidential toggle.
- * Confidential documents are restricted to HR + Admin;
- * non-confidential documents are visible to all employees.
+ * @deprecated Use explicit allowedRoles arrays via DocumentVisibilitySelector / presets.
+ *   Kept only for backwards compatibility with legacy callers.
  */
 export function buildDocumentAllowedRoles(
   isConfidential: boolean
 ): DocumentAccessRole[] {
   if (isConfidential) return [DocumentAccessRole.Hr, DocumentAccessRole.Admin];
   return [DocumentAccessRole.Employee];
+}
+
+/**
+ * A document is "restricted" when not visible to all employees.
+ * Drives the lock badge in list/detail views. Implementation lives in
+ * documentVisibilityHelpers.ts — re-exported here as a thin wrapper so
+ * existing call sites keep working with the EmployeeDocument shape.
+ */
+export function isRestrictedDocument(doc: {
+  allowedRoles: DocumentAccessRole[];
+  visibilityScope?: import("./documentVisibilityPresets").DocumentVisibilityScope;
+}): boolean {
+  const roles = normalizeAllowedRoles(doc.allowedRoles);
+  const scope = doc.visibilityScope ?? "roles";
+  return scope !== "roles" || !roles.includes(DocumentAccessRole.Employee);
 }
 
 export function filterDocumentsByUiFilters<T extends FilterableDocument>(

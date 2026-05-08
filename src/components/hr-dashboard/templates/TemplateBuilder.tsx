@@ -60,6 +60,13 @@ import {
   getTemplateCategoryColor,
   getTemplateCategoryLabel,
 } from "@/lib/templates/templatesHelpers";
+import {
+  presetFromVisibility,
+  visibilityFromPreset,
+  type DocumentVisibilitySettings,
+} from "@/lib/documents/documentVisibilityPresets";
+import { documentVisibilityLabel } from "@/lib/documents/documentVisibilityHelpers";
+import { DocumentVisibilitySelector } from "../documents/DocumentVisibilitySelector";
 import { templatesApi } from "@/lib/api/modules/templates";
 import {
   templateSnippetsApi,
@@ -117,16 +124,21 @@ interface BuilderState {
   description: string;
   category: TemplateCategory | "";
   visibility: TemplateVisibility;
+  visibilitySettings: DocumentVisibilitySettings;
   status: TemplateStatus;
   content: string;
   fields: TemplateField[];
 }
+
+const DEFAULT_TEMPLATE_VISIBILITY: DocumentVisibilitySettings =
+  visibilityFromPreset("hr_and_above");
 
 const EMPTY_STATE: BuilderState = {
   name: "",
   description: "",
   category: "",
   visibility: TemplateVisibility.Private,
+  visibilitySettings: DEFAULT_TEMPLATE_VISIBILITY,
   status: TemplateStatus.Draft,
   content: "",
   fields: [],
@@ -198,30 +210,13 @@ function TemplateBuilderStep1({
         <label className="block text-[12px] font-medium text-gray-800 mb-2">
           Visibility
         </label>
-        <div className="inline-flex rounded-lg border border-gray-200 overflow-hidden">
-          {[
-            { value: TemplateVisibility.Private, label: "Private" },
-            { value: TemplateVisibility.Shared, label: "Shared" },
-          ].map(({ value, label }) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => onChange({ visibility: value })}
-              className={`px-5 py-2 text-[13px] font-medium transition-colors ${
-                state.visibility === value
-                  ? "bg-gray-800 text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="max-w-[460px]">
+          <DocumentVisibilitySelector
+            value={state.visibilitySettings}
+            onChange={(visibilitySettings) => onChange({ visibilitySettings })}
+            density="compact"
+          />
         </div>
-        <p className="text-[11.5px] text-gray-400 mt-1.5">
-          {state.visibility === TemplateVisibility.Private
-            ? "Only visible to HR admins"
-            : "Visible to all HR users"}
-        </p>
       </div>
     </div>
   );
@@ -3354,6 +3349,8 @@ function TemplateBuilderStep4({
       description: state.description,
       category: state.category as TemplateCategory,
       visibility: state.visibility,
+      allowedRoles: state.visibilitySettings.allowedRoles,
+      visibilityScope: state.visibilitySettings.scope,
       status,
       content: state.content,
       fields: state.fields,
@@ -3451,8 +3448,11 @@ function TemplateBuilderStep4({
             <div className="text-[11px] text-gray-400 uppercase tracking-wide mb-1">
               Visibility
             </div>
-            <div className="text-[13px] font-medium text-gray-900 capitalize">
-              {state.visibility}
+            <div className="text-[13px] font-medium text-gray-900">
+              {documentVisibilityLabel(
+                state.visibilitySettings.scope,
+                state.visibilitySettings.allowedRoles
+              )}
             </div>
           </div>
           <div className="px-4 py-3 border border-gray-200 rounded-lg bg-white">
@@ -3591,6 +3591,14 @@ export function TemplateBuilder({
           description: editTemplate.description,
           category: editTemplate.category,
           visibility: editTemplate.visibility,
+          visibilitySettings: {
+            scope: editTemplate.visibilityScope,
+            allowedRoles: editTemplate.allowedRoles,
+            preset: presetFromVisibility(
+              editTemplate.visibilityScope,
+              editTemplate.allowedRoles
+            ),
+          },
           status: editTemplate.status,
           content: editTemplate.content,
           fields: editTemplate.fields,

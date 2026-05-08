@@ -111,6 +111,7 @@ export function buildGeneratedTableRow(
     isConfidential: false,
     tags: [],
     allowedRoles: [],
+    visibilityScope: "roles",
     currentVersion: "1.0",
     versionCount: 1,
     signers: [],
