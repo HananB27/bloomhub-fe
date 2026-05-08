@@ -8,10 +8,14 @@ import type {
   LeaveType,
   TeamCalendarEvent,
   UpdateLeaveBalancePayload,
+  VacationCapabilities,
+  VacationTeamMember,
 } from "@/types/vacations";
 import {
   leaveRequestHrApprovePath,
+  LEAVE_REQUESTS_CAPABILITIES_PATH,
   LEAVE_REQUESTS_HR_PENDING_PATH,
+  LEAVE_REQUESTS_TEAM_MEMBERS_PATH,
 } from "./constants/vacationsEndpoints";
 
 const API_BASE_URL = getApiBaseUrl();
@@ -205,6 +209,96 @@ function transformTeamCalendarEvent(
     status: api.status as "pending" | "approved" | "rejected" | "cancelled",
   };
 }
+
+interface ApiVacationTeamMember {
+  id: number;
+  name: string;
+  avatar_url: string | null;
+}
+
+interface ApiVacationCapabilities {
+  can_approve_requests: boolean;
+  can_hr_approve: boolean;
+  can_adjust_balances: boolean;
+  can_configure_leave_types: boolean;
+}
+
+function transformVacationTeamMember(
+  api: ApiVacationTeamMember
+): VacationTeamMember {
+  return {
+    id: String(api.id),
+    name: api.name || UNKNOWN_FALLBACK,
+    avatarUrl: api.avatar_url || undefined,
+  };
+}
+
+function transformVacationCapabilities(
+  api: ApiVacationCapabilities
+): VacationCapabilities {
+  return {
+    canApproveRequests: !!api.can_approve_requests,
+    canHrApprove: !!api.can_hr_approve,
+    canAdjustBalances: !!api.can_adjust_balances,
+    canConfigureLeaveTypes: !!api.can_configure_leave_types,
+  };
+}
+
+/**
+ * Fetch covering-employee candidates (active project teammates, self excluded).
+ */
+export const fetchVacationTeamMembers = async (
+  accessToken: string
+): Promise<VacationTeamMember[]> => {
+  const response = await fetch(
+    `${API_BASE_URL}${LEAVE_REQUESTS_TEAM_MEMBERS_PATH}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized: Please log in again");
+    }
+    throw new Error("Failed to fetch team members");
+  }
+
+  const data: ApiVacationTeamMember[] = await response.json();
+  return data.map(transformVacationTeamMember);
+};
+
+/**
+ * Fetch per-feature capability flags for the Vacations module.
+ */
+export const fetchVacationCapabilities = async (
+  accessToken: string
+): Promise<VacationCapabilities> => {
+  const response = await fetch(
+    `${API_BASE_URL}${LEAVE_REQUESTS_CAPABILITIES_PATH}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized: Please log in again");
+    }
+    throw new Error("Failed to fetch vacation capabilities");
+  }
+
+  const data: ApiVacationCapabilities = await response.json();
+  return transformVacationCapabilities(data);
+};
 
 /**
  * Fetch leave policies

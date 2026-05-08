@@ -1,8 +1,22 @@
-# Deploy frontend to Vercel PROD (manual: run from Actions tab)
+# Deploy frontend to Vercel PROD.
+#
+# This intentionally deploys from GitHub Actions with the configured Vercel token
+# instead of relying on Vercel's GitHub integration. On Vercel Hobby, production
+# deployments can fail when the commit author is not the Vercel project owner.
 name: Deploy Production
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vercel-production
+  cancel-in-progress: true
 
 jobs:
   deploy-prod:
@@ -17,6 +31,9 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
+
+      - name: Strip Git metadata for Vercel Hobby deploys
+        run: rm -rf .git
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest

@@ -151,6 +151,26 @@ export interface UpdateLeaveBalancePayload {
   reason?: string;
 }
 
+export interface VacationTeamMember {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+}
+
+export interface VacationCapabilities {
+  canApproveRequests: boolean;
+  canHrApprove: boolean;
+  canAdjustBalances: boolean;
+  canConfigureLeaveTypes: boolean;
+}
+
+export const DEFAULT_VACATION_CAPABILITIES: VacationCapabilities = {
+  canApproveRequests: false,
+  canHrApprove: false,
+  canAdjustBalances: false,
+  canConfigureLeaveTypes: false,
+};
+
 export const LEAVE_TYPE_LABELS: Record<LeaveType, string> = {
   vacation: "Vacation",
   sick: "Sick Leave",
