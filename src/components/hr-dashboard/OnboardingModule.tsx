@@ -413,7 +413,6 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
     null
   );
   const [newComment, setNewComment] = useState("");
-  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   // Template management state
   const [templates, setTemplates] = useState<ChecklistTemplate[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState(false);
