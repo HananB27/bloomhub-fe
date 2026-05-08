@@ -589,6 +589,7 @@ export default function HRDashboardApp() {
             <DashboardView
               activeModule={activeModule}
               addNotification={addNotification}
+              onNavigate={(moduleId) => setActiveModule(moduleId as HrModuleId)}
             />
           </div>
         </div>

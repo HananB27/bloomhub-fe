@@ -5,7 +5,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
 import {
   Select,
   SelectContent,
@@ -13,18 +12,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import { Badge } from "./ui/badge";
-import { QuickActionButton } from "./QuickActionButton";
 import { Progress } from "./ui/progress";
-import { Avatar, AvatarFallback } from "./ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Separator } from "./ui/separator";
-import { Checkbox } from "./ui/checkbox";
 import {
   UserPlus,
   UserMinus,
   Calendar,
   Clock,
-  MessageSquare,
   CheckCircle,
   Circle,
   Play,
@@ -32,34 +37,91 @@ import {
   Filter,
   Download,
   User,
-  Building,
   FileText,
   Send,
   Edit3,
-  AlertCircle,
   Target,
-  TrendingUp,
   Trash2,
   Copy,
+  CalendarClock,
+  ChevronDown,
 } from "lucide-react";
+import { employeeApi } from "@/lib/api/modules/employees";
+import type { EmployeeProfileData } from "@/lib/api/modules/employees";
 import {
   ChecklistTemplate,
   ChecklistTask,
+  ChecklistTaskStatus,
   TaskTemplate,
+  TemplateRole,
+  TASK_STATUS_LABELS,
+  TASK_STATUS_BADGE_COLORS,
   cloneTemplate,
+  createChecklistInstance,
   createTemplate,
+  deleteInstance,
   deleteTemplate,
   fetchEmployeeTasks,
   fetchMyTasks,
   fetchTemplates,
   updateTemplate,
+  updateTaskStatus,
 } from "@/lib/api/onboarding";
 
 type TaskStatus = "todo" | "in-progress" | "done";
 type TemplateType = "onboarding" | "offboarding";
 
+function employeeDisplayName(emp: EmployeeProfileData): string {
+  const full = `${emp.first_name} ${emp.last_name}`.trim();
+  return full || emp.username || emp.email || `Employee #${emp.id}`;
+}
+
 function normalizeStatus(status: string): string {
   return status === "in_progress" ? "in-progress" : status;
+}
+
+function toApiStatus(status: TaskStatus | string): ChecklistTaskStatus {
+  return (
+    status === "in-progress" ? "in_progress" : status
+  ) as ChecklistTaskStatus;
+}
+
+type SortOrder =
+  | "default"
+  | "due_asc"
+  | "due_desc"
+  | "status_todo_first"
+  | "status_done_first";
+
+const STATUS_SORT_RANK: Record<string, number> = {
+  todo: 0,
+  "in-progress": 1,
+  done: 2,
+};
+
+function applySortOrder(tasks: Task[], order: SortOrder): Task[] {
+  if (order === "default") return tasks;
+  return [...tasks].sort((a, b) => {
+    if (order === "due_asc" || order === "due_desc") {
+      const aTime =
+        a.dueDate === "No due date" ? Infinity : new Date(a.dueDate).getTime();
+      const bTime =
+        b.dueDate === "No due date" ? Infinity : new Date(b.dueDate).getTime();
+      return order === "due_asc" ? aTime - bTime : bTime - aTime;
+    }
+    const aRank = STATUS_SORT_RANK[a.status] ?? 0;
+    const bRank = STATUS_SORT_RANK[b.status] ?? 0;
+    return order === "status_todo_first" ? aRank - bRank : bRank - aRank;
+  });
+}
+
+function formatDate(dateStr?: string): string {
+  if (!dateStr) return "—";
+  return new Date(dateStr).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function statusIconClass(status: string): string {
@@ -95,7 +157,7 @@ function mapChecklistTaskToTask(task: ChecklistTask): Task {
     assigneeAvatar,
     dueDate: task.due_date ?? "No due date",
     status: normalizeStatus(task.status) as TaskStatus,
-    category: task.task_template.role_responsible,
+    category: task.checklist_instance.template.role_responsible ?? "",
     priority: "medium",
     estimatedHours: 0,
     comments: [],
@@ -107,11 +169,17 @@ type ChecklistTaskCardVariant = "my-tasks" | "employee-tasks";
 interface ChecklistTaskCardProps {
   task: ChecklistTask;
   variant: ChecklistTaskCardVariant;
+  onStatusChange?: (taskId: number, newStatus: ChecklistTaskStatus) => void;
 }
 
-function ChecklistTaskCard({ task, variant }: ChecklistTaskCardProps) {
+function ChecklistTaskCard({
+  task,
+  variant,
+  onStatusChange,
+}: ChecklistTaskCardProps) {
   const status = normalizeStatus(task.status);
   const iconClassName = `w-5 h-5 mt-0.5 ${statusIconClass(status)}`;
+  const apiStatus = task.status as ChecklistTaskStatus;
 
   if (variant === "my-tasks") {
     return (
@@ -131,26 +199,68 @@ function ChecklistTaskCard({ task, variant }: ChecklistTaskCardProps) {
                 </p>
               </div>
             </div>
-            <Badge variant="outline" className="text-sm">
-              {task.task_template.role_responsible}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge
+                className={TASK_STATUS_BADGE_COLORS[apiStatus]}
+                variant="outline"
+              >
+                {TASK_STATUS_LABELS[apiStatus]}
+              </Badge>
+              <Badge variant="outline" className="text-sm">
+                {task.checklist_instance.template.role_responsible}
+              </Badge>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="pt-0">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Avatar className="w-6 h-6">
+                  <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
+                    {(() => {
+                      const u = task.checklist_instance.employee.user;
+                      const full = `${u.first_name} ${u.last_name}`.trim();
+                      return (
+                        full ||
+                        u.username ||
+                        `#${task.checklist_instance.employee.id}`
+                      )
+                        .charAt(0)
+                        .toUpperCase();
+                    })()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-sm text-gray-600">
+                  For:{" "}
+                  <span className="font-medium text-gray-900">
+                    {(() => {
+                      const u = task.checklist_instance.employee.user;
+                      const full = `${u.first_name} ${u.last_name}`.trim();
+                      return (
+                        full ||
+                        u.username ||
+                        `Employee #${task.checklist_instance.employee.id}`
+                      );
+                    })()}
+                  </span>
+                </span>
+              </div>
               <div className="flex items-center gap-2">
                 <Avatar className="w-6 h-6">
                   <AvatarFallback className="text-xs">
                     {task.assigned_to
                       ? `${task.assigned_to.user.first_name.charAt(0)}${task.assigned_to.user.last_name.charAt(0)}`
-                      : "U"}
+                      : "?"}
                   </AvatarFallback>
                 </Avatar>
                 <span className="text-sm text-gray-600">
-                  {task.assigned_to
-                    ? `${task.assigned_to.user.first_name} ${task.assigned_to.user.last_name}`
-                    : "Unassigned"}
+                  Assigned by:{" "}
+                  <span className="font-medium text-gray-900">
+                    {task.assigned_to
+                      ? `${task.assigned_to.user.first_name} ${task.assigned_to.user.last_name}`
+                      : "Unassigned"}
+                  </span>
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -160,6 +270,38 @@ function ChecklistTaskCard({ task, variant }: ChecklistTaskCardProps) {
                 </span>
               </div>
             </div>
+            {onStatusChange && (
+              <Select
+                value={apiStatus}
+                onValueChange={(val: ChecklistTaskStatus) =>
+                  onStatusChange(task.id, val)
+                }
+              >
+                <SelectTrigger className="w-36">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todo">
+                    <div className="flex items-center gap-2">
+                      <Circle className="w-4 h-4 text-gray-400" />
+                      To Do
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="in_progress">
+                    <div className="flex items-center gap-2">
+                      <Play className="w-4 h-4 text-blue-600" />
+                      In Progress
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="done">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      Done
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -180,7 +322,12 @@ function ChecklistTaskCard({ task, variant }: ChecklistTaskCardProps) {
               </p>
             </div>
           </div>
-          <Badge variant="outline">{status.replace("_", " ")}</Badge>
+          <Badge
+            className={TASK_STATUS_BADGE_COLORS[apiStatus]}
+            variant="outline"
+          >
+            {TASK_STATUS_LABELS[apiStatus]}
+          </Badge>
         </div>
       </CardHeader>
     </Card>
@@ -219,17 +366,31 @@ interface Employee {
   endDate?: string;
 }
 
-export function OnboardingModule() {
+interface OnboardingModuleProps {
+  onNavigate?: (moduleId: string) => void;
+}
+
+export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
   const { data: session } = useSession();
-  const sessionWithAccessToken = session as
-    | { accessToken?: string }
+  const sessionUser = session?.user as
+    | { is_staff?: boolean; role?: string; image?: string }
     | null
     | undefined;
-  const rawAccessToken = sessionWithAccessToken?.accessToken;
+  const rawAccessToken = (session as Record<string, unknown> | null)
+    ?.accessToken;
   const accessToken =
     typeof rawAccessToken === "string" ? rawAccessToken : undefined;
+  const isHrOrStaff =
+    sessionUser?.is_staff === true || sessionUser?.role?.toLowerCase() === "hr";
+  const isManager = sessionUser?.role?.toLowerCase() === "manager";
+  const canAccessTracker = isHrOrStaff || isManager;
   const [activeTab, setActiveTab] = useState("tracker");
-  const [selectedEmployee, setSelectedEmployee] = useState("");
+  const [selectedEmployee, setSelectedEmployee] = useState<string>(
+    () =>
+      (typeof window !== "undefined" &&
+        localStorage.getItem("onboarding_tracker_employee")) ||
+      ""
+  );
   const [selectedTemplate, setSelectedTemplate] =
     useState<TemplateType>("onboarding");
   const [selectedEmployeeFilter, setSelectedEmployeeFilter] = useState<
@@ -238,19 +399,20 @@ export function OnboardingModule() {
   const [selectedChecklistFilter, setSelectedChecklistFilter] = useState<
     "all" | string
   >("all");
-  const [selectedEmployeeForView, setSelectedEmployeeForView] =
-    useState<string>("");
   const [myTasks, setMyTasks] = useState<ChecklistTask[]>([]);
   const [myTasksLoading, setMyTasksLoading] = useState(false);
   const [myTasksError, setMyTasksError] = useState<string | null>(null);
-  const [employeeTasks, setEmployeeTasks] = useState<ChecklistTask[]>([]);
-  const [employeeTasksLoading, setEmployeeTasksLoading] = useState(false);
-  const [employeeTasksError, setEmployeeTasksError] = useState<string | null>(
+  const [trackerInstances, setTrackerInstances] = useState<
+    Array<{
+      id: number;
+      templateName: string;
+      type: "onboarding" | "offboarding";
+    }>
+  >([]);
+  const [confirmUnassignId, setConfirmUnassignId] = useState<number | null>(
     null
   );
-  const [employeeTasksLoaded, setEmployeeTasksLoaded] = useState(false);
   const [newComment, setNewComment] = useState("");
-  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   // Template management state
   const [templates, setTemplates] = useState<ChecklistTemplate[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState(false);
@@ -261,42 +423,36 @@ export function OnboardingModule() {
   const [templateForm, setTemplateForm] = useState({
     name: "",
     type: "onboarding" as "onboarding" | "offboarding",
+    role_responsible: "HR" as TemplateRole,
     task_templates: [] as TaskTemplate[],
   });
   const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskRole, setNewTaskRole] = useState<"HR" | "IT" | "Manager">("HR");
+  const [assignModalTemplate, setAssignModalTemplate] =
+    useState<ChecklistTemplate | null>(null);
+  const [assignTargetEmployee, setAssignTargetEmployee] = useState<
+    string | null
+  >(null);
+  const [assignDueDate, setAssignDueDate] = useState<string>("");
+  const [taskDueDates, setTaskDueDates] = useState<Record<number, string>>({});
+  const [assignLoading, setAssignLoading] = useState(false);
+  const [assignError, setAssignError] = useState<string | null>(null);
   const [trackerLoading, setTrackerLoading] = useState(false);
   const [trackerError, setTrackerError] = useState<string | null>(null);
   const [offboardingTasksState, setOffboardingTasksState] = useState<Task[]>(
     []
   );
-
-  const employees: Employee[] = Array.from(
-    new Map(
-      myTasks.map((t) => {
-        const emp = t.checklist_instance.employee;
-        const id = String(emp.id);
-        return [
-          id,
-          {
-            id,
-            name: `${emp.user.first_name} ${emp.user.last_name}`,
-            department: emp.department ?? "",
-            role: t.task_template.role_responsible,
-            type: t.checklist_instance.template.type,
-          } as Employee,
-        ];
-      })
-    ).values()
-  );
+  const [allEmployees, setAllEmployees] = useState<EmployeeProfileData[]>([]);
+  const [allEmployeesLoading, setAllEmployeesLoading] = useState(false);
+  const [sortOrder, setSortOrder] = useState<SortOrder>("default");
 
   const [tasks, setTasks] = useState<Task[]>([]);
 
-  const selectedEmployeeData = employees.find(
-    (emp) => emp.id === selectedEmployee
-  );
+  const selectedEmployeeProfile =
+    allEmployees.find((e) => String(e.id) === selectedEmployee) ?? null;
+
   const currentTasks =
     selectedTemplate === "onboarding" ? tasks : offboardingTasksState;
+  const sortedTasks = applySortOrder(currentTasks, sortOrder);
 
   const allTasks = [...tasks, ...offboardingTasksState];
   const completedTasks = currentTasks.filter(
@@ -323,7 +479,11 @@ export function OnboardingModule() {
         )
       : 0;
 
-  const handleTaskStatusChange = (taskId: number, newStatus: TaskStatus) => {
+  const handleTaskStatusChange = async (
+    taskId: number,
+    newStatus: TaskStatus
+  ) => {
+    const apiStatus = toApiStatus(newStatus);
     setTasks((prev) =>
       prev.map((task) =>
         task.id === taskId ? { ...task, status: newStatus } : task
@@ -334,6 +494,26 @@ export function OnboardingModule() {
         task.id === taskId ? { ...task, status: newStatus } : task
       )
     );
+    try {
+      await updateTaskStatus(taskId, apiStatus, accessToken);
+    } catch {
+      setTrackerError("Failed to update task status.");
+      void loadTrackerTasks(selectedEmployee);
+    }
+  };
+
+  const handleMyTaskStatusChange = async (
+    taskId: number,
+    newStatus: ChecklistTaskStatus
+  ) => {
+    setMyTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t))
+    );
+    try {
+      await updateTaskStatus(taskId, newStatus, accessToken);
+    } catch {
+      void loadMyTasks();
+    }
   };
 
   const handleAddComment = (taskId: number) => {
@@ -415,6 +595,7 @@ export function OnboardingModule() {
       setTemplateForm({
         name: "",
         type: "onboarding",
+        role_responsible: "HR",
         task_templates: [],
       });
     } catch {
@@ -449,11 +630,38 @@ export function OnboardingModule() {
         {
           title: newTaskTitle,
           order: prev.task_templates.length + 1,
-          role_responsible: newTaskRole,
         },
       ],
     }));
     setNewTaskTitle("");
+  };
+
+  const handleAssignTemplate = async () => {
+    if (!assignModalTemplate || !assignTargetEmployee) return;
+    setAssignLoading(true);
+    setAssignError(null);
+    try {
+      await createChecklistInstance(
+        Number(assignTargetEmployee),
+        assignModalTemplate.id,
+        assignDueDate || null,
+        taskDueDates,
+        accessToken
+      );
+      setAssignModalTemplate(null);
+      setAssignTargetEmployee(null);
+      setAssignDueDate("");
+      setTaskDueDates({});
+      if (assignTargetEmployee && assignTargetEmployee === selectedEmployee) {
+        void loadTrackerTasks(selectedEmployee);
+      }
+    } catch (err) {
+      setAssignError(
+        err instanceof Error ? err.message : "Failed to assign template."
+      );
+    } finally {
+      setAssignLoading(false);
+    }
   };
 
   const handleEditTemplate = (template: ChecklistTemplate) => {
@@ -461,6 +669,7 @@ export function OnboardingModule() {
     setTemplateForm({
       name: template.name,
       type: template.type,
+      role_responsible: template.role_responsible,
       task_templates: template.task_templates,
     });
     setShowTemplateForm(true);
@@ -469,10 +678,22 @@ export function OnboardingModule() {
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     if (value === "templates") {
-      loadTemplates();
+      void loadTemplates();
     }
-    if (value === "my-tasks" || value === "tracker") {
-      loadMyTasks();
+    if (value === "my-tasks") {
+      void loadMyTasks();
+    }
+    if (value === "tracker" && selectedEmployee) {
+      void loadTrackerTasks(selectedEmployee);
+    }
+  };
+
+  const handleUnassignInstance = async (instanceId: number) => {
+    try {
+      await deleteInstance(instanceId, accessToken);
+      await loadTrackerTasks(selectedEmployee);
+    } catch {
+      setTrackerError("Failed to remove assignment.");
     }
   };
 
@@ -499,6 +720,7 @@ export function OnboardingModule() {
     setTrackerError(null);
     setTasks([]);
     setOffboardingTasksState([]);
+    setTrackerInstances([]);
     try {
       const apiTasks = await fetchEmployeeTasks(
         Number(employeeId),
@@ -506,9 +728,21 @@ export function OnboardingModule() {
       );
       const onboarding: Task[] = [];
       const offboarding: Task[] = [];
+      const instanceMap = new Map<
+        number,
+        { id: number; templateName: string; type: "onboarding" | "offboarding" }
+      >();
       for (const t of apiTasks) {
         const mapped = mapChecklistTaskToTask(t);
-        if (t.checklist_instance.template.type === "onboarding") {
+        const inst = t.checklist_instance;
+        if (!instanceMap.has(inst.id)) {
+          instanceMap.set(inst.id, {
+            id: inst.id,
+            templateName: inst.template.name,
+            type: inst.template.type,
+          });
+        }
+        if (inst.template.type === "onboarding") {
           onboarding.push(mapped);
         } else {
           offboarding.push(mapped);
@@ -516,6 +750,7 @@ export function OnboardingModule() {
       }
       setTasks(onboarding);
       setOffboardingTasksState(offboarding);
+      setTrackerInstances(Array.from(instanceMap.values()));
     } catch (error) {
       setTrackerError(
         error instanceof Error
@@ -527,33 +762,33 @@ export function OnboardingModule() {
     }
   };
 
+  const loadAllEmployees = async () => {
+    setAllEmployeesLoading(true);
+    try {
+      const { results } = await employeeApi.listEmployees({ is_active: true });
+      setAllEmployees(results);
+    } catch {
+      // silently fail — tracker dropdown will show empty
+    } finally {
+      setAllEmployeesLoading(false);
+    }
+  };
+
   useEffect(() => {
     void loadMyTasks();
+    if (canAccessTracker) void loadAllEmployees();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadEmployeeTasks = async () => {
-    const employeeId = parseInt(selectedEmployeeForView.trim(), 10);
-    if (!selectedEmployeeForView.trim() || isNaN(employeeId) || employeeId < 1)
-      return;
-    setEmployeeTasksLoading(true);
-    setEmployeeTasksError(null);
-    setEmployeeTasksLoaded(false);
-    try {
-      const tasks = await fetchEmployeeTasks(employeeId, accessToken);
-      setEmployeeTasks(tasks);
-      setEmployeeTasksLoaded(true);
-    } catch (error) {
-      setEmployeeTasksError(
-        error instanceof Error
-          ? error.message
-          : "Failed to load employee tasks."
-      );
-      setEmployeeTasks([]);
-    } finally {
-      setEmployeeTasksLoading(false);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (selectedEmployee) {
+        localStorage.setItem("onboarding_tracker_employee", selectedEmployee);
+      } else {
+        localStorage.removeItem("onboarding_tracker_employee");
+      }
     }
-  };
+  }, [selectedEmployee]);
 
   const employeeOptions = Array.from(
     new Map(
@@ -588,608 +823,568 @@ export function OnboardingModule() {
         </TabsList>
 
         <TabsContent value="tracker">
-          {/* Header */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Onboarding & Offboarding Tracker
-                </h1>
-                <p className="text-gray-600 mt-1">
-                  Streamline the employee journey with structured checklists
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  <Filter className="w-4 h-4 mr-2" />
-                  Filter
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Download className="w-4 h-4 mr-2" />
-                  Export
-                </Button>
-                <Button variant="primary" size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Process
-                </Button>
-              </div>
+          {!canAccessTracker ? (
+            <div className="rounded-lg border border-dashed border-gray-300 p-10 text-center text-gray-500">
+              The Tracker is available to HR and Managers only.
             </div>
+          ) : (
+            <>
+              {/* Header */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h1 className="text-2xl font-bold text-gray-900">
+                      Onboarding & Offboarding Tracker
+                    </h1>
+                    <p className="text-gray-600 mt-1">
+                      Streamline the employee journey with structured checklists
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <Filter className="w-4 h-4 mr-2" />
+                          Sort
+                          <ChevronDown className="w-3 h-3 ml-1" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuLabel>Sort tasks by</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuRadioGroup
+                          value={sortOrder}
+                          onValueChange={(v) => setSortOrder(v as SortOrder)}
+                        >
+                          <DropdownMenuRadioItem value="default">
+                            Default order
+                          </DropdownMenuRadioItem>
+                          <DropdownMenuRadioItem value="due_asc">
+                            Due date (earliest first)
+                          </DropdownMenuRadioItem>
+                          <DropdownMenuRadioItem value="due_desc">
+                            Due date (latest first)
+                          </DropdownMenuRadioItem>
+                          <DropdownMenuRadioItem value="status_todo_first">
+                            Completion % (ascending)
+                          </DropdownMenuRadioItem>
+                          <DropdownMenuRadioItem value="status_done_first">
+                            Completion % (descending)
+                          </DropdownMenuRadioItem>
+                        </DropdownMenuRadioGroup>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <Button variant="outline" size="sm">
+                      <CalendarClock className="w-4 h-4 mr-2" />
+                      Schedule Review
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Download className="w-4 h-4 mr-2" />
+                      Export
+                    </Button>
+                  </div>
+                </div>
 
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <UserPlus className="w-4 h-4 text-gray-500" />
-                  <p className="text-sm text-gray-600">Active Onboarding</p>
+                {/* Quick Stats — follow selected employee's task data */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <p className="text-sm text-gray-600">Tasks Done</p>
+                    </div>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {completedTasks}/{totalTasks}
+                    </p>
+                    <p className="text-xs text-gray-500">Completed tasks</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Target className="w-4 h-4 text-blue-600" />
+                      <p className="text-sm text-gray-600">Progress</p>
+                    </div>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {progressPercentage}%
+                    </p>
+                    <p className="text-xs text-gray-500">Completion rate</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Play className="w-4 h-4 text-blue-500" />
+                      <p className="text-sm text-gray-600">In Progress</p>
+                    </div>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {
+                        currentTasks.filter((t) => t.status === "in-progress")
+                          .length
+                      }
+                    </p>
+                    <p className="text-xs text-gray-500">Active tasks</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Clock className="w-4 h-4 text-red-500" />
+                      <p className="text-sm text-gray-600">Overdue</p>
+                    </div>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {overdueTasksCount}
+                    </p>
+                    <p className="text-xs text-gray-500">Needs attention</p>
+                  </div>
                 </div>
-                <p className="text-2xl font-bold text-gray-900">
-                  {activeOnboardingCount}
-                </p>
-                <p className="text-xs text-gray-500">Onboarding tasks</p>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <UserMinus className="w-4 h-4 text-gray-500" />
-                  <p className="text-sm text-gray-600">Active Offboarding</p>
-                </div>
-                <p className="text-2xl font-bold text-gray-900">
-                  {activeOffboardingCount}
-                </p>
-                <p className="text-xs text-gray-500">Offboarding tasks</p>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Target className="w-4 h-4 text-gray-500" />
-                  <p className="text-sm text-gray-600">Avg Completion</p>
-                </div>
-                <p className="text-2xl font-bold text-gray-900">
-                  {averageCompletionPercent}%
-                </p>
-                <p className="text-xs text-gray-500">Task completion rate</p>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Clock className="w-4 h-4 text-gray-500" />
-                  <p className="text-sm text-gray-600">Overdue Tasks</p>
-                </div>
-                <p className="text-2xl font-bold text-gray-900">
-                  {overdueTasksCount}
-                </p>
-                <p className="text-xs text-gray-500">Needs attention</p>
-              </div>
-            </div>
-          </div>
 
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="employee-select">Select Employee</Label>
-              <Select
-                value={selectedEmployee}
-                onValueChange={(empId) => {
-                  setSelectedEmployee(empId);
-                  void loadTrackerTasks(empId);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose an employee" />
-                </SelectTrigger>
-                <SelectContent>
-                  {employees.length === 0 ? (
-                    <SelectItem value="_none" disabled>
-                      No employees found
-                    </SelectItem>
-                  ) : (
-                    employees.map((employee) => (
-                      <SelectItem key={employee.id} value={employee.id}>
-                        <div className="flex items-center gap-3">
-                          <Avatar className="w-6 h-6">
-                            <AvatarFallback className="text-xs">
-                              {employee.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-medium">{employee.name}</p>
-                            <p className="text-xs text-gray-500">
-                              {employee.department}
-                            </p>
-                          </div>
+              {/* Employee + Template selectors */}
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Select Employee</Label>
+                  <Select
+                    value={selectedEmployee}
+                    onValueChange={(empId) => {
+                      setSelectedEmployee(empId);
+                      void loadTrackerTasks(empId);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={
+                          allEmployeesLoading
+                            ? "Loading employees…"
+                            : "Choose an employee"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allEmployees.length === 0 ? (
+                        <SelectItem value="_none" disabled>
+                          {allEmployeesLoading
+                            ? "Loading…"
+                            : "No employees found"}
+                        </SelectItem>
+                      ) : (
+                        allEmployees.map((emp) => (
+                          <SelectItem key={emp.id} value={String(emp.id)}>
+                            <div className="flex items-center gap-3">
+                              <Avatar className="w-6 h-6">
+                                {emp.avatar ? (
+                                  <AvatarImage src={emp.avatar} />
+                                ) : null}
+                                <AvatarFallback className="text-xs">
+                                  {employeeDisplayName(emp)
+                                    .charAt(0)
+                                    .toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium">
+                                  {employeeDisplayName(emp)}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {emp.department ?? emp.employee_id}
+                                </p>
+                              </div>
+                            </div>
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Template Type</Label>
+                  <Select
+                    value={selectedTemplate}
+                    onValueChange={(value: TemplateType) =>
+                      setSelectedTemplate(value)
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="onboarding">
+                        <div className="flex items-center gap-2">
+                          <UserPlus className="w-4 h-4" />
+                          Onboarding Checklist
                         </div>
                       </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="template-select">Template Type</Label>
-              <Select
-                value={selectedTemplate}
-                onValueChange={(value: TemplateType) =>
-                  setSelectedTemplate(value)
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="onboarding">
-                    <div className="flex items-center gap-2">
-                      <UserPlus className="w-4 h-4" />
-                      Onboarding Checklist
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="offboarding">
-                    <div className="flex items-center gap-2">
-                      <UserMinus className="w-4 h-4" />
-                      Offboarding Checklist
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
-              {/* Progress Overview */}
-              <Card className="border-gray-200">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      {selectedTemplate === "onboarding" ? (
-                        <UserPlus className="w-5 h-5" />
-                      ) : (
-                        <UserMinus className="w-5 h-5" />
-                      )}
-                      {selectedEmployeeData?.name ?? "Selected Employee"} -{" "}
-                      {selectedTemplate === "onboarding"
-                        ? "Onboarding"
-                        : "Offboarding"}{" "}
-                      Progress
-                    </CardTitle>
-                    <Badge variant="outline" className="font-medium">
-                      {completedTasks}/{totalTasks} Complete
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">
-                        Overall Progress
-                      </span>
-                      <span className="text-sm font-medium">
-                        {progressPercentage}%
-                      </span>
-                    </div>
-                    <Progress value={progressPercentage} className="h-3" />
-                    <div className="flex items-center gap-6 text-sm">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span>
-                          {
-                            currentTasks.filter((t) => t.status === "done")
-                              .length
-                          }{" "}
-                          Done
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Play className="w-4 h-4 text-blue-600" />
-                        <span>
-                          {
-                            currentTasks.filter(
-                              (t) => t.status === "in-progress"
-                            ).length
-                          }{" "}
-                          In Progress
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Circle className="w-4 h-4 text-gray-400" />
-                        <span>
-                          {
-                            currentTasks.filter((t) => t.status === "todo")
-                              .length
-                          }{" "}
-                          To Do
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Task Cards */}
-              <div className="space-y-4">
-                {trackerLoading && (
-                  <p className="text-gray-500 text-sm">
-                    Loading tasks for this employee...
-                  </p>
-                )}
-                {trackerError && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
-                    {trackerError}
-                  </div>
-                )}
-                {!trackerLoading && !selectedEmployee && (
-                  <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-gray-500">
-                    Select an employee above to view their checklist progress.
-                  </div>
-                )}
-                {!trackerLoading &&
-                  selectedEmployee &&
-                  currentTasks.length === 0 &&
-                  !trackerError && (
-                    <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-gray-500">
-                      No{" "}
-                      {selectedTemplate === "onboarding"
-                        ? "onboarding"
-                        : "offboarding"}{" "}
-                      tasks found for this employee.
-                    </div>
-                  )}
-                {currentTasks.map((task) => (
-                  <Card
-                    key={task.id}
-                    className={`border transition-all hover:shadow-sm ${task.status === "done" ? "bg-green-50/50" : ""}`}
-                  >
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-3">
-                          <TaskStatusIcon
-                            status={task.status}
-                            className={`w-5 h-5 mt-0.5 ${statusIconClass(task.status)}`}
-                          />
-                          <div className="flex-1">
-                            <h3
-                              className={`font-medium ${task.status === "done" ? "line-through text-gray-500" : "text-gray-900"}`}
-                            >
-                              {task.title}
-                            </h3>
-                            <p className="text-sm text-gray-600 mt-1">
-                              {task.description}
-                            </p>
-                          </div>
+                      <SelectItem value="offboarding">
+                        <div className="flex items-center gap-2">
+                          <UserMinus className="w-4 h-4" />
+                          Offboarding Checklist
                         </div>
-                        <Badge
-                          className={getPriorityColor(task.priority)}
-                          variant="outline"
-                        >
-                          {task.priority}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Main content — mt-6 separates it from selectors above */}
+              <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Progress Overview */}
+                  <Card className="border-gray-200">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center gap-2">
+                          {selectedTemplate === "onboarding" ? (
+                            <UserPlus className="w-5 h-5" />
+                          ) : (
+                            <UserMinus className="w-5 h-5" />
+                          )}
+                          {selectedEmployeeProfile
+                            ? employeeDisplayName(selectedEmployeeProfile)
+                            : "Selected Employee"}{" "}
+                          —{" "}
+                          {selectedTemplate === "onboarding"
+                            ? "Onboarding"
+                            : "Offboarding"}{" "}
+                          Progress
+                        </CardTitle>
+                        <Badge variant="outline" className="font-medium">
+                          {completedTasks}/{totalTasks} Complete
                         </Badge>
                       </div>
                     </CardHeader>
-                    <CardContent className="pt-0">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-2">
-                            <Avatar className="w-6 h-6">
-                              <AvatarFallback className="text-xs">
-                                {task.assigneeAvatar}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span className="text-sm text-gray-600">
-                              {task.assignee}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-gray-400" />
-                            <span className="text-sm text-gray-600">
-                              Due {task.dueDate}
-                            </span>
-                          </div>
-                          <Badge variant="outline" className="text-xs">
-                            {task.category}
-                          </Badge>
-                        </div>
-                        <div className="flex gap-2">
-                          <Select
-                            value={task.status}
-                            onValueChange={(status: TaskStatus) =>
-                              handleTaskStatusChange(task.id, status)
-                            }
-                          >
-                            <SelectTrigger className="w-32">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="todo">
-                                <div className="flex items-center gap-2">
-                                  <Circle className="w-4 h-4 text-gray-400" />
-                                  To Do
-                                </div>
-                              </SelectItem>
-                              <SelectItem value="in-progress">
-                                <div className="flex items-center gap-2">
-                                  <Play className="w-4 h-4 text-blue-600" />
-                                  In Progress
-                                </div>
-                              </SelectItem>
-                              <SelectItem value="done">
-                                <div className="flex items-center gap-2">
-                                  <CheckCircle className="w-4 h-4 text-green-600" />
-                                  Done
-                                </div>
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      {/* Comments Section */}
-                      <div className="border-t border-gray-200 pt-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <MessageSquare className="w-4 h-4 text-gray-500" />
-                            <span className="text-sm font-medium text-gray-700">
-                              Comments ({task.comments.length})
-                            </span>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              setSelectedTaskId(
-                                selectedTaskId === task.id ? null : task.id
-                              )
-                            }
-                          >
-                            {selectedTaskId === task.id ? "Hide" : "Show"}
-                          </Button>
-                        </div>
-
-                        {selectedTaskId === task.id && (
-                          <div className="space-y-3">
-                            {/* Existing Comments */}
-                            {task.comments.map((comment) => (
-                              <div
-                                key={comment.id}
-                                className="flex gap-3 p-3 bg-gray-50 rounded-lg"
-                              >
-                                <Avatar className="w-7 h-7">
-                                  <AvatarFallback className="text-xs">
-                                    {comment.authorAvatar}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-sm font-medium text-gray-900">
-                                      {comment.author}
-                                    </span>
-                                    <span className="text-xs text-gray-500">
-                                      {comment.timestamp}
-                                    </span>
-                                  </div>
-                                  <p className="text-sm text-gray-700">
-                                    {comment.content}
-                                  </p>
-                                </div>
-                              </div>
-                            ))}
-
-                            {/* New Comment Form */}
-                            <div className="flex gap-3">
-                              <Avatar className="w-7 h-7">
-                                <AvatarFallback className="text-xs">
-                                  JD
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1">
-                                <Textarea
-                                  placeholder="Add a comment..."
-                                  value={newComment}
-                                  onChange={(e) =>
-                                    setNewComment(e.target.value)
-                                  }
-                                  rows={2}
-                                  className="text-sm"
-                                />
-                                <div className="flex justify-end mt-2">
-                                  <Button
-                                    size="sm"
-                                    onClick={() => handleAddComment(task.id)}
-                                    disabled={!newComment.trim()}
-                                  >
-                                    <Send className="w-4 h-4 mr-2" />
-                                    Comment
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Employee Info */}
-              <Card className="border-gray-200">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="w-5 h-5" />
-                    Employee Details
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {selectedEmployeeData ? (
-                    <>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="w-12 h-12">
-                          <AvatarFallback className="bg-blue-100 text-blue-600">
-                            {selectedEmployeeData.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium text-gray-900">
-                            {selectedEmployeeData.name}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {selectedEmployeeData.role}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {selectedEmployeeData.department}
-                          </p>
-                        </div>
-                      </div>
-                      <Separator />
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
                           <span className="text-sm text-gray-600">
-                            Process Type:
-                          </span>
-                          <Badge
-                            variant={
-                              selectedEmployeeData.type === "onboarding"
-                                ? "default"
-                                : "destructive"
-                            }
-                          >
-                            {selectedEmployeeData.type === "onboarding"
-                              ? "Onboarding"
-                              : "Offboarding"}
-                          </Badge>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm text-gray-600">
-                            {selectedEmployeeData.type === "onboarding"
-                              ? "Start Date:"
-                              : "End Date:"}
-                          </span>
-                          <span className="text-sm font-medium">
-                            {selectedEmployeeData.type === "onboarding"
-                              ? selectedEmployeeData.startDate
-                              : selectedEmployeeData.endDate}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm text-gray-600">
-                            Progress:
+                            Overall Progress
                           </span>
                           <span className="text-sm font-medium">
                             {progressPercentage}%
                           </span>
                         </div>
+                        <Progress value={progressPercentage} className="h-3" />
+                        <div className="flex items-center gap-6 text-sm">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                            <span>
+                              {
+                                currentTasks.filter((t) => t.status === "done")
+                                  .length
+                              }{" "}
+                              Done
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Play className="w-4 h-4 text-blue-600" />
+                            <span>
+                              {
+                                currentTasks.filter(
+                                  (t) => t.status === "in-progress"
+                                ).length
+                              }{" "}
+                              In Progress
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Circle className="w-4 h-4 text-gray-400" />
+                            <span>
+                              {
+                                currentTasks.filter((t) => t.status === "todo")
+                                  .length
+                              }{" "}
+                              To Do
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                    </>
-                  ) : (
-                    <div className="py-8 text-center text-sm text-gray-500">
-                      No employee selected yet. Choose an employee once real
-                      data is available.
-                    </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Task Cards */}
+                  <div className="space-y-4">
+                    {trackerLoading && (
+                      <p className="text-gray-500 text-sm">
+                        Loading tasks for this employee...
+                      </p>
+                    )}
+                    {trackerError && (
+                      <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+                        {trackerError}
+                      </div>
+                    )}
+                    {!trackerLoading && !selectedEmployee && (
+                      <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-gray-500">
+                        Select an employee above to view their checklist
+                        progress.
+                      </div>
+                    )}
+                    {!trackerLoading &&
+                      selectedEmployee &&
+                      currentTasks.length === 0 &&
+                      !trackerError && (
+                        <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-gray-500">
+                          No{" "}
+                          {selectedTemplate === "onboarding"
+                            ? "onboarding"
+                            : "offboarding"}{" "}
+                          tasks found for this employee.
+                        </div>
+                      )}
+                    {sortedTasks.map((task) => (
+                      <Card
+                        key={task.id}
+                        className={`border transition-all hover:shadow-sm ${task.status === "done" ? "bg-green-50/50" : ""}`}
+                      >
+                        <CardHeader className="pb-3">
+                          <div className="flex items-start gap-3">
+                            <TaskStatusIcon
+                              status={task.status}
+                              className={`w-5 h-5 mt-0.5 ${statusIconClass(task.status)}`}
+                            />
+                            <div className="flex-1">
+                              <h3
+                                className={`font-medium ${task.status === "done" ? "line-through text-gray-500" : "text-gray-900"}`}
+                              >
+                                {task.title}
+                              </h3>
+                              <p className="text-xs text-gray-500 mt-0.5">
+                                {task.category}
+                              </p>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-2">
+                                <Avatar className="w-6 h-6">
+                                  <AvatarFallback className="text-xs">
+                                    {task.assigneeAvatar}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span className="text-sm text-gray-600">
+                                  {task.assignee}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Calendar className="w-4 h-4 text-gray-400" />
+                                <span className="text-sm text-gray-600">
+                                  {task.dueDate === "No due date"
+                                    ? "No due date"
+                                    : formatDate(task.dueDate)}
+                                </span>
+                              </div>
+                            </div>
+                            <Select
+                              value={task.status}
+                              onValueChange={(status: TaskStatus) =>
+                                void handleTaskStatusChange(task.id, status)
+                              }
+                            >
+                              <SelectTrigger className="w-36">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="todo">
+                                  <div className="flex items-center gap-2">
+                                    <Circle className="w-4 h-4 text-gray-400" />
+                                    To Do
+                                  </div>
+                                </SelectItem>
+                                <SelectItem value="in-progress">
+                                  <div className="flex items-center gap-2">
+                                    <Play className="w-4 h-4 text-blue-600" />
+                                    In Progress
+                                  </div>
+                                </SelectItem>
+                                <SelectItem value="done">
+                                  <div className="flex items-center gap-2">
+                                    <CheckCircle className="w-4 h-4 text-green-600" />
+                                    Done
+                                  </div>
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Sidebar */}
+                <div className="space-y-6">
+                  {trackerInstances.length > 0 && (
+                    <Card className="border-gray-200">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="flex items-center gap-2 text-base">
+                          <Send className="w-4 h-4" />
+                          Active Assignments
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2 pt-0">
+                        {trackerInstances.map((inst) => (
+                          <div
+                            key={inst.id}
+                            className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-medium text-gray-900">
+                                  {inst.templateName}
+                                </p>
+                                <Badge
+                                  variant={
+                                    inst.type === "onboarding"
+                                      ? "default"
+                                      : "destructive"
+                                  }
+                                  className="mt-0.5 text-xs"
+                                >
+                                  {inst.type}
+                                </Badge>
+                              </div>
+                              {confirmUnassignId === inst.id ? (
+                                <div className="flex shrink-0 gap-1">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-xs px-2"
+                                    onClick={() => setConfirmUnassignId(null)}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    className="text-xs px-2 bg-red-600 hover:bg-red-700 text-white"
+                                    onClick={() => {
+                                      setConfirmUnassignId(null);
+                                      void handleUnassignInstance(inst.id);
+                                    }}
+                                  >
+                                    Confirm
+                                  </Button>
+                                </div>
+                              ) : (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="shrink-0 text-red-600 hover:bg-red-50 hover:border-red-300"
+                                  onClick={() => setConfirmUnassignId(inst.id)}
+                                  aria-label={`Remove assignment: ${inst.templateName}`}
+                                >
+                                  <UserMinus className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </div>
+                            {confirmUnassignId === inst.id && (
+                              <p className="mt-2 text-xs text-red-600">
+                                Are you sure you want to unassign this template?
+                                All tasks will be deleted.
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
                   )}
-                </CardContent>
-              </Card>
-
-              {/* Process Statistics */}
-              <Card className="border-gray-200">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5" />
-                    Process Stats
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div className="p-3 bg-green-50 rounded-lg">
-                      <p className="text-2xl font-bold text-green-700">
-                        {currentTasks.filter((t) => t.status === "done").length}
-                      </p>
-                      <p className="text-xs text-green-600">Completed</p>
-                    </div>
-                    <div className="p-3 bg-blue-50 rounded-lg">
-                      <p className="text-2xl font-bold text-blue-700">
-                        {
-                          currentTasks.filter((t) => t.status === "in-progress")
-                            .length
-                        }
-                      </p>
-                      <p className="text-xs text-blue-600">In Progress</p>
-                    </div>
-                  </div>
-                  <Separator />
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">
-                        Estimated Hours:
-                      </span>
-                      <span className="text-sm font-medium">
-                        {currentTasks.reduce(
-                          (sum, task) => sum + task.estimatedHours,
-                          0
-                        )}
-                        h
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">
-                        High Priority:
-                      </span>
-                      <span className="text-sm font-medium">
-                        {
-                          currentTasks.filter((t) => t.priority === "high")
-                            .length
-                        }{" "}
-                        tasks
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">
-                        Total Comments:
-                      </span>
-                      <span className="text-sm font-medium">
-                        {currentTasks.reduce(
-                          (sum, task) => sum + task.comments.length,
-                          0
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Quick Actions */}
-              <Card className="border-gray-200">
-                <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <QuickActionButton
-                    label="Add Task"
-                    icon={Plus}
-                    onClick={() => {}}
-                    variant="primary"
-                  />
-                  <QuickActionButton
-                    label="Edit Template"
-                    icon={Edit3}
-                    onClick={() => {}}
-                  />
-                  <QuickActionButton
-                    label="Schedule Review"
-                    icon={Calendar}
-                    onClick={() => {}}
-                  />
-                  <QuickActionButton
-                    label="Export Report"
-                    icon={Download}
-                    onClick={() => {}}
-                  />
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+                  <Card className="border-gray-200">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <User className="w-5 h-5" />
+                        Employee Details
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {selectedEmployeeProfile ? (
+                        <>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="w-14 h-14">
+                              {selectedEmployeeProfile.avatar ? (
+                                <AvatarImage
+                                  src={selectedEmployeeProfile.avatar}
+                                />
+                              ) : null}
+                              <AvatarFallback className="bg-blue-100 text-blue-600 text-lg">
+                                {employeeDisplayName(selectedEmployeeProfile)
+                                  .charAt(0)
+                                  .toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-semibold text-gray-900">
+                                {employeeDisplayName(selectedEmployeeProfile)}
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                {selectedEmployeeProfile.role?.name ?? "—"}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {selectedEmployeeProfile.department ?? "—"}
+                              </p>
+                            </div>
+                          </div>
+                          <Separator />
+                          <div className="space-y-3 text-sm">
+                            {selectedEmployeeProfile.employee_id && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">
+                                  Employee ID
+                                </span>
+                                <span className="font-medium">
+                                  {selectedEmployeeProfile.employee_id}
+                                </span>
+                              </div>
+                            )}
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Start Date</span>
+                              <span className="font-medium">
+                                {formatDate(selectedEmployeeProfile.start_date)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Status</span>
+                              <Badge
+                                variant="outline"
+                                className="text-xs capitalize"
+                              >
+                                {selectedEmployeeProfile.employment_status ??
+                                  "—"}
+                              </Badge>
+                            </div>
+                            {selectedEmployeeProfile.career_level && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">
+                                  Career Level
+                                </span>
+                                <span className="font-medium">
+                                  {selectedEmployeeProfile.career_level}
+                                </span>
+                              </div>
+                            )}
+                            <Separator />
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Progress</span>
+                              <span className="font-medium">
+                                {progressPercentage}%
+                              </span>
+                            </div>
+                          </div>
+                          {onNavigate && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full mt-2"
+                              onClick={() => onNavigate("profiles")}
+                            >
+                              <User className="w-4 h-4 mr-2" />
+                              View Full Profile
+                            </Button>
+                          )}
+                        </>
+                      ) : (
+                        <div className="py-8 text-center text-sm text-gray-500">
+                          Select an employee to view their details.
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </>
+          )}
         </TabsContent>
 
         <TabsContent value="my-tasks">
@@ -1199,30 +1394,19 @@ export function OnboardingModule() {
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">My Tasks</h2>
                   <p className="text-gray-600 mt-1">
-                    View checklist tasks assigned to you and filter by employee
-                    or checklist.
+                    Checklist tasks assigned to you.
                   </p>
                 </div>
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                  <Button variant="outline" size="sm" onClick={loadMyTasks}>
-                    Refresh
-                  </Button>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={loadEmployeeTasks}
-                    disabled={
-                      !selectedEmployeeForView.trim() ||
-                      isNaN(parseInt(selectedEmployeeForView.trim(), 10)) ||
-                      parseInt(selectedEmployeeForView.trim(), 10) < 1
-                    }
-                  >
-                    Load Employee Tasks
-                  </Button>
-                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void loadMyTasks()}
+                >
+                  Refresh
+                </Button>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
                 <div className="space-y-2">
                   <Label htmlFor="employee-filter">Filter by employee</Label>
                   <Select
@@ -1264,21 +1448,6 @@ export function OnboardingModule() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="employee-view">Employee task view</Label>
-                  <Input
-                    id="employee-view"
-                    type="number"
-                    min="1"
-                    placeholder="Enter employee ID"
-                    value={selectedEmployeeForView}
-                    onChange={(e) => {
-                      setSelectedEmployeeForView(e.target.value);
-                      setEmployeeTasksLoaded(false);
-                      setEmployeeTasks([]);
-                    }}
-                  />
-                </div>
               </div>
             </div>
 
@@ -1302,46 +1471,9 @@ export function OnboardingModule() {
                       key={task.id}
                       task={task}
                       variant="my-tasks"
+                      onStatusChange={handleMyTaskStatusChange}
                     />
                   ))
-                )}
-              </div>
-            )}
-
-            {employeeTasksError && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
-                {employeeTasksError}
-              </div>
-            )}
-
-            {employeeTasksLoading && (
-              <p className="text-gray-500">Loading employee tasks...</p>
-            )}
-
-            {!employeeTasksLoading && employeeTasksLoaded && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Employee Tasks
-                  </h3>
-                  <Badge variant="outline">
-                    {employeeTasks.length} tasks loaded
-                  </Badge>
-                </div>
-                {employeeTasks.length === 0 ? (
-                  <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-gray-500">
-                    No tasks found for this employee.
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {employeeTasks.map((task) => (
-                      <ChecklistTaskCard
-                        key={`employee-${task.id}`}
-                        task={task}
-                        variant="employee-tasks"
-                      />
-                    ))}
-                  </div>
                 )}
               </div>
             )}
@@ -1363,6 +1495,7 @@ export function OnboardingModule() {
                   setTemplateForm({
                     name: "",
                     type: "onboarding",
+                    role_responsible: "HR",
                     task_templates: [],
                   });
                   setShowTemplateForm(true);
@@ -1423,6 +1556,28 @@ export function OnboardingModule() {
                     </Select>
                   </div>
 
+                  <div className="space-y-2">
+                    <Label>Responsible Team</Label>
+                    <Select
+                      value={templateForm.role_responsible}
+                      onValueChange={(val: TemplateRole) =>
+                        setTemplateForm((prev) => ({
+                          ...prev,
+                          role_responsible: val,
+                        }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="HR">HR</SelectItem>
+                        <SelectItem value="IT">IT</SelectItem>
+                        <SelectItem value="Manager">Manager</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   {/* Tasks */}
                   <div className="space-y-2">
                     <Label>Tasks</Label>
@@ -1432,7 +1587,6 @@ export function OnboardingModule() {
                         className="flex items-center justify-between p-2 bg-gray-50 rounded border text-sm"
                       >
                         <span>{task.title}</span>
-                        <Badge variant="outline">{task.role_responsible}</Badge>
                       </div>
                     ))}
                     <div className="flex gap-2 mt-2">
@@ -1440,22 +1594,8 @@ export function OnboardingModule() {
                         placeholder="Task title"
                         value={newTaskTitle}
                         onChange={(e) => setNewTaskTitle(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleAddTask()}
                       />
-                      <Select
-                        value={newTaskRole}
-                        onValueChange={(val: "HR" | "IT" | "Manager") =>
-                          setNewTaskRole(val)
-                        }
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="HR">HR</SelectItem>
-                          <SelectItem value="IT">IT</SelectItem>
-                          <SelectItem value="Manager">Manager</SelectItem>
-                        </SelectContent>
-                      </Select>
                       <Button
                         variant="outline"
                         size="sm"
@@ -1500,8 +1640,23 @@ export function OnboardingModule() {
                       >
                         {template.type}
                       </Badge>
+                      <Badge variant="outline">
+                        {template.role_responsible}
+                      </Badge>
                     </div>
                     <div className="flex gap-2">
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => {
+                          setAssignModalTemplate(template);
+                          setAssignTargetEmployee(null);
+                          setAssignError(null);
+                        }}
+                      >
+                        <UserPlus className="w-4 h-4 mr-1" />
+                        Assign
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"
@@ -1536,17 +1691,120 @@ export function OnboardingModule() {
                   <div className="space-y-1">
                     {template.task_templates.map((task) => (
                       <div
-                        key={`${template.id}-${task.title}-${task.role_responsible}`}
-                        className="flex items-center justify-between text-sm p-2 bg-gray-50 rounded"
+                        key={`${template.id}-${task.title}-${task.order}`}
+                        className="text-sm p-2 bg-gray-50 rounded"
                       >
-                        <span>{task.title}</span>
-                        <Badge variant="outline">{task.role_responsible}</Badge>
+                        {task.title}
                       </div>
                     ))}
                   </div>
                 </CardContent>
               </Card>
             ))}
+
+            {/* Assign to Employee Modal */}
+            {assignModalTemplate && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                <Card className="w-full max-w-md mx-4">
+                  <CardHeader>
+                    <CardTitle>Assign Template to Employee</CardTitle>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {assignModalTemplate.name}
+                    </p>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Employee</Label>
+                      <Select
+                        value={assignTargetEmployee ?? ""}
+                        onValueChange={(val) => setAssignTargetEmployee(val)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an employee..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {allEmployees.map((emp) => (
+                            <SelectItem key={emp.id} value={String(emp.id)}>
+                              {employeeDisplayName(emp)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Due Date (all tasks)</Label>
+                      <Input
+                        type="date"
+                        value={assignDueDate}
+                        onChange={(e) => setAssignDueDate(e.target.value)}
+                      />
+                      <p className="text-xs text-gray-500">
+                        Applied to every task unless overridden below.
+                      </p>
+                    </div>
+                    {assignModalTemplate.task_templates.length > 0 && (
+                      <div className="space-y-2">
+                        <Label>Individual Task Due Dates (optional)</Label>
+                        <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                          {assignModalTemplate.task_templates.map((task) => (
+                            <div
+                              key={task.id}
+                              className="flex items-center gap-2 text-sm"
+                            >
+                              <span className="flex-1 text-gray-700 truncate">
+                                {task.title}
+                              </span>
+                              <Input
+                                type="date"
+                                className="w-36 text-xs"
+                                value={
+                                  task.id !== undefined
+                                    ? (taskDueDates[task.id] ?? "")
+                                    : ""
+                                }
+                                onChange={(e) => {
+                                  if (task.id === undefined) return;
+                                  const val = e.target.value;
+                                  setTaskDueDates((prev) => {
+                                    const next = { ...prev };
+                                    if (val) next[task.id!] = val;
+                                    else delete next[task.id!];
+                                    return next;
+                                  });
+                                }}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {assignError && (
+                      <p className="text-sm text-red-600">{assignError}</p>
+                    )}
+                    <div className="flex gap-2 justify-end">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setAssignModalTemplate(null);
+                          setAssignDueDate("");
+                          setTaskDueDates({});
+                        }}
+                        disabled={assignLoading}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="primary"
+                        onClick={() => void handleAssignTemplate()}
+                        disabled={!assignTargetEmployee || assignLoading}
+                      >
+                        {assignLoading ? "Assigning..." : "Assign"}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
             {!templatesLoading &&
               templates.length === 0 &&
