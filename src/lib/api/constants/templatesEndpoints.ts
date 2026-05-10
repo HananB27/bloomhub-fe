@@ -40,3 +40,8 @@ export function templateDuplicatePath(id: number | string): string {
 export function templateUsePath(id: number | string): string {
   return `${TEMPLATES_API_BASE_PATH}${id}/use/`;
 }
+
+// TODO [BACKEND REQUIRED]: PATCH /api/documents/templates/{id}/visibility/ — update allowed_roles + visibility_scope
+export function templateVisibilityPath(id: number | string): string {
+  return `${TEMPLATES_API_BASE_PATH}${id}/visibility/`;
+}

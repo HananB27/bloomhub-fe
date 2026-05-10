@@ -45,15 +45,28 @@ import {
   EXPIRY_FILTER_EXPIRING_SOON,
   EXPIRY_FILTER_EXPIRED,
   DocumentsListSource,
+  DocumentAccessRole,
+  DOCUMENT_ACCESS_ROLE_LABELS,
   documentDaysUntil,
   documentExpiryBucket,
   parseDocumentTags,
-  buildDocumentAllowedRoles,
   isHrDocumentUser,
+  isRestrictedDocument,
+  filterDocumentsByAccess,
+  getDocumentUserRole,
   documentInlinePreviewPresentation,
   DocumentInlinePreviewPresentation,
   type SessionUserRoleFlags,
 } from "@/lib/documents/documentsHelpers";
+import {
+  DOCUMENT_CATEGORY_DEFAULT_PRESET,
+  visibilityFromPreset,
+  type DocumentVisibilitySettings,
+} from "@/lib/documents/documentVisibilityPresets";
+import { documentVisibilityLabel } from "@/lib/documents/documentVisibilityHelpers";
+import { DocumentVisibilitySelector } from "./documents/DocumentVisibilitySelector";
+import { VisibilityBadge } from "./documents/VisibilityBadge";
+import { EditVisibilityDialog } from "./documents/EditVisibilityDialog";
 import {
   type DocumentsTableRowModel,
   filterAndSortTableRows,
@@ -188,7 +201,7 @@ function StatStrip({
   const expired = uploadDocs.filter(
     (d) => documentExpiryBucket(d.expiryDate) === "expired"
   ).length;
-  const conf = uploadDocs.filter((d) => d.isConfidential).length;
+  const restricted = uploadDocs.filter((d) => isRestrictedDocument(d)).length;
 
   return (
     <div className="grid grid-cols-4 divide-x divide-gray-200 bg-white border border-gray-200 rounded-lg mb-4">
@@ -240,13 +253,13 @@ function StatStrip({
         <div className="px-4 py-3.5">
           <div className="flex items-center gap-1.5 text-[11px] font-medium text-gray-500 uppercase tracking-wide">
             <Shield className="w-3 h-3" />
-            Confidential
+            Restricted
           </div>
           <div className="text-[22px] font-semibold tracking-tight text-gray-900 mt-1.5 tabular-nums">
-            {conf}
+            {restricted}
           </div>
           <div className="text-[11px] text-gray-400 mt-0.5">
-            HR / admin only
+            limited visibility
           </div>
         </div>
       )}
@@ -436,7 +449,7 @@ function DocRow({
     <div
       className={`grid items-center gap-4 px-4 py-3.5 border-b border-gray-100 last:border-0 transition-colors relative ${
         selected ? "bg-gray-50/80" : "hover:bg-gray-50/60"
-      } ${doc.isConfidential ? "shadow-[inset_3px_0_0_#d97706]" : ""}`}
+      } ${isRestrictedDocument(doc) ? "shadow-[inset_3px_0_0_#d97706]" : ""}`}
       style={{
         gridTemplateColumns: "28px 1fr 140px 130px 130px 150px 80px 100px",
       }}
@@ -464,7 +477,7 @@ function DocRow({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 text-[13.5px] font-medium text-gray-900 leading-snug">
             <span className="truncate">{doc.name}</span>
-            {doc.isConfidential && (
+            {isRestrictedDocument(doc) && (
               <Lock className="w-3 h-3 text-amber-500 shrink-0" />
             )}
           </div>
@@ -496,6 +509,12 @@ function DocRow({
               <span className="text-[10.5px] font-medium px-1.5 py-px rounded bg-gray-100 text-gray-500">
                 +{doc.tags.length - 2}
               </span>
+            )}
+            {!isTemplate && (
+              <VisibilityBadge
+                scope={doc.visibilityScope}
+                allowedRoles={doc.allowedRoles}
+              />
             )}
             {isTemplate && gen?.sourceTemplateName && (
               <span className="text-[10.5px] font-medium px-1.5 py-px rounded bg-cyan-50 text-cyan-700 border border-cyan-200 shrink-0">
@@ -717,6 +736,7 @@ function Drawer({
   onShare,
   onArchive,
   onUnarchive,
+  onEditVisibility,
 }: {
   row: DocumentsTableRowModel | null;
   onClose: () => void;
@@ -728,6 +748,7 @@ function Drawer({
   onShare: () => void;
   onArchive: () => void;
   onUnarchive: () => void;
+  onEditVisibility: () => void;
 }) {
   const open = !!row;
   const doc = row?.doc;
@@ -791,9 +812,9 @@ function Drawer({
                       Source: {gen.sourceTemplateName}
                     </span>
                   )}
-                  {doc.isConfidential && (
+                  {isRestrictedDocument(doc) && (
                     <span className="ml-1 text-amber-600 font-medium flex items-center gap-1">
-                      <Lock className="w-3 h-3" /> Confidential
+                      <Lock className="w-3 h-3" /> Restricted
                     </span>
                   )}
                 </div>
@@ -899,9 +920,24 @@ function Drawer({
               </div>
 
               <div>
-                <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">
-                  Access · roles
-                </h4>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">
+                    Access ·{" "}
+                    {documentVisibilityLabel(
+                      doc.visibilityScope,
+                      doc.allowedRoles
+                    )}
+                  </h4>
+                  {isHR && !isTemplate && (
+                    <button
+                      type="button"
+                      onClick={onEditVisibility}
+                      className="text-[11px] font-medium text-gray-600 hover:text-gray-900 px-2 py-0.5 rounded hover:bg-gray-100 transition-colors"
+                    >
+                      Edit visibility
+                    </button>
+                  )}
+                </div>
                 <div className="flex flex-wrap gap-1.5">
                   {doc.allowedRoles.length === 0 && isTemplate ? (
                     <span className="text-[12px] text-gray-400">
@@ -911,9 +947,9 @@ function Drawer({
                     doc.allowedRoles.map((r) => (
                       <span
                         key={r}
-                        className="text-[11.5px] font-medium px-2 py-1 rounded bg-blue-50 text-blue-700 capitalize"
+                        className="text-[11.5px] font-medium px-2 py-1 rounded bg-blue-50 text-blue-700"
                       >
-                        {r}
+                        {DOCUMENT_ACCESS_ROLE_LABELS[r]}
                       </span>
                     ))
                   )}
@@ -1111,11 +1147,16 @@ interface UploadForm {
   description: string;
   expiryDate: string;
   noExpiry: boolean;
-  isConfidential: boolean;
+  visibility: DocumentVisibilitySettings;
+  /** True once the user has manually edited visibility — disables category-driven prefill. */
+  userTouchedVisibility: boolean;
   requestSig: boolean;
   tags: string;
   file: File | null;
 }
+
+const DEFAULT_UPLOAD_VISIBILITY: DocumentVisibilitySettings =
+  visibilityFromPreset("everyone");
 
 const EMPTY_UPLOAD_FORM: UploadForm = {
   name: "",
@@ -1123,7 +1164,8 @@ const EMPTY_UPLOAD_FORM: UploadForm = {
   description: "",
   expiryDate: "",
   noExpiry: false,
-  isConfidential: false,
+  visibility: DEFAULT_UPLOAD_VISIBILITY,
+  userTouchedVisibility: false,
   requestSig: false,
   tags: "",
   file: null,
@@ -1177,9 +1219,14 @@ function UploadModal({
         category: form.category as DocumentCategory,
         description: form.description,
         expiryDate: form.noExpiry ? undefined : form.expiryDate || undefined,
-        isConfidential: form.isConfidential,
+        // Legacy boolean kept for backwards compat: anything not visible to
+        // employees-at-large is "confidential" from the old API's perspective.
+        isConfidential:
+          form.visibility.scope !== "roles" ||
+          !form.visibility.allowedRoles.includes(DocumentAccessRole.Employee),
         tags: parseDocumentTags(form.tags),
-        allowedRoles: buildDocumentAllowedRoles(form.isConfidential),
+        allowedRoles: form.visibility.allowedRoles,
+        visibilityScope: form.visibility.scope,
         // TODO [BACKEND REQUIRED]: POST /api/documents/{id}/request-signature/
         // — when requestSig is true, call documentsApi.requestSignature() after upload
         // with a signer selection step (signer picker UI not yet implemented).
@@ -1299,9 +1346,21 @@ function UploadModal({
               </label>
               <Select
                 value={form.category || undefined}
-                onValueChange={(value) =>
-                  set("category", value as DocumentCategory)
-                }
+                onValueChange={(value) => {
+                  const nextCategory = value as DocumentCategory;
+                  setForm((prev) => {
+                    const shouldPrefill = !prev.userTouchedVisibility;
+                    return {
+                      ...prev,
+                      category: nextCategory,
+                      visibility: shouldPrefill
+                        ? visibilityFromPreset(
+                            DOCUMENT_CATEGORY_DEFAULT_PRESET[nextCategory]
+                          )
+                        : prev.visibility,
+                    };
+                  });
+                }}
               >
                 <SelectTrigger className="h-10 w-full text-[13px] font-medium text-gray-900 bg-white border-gray-200">
                   <SelectValue placeholder="Select category..." />
@@ -1369,28 +1428,30 @@ function UploadModal({
             </label>
           </div>
 
-          {/* Confidential toggle */}
-          <div className="flex items-center gap-3 px-3 py-3 border border-gray-200 rounded-lg">
-            <Shield className="w-4 h-4 text-gray-500 flex-shrink-0" />
-            <div className="flex-1">
-              <div className="text-[13px] font-medium text-gray-800">
-                Confidential — HR &amp; Admin only
-              </div>
-              <div className="text-[11.5px] text-gray-500">
-                Hides this document from employee and manager views
+          {/* Visibility */}
+          <div className="px-3 py-3 border border-gray-200 rounded-lg space-y-3">
+            <div className="flex items-start gap-3">
+              <Shield className="w-4 h-4 text-gray-500 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <div className="text-[13px] font-medium text-gray-800">
+                  Visibility
+                </div>
+                <div className="text-[11.5px] text-gray-500">
+                  Who can see this document. Defaults follow the chosen
+                  category.
+                </div>
               </div>
             </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={form.isConfidential}
-              onClick={() => set("isConfidential", !form.isConfidential)}
-              className={`relative w-9 h-5 rounded-full flex-shrink-0 transition-colors duration-150 ${form.isConfidential ? "bg-gray-800" : "bg-gray-300"}`}
-            >
-              <span
-                className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-150 ${form.isConfidential ? "translate-x-4" : "translate-x-0"}`}
-              />
-            </button>
+            <DocumentVisibilitySelector
+              value={form.visibility}
+              onChange={(visibility) =>
+                setForm((prev) => ({
+                  ...prev,
+                  visibility,
+                  userTouchedVisibility: true,
+                }))
+              }
+            />
           </div>
 
           {/* Request sig toggle */}
@@ -1446,9 +1507,15 @@ function UploadModal({
 
 export function DocumentsModule() {
   const { data: session } = useSession();
-  const isHR = isHrDocumentUser(
-    session?.user as SessionUserRoleFlags | undefined
+  const sessionUser = session?.user as SessionUserRoleFlags | undefined;
+  const isHR = isHrDocumentUser(sessionUser);
+  const userRole = useMemo(
+    () => getDocumentUserRole(sessionUser),
+    [sessionUser]
   );
+
+  const [editVisibilityDoc, setEditVisibilityDoc] =
+    useState<EmployeeDocument | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -1497,7 +1564,11 @@ export function DocumentsModule() {
     documentsApi
       .list({ archived: showArchived || undefined })
       .then((results) => {
-        if (!cancelled) setDocs(results);
+        if (!cancelled) {
+          // Frontend-side filter is the second line of defense; backend
+          // should also enforce role-based visibility.
+          setDocs(filterDocumentsByAccess(results, userRole));
+        }
       })
       .catch((e: Error) => {
         if (!cancelled) setLoadError(e.message);
@@ -1510,7 +1581,7 @@ export function DocumentsModule() {
     return () => {
       cancelled = true;
     };
-  }, [showArchived]);
+  }, [showArchived, userRole]);
 
   // Load template-generated documents
   useEffect(() => {
@@ -2332,6 +2403,33 @@ export function DocumentsModule() {
             onShare={handleDrawerShare}
             onArchive={handleDrawerArchive}
             onUnarchive={handleDrawerUnarchive}
+            onEditVisibility={() => {
+              if (
+                drawerRow &&
+                drawerRow.listSource === DocumentsListSource.Upload
+              ) {
+                setEditVisibilityDoc(drawerRow.doc);
+              }
+            }}
+          />
+
+          {/* Edit visibility dialog */}
+          <EditVisibilityDialog
+            open={editVisibilityDoc !== null}
+            doc={editVisibilityDoc}
+            onClose={() => setEditVisibilityDoc(null)}
+            onSaved={(updated) => {
+              setDocs((prev) =>
+                prev.map((d) => (d.id === updated.id ? updated : d))
+              );
+              if (
+                drawerRow &&
+                drawerRow.listSource === DocumentsListSource.Upload &&
+                drawerRow.doc.id === updated.id
+              ) {
+                setDrawerRow({ ...drawerRow, doc: updated });
+              }
+            }}
           />
 
           {/* Upload modal */}

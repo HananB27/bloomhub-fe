@@ -60,6 +60,13 @@ import {
   getTemplateCategoryColor,
   getTemplateCategoryLabel,
 } from "@/lib/templates/templatesHelpers";
+import {
+  presetFromVisibility,
+  visibilityFromPreset,
+  type DocumentVisibilitySettings,
+} from "@/lib/documents/documentVisibilityPresets";
+import { documentVisibilityLabel } from "@/lib/documents/documentVisibilityHelpers";
+import { DocumentVisibilitySelector } from "../documents/DocumentVisibilitySelector";
 import { templatesApi } from "@/lib/api/modules/templates";
 import {
   templateSnippetsApi,
@@ -89,6 +96,8 @@ import {
   previewTemplateHtml,
   sanitizePastedHtml,
   sanitizeImportedHtml,
+  wrapEditorContentWithBodyStyles,
+  unwrapEditorContent,
   extractDocxParagraphAlignments,
   applyDocxAlignmentsToHtml,
   ensureSelectionInsideEditor,
@@ -116,20 +125,35 @@ interface BuilderState {
   name: string;
   description: string;
   category: TemplateCategory | "";
+  /** Legacy private/shared flag — derived from visibilitySettings on save. */
   visibility: TemplateVisibility;
+  visibilitySettings: DocumentVisibilitySettings;
   status: TemplateStatus;
   content: string;
   fields: TemplateField[];
+  /**
+   * Page-level body styles. Lifted out of Step 2 so they survive navigation
+   * to Step 4 (Review) and round-trip through save / load. Per-element styles
+   * still live inline inside `content`.
+   */
+  bodyFontFamily: string;
+  bodyBackgroundColor: string;
 }
+
+const DEFAULT_TEMPLATE_VISIBILITY: DocumentVisibilitySettings =
+  visibilityFromPreset("hr_and_above");
 
 const EMPTY_STATE: BuilderState = {
   name: "",
   description: "",
   category: "",
   visibility: TemplateVisibility.Private,
+  visibilitySettings: DEFAULT_TEMPLATE_VISIBILITY,
   status: TemplateStatus.Draft,
   content: "",
   fields: [],
+  bodyFontFamily: DOCUMENT_EDITOR_DEFAULT_FONT,
+  bodyBackgroundColor: DOCUMENT_EDITOR_DEFAULT_PAGE_BG,
 };
 
 const DRAFT_STORAGE_KEY = "bloomhub_template_draft";
@@ -198,30 +222,11 @@ function TemplateBuilderStep1({
         <label className="block text-[12px] font-medium text-gray-800 mb-2">
           Visibility
         </label>
-        <div className="inline-flex rounded-lg border border-gray-200 overflow-hidden">
-          {[
-            { value: TemplateVisibility.Private, label: "Private" },
-            { value: TemplateVisibility.Shared, label: "Shared" },
-          ].map(({ value, label }) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => onChange({ visibility: value })}
-              className={`px-5 py-2 text-[13px] font-medium transition-colors ${
-                state.visibility === value
-                  ? "bg-gray-800 text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-        <p className="text-[11.5px] text-gray-400 mt-1.5">
-          {state.visibility === TemplateVisibility.Private
-            ? "Only visible to HR admins"
-            : "Visible to all HR users"}
-        </p>
+        <DocumentVisibilitySelector
+          value={state.visibilitySettings}
+          onChange={(visibilitySettings) => onChange({ visibilitySettings })}
+          density="compact"
+        />
       </div>
     </div>
   );
@@ -421,11 +426,21 @@ function TemplateBuilderStep2({
   state,
   onContentChange,
   onFieldsChange,
+  onChange,
 }: {
   state: BuilderState;
   onContentChange: (html: string) => void;
   onFieldsChange: (fields: TemplateField[]) => void;
+  onChange: (patch: Partial<BuilderState>) => void;
 }) {
+  // Body styles live on BuilderState so they survive step navigation and are
+  // saved with the template — Step 4 reads them for the preview.
+  const editorBgColor = state.bodyBackgroundColor;
+  const setEditorBgColor = (next: string) =>
+    onChange({ bodyBackgroundColor: next });
+  const editorFontFamily = state.bodyFontFamily;
+  const setEditorFontFamily = (next: string) =>
+    onChange({ bodyFontFamily: next });
   const editorRef = useRef<HTMLDivElement>(null);
   const savedRangeRef = useRef<Range | null>(null);
   const [fieldPanelOpen, setFieldPanelOpen] = useState(false);
@@ -444,12 +459,6 @@ function TemplateBuilderStep2({
   const newFieldInputRef = useRef<HTMLInputElement>(null);
   const docxInputRef = useRef<HTMLInputElement>(null);
   const [isImporting, setIsImporting] = useState(false);
-  const [editorBgColor, setEditorBgColor] = useState(
-    DOCUMENT_EDITOR_DEFAULT_PAGE_BG
-  );
-  const [editorFontFamily, setEditorFontFamily] = useState(
-    DOCUMENT_EDITOR_DEFAULT_FONT
-  );
   const [editorFontSize, setEditorFontSize] = useState("");
   const [textColor, setTextColor] = useState(
     DOCUMENT_EDITOR_DEFAULT_TEXT_COLOR
@@ -699,6 +708,43 @@ function TemplateBuilderStep2({
     setChipFontDropdownOpen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fieldEditTarget?.field.key]);
+
+  // Keep the field-edit popup anchored to its chip on every animation frame.
+  // The chip can move when the user changes the chip's font/size/style or when
+  // the editor reflows; without this, the popup would drift or end up
+  // off-screen relative to the chip and the page might appear to "jump".
+  useEffect(() => {
+    if (!fieldEditTarget) return;
+    const span = fieldEditTarget.span;
+    let raf = 0;
+    const POPUP_WIDTH = 292;
+    const MARGIN = 8;
+    const VIEWPORT_BOTTOM_BUFFER = 360;
+    function reposition() {
+      const popup = fieldPopupRef.current;
+      if (!popup || !span.isConnected) {
+        raf = requestAnimationFrame(reposition);
+        return;
+      }
+      const rect = span.getBoundingClientRect();
+      const above = window.innerHeight - rect.bottom < VIEWPORT_BOTTOM_BUFFER;
+      const left = Math.max(
+        MARGIN,
+        Math.min(rect.left, window.innerWidth - POPUP_WIDTH - MARGIN)
+      );
+      popup.style.left = `${left}px`;
+      if (above) {
+        popup.style.top = "auto";
+        popup.style.bottom = `${window.innerHeight - rect.top + 6}px`;
+      } else {
+        popup.style.bottom = "auto";
+        popup.style.top = `${rect.bottom + 6}px`;
+      }
+      raf = requestAnimationFrame(reposition);
+    }
+    raf = requestAnimationFrame(reposition);
+    return () => cancelAnimationFrame(raf);
+  }, [fieldEditTarget]);
 
   // Close field popup when clicking outside both the popup and .tpl-field spans
   useEffect(() => {
@@ -2534,10 +2580,15 @@ function TemplateBuilderStep2({
         }}
       />
 
-      {/* Preview pane — rendered from the latest content with filled sample values */}
+      {/* Preview pane — rendered from the latest content with filled sample
+          values. We deliberately do NOT use Tailwind's `prose` typography
+          classes here: the editor stores per-element inline styles
+          (font-family, font-size, color, alignment, weight, …) and `prose`
+          would reset element-level color/spacing/font-family, making the
+          preview look different from what the user authored. */}
       {isPreviewMode && (
         <div
-          className="template-editor template-editor-preview prose prose-sm max-w-none min-h-[380px] rounded-2xl border border-slate-200/90 bg-white p-5 text-[14px] text-slate-900 shadow-inner transition-all duration-200 [&_.tpl-field]:inline [&_.tpl-field]:rounded [&_.tpl-field]:bg-emerald-50 [&_.tpl-field]:px-1 [&_.tpl-field]:py-px [&_.tpl-field]:text-emerald-800 [&_.tpl-field]:font-medium"
+          className="template-editor template-editor-preview min-h-[380px] rounded-2xl border border-slate-200/90 bg-white p-5 text-[14px] text-slate-900 shadow-inner transition-all duration-200 [&_.tpl-field]:inline [&_.tpl-field]:rounded [&_.tpl-field]:bg-emerald-50 [&_.tpl-field]:px-1 [&_.tpl-field]:py-px [&_.tpl-field]:text-emerald-800 [&_.tpl-field]:font-medium"
           style={{
             lineHeight: 1.45,
             backgroundColor: editorBgColor,
@@ -2591,10 +2642,9 @@ function TemplateBuilderStep2({
               ref={fieldPopupRef}
               style={{
                 position: "fixed",
-                left: Math.min(fieldEditTarget.x, window.innerWidth - 300),
-                ...(fieldEditTarget.above
-                  ? { bottom: window.innerHeight - fieldEditTarget.y + 6 }
-                  : { top: fieldEditTarget.y + 6 }),
+                // top / left / bottom are managed by the rAF reposition effect
+                // so the popup stays anchored to the chip even when the editor
+                // reflows or the page scrolls.
                 zIndex: 60,
                 width: 292,
                 maxHeight: popupMaxH,
@@ -3349,14 +3399,27 @@ function TemplateBuilderStep4({
       return;
     }
     setSaving(true);
+    // Embed the page-level font / background AND the new visibility settings
+    // (allowedRoles + scope) in the saved HTML itself so they persist even if
+    // the backend doesn't yet store the new columns.
+    const wrappedContent = wrapEditorContentWithBodyStyles(state.content, {
+      fontFamily: state.bodyFontFamily,
+      backgroundColor: state.bodyBackgroundColor,
+      visibilityScope: state.visibilitySettings.scope,
+      allowedRoles: state.visibilitySettings.allowedRoles,
+    });
     const payload: TemplatePayload = {
       name: state.name,
       description: state.description,
       category: state.category as TemplateCategory,
       visibility: state.visibility,
+      allowedRoles: state.visibilitySettings.allowedRoles,
+      visibilityScope: state.visibilitySettings.scope,
       status,
-      content: state.content,
+      content: wrappedContent,
       fields: state.fields,
+      bodyFontFamily: state.bodyFontFamily,
+      bodyBackgroundColor: state.bodyBackgroundColor,
     };
     try {
       const result = editId
@@ -3412,9 +3475,17 @@ function TemplateBuilderStep4({
         <h3 className="text-[12px] font-semibold text-gray-500 uppercase tracking-widest mb-2">
           Content preview
         </h3>
+        {/* Same as the in-builder Preview pane: no `prose` (it would override
+            element-level color / font-family / spacing from the inline styles
+            the editor produced) and inherit the editor's font + bg so the
+            preview matches what the user authored. */}
         <div
-          className="template-editor template-editor-preview border border-gray-200 rounded-lg p-5 bg-white prose prose-sm max-w-none min-h-[120px] text-[13.5px] text-gray-800"
-          style={{ lineHeight: 1.45 }}
+          className="template-editor template-editor-preview border border-gray-200 rounded-lg p-5 max-w-none min-h-[120px] text-[13.5px] text-gray-800"
+          style={{
+            lineHeight: 1.45,
+            backgroundColor: state.bodyBackgroundColor,
+            fontFamily: state.bodyFontFamily,
+          }}
           dangerouslySetInnerHTML={{
             __html:
               state.content ||
@@ -3451,8 +3522,11 @@ function TemplateBuilderStep4({
             <div className="text-[11px] text-gray-400 uppercase tracking-wide mb-1">
               Visibility
             </div>
-            <div className="text-[13px] font-medium text-gray-900 capitalize">
-              {state.visibility}
+            <div className="text-[13px] font-medium text-gray-900">
+              {documentVisibilityLabel(
+                state.visibilitySettings.scope,
+                state.visibilitySettings.allowedRoles
+              )}
             </div>
           </div>
           <div className="px-4 py-3 border border-gray-200 rounded-lg bg-white">
@@ -3586,14 +3660,40 @@ export function TemplateBuilder({
       }
 
       if (editTemplate) {
+        // Strip the body wrapper and recover its font / bg / visibility so
+        // the editor shows the naked HTML and the controls reflect the saved
+        // settings (even when the backend doesn't yet round-trip the new
+        // visibility / body-style columns).
+        const unwrapped = unwrapEditorContent(editTemplate.content);
+        const recoveredScope =
+          (unwrapped.visibilityScope as
+            | DocumentVisibilitySettings["scope"]
+            | undefined) ?? editTemplate.visibilityScope;
+        const recoveredRoles =
+          unwrapped.allowedRoles && unwrapped.allowedRoles.length > 0
+            ? (unwrapped.allowedRoles as DocumentVisibilitySettings["allowedRoles"])
+            : editTemplate.allowedRoles;
         setState({
           name: editTemplate.name,
           description: editTemplate.description,
           category: editTemplate.category,
           visibility: editTemplate.visibility,
+          visibilitySettings: {
+            scope: recoveredScope,
+            allowedRoles: recoveredRoles,
+            preset: presetFromVisibility(recoveredScope, recoveredRoles),
+          },
           status: editTemplate.status,
-          content: editTemplate.content,
+          content: unwrapped.html,
           fields: editTemplate.fields,
+          bodyFontFamily:
+            editTemplate.bodyFontFamily ??
+            unwrapped.fontFamily ??
+            DOCUMENT_EDITOR_DEFAULT_FONT,
+          bodyBackgroundColor:
+            editTemplate.bodyBackgroundColor ??
+            unwrapped.backgroundColor ??
+            DOCUMENT_EDITOR_DEFAULT_PAGE_BG,
         });
         setFieldsPreviousIds(editTemplate.fields.map((f) => f.id));
       } else {
@@ -3751,6 +3851,7 @@ export function TemplateBuilder({
               state={state}
               onContentChange={commitEditorHtml}
               onFieldsChange={(fields) => patch({ fields })}
+              onChange={patch}
             />
           )}
           {step === 2 && (

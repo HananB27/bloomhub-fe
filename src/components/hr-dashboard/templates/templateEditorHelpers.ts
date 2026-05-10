@@ -12,6 +12,97 @@ export const DOCUMENT_EDITOR_DEFAULT_TEXT_COLOR = "#111827";
 
 export const DOCUMENT_EDITOR_DEFAULT_PAGE_BG = "#ffffff";
 
+// ─── Body-style wrapper ─────────────────────────────────────────────────────
+// Persists the page-level font-family / background colour by wrapping the
+// editor's HTML in a marker `<div>`. This way the body styling rides along
+// inside the saved `content` itself, without needing a separate API field.
+// `wrapEditorContentWithBodyStyles` runs before save; `unwrapEditorContent`
+// runs on load and returns the inner HTML + the styles it found.
+
+export const TEMPLATE_BODY_WRAPPER_ATTR = "data-template-body";
+const TEMPLATE_VISIBILITY_SCOPE_ATTR = "data-visibility-scope";
+const TEMPLATE_ALLOWED_ROLES_ATTR = "data-allowed-roles";
+const FONT_FAMILY_STYLE_REGEX = /font-family\s*:\s*([^;"]+)/i;
+const BACKGROUND_COLOR_STYLE_REGEX = /background-color\s*:\s*([^;"]+)/i;
+const TEMPLATE_BODY_WRAPPER_OPEN_REGEX = new RegExp(
+  `^\\s*<div\\b[^>]*\\b${TEMPLATE_BODY_WRAPPER_ATTR}\\b[^>]*>`,
+  "i"
+);
+const TEMPLATE_BODY_WRAPPER_CLOSE_REGEX = /<\/div>\s*$/i;
+
+interface BodyWrapperOptions {
+  fontFamily: string;
+  backgroundColor: string;
+  /** Optional — embedded so visibility persists even if the backend doesn't store the new fields yet. */
+  visibilityScope?: string;
+  /** Optional — comma-separated role keys (e.g. "employee,manager"). */
+  allowedRoles?: ReadonlyArray<string>;
+}
+
+function escapeAttr(value: string): string {
+  return value.replace(/"/g, "&quot;");
+}
+
+export function wrapEditorContentWithBodyStyles(
+  html: string,
+  options: BodyWrapperOptions
+): string {
+  // Always strip an existing wrapper first so re-saves don't nest.
+  const inner = unwrapEditorContent(html).html;
+  const escapedFont = escapeAttr(options.fontFamily);
+  const escapedBg = escapeAttr(options.backgroundColor);
+  const scopeAttr = options.visibilityScope
+    ? ` ${TEMPLATE_VISIBILITY_SCOPE_ATTR}="${escapeAttr(options.visibilityScope)}"`
+    : "";
+  const rolesAttr =
+    options.allowedRoles && options.allowedRoles.length > 0
+      ? ` ${TEMPLATE_ALLOWED_ROLES_ATTR}="${escapeAttr(options.allowedRoles.join(","))}"`
+      : "";
+  return `<div ${TEMPLATE_BODY_WRAPPER_ATTR}${scopeAttr}${rolesAttr} style="font-family: ${escapedFont}; background-color: ${escapedBg};">${inner}</div>`;
+}
+
+export interface UnwrappedEditorContent {
+  html: string;
+  fontFamily?: string;
+  backgroundColor?: string;
+  visibilityScope?: string;
+  allowedRoles?: string[];
+}
+
+export function unwrapEditorContent(html: string): UnwrappedEditorContent {
+  const openMatch = html.match(TEMPLATE_BODY_WRAPPER_OPEN_REGEX);
+  if (!openMatch) return { html };
+  const openTag = openMatch[0];
+  const closeMatch = html.match(TEMPLATE_BODY_WRAPPER_CLOSE_REGEX);
+  if (!closeMatch) return { html };
+  const inner = html
+    .slice(openTag.length, html.length - closeMatch[0].length)
+    .trim();
+  const styleMatch = openTag.match(/style\s*=\s*"([^"]*)"/i);
+  const styleStr = styleMatch ? styleMatch[1] : "";
+  const fontMatch = styleStr.match(FONT_FAMILY_STYLE_REGEX);
+  const bgMatch = styleStr.match(BACKGROUND_COLOR_STYLE_REGEX);
+  const scopeMatch = openTag.match(
+    new RegExp(`${TEMPLATE_VISIBILITY_SCOPE_ATTR}\\s*=\\s*"([^"]*)"`, "i")
+  );
+  const rolesMatch = openTag.match(
+    new RegExp(`${TEMPLATE_ALLOWED_ROLES_ATTR}\\s*=\\s*"([^"]*)"`, "i")
+  );
+  const rolesList = rolesMatch
+    ? rolesMatch[1]
+        .split(",")
+        .map((r) => r.trim())
+        .filter(Boolean)
+    : undefined;
+  return {
+    html: inner,
+    fontFamily: fontMatch ? fontMatch[1].trim() : undefined,
+    backgroundColor: bgMatch ? bgMatch[1].trim() : undefined,
+    visibilityScope: scopeMatch ? scopeMatch[1].trim() : undefined,
+    allowedRoles: rolesList,
+  };
+}
+
 export const TPL_FIELD_DEFAULT_FONT_WEIGHT = "500";
 
 export const TPL_FIELD_CHIP_INLINE_STYLE =
@@ -645,7 +736,11 @@ export function nodeIsInsideEditorRoot(
 }
 
 export function ensureSelectionInsideEditor(editorRoot: HTMLElement): void {
-  editorRoot.focus();
+  // `preventScroll` keeps the browser from snapping the page back to the
+  // focused element. Without it, every chip-style change (which calls this
+  // via pushEditorContent) re-focuses the contentEditable and scrolls the
+  // page to wherever the editor's selection sits.
+  editorRoot.focus({ preventScroll: true });
   const sel = window.getSelection();
   if (!sel) return;
   let ok = false;

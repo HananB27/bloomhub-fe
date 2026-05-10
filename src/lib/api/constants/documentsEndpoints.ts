@@ -35,6 +35,11 @@ export function documentReminderPath(documentId: number | string): string {
   return `${DOCUMENTS_API_BASE_PATH}${documentId}/send-reminder/`;
 }
 
+export function documentVisibilityPath(documentId: number | string): string {
+  // TODO [BACKEND REQUIRED]: PATCH /api/documents/{id}/visibility/ — update allowed_roles + visibility_scope (HR/Admin only)
+  return `${DOCUMENTS_API_BASE_PATH}${documentId}/visibility/`;
+}
+
 // ─── Bulk operation paths ─────────────────────────────────────────────────────
 
 // TODO [BACKEND REQUIRED]: POST /api/documents/bulk-delete/ — permanently delete multiple documents by id[]
