@@ -45,6 +45,7 @@ import {
   EXPIRY_FILTER_EXPIRING_SOON,
   EXPIRY_FILTER_EXPIRED,
   DocumentsListSource,
+  DocumentAccessRole,
   DOCUMENT_ACCESS_ROLE_LABELS,
   documentDaysUntil,
   documentExpiryBucket,
@@ -1218,6 +1219,11 @@ function UploadModal({
         category: form.category as DocumentCategory,
         description: form.description,
         expiryDate: form.noExpiry ? undefined : form.expiryDate || undefined,
+        // Legacy boolean kept for backwards compat: anything not visible to
+        // employees-at-large is "confidential" from the old API's perspective.
+        isConfidential:
+          form.visibility.scope !== "roles" ||
+          !form.visibility.allowedRoles.includes(DocumentAccessRole.Employee),
         tags: parseDocumentTags(form.tags),
         allowedRoles: form.visibility.allowedRoles,
         visibilityScope: form.visibility.scope,

@@ -58,10 +58,10 @@ export const DOCUMENT_VISIBILITY_PRESETS: Record<
     roles: [DocumentAccessRole.Manager],
   },
   hr_and_above: {
-    label: "HR & above",
-    description: "Visible to HR only.",
+    label: "Document staff & above",
+    description: "Visible to document staff and admins.",
     scope: "roles",
-    roles: [DocumentAccessRole.Hr],
+    roles: [DocumentAccessRole.Staff],
   },
   admin_only: {
     label: "Admins only",

@@ -50,22 +50,33 @@ export interface DocumentTemplate {
   name: string;
   description: string;
   category: TemplateCategory;
+  /** Legacy private/shared flag — kept for backwards compat; new visibility model lives below. */
   visibility: TemplateVisibility;
   /**
-   * Role-based access list mirroring documents. Admin always has access.
-   * TODO [BACKEND REQUIRED]: GET/POST/PATCH /api/documents/templates/ — include allowed_roles
-   * (DocumentAccessRole[]) on the template payload; default ["employee"] for new templates.
+   * Permission-tier list mirroring documents.
+   * TODO [BACKEND REQUIRED]: GET/POST/PUT /api/documents/templates/ — accept and return
+   * `allowed_roles` (DocumentAccessRole[]); default ["employee"] for new templates.
    */
   allowedRoles: import("@/lib/documents/documentsHelpers").DocumentAccessRole[];
   /**
-   * Scope of visibility — same model as documents.
-   * TODO [BACKEND REQUIRED]: GET/POST/PATCH /api/documents/templates/ — include visibility_scope
-   * ("roles" | "only_me" | "project_group"); defaults to "roles" for legacy rows.
+   * Visibility scope: "roles" uses role-rank; "only_me" / "project_group" are user-scoped.
+   * TODO [BACKEND REQUIRED]: GET/POST/PUT /api/documents/templates/ — accept and return
+   * `visibility_scope` ("roles" | "only_me" | "project_group"); default "roles".
    */
   visibilityScope: import("@/lib/documents/documentVisibilityPresets").DocumentVisibilityScope;
   status: TemplateStatus;
   content: string;
   fields: TemplateField[];
+  /**
+   * Page-level body font / background applied around `content`. Per-element
+   * styling lives inside the HTML; these are the document defaults so the
+   * preview surfaces match what the author saw in the editor (especially
+   * after a .docx import that doesn't add inline font-family on every node).
+   * TODO [BACKEND REQUIRED]: GET/POST/PUT /api/documents/templates/ — accept
+   * and return `body_font_family` and `body_background_color` strings.
+   */
+  bodyFontFamily?: string;
+  bodyBackgroundColor?: string;
   createdBy: string;
   createdAt: string;
   updatedAt: string;
@@ -82,6 +93,8 @@ export interface TemplatePayload {
   status: TemplateStatus;
   content: string;
   fields: TemplateField[];
+  bodyFontFamily?: string;
+  bodyBackgroundColor?: string;
 }
 
 export type TemplateOutputFormat = "pdf" | "docx";

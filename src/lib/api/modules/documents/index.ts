@@ -136,6 +136,7 @@ export interface UploadEmployeeDocumentPayload {
   category: DocumentCategory;
   description: string;
   expiryDate?: string;
+  isConfidential: boolean;
   tags: string[];
   allowedRoles: DocumentAccessRole[];
   visibilityScope: DocumentVisibilityScope;
@@ -292,11 +293,12 @@ export const documentsApi = {
     formData.append("name", payload.name);
     formData.append("category", payload.category);
     formData.append("description", payload.description);
+    formData.append("is_confidential", String(payload.isConfidential));
     payload.tags.forEach((tag) => formData.append("tags", tag));
     payload.allowedRoles.forEach((role) =>
       formData.append("allowed_roles", role)
     );
-    // TODO [BACKEND REQUIRED]: POST /api/documents/ — accept visibility_scope
+    // TODO [BACKEND REQUIRED]: POST /api/documents/ — accept `visibility_scope`
     // ("roles" | "only_me" | "project_group") on the multipart payload.
     formData.append("visibility_scope", payload.visibilityScope);
     if (payload.expiryDate) {

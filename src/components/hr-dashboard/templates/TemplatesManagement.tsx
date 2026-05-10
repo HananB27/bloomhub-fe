@@ -34,6 +34,10 @@ import {
 } from "@/lib/templates/templatesHelpers";
 import { templatesApi } from "@/lib/api/modules/templates";
 import {
+  documentVisibilityLabel,
+  isRestrictedVisibility,
+} from "@/lib/documents/documentVisibilityHelpers";
+import {
   notifySuccess,
   notifyApiError,
   withNotification,
@@ -296,15 +300,29 @@ function TemplateCard({
         >
           {sb.label}
         </span>
-        {template.visibility === TemplateVisibility.Private ? (
-          <span className="flex items-center gap-1 text-[11px] font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-            <Lock className="w-2.5 h-2.5" /> Private
-          </span>
-        ) : (
-          <span className="flex items-center gap-1 text-[11px] font-medium text-blue-700 bg-blue-100 px-2 py-0.5 rounded">
-            <Users className="w-2.5 h-2.5" /> Shared
-          </span>
-        )}
+        <span
+          className={`flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded ${
+            isRestrictedVisibility(
+              template.visibilityScope,
+              template.allowedRoles
+            )
+              ? "text-gray-500 bg-gray-100"
+              : "text-blue-700 bg-blue-100"
+          }`}
+        >
+          {isRestrictedVisibility(
+            template.visibilityScope,
+            template.allowedRoles
+          ) ? (
+            <Lock className="w-2.5 h-2.5" />
+          ) : (
+            <Users className="w-2.5 h-2.5" />
+          )}
+          {documentVisibilityLabel(
+            template.visibilityScope,
+            template.allowedRoles
+          )}
+        </span>
         <span className="text-[11.5px] text-gray-400 ml-auto">
           {template.fields.length} dynamic field
           {template.fields.length !== 1 ? "s" : ""}
@@ -521,6 +539,8 @@ export function TemplatesManagement({
         status: next,
         content: template.content,
         fields: template.fields,
+        bodyFontFamily: template.bodyFontFamily,
+        bodyBackgroundColor: template.bodyBackgroundColor,
       });
       setTemplates((prev) =>
         prev.map((t) => (t.id === template.id ? updated : t))

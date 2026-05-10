@@ -23,6 +23,7 @@ import {
 } from "@/lib/templates/templatesHelpers";
 import { DocumentAccessRole } from "@/lib/documents/documentsHelpers";
 import type { DocumentVisibilityScope } from "@/lib/documents/documentVisibilityPresets";
+import { unwrapEditorContent } from "@/components/hr-dashboard/templates/templateEditorHelpers";
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
@@ -83,9 +84,11 @@ interface ApiDocumentTemplate {
   created_at?: string;
   updated_at?: string;
   is_system_template?: boolean;
-  // TODO [BACKEND REQUIRED]: include on every template payload — see templatesHelpers.ts
+  // TODO [BACKEND REQUIRED]: persist alongside every template — see templatesHelpers.ts
   allowed_roles?: DocumentAccessRole[];
   visibility_scope?: DocumentVisibilityScope;
+  body_font_family?: string;
+  body_background_color?: string;
 }
 
 interface ApiGeneratedDocument {
@@ -131,6 +134,26 @@ function mapGeneratedDocument(raw: ApiGeneratedDocument): GeneratedDocument {
 }
 
 function mapTemplate(raw: ApiDocumentTemplate): DocumentTemplate {
+  const rawContent = String(raw.content ?? "");
+  // The editor embeds visibility + body-style settings inside a wrapper div
+  // when saving, so we can recover them even if the backend hasn't yet
+  // shipped the dedicated allowed_roles / visibility_scope / body_*  columns.
+  const unwrapped = unwrapEditorContent(rawContent);
+
+  const apiAllowedRoles = Array.isArray(raw.allowed_roles)
+    ? (raw.allowed_roles as DocumentAccessRole[])
+    : undefined;
+  const apiHasAllowedRoles = apiAllowedRoles && apiAllowedRoles.length > 0;
+  const allowedRoles: DocumentAccessRole[] = apiHasAllowedRoles
+    ? apiAllowedRoles
+    : unwrapped.allowedRoles && unwrapped.allowedRoles.length > 0
+      ? (unwrapped.allowedRoles as DocumentAccessRole[])
+      : [DocumentAccessRole.Employee];
+
+  const visibilityScope: DocumentVisibilityScope = (raw.visibility_scope ??
+    unwrapped.visibilityScope ??
+    "roles") as DocumentVisibilityScope;
+
   return {
     id: raw.id ?? "",
     name: String(raw.name ?? ""),
@@ -138,14 +161,17 @@ function mapTemplate(raw: ApiDocumentTemplate): DocumentTemplate {
     category: (raw.category as TemplateCategory) ?? TemplateCategory.Other,
     visibility:
       (raw.visibility as TemplateVisibility) ?? TemplateVisibility.Private,
-    allowedRoles: Array.isArray(raw.allowed_roles)
-      ? (raw.allowed_roles as DocumentAccessRole[])
-      : [DocumentAccessRole.Employee],
-    visibilityScope: (raw.visibility_scope ??
-      "roles") as DocumentVisibilityScope,
+    allowedRoles,
+    visibilityScope,
     status: (raw.status as TemplateStatus) ?? TemplateStatus.Draft,
-    content: String(raw.content ?? ""),
+    content: rawContent,
     fields: Array.isArray(raw.fields) ? raw.fields.map(mapTemplateField) : [],
+    bodyFontFamily: raw.body_font_family
+      ? String(raw.body_font_family)
+      : unwrapped.fontFamily,
+    bodyBackgroundColor: raw.body_background_color
+      ? String(raw.body_background_color)
+      : unwrapped.backgroundColor,
     createdBy: String(raw.created_by_name ?? ""),
     createdAt: String(raw.created_at ?? ""),
     updatedAt: String(raw.updated_at ?? ""),

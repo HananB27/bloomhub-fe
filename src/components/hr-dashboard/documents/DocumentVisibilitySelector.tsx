@@ -20,7 +20,7 @@ import { VisibilityCustomRoleRow } from "./VisibilityCustomRoleRow";
 const CUSTOM_ROLE_OPTIONS: DocumentAccessRole[] = [
   DocumentAccessRole.Employee,
   DocumentAccessRole.Manager,
-  DocumentAccessRole.Hr,
+  DocumentAccessRole.Staff,
 ];
 
 interface DocumentVisibilitySelectorProps {
@@ -91,14 +91,19 @@ export function DocumentVisibilitySelector({
       allowedRoles: nextRolesOnToggle(value.allowedRoles, role),
     });
   };
+  const isCompact = density === "compact";
 
   return (
-    <div className="space-y-2">
+    <div className={isCompact ? "space-y-3" : "space-y-2"}>
       <RadioGroup
         value={currentPreset}
         onValueChange={handlePresetChange}
         disabled={disabled}
-        className="gap-1.5"
+        className={
+          isCompact
+            ? "grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3"
+            : "gap-1.5"
+        }
       >
         {ORDERED_DOCUMENT_VISIBILITY_PRESETS.map((preset) => (
           <VisibilityPresetOption
@@ -107,24 +112,42 @@ export function DocumentVisibilitySelector({
             checked={currentPreset === preset}
             disabled={disabled}
             density={density}
+            // "Custom" sits on its own row in the grid; span the full width so
+            // it doesn't look stranded under the other tiles.
+            fullWidth={isCompact && preset === "custom"}
           />
         ))}
       </RadioGroup>
 
       {currentPreset === "custom" && (
-        <div className="px-3 py-2.5 border border-gray-200 rounded-md bg-gray-50/50 space-y-1.5">
-          <div className="text-[11px] text-gray-500 mb-1">
+        <div
+          className={
+            isCompact
+              ? "rounded-md border border-gray-200 bg-gray-50/70 p-3"
+              : "px-3 py-2.5 border border-gray-200 rounded-md bg-gray-50/50 space-y-1.5"
+          }
+        >
+          <div
+            className={
+              isCompact
+                ? "mb-2 text-[11.5px] font-medium text-gray-600"
+                : "text-[11px] text-gray-500 mb-1"
+            }
+          >
             {CUSTOM_PRESET_HELPER_TEXT}
           </div>
-          {CUSTOM_ROLE_OPTIONS.map((role) => (
-            <VisibilityCustomRoleRow
-              key={role}
-              role={role}
-              checked={value.allowedRoles.includes(role)}
-              disabled={disabled}
-              onToggle={handleToggleCustomRole}
-            />
-          ))}
+          <div className={isCompact ? "grid gap-2 sm:grid-cols-3" : ""}>
+            {CUSTOM_ROLE_OPTIONS.map((role) => (
+              <VisibilityCustomRoleRow
+                key={role}
+                role={role}
+                checked={value.allowedRoles.includes(role)}
+                disabled={disabled}
+                onToggle={handleToggleCustomRole}
+                density={density}
+              />
+            ))}
+          </div>
         </div>
       )}
     </div>

@@ -26,34 +26,43 @@ export enum DocumentType {
   Other = "other",
 }
 
+/**
+ * Permission tiers used to gate document/template visibility.
+ *
+ * The enum *values* (`employee`, `manager`, `staff`, `admin`) are stable
+ * keys exchanged with the backend. The *labels* shown in the UI come from
+ * `DOCUMENT_ACCESS_ROLE_LABELS` and use generic permission-tier wording
+ * (e.g. "Document staff" rather than "HR") so the same model works for
+ * orgs that don't call this group "HR".
+ */
 export enum DocumentAccessRole {
   Employee = "employee",
   Manager = "manager",
-  Hr = "hr",
+  Staff = "staff",
   Admin = "admin",
 }
 
 export const DOCUMENT_ACCESS_ROLE_LABELS: Record<DocumentAccessRole, string> = {
-  [DocumentAccessRole.Employee]: "Employee",
-  [DocumentAccessRole.Manager]: "Manager",
-  [DocumentAccessRole.Hr]: "HR",
-  [DocumentAccessRole.Admin]: "Admin",
+  [DocumentAccessRole.Employee]: "Employees",
+  [DocumentAccessRole.Manager]: "Managers",
+  [DocumentAccessRole.Staff]: "Document staff",
+  [DocumentAccessRole.Admin]: "Admins",
 };
 
 export const DOCUMENT_ACCESS_ROLE_DESCRIPTIONS: Record<
   DocumentAccessRole,
   string
 > = {
-  [DocumentAccessRole.Employee]: "All employees",
-  [DocumentAccessRole.Manager]: "People managers and team leads",
-  [DocumentAccessRole.Hr]: "HR staff",
-  [DocumentAccessRole.Admin]: "System administrators (always have access)",
+  [DocumentAccessRole.Employee]: "Anyone in the organization.",
+  [DocumentAccessRole.Manager]: "People managers and team leads.",
+  [DocumentAccessRole.Staff]: "Users with the document-management permission.",
+  [DocumentAccessRole.Admin]: "System administrators (always have access).",
 };
 
 export const DOCUMENT_ACCESS_ROLE_RANK: Record<DocumentAccessRole, number> = {
   [DocumentAccessRole.Employee]: 1,
   [DocumentAccessRole.Manager]: 2,
-  [DocumentAccessRole.Hr]: 3,
+  [DocumentAccessRole.Staff]: 3,
   [DocumentAccessRole.Admin]: 4,
 };
 
@@ -151,11 +160,10 @@ export function normalizeCategoryFilter(
 }
 
 /**
- * Role-rank rule:
- *   admin (4) sees all documents.
- *   Other roles see a document iff their rank ≥ the lowest allowed-role rank.
- *   I.e. an "employee"-tagged document is visible to everyone; an "hr"-tagged
- *   document is visible to HR and Admin only; etc.
+ * Permission-tier check: Admin sees everything; otherwise the user can see
+ * the document iff their permission rank is ≥ the lowest allowed-role rank.
+ * I.e. an "employee"-tagged document is visible to all; a "staff"-tagged
+ * document is visible only to staff and admins; etc.
  */
 export function hasDocumentAccess(
   allowedRoles: DocumentAccessRole[],
@@ -174,7 +182,7 @@ export function getDocumentUserRole(
   user?: SessionUserRoleFlags
 ): DocumentAccessRole {
   if (user?.is_superuser) return DocumentAccessRole.Admin;
-  if (user?.is_staff) return DocumentAccessRole.Hr;
+  if (user?.is_staff) return DocumentAccessRole.Staff;
   if (user?.is_manager) return DocumentAccessRole.Manager;
   return DocumentAccessRole.Employee;
 }
@@ -292,7 +300,8 @@ export function documentInlinePreviewPresentation(
 export function buildDocumentAllowedRoles(
   isConfidential: boolean
 ): DocumentAccessRole[] {
-  if (isConfidential) return [DocumentAccessRole.Hr, DocumentAccessRole.Admin];
+  if (isConfidential)
+    return [DocumentAccessRole.Staff, DocumentAccessRole.Admin];
   return [DocumentAccessRole.Employee];
 }
 
