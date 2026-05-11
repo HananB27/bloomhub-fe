@@ -32,7 +32,7 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
-import { Avatar, AvatarFallback } from "./ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Progress } from "./ui/progress";
 import { DatePicker } from "./DatePicker";
 import {
@@ -137,6 +137,16 @@ const parseLocalDate = (value: string): Date | undefined => {
 
 const isLowBalance = (balance: LeaveBalance): boolean =>
   balance.remaining <= LOW_BALANCE_THRESHOLD_DAYS;
+
+const isPartiallyUsedBalance = (balance: LeaveBalance): boolean =>
+  balance.used > 0 && balance.used < balance.allocated;
+
+const getEmployeeInitials = (name: string): string => {
+  const parts = name.trim().split(/\s+/);
+  const first = parts[0]?.[0] ?? "";
+  const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? "") : "";
+  return `${first}${last}`.toUpperCase();
+};
 
 interface VacationsModuleProps {
   addNotification?: (
@@ -271,6 +281,10 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
   const myBalances = useMemo(
     () => leaveBalances.filter((b) => b.employeeId === currentUserEmployeeId),
     [currentUserEmployeeId, leaveBalances]
+  );
+  const myVisibleBalances = useMemo(
+    () => myBalances.filter(isPartiallyUsedBalance),
+    [myBalances]
   );
   const displayedBalances = canConfigureLeaveTypes ? leaveBalances : myBalances;
   const groupedDisplayedBalances = useMemo(() => {
@@ -711,36 +725,42 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-            {myBalances.map((balance) => (
-              <div
-                key={balance.id}
-                className="rounded-lg border border-gray-200 p-3"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    {getLeaveTypeIcon(balance.leaveType)}
-                    <h3 className="text-sm font-medium text-gray-900">
-                      {LEAVE_TYPE_LABELS[balance.leaveType]}
-                    </h3>
+          {myVisibleBalances.length === 0 ? (
+            <p className="text-sm text-gray-500">
+              No leave types currently in use.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+              {myVisibleBalances.map((balance) => (
+                <div
+                  key={balance.id}
+                  className="rounded-lg border border-gray-200 p-3"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      {getLeaveTypeIcon(balance.leaveType)}
+                      <h3 className="text-sm font-medium text-gray-900">
+                        {LEAVE_TYPE_LABELS[balance.leaveType]}
+                      </h3>
+                    </div>
+                    <span
+                      className={`text-sm font-semibold ${isLowBalance(balance) ? "text-red-600" : "text-green-600"}`}
+                    >
+                      {balance.remaining}
+                    </span>
                   </div>
-                  <span
-                    className={`text-sm font-semibold ${isLowBalance(balance) ? "text-red-600" : "text-green-600"}`}
-                  >
-                    {balance.remaining}
-                  </span>
+                  <Progress
+                    value={getBalanceUsagePercent(balance)}
+                    className="mt-3 h-1.5"
+                  />
+                  <div className="mt-2 flex justify-between text-xs text-gray-500">
+                    <span>{balance.used} used</span>
+                    <span>{balance.allocated} allocated</span>
+                  </div>
                 </div>
-                <Progress
-                  value={getBalanceUsagePercent(balance)}
-                  className="mt-3 h-1.5"
-                />
-                <div className="mt-2 flex justify-between text-xs text-gray-500">
-                  <span>{balance.used} used</span>
-                  <span>{balance.allocated} allocated</span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -1184,19 +1204,34 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                         isLowBalance(balance)
                       ).length;
 
+                      const employeeAvatar = group.balances.find(
+                        (b) => b.employeeAvatar
+                      )?.employeeAvatar;
+
                       return (
                         <div
                           key={group.employeeId}
                           className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between"
                         >
-                          <div>
-                            <h2 className="font-medium text-gray-900">
-                              {group.employeeName}
-                            </h2>
-                            <p className="text-sm text-gray-500">
-                              {group.balances.length} leave types ·{" "}
-                              {totalRemaining}/{totalAllocated} days remaining
-                            </p>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage
+                                src={employeeAvatar}
+                                alt={group.employeeName}
+                              />
+                              <AvatarFallback className="text-xs">
+                                {getEmployeeInitials(group.employeeName)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <h2 className="font-medium text-gray-900">
+                                {group.employeeName}
+                              </h2>
+                              <p className="text-sm text-gray-500">
+                                {group.balances.length} leave types ·{" "}
+                                {totalRemaining}/{totalAllocated} days remaining
+                              </p>
+                            </div>
                           </div>
                           <div className="flex items-center gap-3">
                             {lowBalanceCount > 0 && (

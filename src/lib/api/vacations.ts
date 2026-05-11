@@ -94,6 +94,7 @@ interface ApiLeaveBalance {
   id: number;
   employee_id: number;
   employee_name: string;
+  employee_avatar: string | null;
   leave_type: string;
   leave_type_display: string;
   allocated: number;
@@ -169,6 +170,7 @@ function transformLeaveBalance(api: ApiLeaveBalance): LeaveBalance {
     id: String(api.id),
     employeeId: String(api.employee_id),
     employeeName: api.employee_name || UNKNOWN_FALLBACK,
+    employeeAvatar: api.employee_avatar || undefined,
     leaveType: api.leave_type as LeaveType,
     allocated: api.allocated,
     used: api.used,
