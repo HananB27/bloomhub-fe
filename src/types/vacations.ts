@@ -70,6 +70,7 @@ export interface LeaveBalance {
   id: string;
   employeeId: string;
   employeeName: string;
+  employeeAvatar?: string;
   leaveType: LeaveType;
   allocated: number;
   used: number;
