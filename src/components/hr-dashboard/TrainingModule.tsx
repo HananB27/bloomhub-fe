@@ -24,7 +24,9 @@ import {
   TrainingEntryForm,
   TrainingFilters,
   TrainingEntryList,
+  ConferenceCourseRegistrationSection,
 } from "./training";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs";
 import type { TrainingEntry, TrainingEntryFilters } from "@/types/training";
 import { fetchTrainingEntries, deleteTrainingEntry } from "@/lib/api/training";
 import {
@@ -177,71 +179,98 @@ export function TrainingModule() {
             Track learning, certifications, conferences, and professional growth
           </p>
         </div>
-        <div className="flex shrink-0 gap-2">
-          <Button onClick={handleAddTraining} className="gap-1.5">
-            <Plus className="h-4 w-4" />
-            Add Training
-          </Button>
-        </div>
       </div>
 
-      {/* Stat strip */}
-      {!isLoading && entries.length > 0 && (
-        <div className="grid grid-cols-4 divide-x divide-gray-200 rounded-lg border border-gray-200 bg-white">
-          <StatCell
-            icon={<GraduationCap className="h-3 w-3" />}
-            label="Total Trainings"
-            value={stats.total}
-            trend={`${stats.completed} done · ${stats.inProgress} in progress`}
-          />
-          <StatCell
-            icon={<CheckCircle className="h-3 w-3" />}
-            label="Completed"
-            value={stats.completed}
-            trend={`${stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}% completion rate`}
-          />
-          <StatCell
-            icon={<Clock className="h-3 w-3" />}
-            label="In Progress"
-            value={stats.inProgress}
-            trend={`${stats.planned} planned upcoming`}
-            urgentTrend={stats.planned > 0}
-          />
-          <StatCell
-            icon={<Award className="h-3 w-3" />}
-            label="Certifications"
-            value={stats.certifications}
-            trend="earned"
-          />
-        </div>
-      )}
+      <Tabs defaultValue="history">
+        <TabsList>
+          <TabsTrigger value="history">Training History</TabsTrigger>
+          <TabsTrigger value="registrations">
+            Conferences &amp; Courses
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Toolbar: filters + count */}
-      <div className="rounded-lg border border-gray-200 bg-white p-3">
-        <div className="flex items-center gap-3">
-          <TrainingFilters
-            filters={filters}
-            onFiltersChange={setFilters}
-            isLoading={isLoading}
-          />
-          {!isLoading && (
-            <span className="shrink-0 font-mono text-[11px] text-gray-400">
-              {entries.length} {entries.length === 1 ? "entry" : "entries"}
-            </span>
+        <TabsContent value="history" className="space-y-4">
+          <div className="flex items-start justify-between gap-6">
+            <div>
+              <h2 className="text-base font-semibold text-gray-900">
+                Training History
+              </h2>
+              <p className="mt-0.5 text-sm text-gray-500">
+                Log courses, conferences, certifications, and seminars completed
+                by employees.
+              </p>
+            </div>
+            <div className="shrink-0">
+              <Button onClick={handleAddTraining} className="gap-1.5">
+                <Plus className="h-4 w-4" />
+                Add Training
+              </Button>
+            </div>
+          </div>
+
+          {/* Stat strip */}
+          {!isLoading && entries.length > 0 && (
+            <div className="grid grid-cols-4 divide-x divide-gray-200 rounded-lg border border-gray-200 bg-white">
+              <StatCell
+                icon={<GraduationCap className="h-3 w-3" />}
+                label="Total Trainings"
+                value={stats.total}
+                trend={`${stats.completed} done · ${stats.inProgress} in progress`}
+              />
+              <StatCell
+                icon={<CheckCircle className="h-3 w-3" />}
+                label="Completed"
+                value={stats.completed}
+                trend={`${stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}% completion rate`}
+              />
+              <StatCell
+                icon={<Clock className="h-3 w-3" />}
+                label="In Progress"
+                value={stats.inProgress}
+                trend={`${stats.planned} planned upcoming`}
+                urgentTrend={stats.planned > 0}
+              />
+              <StatCell
+                icon={<Award className="h-3 w-3" />}
+                label="Certifications"
+                value={stats.certifications}
+                trend="earned"
+              />
+            </div>
           )}
-        </div>
-      </div>
 
-      {/* List */}
-      <TrainingEntryList
-        entries={entries}
-        isLoading={isLoading}
-        onEdit={handleEditEntry}
-        onDelete={handleDeleteEntry}
-        isDeleting={isDeleting}
-        canEdit={true}
-        canDelete={true}
-      />
+          {/* Toolbar: filters + count */}
+          <div className="rounded-lg border border-gray-200 bg-white p-3">
+            <div className="flex items-center gap-3">
+              <TrainingFilters
+                filters={filters}
+                onFiltersChange={setFilters}
+                isLoading={isLoading}
+              />
+              {!isLoading && (
+                <span className="shrink-0 font-mono text-[11px] text-gray-400">
+                  {entries.length} {entries.length === 1 ? "entry" : "entries"}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* List */}
+          <TrainingEntryList
+            entries={entries}
+            isLoading={isLoading}
+            onEdit={handleEditEntry}
+            onDelete={handleDeleteEntry}
+            isDeleting={isDeleting}
+            canEdit={true}
+            canDelete={true}
+          />
+        </TabsContent>
+
+        <TabsContent value="registrations" className="space-y-4">
+          <ConferenceCourseRegistrationSection accessToken={accessToken} />
+        </TabsContent>
+      </Tabs>
 
       {/* Add / Edit dialog */}
       <Dialog open={showFormDialog} onOpenChange={setShowFormDialog}>
