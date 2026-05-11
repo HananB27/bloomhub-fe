@@ -19,7 +19,11 @@ export type ReminderType =
   | "pending_action"
   | "completion_reminder";
 
-export type ActionPointStatus = "open" | "in_progress" | "completed";
+export type ActionPointStatus =
+  | "pending"
+  | "in_progress"
+  | "completed"
+  | "cancelled";
 
 export type HistoryEventType =
   | "review_created"
@@ -233,15 +237,17 @@ export const REMINDER_TYPE_LABELS: Record<ReminderType, string> = {
 };
 
 export const ACTION_POINT_STATUS_LABELS: Record<ActionPointStatus, string> = {
-  open: "Open",
+  pending: "Pending",
   in_progress: "In Progress",
   completed: "Completed",
+  cancelled: "Cancelled",
 };
 
 export const ACTION_POINT_STATUS_COLORS: Record<ActionPointStatus, string> = {
-  open: "bg-gray-100 text-gray-800 border-gray-200",
+  pending: "bg-gray-100 text-gray-800 border-gray-200",
   in_progress: "bg-yellow-100 text-yellow-800 border-yellow-200",
   completed: "bg-green-100 text-green-800 border-green-200",
+  cancelled: "bg-red-100 text-red-800 border-red-200",
 };
 
 export const NOTE_VISIBILITY_LABELS: Record<NoteVisibility, string> = {
