@@ -1,86 +1,51 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
-import { Badge } from "./ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "./ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
-import {
-  Plus,
-  Trash2,
-  Download,
-  Upload,
-  AlertCircle,
-  Loader2,
-  FileText,
-  MessageSquare,
-  CheckCircle,
-  Star,
-} from "lucide-react";
-import { formatDate } from "@/utils";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { useAdminAccess } from "@/hooks/useAdminAccess";
 import type {
+  ActionPointStatus,
+  NoteVisibility,
   PerformanceReview,
-  PerformanceReviewListItem,
-  PerformanceReviewNote,
   PerformanceReviewActionPoint,
   PerformanceReviewAttachment,
+  PerformanceReviewListItem,
+  PerformanceReviewNote,
   ReviewStatus,
-  ReviewType,
-  NoteVisibility,
 } from "@/types/reviews";
 import {
-  REVIEW_STATUS_LABELS,
-  REVIEW_STATUS_COLORS,
-  REVIEW_TYPE_LABELS,
-  ACTION_POINT_STATUS_LABELS,
-  ALL_REVIEW_TYPES,
-  RATING_SCALE,
-  RATING_LABELS,
-  NOTE_VISIBILITY_LABELS,
-} from "@/types/reviews";
-import {
-  fetchPerformanceReviews,
+  createActionPoint,
   createPerformanceReview,
-  updatePerformanceReview,
-  updateReviewStatus,
-  fetchReviewNotes,
   createReviewNote,
+  deleteActionPoint,
+  deleteAttachment,
   deleteReviewNote,
   fetchActionPoints,
-  createActionPoint,
-  deleteActionPoint,
   fetchAttachments,
-  uploadAttachment,
-  deleteAttachment,
+  fetchPerformanceReviews,
+  fetchReviewNotes,
   fetchUserProfiles,
+  updateActionPoint,
+  updatePerformanceReview,
+  updateReviewStatus,
+  uploadAttachment,
   type UserProfile,
 } from "@/lib/api/reviews";
+import {
+  REVIEW_STATUS_FILTER_ALL,
+  ReviewDetailDrawer,
+  ReviewsHeader,
+  ReviewsList,
+  ReviewsToolbar,
+  ScheduleReviewDialog,
+  bucketOpenReviews,
+  computeReviewStats,
+  filterReviews,
+  sortHistory,
+  type ReviewStatusFilter,
+  type ScheduleReviewFormValues,
+} from "./reviews";
 
 interface ExtendedSession {
   accessToken?: string;
@@ -88,23 +53,58 @@ interface ExtendedSession {
     id?: number;
     name?: string | null;
     email?: string | null;
-    image?: string | null;
-    is_staff?: boolean;
-    is_superuser?: boolean;
   };
 }
 
-export function ReviewsModule() {
-  const { data: session } = useSession() as {
-    data: ExtendedSession | null;
-  };
+interface OutcomeDraft {
+  overallRating: number | null;
+  summary: string;
+  cpfScore: number | null;
+  performanceScore: number | null;
+}
 
-  const [activeTab, setActiveTab] = useState("scheduled");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+const EMPTY_OUTCOME: OutcomeDraft = {
+  overallRating: null,
+  summary: "",
+  cpfScore: null,
+  performanceScore: null,
+};
+
+type TopTab = "open" | "history";
+
+function toOutcomeDraft(review: PerformanceReview): OutcomeDraft {
+  return {
+    overallRating: review.overallRating ?? null,
+    summary: review.summary ?? "",
+    cpfScore: review.cpfScore ?? null,
+    performanceScore: review.performanceScore ?? null,
+  };
+}
+
+function getErrorMessage(err: unknown, fallback: string): string {
+  return err instanceof Error ? err.message : fallback;
+}
+
+export function ReviewsModule() {
+  const { data: session } = useSession() as { data: ExtendedSession | null };
+  const accessToken = session?.accessToken;
+  const sessionUserId = session?.user?.id;
+  const { isAdmin, isLoading: isAdminLoading } = useAdminAccess();
+
   const [reviews, setReviews] = useState<PerformanceReviewListItem[]>([]);
   const [employees, setEmployees] = useState<UserProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [pageError, setPageError] = useState<string | null>(null);
+
+  const [tab, setTab] = useState<TopTab>("open");
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<ReviewStatusFilter>(
+    REVIEW_STATUS_FILTER_ALL
+  );
+
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [scheduleError, setScheduleError] = useState<string | null>(null);
+
   const [selectedReview, setSelectedReview] =
     useState<PerformanceReview | null>(null);
   const [notes, setNotes] = useState<PerformanceReviewNote[]>([]);
@@ -114,924 +114,480 @@ export function ReviewsModule() {
   const [attachments, setAttachments] = useState<PerformanceReviewAttachment[]>(
     []
   );
-  const [newNoteContent, setNewNoteContent] = useState("");
-  const [newNoteVisibility, setNewNoteVisibility] =
-    useState<NoteVisibility>("shared");
-  const [newActionTitle, setNewActionTitle] = useState("");
-  const [newActionDescription, setNewActionDescription] = useState("");
-  const [newActionOwner, setNewActionOwner] = useState("");
-  const [newActionDueDate, setNewActionDueDate] = useState("");
-  const [newReviewEmployeeId, setNewReviewEmployeeId] = useState("");
-  const [newReviewReviewerId, setNewReviewReviewerId] = useState("");
-  const [newReviewType, setNewReviewType] = useState<ReviewType>("quarterly");
-  const [newReviewScheduledDate, setNewReviewScheduledDate] = useState("");
-  const [overallRating, setOverallRating] = useState<number | null>(null);
-  const [reviewSummary, setReviewSummary] = useState("");
-  const [cpfScore, setCpfScore] = useState<number | null>(null);
-  const [performanceScore, setPerformanceScore] = useState<number | null>(null);
+  const [outcome, setOutcome] = useState<OutcomeDraft>(EMPTY_OUTCOME);
+  const [drawerError, setDrawerError] = useState<string | null>(null);
 
-  // Load reviews and user profiles on mount
+  const refreshReviews = useCallback(async (token: string) => {
+    const data = await fetchPerformanceReviews(token);
+    setReviews(data);
+  }, []);
+
   useEffect(() => {
-    const accessToken = session?.accessToken;
-    if (!accessToken) {
-      setError(null);
-      setLoading(false);
+    if (!accessToken || isAdminLoading) {
+      if (!accessToken) setLoading(false);
       return;
     }
-
     const loadData = async () => {
       try {
         setLoading(true);
-        setError(null);
-        const [reviewsData, usersData] = await Promise.all([
-          fetchPerformanceReviews(accessToken),
-          fetchUserProfiles(accessToken),
-        ]);
+        setPageError(null);
+        const reviewsData = await fetchPerformanceReviews(accessToken);
         setReviews(reviewsData);
-        setEmployees(usersData);
+
+        if (isAdmin) {
+          try {
+            const usersData = await fetchUserProfiles(accessToken);
+            setEmployees(usersData);
+          } catch {
+            // Non-fatal — admins without permission still get the reviews list.
+            setEmployees([]);
+          }
+        } else {
+          setEmployees([]);
+        }
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to load data";
-        setError(message);
+        setPageError(getErrorMessage(err, "Failed to load reviews"));
       } finally {
         setLoading(false);
       }
     };
-
     loadData();
-  }, [session?.accessToken]);
+  }, [accessToken, isAdmin, isAdminLoading]);
 
-  // Load review details when selected
   useEffect(() => {
-    const accessToken = session?.accessToken;
     if (!selectedReview || !accessToken) return;
-
-    const loadReviewDetails = async () => {
+    const reviewId = selectedReview.id;
+    const loadDetails = async () => {
       try {
-        const [notesData, actionPointsData, attachmentsData] =
-          await Promise.all([
-            fetchReviewNotes(selectedReview.id, accessToken),
-            fetchActionPoints(selectedReview.id, accessToken),
-            fetchAttachments(selectedReview.id, accessToken),
-          ]);
+        setDrawerError(null);
+        const [notesData, actionsData, attachmentsData] = await Promise.all([
+          fetchReviewNotes(reviewId, accessToken),
+          fetchActionPoints(reviewId, accessToken),
+          fetchAttachments(reviewId, accessToken),
+        ]);
         setNotes(notesData);
-        setActionPoints(actionPointsData);
+        setActionPoints(actionsData);
         setAttachments(attachmentsData);
-        setOverallRating(selectedReview.overallRating || null);
-        setReviewSummary(selectedReview.summary || "");
-        setCpfScore(selectedReview.cpfScore ?? null);
-        setPerformanceScore(selectedReview.performanceScore ?? null);
+        setOutcome(toOutcomeDraft(selectedReview));
       } catch (err) {
-        setError("Failed to load review details");
+        setDrawerError(getErrorMessage(err, "Failed to load review details"));
       }
     };
+    loadDetails();
+  }, [selectedReview, accessToken]);
 
-    loadReviewDetails();
-  }, [selectedReview, session?.accessToken]);
+  const stats = useMemo(() => computeReviewStats(reviews), [reviews]);
 
-  const handleCreateReview = useCallback(async () => {
-    const accessToken = session?.accessToken;
-    if (!accessToken || !newReviewEmployeeId || !newReviewReviewerId) {
-      setError("Please fill in all required fields");
-      return;
-    }
+  const filteredOpen = useMemo(() => {
+    const open = reviews.filter(
+      (r) => r.status === "scheduled" || r.status === "in_progress"
+    );
+    return filterReviews(open, search, statusFilter);
+  }, [reviews, search, statusFilter]);
 
-    try {
-      setError(null);
-      await createPerformanceReview(
-        {
-          employee: newReviewEmployeeId,
-          reviewer: newReviewReviewerId,
-          reviewType: newReviewType,
-          scheduledDate:
-            newReviewScheduledDate || new Date().toISOString().split("T")[0],
-        },
-        accessToken
-      );
-      const data = await fetchPerformanceReviews(accessToken);
-      setReviews(data);
-      // Reset form and close dialog
-      setNewReviewEmployeeId("");
-      setNewReviewReviewerId("");
-      setNewReviewType("quarterly");
-      setNewReviewScheduledDate("");
-      setError(null);
-      setCreateDialogOpen(false);
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to create review";
-      setError(message);
-    }
-  }, [
-    session?.accessToken,
-    newReviewEmployeeId,
-    newReviewReviewerId,
-    newReviewType,
-    newReviewScheduledDate,
-  ]);
-
-  const handleAddNote = useCallback(async () => {
-    const accessToken = session?.accessToken;
-    if (!selectedReview || !accessToken || !newNoteContent.trim()) {
-      return;
-    }
-
-    try {
-      await createReviewNote(
-        selectedReview.id,
-        { content: newNoteContent, visibility: newNoteVisibility },
-        accessToken
-      );
-      const notesData = await fetchReviewNotes(selectedReview.id, accessToken);
-      setNotes(notesData);
-      setNewNoteContent("");
-      setNewNoteVisibility("shared");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to add note";
-      setError(message);
-    }
-  }, [selectedReview, session?.accessToken, newNoteContent, newNoteVisibility]);
-
-  const handleDeleteNote = useCallback(
-    async (noteId: string) => {
-      const accessToken = session?.accessToken;
-      if (!selectedReview || !accessToken) return;
-
-      try {
-        await deleteReviewNote(selectedReview.id, noteId, accessToken);
-        const notesData = await fetchReviewNotes(
-          selectedReview.id,
-          accessToken
-        );
-        setNotes(notesData);
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to delete note";
-        setError(message);
-      }
-    },
-    [selectedReview, session?.accessToken]
+  const openBuckets = useMemo(
+    () => bucketOpenReviews(filteredOpen),
+    [filteredOpen]
   );
 
-  const handleAddActionPoint = useCallback(async () => {
-    const accessToken = session?.accessToken;
-    if (!selectedReview || !accessToken || !newActionTitle.trim()) {
-      return;
-    }
+  const historyList = useMemo(() => {
+    const history = sortHistory(reviews);
+    return filterReviews(history, search, statusFilter);
+  }, [reviews, search, statusFilter]);
 
-    try {
-      const sessionUserId = session?.user?.id;
-      const userId = sessionUserId != null ? String(sessionUserId) : "";
-      const ownerId = newActionOwner || userId;
-
-      if (!ownerId) {
-        setError("Failed to add action point");
-        return;
-      }
-
-      await createActionPoint(
-        selectedReview.id,
-        {
-          title: newActionTitle,
-          description: newActionDescription,
-          ownerId,
-          dueDate:
-            newActionDueDate ||
-            new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-              .toISOString()
-              .split("T")[0],
-        },
-        accessToken
-      );
-      const actionPointsData = await fetchActionPoints(
-        selectedReview.id,
-        accessToken
-      );
-      setActionPoints(actionPointsData);
-      setNewActionTitle("");
-      setNewActionDescription("");
-      setNewActionOwner("");
-      setNewActionDueDate("");
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to add action point";
-      setError(message);
-    }
-  }, [
-    selectedReview,
-    session?.accessToken,
-    session?.user?.id,
-    newActionTitle,
-    newActionDescription,
-    newActionOwner,
-    newActionDueDate,
-  ]);
-
-  const handleDeleteActionPoint = useCallback(
-    async (actionPointId: string) => {
-      const accessToken = session?.accessToken;
-      if (!selectedReview || !accessToken) return;
-
+  const handleSchedule = useCallback(
+    async (values: ScheduleReviewFormValues) => {
+      if (!accessToken) return;
+      setScheduleError(null);
       try {
-        await deleteActionPoint(selectedReview.id, actionPointId, accessToken);
-        const actionPointsData = await fetchActionPoints(
-          selectedReview.id,
+        await createPerformanceReview(
+          {
+            employee: values.employeeId,
+            reviewer: values.reviewerId,
+            reviewType: values.reviewType,
+            scheduledDate: values.scheduledDate,
+          },
           accessToken
         );
-        setActionPoints(actionPointsData);
+        await refreshReviews(accessToken);
+        setScheduleOpen(false);
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to delete action point";
-        setError(message);
+        setScheduleError(getErrorMessage(err, "Failed to create review"));
       }
     },
-    [selectedReview, session?.accessToken]
+    [accessToken, refreshReviews]
   );
 
-  const handleUploadAttachment = useCallback(
-    async (file: File) => {
-      const accessToken = session?.accessToken;
-      if (!selectedReview || !accessToken) return;
-
+  const handleStatusChange = useCallback(
+    async (next: ReviewStatus) => {
+      if (!accessToken || !selectedReview) return;
       try {
-        await uploadAttachment(selectedReview.id, file, accessToken);
-        const attachmentsData = await fetchAttachments(
+        const updated = await updateReviewStatus(
           selectedReview.id,
+          next,
           accessToken
         );
-        setAttachments(attachmentsData);
+        setSelectedReview(updated);
+        await refreshReviews(accessToken);
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to upload attachment";
-        setError(message);
+        setDrawerError(getErrorMessage(err, "Failed to update status"));
       }
     },
-    [selectedReview, session?.accessToken]
+    [accessToken, selectedReview, refreshReviews]
   );
 
-  const handleDeleteAttachment = useCallback(
-    async (attachmentId: string) => {
-      const accessToken = session?.accessToken;
-      if (!selectedReview || !accessToken) return;
-
-      try {
-        await deleteAttachment(selectedReview.id, attachmentId, accessToken);
-        const attachmentsData = await fetchAttachments(
-          selectedReview.id,
-          accessToken
-        );
-        setAttachments(attachmentsData);
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to delete attachment";
-        setError(message);
-      }
-    },
-    [selectedReview, session?.accessToken]
-  );
-
-  const handleUpdateReviewOutcome = useCallback(async () => {
-    const accessToken = session?.accessToken;
-    if (!selectedReview || !accessToken) return;
-
+  const handleSaveOutcome = useCallback(async () => {
+    if (!accessToken || !selectedReview) return;
     try {
       const updated = await updatePerformanceReview(
         selectedReview.id,
         {
-          overallRating: overallRating || undefined,
-          summary: reviewSummary ?? undefined,
-          cpfScore: cpfScore ?? undefined,
-          performanceScore: performanceScore ?? undefined,
+          overallRating: outcome.overallRating ?? undefined,
+          summary: outcome.summary ?? undefined,
+          cpfScore: outcome.cpfScore ?? undefined,
+          performanceScore: outcome.performanceScore ?? undefined,
         },
         accessToken
       );
       setSelectedReview(updated);
-      const data = await fetchPerformanceReviews(accessToken);
-      setReviews(data);
+      setOutcome(toOutcomeDraft(updated));
+      await refreshReviews(accessToken);
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to update review";
-      setError(message);
+      setDrawerError(getErrorMessage(err, "Failed to save outcome"));
     }
-  }, [
-    selectedReview,
-    session?.accessToken,
-    overallRating,
-    reviewSummary,
-    cpfScore,
-    performanceScore,
-  ]);
+  }, [accessToken, selectedReview, outcome, refreshReviews]);
 
-  const handleStatusChange = useCallback(
-    async (newStatus: ReviewStatus) => {
-      const accessToken = session?.accessToken;
-      if (!selectedReview || !accessToken) return;
-
+  const handleAddNote = useCallback(
+    async (content: string, visibility: NoteVisibility) => {
+      if (!accessToken || !selectedReview) return;
       try {
-        const updated = await updateReviewStatus(
+        await createReviewNote(
           selectedReview.id,
-          newStatus,
+          { content, visibility },
           accessToken
         );
-        setSelectedReview(updated);
-        const data = await fetchPerformanceReviews(accessToken);
-        setReviews(data);
+        const next = await fetchReviewNotes(selectedReview.id, accessToken);
+        setNotes(next);
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to update status";
-        setError(message);
+        setDrawerError(getErrorMessage(err, "Failed to add note"));
       }
     },
-    [selectedReview, session?.accessToken]
+    [accessToken, selectedReview]
   );
 
-  const filteredReviews = reviews.filter((r) => r.status === activeTab);
+  const handleDeleteNote = useCallback(
+    async (noteId: string) => {
+      if (!accessToken || !selectedReview) return;
+      try {
+        await deleteReviewNote(selectedReview.id, noteId, accessToken);
+        setNotes((prev) => prev.filter((n) => n.id !== noteId));
+      } catch (err) {
+        setDrawerError(getErrorMessage(err, "Failed to delete note"));
+      }
+    },
+    [accessToken, selectedReview]
+  );
 
-  if (loading) {
+  const handleAddAction = useCallback(
+    async (draft: {
+      title: string;
+      description: string;
+      ownerId: string;
+      dueDate: string;
+    }) => {
+      if (!accessToken || !selectedReview) return;
+      const ownerId =
+        draft.ownerId || (sessionUserId != null ? String(sessionUserId) : "");
+      if (!ownerId) {
+        setDrawerError("Pick an owner for this action item");
+        return;
+      }
+      const dueDate =
+        draft.dueDate ||
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0];
+      try {
+        await createActionPoint(
+          selectedReview.id,
+          {
+            title: draft.title,
+            description: draft.description,
+            ownerId,
+            dueDate,
+          },
+          accessToken
+        );
+        const next = await fetchActionPoints(selectedReview.id, accessToken);
+        setActionPoints(next);
+      } catch (err) {
+        setDrawerError(getErrorMessage(err, "Failed to add action item"));
+      }
+    },
+    [accessToken, selectedReview, sessionUserId]
+  );
+
+  const handleDeleteAction = useCallback(
+    async (id: string) => {
+      if (!accessToken || !selectedReview) return;
+      try {
+        await deleteActionPoint(selectedReview.id, id, accessToken);
+        setActionPoints((prev) => prev.filter((a) => a.id !== id));
+      } catch (err) {
+        setDrawerError(getErrorMessage(err, "Failed to delete action item"));
+      }
+    },
+    [accessToken, selectedReview]
+  );
+
+  const handleUpdateActionStatus = useCallback(
+    async (id: string, status: ActionPointStatus) => {
+      if (!accessToken || !selectedReview) return;
+      try {
+        const updated = await updateActionPoint(
+          selectedReview.id,
+          id,
+          { status },
+          accessToken
+        );
+        setActionPoints((prev) => prev.map((a) => (a.id === id ? updated : a)));
+      } catch (err) {
+        setDrawerError(getErrorMessage(err, "Failed to update action item"));
+      }
+    },
+    [accessToken, selectedReview]
+  );
+
+  const handleUploadAttachment = useCallback(
+    async (file: File) => {
+      if (!accessToken || !selectedReview) return;
+      try {
+        await uploadAttachment(selectedReview.id, file, accessToken);
+        const next = await fetchAttachments(selectedReview.id, accessToken);
+        setAttachments(next);
+      } catch (err) {
+        setDrawerError(getErrorMessage(err, "Failed to upload attachment"));
+      }
+    },
+    [accessToken, selectedReview]
+  );
+
+  const handleDeleteAttachment = useCallback(
+    async (id: string) => {
+      if (!accessToken || !selectedReview) return;
+      try {
+        await deleteAttachment(selectedReview.id, id, accessToken);
+        setAttachments((prev) => prev.filter((a) => a.id !== id));
+      } catch (err) {
+        setDrawerError(getErrorMessage(err, "Failed to delete attachment"));
+      }
+    },
+    [accessToken, selectedReview]
+  );
+
+  if (loading || isAdminLoading) {
     return (
-      <Card className="w-full">
-        <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="w-7 h-7 animate-spin text-gray-400" />
+      </div>
     );
   }
 
+  const openCount = reviews.filter(
+    (r) => r.status === "scheduled" || r.status === "in_progress"
+  ).length;
+  const historyCount = reviews.filter((r) => r.status === "completed").length;
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>Performance Reviews</span>
-          <Dialog
-            open={createDialogOpen}
-            onOpenChange={(open) => {
-              setCreateDialogOpen(open);
-              if (!open) {
-                // Clear error when dialog closes
-                setError(null);
-              }
-            }}
+    <div className="w-full max-w-[1400px] text-gray-900">
+      <ReviewsHeader
+        stats={stats}
+        isAdmin={isAdmin}
+        onSchedule={() => {
+          setScheduleError(null);
+          setScheduleOpen(true);
+        }}
+      />
+
+      {pageError && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md flex items-start gap-2">
+          <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+          <p className="text-[13px] text-red-700 m-0">{pageError}</p>
+        </div>
+      )}
+
+      <div className="flex border-b border-gray-200">
+        <UnderlineTab
+          active={tab === "open"}
+          onClick={() => setTab("open")}
+          label="Open"
+          count={openCount}
+        />
+        <UnderlineTab
+          active={tab === "history"}
+          onClick={() => setTab("history")}
+          label="History"
+          count={historyCount}
+        />
+      </div>
+
+      <div className="pt-4">
+        <ReviewsToolbar
+          search={search}
+          onSearchChange={setSearch}
+          status={statusFilter}
+          onStatusChange={setStatusFilter}
+        />
+      </div>
+
+      {tab === "open" && (
+        <div>
+          {openBuckets.overdue.length > 0 && (
+            <ReviewSection
+              title="Overdue"
+              subtitle="Need to be rescheduled or completed"
+              tone="danger"
+            >
+              <ReviewsList
+                reviews={openBuckets.overdue}
+                emptyText="Nothing overdue."
+                onOpen={setSelectedReview}
+              />
+            </ReviewSection>
+          )}
+          <ReviewSection
+            title="This week"
+            subtitle="Coming up in the next 7 days"
           >
-            <DialogTrigger asChild>
-              <Button size="sm" className="gap-2">
-                <Plus className="w-4 h-4" />
-                New Review
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Schedule New Review</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                {error && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-                    <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-red-700">{error}</p>
-                  </div>
-                )}
-                <div>
-                  <Label>Employee</Label>
-                  <Select
-                    value={newReviewEmployeeId}
-                    onValueChange={setNewReviewEmployeeId}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select employee" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {employees.map((emp) => (
-                        <SelectItem key={emp.id} value={emp.id.toString()}>
-                          {emp.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Reviewer</Label>
-                  <Select
-                    value={newReviewReviewerId}
-                    onValueChange={setNewReviewReviewerId}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select reviewer" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {employees.map((emp) => (
-                        <SelectItem key={emp.id} value={emp.id.toString()}>
-                          {emp.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Review Type</Label>
-                  <Select
-                    value={newReviewType}
-                    onValueChange={(v) => setNewReviewType(v as ReviewType)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ALL_REVIEW_TYPES.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {REVIEW_TYPE_LABELS[type]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button onClick={handleCreateReview} className="w-full">
-                  Create Review
-                </Button>
+            <ReviewsList
+              reviews={openBuckets.thisWeek}
+              emptyText="No reviews scheduled this week."
+              onOpen={setSelectedReview}
+            />
+          </ReviewSection>
+          {openBuckets.later.length > 0 && (
+            <ReviewSection title="Later" subtitle="Beyond next week">
+              <ReviewsList
+                reviews={openBuckets.later}
+                emptyText="Nothing scheduled later."
+                onOpen={setSelectedReview}
+              />
+            </ReviewSection>
+          )}
+          {openBuckets.overdue.length === 0 &&
+            openBuckets.thisWeek.length === 0 &&
+            openBuckets.later.length === 0 && (
+              <div className="bg-white border border-dashed border-gray-200 rounded-lg px-6 py-9 text-center text-gray-500 text-[13px]">
+                No open reviews match the current filters.
               </div>
-            </DialogContent>
-          </Dialog>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {error && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-red-700">{error}</p>
-          </div>
+            )}
+        </div>
+      )}
+
+      {tab === "history" && (
+        <div>
+          <ReviewSection title="Completed reviews" subtitle="Most recent first">
+            <ReviewsList
+              reviews={historyList}
+              emptyText="No completed reviews yet."
+              onOpen={setSelectedReview}
+            />
+          </ReviewSection>
+        </div>
+      )}
+
+      <ScheduleReviewDialog
+        open={scheduleOpen}
+        onOpenChange={setScheduleOpen}
+        employees={employees}
+        errorMessage={scheduleError}
+        onSubmit={handleSchedule}
+      />
+
+      <ReviewDetailDrawer
+        open={!!selectedReview}
+        onOpenChange={(next) => {
+          if (!next) setSelectedReview(null);
+        }}
+        review={selectedReview}
+        notes={notes}
+        actionPoints={actionPoints}
+        attachments={attachments}
+        employees={employees}
+        errorMessage={drawerError}
+        outcome={outcome}
+        onOutcomeChange={setOutcome}
+        onSaveOutcome={handleSaveOutcome}
+        onStatusChange={handleStatusChange}
+        onAddNote={handleAddNote}
+        onDeleteNote={handleDeleteNote}
+        onAddAction={handleAddAction}
+        onDeleteAction={handleDeleteAction}
+        onUpdateActionStatus={handleUpdateActionStatus}
+        onUploadAttachment={handleUploadAttachment}
+        onDeleteAttachment={handleDeleteAttachment}
+      />
+    </div>
+  );
+}
+
+interface UnderlineTabProps {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  count: number;
+}
+
+function UnderlineTab({ active, onClick, label, count }: UnderlineTabProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 h-[38px] px-3.5 text-[13px] font-medium border-b-2 -mb-px transition-colors ${
+        active
+          ? "text-gray-900 border-gray-900"
+          : "text-gray-500 border-transparent hover:text-gray-900"
+      }`}
+    >
+      {label}
+      <span
+        className={`font-mono text-[11px] px-1.5 py-0.5 rounded ${
+          active ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-500"
+        }`}
+      >
+        {count}
+      </span>
+    </button>
+  );
+}
+
+interface ReviewSectionProps {
+  title: string;
+  subtitle?: string;
+  tone?: "danger";
+  children: React.ReactNode;
+}
+
+function ReviewSection({
+  title,
+  subtitle,
+  tone,
+  children,
+}: ReviewSectionProps) {
+  return (
+    <section className="mb-6 text-gray-900">
+      <div className="mb-2.5">
+        <h3 className="m-0 text-[13px] font-semibold text-gray-900 flex items-center gap-2">
+          {tone === "danger" && (
+            <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
+          )}
+          {title}
+        </h3>
+        {subtitle && (
+          <p className="mt-0.5 mb-0 text-[12px] text-gray-500">{subtitle}</p>
         )}
-
-        {!selectedReview ? (
-          <>
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList>
-                <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
-                <TabsTrigger value="in_progress">In Progress</TabsTrigger>
-                <TabsTrigger value="completed">Completed</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value={activeTab} className="space-y-4 mt-4">
-                {filteredReviews.length === 0 ? (
-                  <p className="text-center py-8 text-gray-500">
-                    No reviews in this category
-                  </p>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Employee</TableHead>
-                          <TableHead>Reviewer</TableHead>
-                          <TableHead>Type</TableHead>
-                          <TableHead>Due Date</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Rating</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredReviews.map((review) => (
-                          <TableRow
-                            key={review.id}
-                            className="hover:bg-gray-50"
-                          >
-                            <TableCell>{review.employeeName}</TableCell>
-                            <TableCell>{review.reviewerName}</TableCell>
-                            <TableCell>
-                              {REVIEW_TYPE_LABELS[review.reviewType]}
-                            </TableCell>
-                            <TableCell>
-                              {formatDate(review.scheduledDate)}
-                            </TableCell>
-                            <TableCell>
-                              <Badge
-                                className={REVIEW_STATUS_COLORS[review.status]}
-                              >
-                                {REVIEW_STATUS_LABELS[review.status]}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              {review.overallRating != null ? (
-                                <div className="flex gap-1">
-                                  {[1, 2, 3, 4, 5].map((i) => (
-                                    <Star
-                                      key={i}
-                                      className={`w-4 h-4 ${
-                                        i <= (review.overallRating ?? 0)
-                                          ? "fill-yellow-400 text-yellow-400"
-                                          : "text-gray-300"
-                                      }`}
-                                    />
-                                  ))}
-                                </div>
-                              ) : (
-                                <span className="text-gray-400">-</span>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => setSelectedReview(review)}
-                              >
-                                View
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
-          </>
-        ) : (
-          <>
-            <div className="flex items-center justify-between">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setSelectedReview(null)}
-              >
-                ← Back to List
-              </Button>
-              <Select
-                value={selectedReview.status}
-                onValueChange={(v) => handleStatusChange(v as ReviewStatus)}
-              >
-                <SelectTrigger className="w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="scheduled">Scheduled</SelectItem>
-                  <SelectItem value="in_progress">In Progress</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">
-                    {selectedReview.employeeName}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm">
-                  <div>
-                    <span className="text-gray-600">Reviewer:</span>{" "}
-                    {selectedReview.reviewerName}
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Type:</span>{" "}
-                    {REVIEW_TYPE_LABELS[selectedReview.reviewType]}
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Scheduled:</span>{" "}
-                    {formatDate(selectedReview.scheduledDate)}
-                  </div>
-                  {selectedReview.nextReviewDate && (
-                    <div>
-                      <span className="text-gray-600">Next Review:</span>{" "}
-                      {formatDate(selectedReview.nextReviewDate)}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Overall Rating</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex gap-2">
-                    {RATING_SCALE.map((rating) => (
-                      <button
-                        key={rating}
-                        onClick={() => setOverallRating(rating)}
-                        className={`p-2 rounded transition ${
-                          overallRating === rating
-                            ? "bg-yellow-400 text-white"
-                            : "bg-gray-100 hover:bg-gray-200"
-                        }`}
-                      >
-                        <Star className="w-5 h-5" fill="currentColor" />
-                      </button>
-                    ))}
-                  </div>
-                  {overallRating && (
-                    <p className="text-sm text-gray-600">
-                      {RATING_LABELS[overallRating]}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-
-            <Tabs defaultValue="notes" className="w-full">
-              <TabsList>
-                <TabsTrigger value="notes" className="gap-2">
-                  <MessageSquare className="w-4 h-4" />
-                  Notes
-                </TabsTrigger>
-                <TabsTrigger value="actions" className="gap-2">
-                  <CheckCircle className="w-4 h-4" />
-                  Action Points
-                </TabsTrigger>
-                <TabsTrigger value="documents" className="gap-2">
-                  <FileText className="w-4 h-4" />
-                  Documents
-                </TabsTrigger>
-                <TabsTrigger value="scores" className="gap-2">
-                  <Star className="w-4 h-4" />
-                  Scores
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="notes" className="space-y-4 mt-4">
-                <div className="space-y-3">
-                  <div>
-                    <Label>Add Note</Label>
-                    <Textarea
-                      value={newNoteContent}
-                      onChange={(e) => setNewNoteContent(e.target.value)}
-                      placeholder="Add a note..."
-                      className="mt-2 h-20"
-                    />
-                  </div>
-                  <div className="flex gap-3">
-                    <Select
-                      value={newNoteVisibility}
-                      onValueChange={(v) =>
-                        setNewNoteVisibility(v as NoteVisibility)
-                      }
-                    >
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="private">Private</SelectItem>
-                        <SelectItem value="shared">Shared</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Button onClick={handleAddNote} className="flex-1">
-                      Add Note
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-3 mt-6">
-                  {notes.length === 0 ? (
-                    <p className="text-center text-gray-500 py-4">
-                      No notes yet
-                    </p>
-                  ) : (
-                    notes.map((note) => (
-                      <Card key={note.id} className="p-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <p className="font-medium text-sm">
-                              {note.authorName}
-                            </p>
-                            <Badge variant="outline" className="text-xs mt-1">
-                              {NOTE_VISIBILITY_LABELS[note.visibility]}
-                            </Badge>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleDeleteNote(note.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                        <p className="text-sm text-gray-700">{note.content}</p>
-                        <p className="text-xs text-gray-500 mt-2">
-                          {formatDate(note.updatedAt)}
-                        </p>
-                      </Card>
-                    ))
-                  )}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="actions" className="space-y-4 mt-4">
-                <div className="space-y-3">
-                  <div>
-                    <Label>Title</Label>
-                    <Input
-                      value={newActionTitle}
-                      onChange={(e) => setNewActionTitle(e.target.value)}
-                      placeholder="Action point title"
-                      className="mt-2"
-                    />
-                  </div>
-                  <div>
-                    <Label>Description</Label>
-                    <Textarea
-                      value={newActionDescription}
-                      onChange={(e) => setNewActionDescription(e.target.value)}
-                      placeholder="Description"
-                      className="mt-2 h-20"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <Label>Owner</Label>
-                      <Select
-                        value={newActionOwner}
-                        onValueChange={setNewActionOwner}
-                      >
-                        <SelectTrigger className="mt-2">
-                          <SelectValue placeholder="Select owner" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {employees.map((emp) => (
-                            <SelectItem key={emp.id} value={emp.id.toString()}>
-                              {emp.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Due Date</Label>
-                      <Input
-                        type="date"
-                        value={newActionDueDate}
-                        onChange={(e) => setNewActionDueDate(e.target.value)}
-                        className="mt-2"
-                      />
-                    </div>
-                  </div>
-                  <Button onClick={handleAddActionPoint} className="w-full">
-                    Add Action Point
-                  </Button>
-                </div>
-
-                <div className="space-y-2 mt-6">
-                  {actionPoints.length === 0 ? (
-                    <p className="text-center text-gray-500 py-4">
-                      No action points
-                    </p>
-                  ) : (
-                    actionPoints.map((ap) => (
-                      <Card key={ap.id} className="p-4">
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <p className="font-medium">{ap.title}</p>
-                              <Badge variant="outline" className="text-xs">
-                                {ACTION_POINT_STATUS_LABELS[ap.status]}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-gray-600 mb-2">
-                              {ap.description}
-                            </p>
-                            <div className="flex justify-between text-xs text-gray-500">
-                              <span>Owner: {ap.ownerName}</span>
-                              <span>Due: {formatDate(ap.dueDate)}</span>
-                            </div>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleDeleteActionPoint(ap.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </Card>
-                    ))
-                  )}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="documents" className="space-y-4 mt-4">
-                <div>
-                  <Label>Upload Document</Label>
-                  <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                    <input
-                      type="file"
-                      onChange={(e) => {
-                        if (e.target.files?.[0]) {
-                          handleUploadAttachment(e.target.files[0]);
-                        }
-                      }}
-                      className="hidden"
-                      id="file-upload"
-                    />
-                    <label htmlFor="file-upload" className="cursor-pointer">
-                      <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                      <p className="text-sm text-gray-600">
-                        Click to upload or drag and drop
-                      </p>
-                    </label>
-                  </div>
-                </div>
-
-                <div className="space-y-2 mt-4">
-                  {attachments.length === 0 ? (
-                    <p className="text-center text-gray-500 py-4">
-                      No documents
-                    </p>
-                  ) : (
-                    attachments.map((att) => (
-                      <Card
-                        key={att.id}
-                        className="p-4 flex items-center justify-between"
-                      >
-                        <div className="flex items-center gap-3">
-                          <FileText className="w-5 h-5 text-gray-400" />
-                          <div>
-                            <p className="font-medium text-sm">
-                              {att.fileName}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {att.uploadedByName}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() =>
-                              window.open(
-                                att.fileUrl,
-                                "_blank",
-                                "noopener,noreferrer"
-                              )
-                            }
-                          >
-                            <Download className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleDeleteAttachment(att.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </Card>
-                    ))
-                  )}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="scores" className="space-y-4 mt-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>CPF Score</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={cpfScore || ""}
-                      onChange={(e) =>
-                        setCpfScore(
-                          e.target.value ? parseInt(e.target.value) : null
-                        )
-                      }
-                      placeholder="0-100"
-                      className="mt-2"
-                    />
-                  </div>
-                  <div>
-                    <Label>Performance Score</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={performanceScore || ""}
-                      onChange={(e) =>
-                        setPerformanceScore(
-                          e.target.value ? parseInt(e.target.value) : null
-                        )
-                      }
-                      placeholder="0-100"
-                      className="mt-2"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label>Notes</Label>
-                  <Textarea
-                    value={reviewSummary}
-                    onChange={(e) => setReviewSummary(e.target.value)}
-                    placeholder="Review notes..."
-                    className="mt-2 h-32"
-                  />
-                </div>
-                <Button onClick={handleUpdateReviewOutcome} className="w-full">
-                  Save Scores & Notes
-                </Button>
-              </TabsContent>
-            </Tabs>
-          </>
-        )}
-      </CardContent>
-    </Card>
+      </div>
+      {children}
+    </section>
   );
 }
