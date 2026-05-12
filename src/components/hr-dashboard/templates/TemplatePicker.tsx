@@ -55,9 +55,18 @@ function PreviewModal({
           </button>
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-5">
+          {/* No `prose` class — preserve the per-element inline styles
+              (font-family, font-size, color, alignment) the author set in the
+              builder. `prose` would override element-level color/spacing. */}
           <div
-            className="prose prose-sm max-w-none text-[13.5px] text-gray-800 [&_.tpl-field]:bg-cyan-100 [&_.tpl-field]:text-cyan-800 [&_.tpl-field]:px-1.5 [&_.tpl-field]:py-0.5 [&_.tpl-field]:rounded [&_.tpl-field]:text-[12px] [&_.tpl-field]:font-medium"
-            style={{ lineHeight: 1.7 }}
+            className="template-editor template-editor-preview max-w-none text-[13.5px] text-gray-800 [&_.tpl-field]:bg-cyan-100 [&_.tpl-field]:text-cyan-800 [&_.tpl-field]:px-1.5 [&_.tpl-field]:py-0.5 [&_.tpl-field]:rounded [&_.tpl-field]:text-[12px] [&_.tpl-field]:font-medium"
+            style={{
+              lineHeight: 1.7,
+              // Apply the document's saved body font / background so the
+              // preview matches what the author saw in the editor.
+              fontFamily: template.bodyFontFamily,
+              backgroundColor: template.bodyBackgroundColor,
+            }}
             dangerouslySetInnerHTML={{
               __html:
                 template.content ||
@@ -472,25 +481,36 @@ export function TemplatePicker({
     }
   }, []);
 
-  // Load on open
+  // Single effect: on open, reset filters and fetch immediately; while open,
+  // debounce refetches when the user changes search / category. Consolidated
+  // to avoid duplicate /templates calls on the open transition.
+  const wasOpenRef = useRef(false);
   useEffect(() => {
-    if (!open) return;
-    setSearch("");
-    setActiveCategory("all");
-    void fetchTemplates("", "all");
-  }, [open, fetchTemplates]);
+    if (!open) {
+      wasOpenRef.current = false;
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      return;
+    }
 
-  // Debounced refetch on search / category
-  useEffect(() => {
-    if (!open) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (!wasOpenRef.current) {
+      // Just opened — reset filters and fetch immediately
+      wasOpenRef.current = true;
+      setSearch("");
+      setActiveCategory("all");
+      void fetchTemplates("", "all");
+      return;
+    }
+
+    // Filters changed while open — debounce
     debounceRef.current = setTimeout(() => {
       void fetchTemplates(search, activeCategory);
     }, 300);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [search, activeCategory, open, fetchTemplates]);
+  }, [open, search, activeCategory, fetchTemplates]);
 
   function handleUseTemplate(template: DocumentTemplate) {
     if (template.fields.length > 0) {
@@ -623,21 +643,41 @@ export function TemplatePicker({
             )}
 
             {!isLoading && !loadError && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <ScratchCard
-                  onClick={() => {
-                    onClose();
-                    onScratch();
-                  }}
-                />
-                {templates.map((template) => (
-                  <PickerCard
-                    key={template.id}
-                    template={template}
-                    onPreview={() => setPreviewTemplate(template)}
-                    onUse={() => handleUseTemplate(template)}
-                  />
-                ))}
+              <div className="space-y-6">
+                <section>
+                  <h3 className="text-[12px] font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                    Templates
+                  </h3>
+                  {templates.length === 0 ? (
+                    <p className="text-[13px] text-gray-400">
+                      No templates match your filters.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {templates.map((template) => (
+                        <PickerCard
+                          key={template.id}
+                          template={template}
+                          onPreview={() => setPreviewTemplate(template)}
+                          onUse={() => handleUseTemplate(template)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </section>
+                <section>
+                  <h3 className="text-[12px] font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                    Or start blank
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <ScratchCard
+                      onClick={() => {
+                        onClose();
+                        onScratch();
+                      }}
+                    />
+                  </div>
+                </section>
               </div>
             )}
           </div>

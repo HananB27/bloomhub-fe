@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "@/lib/config";
 import { resolveApiMediaUrl } from "../../helpers/resolveApiMediaUrl";
-import { get, post, del } from "../../helpers/httpClient";
+import { get, post, patch, del } from "../../helpers/httpClient";
 import { fetchWithAuthRetry } from "../../refresh";
 import {
   DOCUMENTS_API_BASE_PATH,
@@ -14,7 +14,11 @@ import {
   documentUnarchivePath,
   documentVersionsPath,
   documentSignaturePath,
+  documentSignPath,
+  documentSignaturesPath,
+  documentResetSignaturesPath,
   documentReminderPath,
+  documentVisibilityPath,
 } from "../../constants/documentsEndpoints";
 import {
   DocumentAccessRole,
@@ -24,6 +28,7 @@ import {
   getFileDisplayType,
   formatFileSizeMB,
 } from "@/lib/documents/documentsHelpers";
+import type { DocumentVisibilityScope } from "@/lib/documents/documentVisibilityPresets";
 
 // ─── API-layer interfaces (raw backend shape) ─────────────────────────────────
 
@@ -34,6 +39,9 @@ interface ApiDocumentSigner {
   /** "signed" | "pending" | "notsent" */
   status?: string;
   signed_at?: string;
+  requested_at?: string;
+  last_reminded_at?: string;
+  signature_metadata?: Record<string, unknown>;
 }
 
 interface ApiDocumentRecord {
@@ -55,6 +63,9 @@ interface ApiDocumentRecord {
   is_confidential?: boolean;
   tags?: string[];
   allowed_roles?: DocumentAccessRole[];
+  // TODO [BACKEND REQUIRED]: GET/POST/PATCH /api/documents/ — include visibility_scope
+  // ("roles" | "only_me" | "project_group"); defaults to "roles" for legacy rows.
+  visibility_scope?: DocumentVisibilityScope;
   // TODO [BACKEND REQUIRED]: GET /api/documents/ & GET /api/documents/{id}/
   // — include current_version (e.g. "2.1") and version_count (e.g. 3)
   current_version?: string;
@@ -84,6 +95,18 @@ export interface DocumentSigner {
   email: string;
   status: "signed" | "pending" | "notsent";
   signedAt?: string;
+  requestedAt?: string;
+  lastRemindedAt?: string;
+  signatureMetadata?: Record<string, unknown>;
+}
+
+export interface SignDocumentPayload {
+  signer_email: string;
+  signature: {
+    type: "typed_name";
+    value: string;
+    accepted_terms: boolean;
+  };
 }
 
 export interface DocumentVersion {
@@ -116,6 +139,7 @@ export interface EmployeeDocument {
   isConfidential: boolean;
   tags: string[];
   allowedRoles: DocumentAccessRole[];
+  visibilityScope: DocumentVisibilityScope;
   currentVersion: string;
   versionCount: number;
   signers: DocumentSigner[];
@@ -133,6 +157,7 @@ export interface UploadEmployeeDocumentPayload {
   isConfidential: boolean;
   tags: string[];
   allowedRoles: DocumentAccessRole[];
+  visibilityScope: DocumentVisibilityScope;
   /**
    * When true, trigger signature workflow immediately after upload.
    * TODO [BACKEND REQUIRED]: POST /api/documents/{id}/request-signature/
@@ -151,6 +176,14 @@ function mapDocumentSigner(raw: ApiDocumentSigner): DocumentSigner {
     email: String(raw.email ?? ""),
     status: status === "signed" || status === "pending" ? status : "notsent",
     signedAt: raw.signed_at,
+    requestedAt: raw.requested_at,
+    lastRemindedAt: raw.last_reminded_at,
+    signatureMetadata:
+      raw.signature_metadata &&
+      typeof raw.signature_metadata === "object" &&
+      !Array.isArray(raw.signature_metadata)
+        ? raw.signature_metadata
+        : undefined,
   };
 }
 
@@ -195,6 +228,8 @@ function mapDocumentRecord(record: ApiDocumentRecord): EmployeeDocument {
     allowedRoles: Array.isArray(record.allowed_roles)
       ? record.allowed_roles
       : [],
+    visibilityScope: (record.visibility_scope ??
+      "roles") as DocumentVisibilityScope,
     currentVersion: String(record.current_version ?? "1.0"),
     versionCount: Number(record.version_count ?? 1),
     signers: Array.isArray(record.signers)
@@ -203,6 +238,16 @@ function mapDocumentRecord(record: ApiDocumentRecord): EmployeeDocument {
     fromTemplate: Boolean(record.from_template),
     templateId: record.template_id ?? undefined,
   };
+}
+
+function mapDocumentResponse(
+  response: ApiDocumentRecord | { document?: ApiDocumentRecord }
+): EmployeeDocument {
+  const record: ApiDocumentRecord =
+    "document" in response && response.document
+      ? response.document
+      : (response as ApiDocumentRecord);
+  return mapDocumentRecord(record);
 }
 
 // ─── URL builder ──────────────────────────────────────────────────────────────
@@ -289,6 +334,9 @@ export const documentsApi = {
     payload.allowedRoles.forEach((role) =>
       formData.append("allowed_roles", role)
     );
+    // TODO [BACKEND REQUIRED]: POST /api/documents/ — accept `visibility_scope`
+    // ("roles" | "only_me" | "project_group") on the multipart payload.
+    formData.append("visibility_scope", payload.visibilityScope);
     if (payload.expiryDate) {
       formData.append("expiry_date", payload.expiryDate);
     }
@@ -301,6 +349,30 @@ export const documentsApi = {
       throw await parseResponseError(response, "Failed to upload document");
     }
     return mapDocumentRecord((await response.json()) as ApiDocumentRecord);
+  },
+
+  /**
+   * Update the visibility settings (scope + allowed roles) of an existing document.
+   * TODO [BACKEND REQUIRED]: PATCH /api/documents/{id}/visibility/
+   * Body: { allowed_roles: DocumentAccessRole[]; visibility_scope: "roles" | "only_me" | "project_group" }
+   * — HR/Admin only (or owner when scope === "only_me"); returns the updated document record.
+   */
+  async updateVisibility(
+    documentId: number | string,
+    settings: {
+      scope: DocumentVisibilityScope;
+      allowedRoles: DocumentAccessRole[];
+    }
+  ): Promise<EmployeeDocument> {
+    const data = await patch<ApiDocumentRecord>(
+      `${API_BASE_URL}${documentVisibilityPath(documentId)}`,
+      {
+        allowed_roles: settings.allowedRoles,
+        visibility_scope: settings.scope,
+      },
+      "Failed to update document visibility"
+    );
+    return mapDocumentRecord(data);
   },
 
   /**
@@ -431,12 +503,58 @@ export const documentsApi = {
     documentId: number | string,
     signers: { name: string; email: string }[]
   ): Promise<EmployeeDocument> {
-    const data = await post<ApiDocumentRecord>(
+    const data = await post<
+      ApiDocumentRecord | { document?: ApiDocumentRecord }
+    >(
       `${API_BASE_URL}${documentSignaturePath(documentId)}`,
       { signers },
       "Failed to request signatures"
     );
-    return mapDocumentRecord(data);
+    return mapDocumentResponse(data);
+  },
+
+  async signDocument(
+    documentId: number | string,
+    payload: SignDocumentPayload
+  ): Promise<EmployeeDocument> {
+    const data = await post<
+      ApiDocumentRecord | { document?: ApiDocumentRecord }
+    >(
+      `${API_BASE_URL}${documentSignPath(documentId)}`,
+      payload,
+      "Failed to sign document"
+    );
+    return mapDocumentResponse(data);
+  },
+
+  /**
+   * Clear all signers and reset signature workflow for testing.
+   */
+  async resetSignatures(
+    documentId: number | string
+  ): Promise<EmployeeDocument> {
+    const data = await post<
+      ApiDocumentRecord | { document?: ApiDocumentRecord }
+    >(
+      `${API_BASE_URL}${documentResetSignaturesPath(documentId)}`,
+      {},
+      "Failed to reset signatures"
+    );
+    return mapDocumentResponse(data);
+  },
+
+  async getSignatures(documentId: number | string): Promise<DocumentSigner[]> {
+    const data = await get<
+      | ApiDocumentSigner[]
+      | { results?: ApiDocumentSigner[]; signers?: ApiDocumentSigner[] }
+    >(
+      `${API_BASE_URL}${documentSignaturesPath(documentId)}`,
+      "Failed to fetch document signatures"
+    );
+    const rows = Array.isArray(data)
+      ? data
+      : (data.signers ?? data.results ?? []);
+    return rows.map(mapDocumentSigner);
   },
 
   /**

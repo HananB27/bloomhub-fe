@@ -1,6 +1,7 @@
 export interface EmployeeProfileData {
   id: number;
   employee_id: string;
+  username?: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -106,6 +107,7 @@ export function transformEmployeeData(data: any): EmployeeProfileData {
   return {
     id: data.id as number,
     employee_id: (data.employee_id as string) || "",
+    username: (data.username as string) || undefined,
     first_name: (data.first_name as string) || "",
     last_name: (data.last_name as string) || "",
     email: (data.email as string) || (data.email_address as string) || "",

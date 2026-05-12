@@ -173,6 +173,12 @@ export default function HRDashboardApp() {
     setSearchQuery("");
   };
 
+  const handleNotificationClick = (notification: Notification) => {
+    setActiveModule(notification.module);
+    void markAsRead(notification.id);
+    setIsNotificationOpen(false);
+  };
+
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const primaryItems = useMemo(
     () =>
@@ -306,7 +312,9 @@ export default function HRDashboardApp() {
                             className={`flex w-full items-start gap-3 rounded-lg p-3 text-left transition-colors hover:bg-gray-50 ${
                               !notification.isRead ? "bg-blue-50/50" : ""
                             }`}
-                            onClick={() => markAsRead(notification.id)}
+                            onClick={() =>
+                              handleNotificationClick(notification)
+                            }
                           >
                             <div className="mt-1 shrink-0">
                               {getNotificationIcon(notification.type)}
@@ -589,6 +597,7 @@ export default function HRDashboardApp() {
             <DashboardView
               activeModule={activeModule}
               addNotification={addNotification}
+              onNavigate={(moduleId) => setActiveModule(moduleId as HrModuleId)}
             />
           </div>
         </div>

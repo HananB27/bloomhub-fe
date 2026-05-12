@@ -8,7 +8,36 @@ export type LeaveType =
   | "bereavement"
   | "unpaid";
 
-export type LeaveStatus = "pending" | "approved" | "rejected" | "cancelled";
+export type LeaveStatus =
+  | "pending"
+  | "lead_approved"
+  | "approved"
+  | "rejected"
+  | "cancelled";
+
+export const LEAVE_STATUS_LABELS: Record<LeaveStatus, string> = {
+  pending: "Pending",
+  lead_approved: "Lead Approved",
+  approved: "Approved",
+  rejected: "Rejected",
+  cancelled: "Cancelled",
+};
+
+export const LEAVE_STATUS_BADGE_COLORS: Record<LeaveStatus, string> = {
+  pending: "bg-amber-100 text-amber-800 border-amber-200",
+  lead_approved: "bg-blue-100 text-blue-800 border-blue-200",
+  approved: "bg-green-100 text-green-800 border-green-200",
+  rejected: "bg-red-100 text-red-800 border-red-200",
+  cancelled: "bg-gray-100 text-gray-800 border-gray-200",
+};
+
+export const ALL_LEAVE_STATUSES: LeaveStatus[] = [
+  "pending",
+  "lead_approved",
+  "approved",
+  "rejected",
+  "cancelled",
+];
 
 export interface LeaveRequest {
   id: string;
@@ -24,6 +53,12 @@ export interface LeaveRequest {
   submittedDate: string;
   coveringEmployeeId?: string;
   coveringEmployeeName?: string;
+  // Tech Lead (first stage) approval fields
+  leadApproverId?: string;
+  leadApproverName?: string;
+  leadApprovedDate?: string;
+  leadApprovalComments?: string;
+  // HR (final stage) approval fields
   approverComments?: string;
   rejectionReason?: string;
   approverId?: string;
@@ -35,6 +70,7 @@ export interface LeaveBalance {
   id: string;
   employeeId: string;
   employeeName: string;
+  employeeAvatar?: string;
   leaveType: LeaveType;
   allocated: number;
   used: number;
@@ -74,12 +110,18 @@ export interface LeavePolicy {
   minNoticeInDays: number;
 }
 
+export type ApprovalWorkflowStatus =
+  | "pending"
+  | "in_review"
+  | "approved"
+  | "rejected";
+
 export interface LeaveApprovalWorkflow {
   requestId: string;
   currentApproverId: string;
   approvalChain: string[]; // List of approver IDs in order
   currentApprovalStep: number;
-  status: "pending" | "in_review" | "approved" | "rejected";
+  status: ApprovalWorkflowStatus;
   comments: string[];
 }
 
@@ -97,6 +139,10 @@ export interface ApproveLeaveRequestPayload {
   comments?: string;
 }
 
+export interface HrApproveLeaveRequestPayload {
+  comments?: string;
+}
+
 export interface UpdateLeaveBalancePayload {
   employeeId: string;
   leaveType: LeaveType;
@@ -105,6 +151,26 @@ export interface UpdateLeaveBalancePayload {
   carryOver?: number;
   reason?: string;
 }
+
+export interface VacationTeamMember {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+}
+
+export interface VacationCapabilities {
+  canApproveRequests: boolean;
+  canHrApprove: boolean;
+  canAdjustBalances: boolean;
+  canConfigureLeaveTypes: boolean;
+}
+
+export const DEFAULT_VACATION_CAPABILITIES: VacationCapabilities = {
+  canApproveRequests: false,
+  canHrApprove: false,
+  canAdjustBalances: false,
+  canConfigureLeaveTypes: false,
+};
 
 export const LEAVE_TYPE_LABELS: Record<LeaveType, string> = {
   vacation: "Vacation",

@@ -34,6 +34,10 @@ import {
 } from "@/lib/templates/templatesHelpers";
 import { templatesApi } from "@/lib/api/modules/templates";
 import {
+  documentVisibilityLabel,
+  isRestrictedVisibility,
+} from "@/lib/documents/documentVisibilityHelpers";
+import {
   notifySuccess,
   notifyApiError,
   withNotification,
@@ -296,15 +300,29 @@ function TemplateCard({
         >
           {sb.label}
         </span>
-        {template.visibility === TemplateVisibility.Private ? (
-          <span className="flex items-center gap-1 text-[11px] font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-            <Lock className="w-2.5 h-2.5" /> Private
-          </span>
-        ) : (
-          <span className="flex items-center gap-1 text-[11px] font-medium text-blue-700 bg-blue-100 px-2 py-0.5 rounded">
-            <Users className="w-2.5 h-2.5" /> Shared
-          </span>
-        )}
+        <span
+          className={`flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded ${
+            isRestrictedVisibility(
+              template.visibilityScope,
+              template.allowedRoles
+            )
+              ? "text-gray-500 bg-gray-100"
+              : "text-blue-700 bg-blue-100"
+          }`}
+        >
+          {isRestrictedVisibility(
+            template.visibilityScope,
+            template.allowedRoles
+          ) ? (
+            <Lock className="w-2.5 h-2.5" />
+          ) : (
+            <Users className="w-2.5 h-2.5" />
+          )}
+          {documentVisibilityLabel(
+            template.visibilityScope,
+            template.allowedRoles
+          )}
+        </span>
         <span className="text-[11.5px] text-gray-400 ml-auto">
           {template.fields.length} dynamic field
           {template.fields.length !== 1 ? "s" : ""}
@@ -451,22 +469,26 @@ export function TemplatesManagement({
     []
   );
 
-  // Initial fetch
+  // Single effect: immediate fetch on first mount, debounced refetch on filter changes.
+  // Consolidated to avoid the duplicate /templates calls that occurred when both an
+  // "initial fetch" effect and a filter-deps effect fired on the same mount.
+  const isInitialMountRef = useRef(true);
   useEffect(() => {
-    void fetchTemplates(search, categoryFilter, visibilityFilter, statusFilter);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const isInitial = isInitialMountRef.current;
+    isInitialMountRef.current = false;
 
-  // Re-fetch when parent signals a save (create / edit)
-  useEffect(() => {
-    if (refreshSignal === undefined || refreshSignal === 0) return;
-    void fetchTemplates(search, categoryFilter, visibilityFilter, statusFilter);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshSignal]);
-
-  // Debounced refetch on filter change
-  useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (isInitial) {
+      void fetchTemplates(
+        search,
+        categoryFilter,
+        visibilityFilter,
+        statusFilter
+      );
+      return;
+    }
+
     debounceRef.current = setTimeout(() => {
       void fetchTemplates(
         search,
@@ -479,6 +501,13 @@ export function TemplatesManagement({
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, [search, categoryFilter, visibilityFilter, statusFilter, fetchTemplates]);
+
+  // Re-fetch immediately when parent signals a save (create / edit)
+  useEffect(() => {
+    if (refreshSignal === undefined || refreshSignal === 0) return;
+    void fetchTemplates(search, categoryFilter, visibilityFilter, statusFilter);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshSignal]);
 
   async function handleDuplicate(template: DocumentTemplate) {
     try {
@@ -505,9 +534,13 @@ export function TemplatesManagement({
         description: template.description,
         category: template.category,
         visibility: template.visibility,
+        allowedRoles: template.allowedRoles,
+        visibilityScope: template.visibilityScope,
         status: next,
         content: template.content,
         fields: template.fields,
+        bodyFontFamily: template.bodyFontFamily,
+        bodyBackgroundColor: template.bodyBackgroundColor,
       });
       setTemplates((prev) =>
         prev.map((t) => (t.id === template.id ? updated : t))

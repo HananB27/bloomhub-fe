@@ -32,9 +32,8 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
-import { Avatar, AvatarFallback } from "./ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Progress } from "./ui/progress";
-import { Switch } from "./ui/switch";
 import { DatePicker } from "./DatePicker";
 import {
   Calendar as CalendarIcon,
@@ -62,18 +61,26 @@ import type {
   LeaveStatus,
   TeamCalendarEvent,
   CreateLeaveRequestPayload,
+  VacationCapabilities,
+  VacationTeamMember,
 } from "@/types/vacations";
 import {
   LEAVE_TYPE_LABELS,
   LEAVE_TYPE_COLORS,
+  LEAVE_STATUS_LABELS,
+  LEAVE_STATUS_BADGE_COLORS,
   ALL_LEAVE_TYPES,
+  DEFAULT_VACATION_CAPABILITIES,
 } from "@/types/vacations";
 import {
   fetchLeaveRequests,
   fetchLeaveBalances,
   fetchTeamCalendar,
+  fetchVacationCapabilities,
+  fetchVacationTeamMembers,
   createLeaveRequest,
   approveLeaveRequest,
+  hrApproveLeaveRequest,
   rejectLeaveRequest,
   updateLeaveBalance,
 } from "@/lib/api/vacations";
@@ -86,39 +93,8 @@ interface ExtendedSession {
     name?: string | null;
     email?: string | null;
     image?: string | null;
-    is_staff?: boolean;
-    is_superuser?: boolean;
-    role?: string | { name?: string | null } | null;
-    role_name?: string | null;
   };
 }
-
-const EMPLOYEES = [
-  {
-    id: "emp1",
-    name: "Alex Thompson",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-  },
-  {
-    id: "emp2",
-    name: "Jessica Martinez",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108755-2616b612b647?w=150&h=150&fit=crop&crop=face",
-  },
-  {
-    id: "emp3",
-    name: "David Kim",
-    avatar:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-  },
-  {
-    id: "emp4",
-    name: "Sarah Chen",
-    avatar:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-  },
-];
 
 const getLeaveTypeIcon = (type: LeaveType) => {
   const iconProps = "h-4 w-4";
@@ -162,21 +138,15 @@ const parseLocalDate = (value: string): Date | undefined => {
 const isLowBalance = (balance: LeaveBalance): boolean =>
   balance.remaining <= LOW_BALANCE_THRESHOLD_DAYS;
 
-const ADMIN_VACATION_ROLES = new Set(["admin", "hr"]);
-const APPROVER_VACATION_ROLES = new Set(["manager", "mgr", "mgr+"]);
+const isPartiallyUsedBalance = (balance: LeaveBalance): boolean =>
+  balance.used > 0 && balance.used < balance.allocated;
 
-function getSessionRoleName(session?: ExtendedSession | null): string {
-  const user = session?.user;
-  const role = user?.role;
-
-  if (typeof user?.role_name === "string") return user.role_name;
-  if (typeof role === "string") return role;
-  if (role && typeof role === "object" && typeof role.name === "string") {
-    return role.name;
-  }
-
-  return "";
-}
+const getEmployeeInitials = (name: string): string => {
+  const parts = name.trim().split(/\s+/);
+  const first = parts[0]?.[0] ?? "";
+  const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? "") : "";
+  return `${first}${last}`.toUpperCase();
+};
 
 interface VacationsModuleProps {
   addNotification?: (
@@ -196,7 +166,6 @@ interface EmployeeLeaveBalanceGroup {
 export function VacationsModule({ addNotification }: VacationsModuleProps) {
   const { data: session, status: sessionStatus } = useSession();
   const [activeTab, setActiveTab] = useState("request");
-  const [isAdminMode, setIsAdminMode] = useState(false);
 
   // Loading and error states
   const [isLoading, setIsLoading] = useState(true);
@@ -205,22 +174,21 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
   const [adminActionError, setAdminActionError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Balance and policy administration is stricter than request approval.
-  const extSession = session as ExtendedSession | null;
-  const sessionRoleName = getSessionRoleName(extSession).trim().toLowerCase();
-  const canAccessVacationAdmin =
-    extSession?.user?.is_staff === true ||
-    extSession?.user?.is_superuser === true ||
-    ADMIN_VACATION_ROLES.has(sessionRoleName);
-  const canApproveVacationRequests =
-    canAccessVacationAdmin ||
-    APPROVER_VACATION_ROLES.has(sessionRoleName) ||
-    sessionRoleName.includes("manager");
+  // Capabilities are server-derived from the user's permission bitmap.
+  const [capabilities, setCapabilities] = useState<VacationCapabilities>(
+    DEFAULT_VACATION_CAPABILITIES
+  );
+  const canApproveRequests = capabilities.canApproveRequests;
+  const canHrApprove = capabilities.canHrApprove;
+  const canAdjustBalances = capabilities.canAdjustBalances;
+  const canConfigureLeaveTypes = capabilities.canConfigureLeaveTypes;
+  const showAdminTabs = canAdjustBalances || canConfigureLeaveTypes;
 
   // Data states - initialize as empty, will be populated from API
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [leaveBalances, setLeaveBalances] = useState<LeaveBalance[]>([]);
   const [teamEvents, setTeamEvents] = useState<TeamCalendarEvent[]>([]);
+  const [teamMembers, setTeamMembers] = useState<VacationTeamMember[]>([]);
   const [selectedPolicyEmployeeId, setSelectedPolicyEmployeeId] = useState<
     string | null
   >(null);
@@ -244,6 +212,62 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
     reason: "",
   });
 
+  type CommentDialogKind = "lead" | "hr" | "reject";
+  interface CommentDialogState {
+    open: boolean;
+    kind: CommentDialogKind;
+    requestId: string;
+    employeeName: string;
+    comment: string;
+    isSubmitting: boolean;
+  }
+  const [commentDialog, setCommentDialog] = useState<CommentDialogState>({
+    open: false,
+    kind: "lead",
+    requestId: "",
+    employeeName: "",
+    comment: "",
+    isSubmitting: false,
+  });
+
+  const COMMENT_DIALOG_COPY: Record<
+    CommentDialogKind,
+    {
+      title: string;
+      description: string;
+      label: string;
+      placeholder: string;
+      confirmLabel: string;
+      requireText: boolean;
+    }
+  > = {
+    lead: {
+      title: "Approve leave request",
+      description: "Add optional approval comments before forwarding to HR.",
+      label: "Approval comments",
+      placeholder: "Optional comments...",
+      confirmLabel: "Approve",
+      requireText: false,
+    },
+    hr: {
+      title: "Final approve leave request",
+      description:
+        "Add optional HR approval comments. This deducts the balance.",
+      label: "HR approval comments",
+      placeholder: "Optional comments...",
+      confirmLabel: "Approve",
+      requireText: false,
+    },
+    reject: {
+      title: "Reject leave request",
+      description: "Provide a reason — the employee will see this.",
+      label: "Reason for rejection",
+      placeholder: "Reason...",
+      confirmLabel: "Reject",
+      requireText: true,
+    },
+  };
+
   // Team calendar month navigation state
   const [calendarMonth, setCalendarMonth] = useState(new Date());
 
@@ -252,14 +276,17 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
     ? String((session as ExtendedSession)?.user?.id)
     : null;
 
-  // Filter balances for current user (non-admin view) vs all balances (admin view)
-  const displayedBalances = useMemo(
-    () =>
-      isAdminMode
-        ? leaveBalances
-        : leaveBalances.filter((b) => b.employeeId === currentUserEmployeeId),
-    [currentUserEmployeeId, isAdminMode, leaveBalances]
+  // The "My Leave Policies" card always shows the current user's balances.
+  // The admin "Leave Policies" tab shows all balances (gated by capability).
+  const myBalances = useMemo(
+    () => leaveBalances.filter((b) => b.employeeId === currentUserEmployeeId),
+    [currentUserEmployeeId, leaveBalances]
   );
+  const myVisibleBalances = useMemo(
+    () => myBalances.filter(isPartiallyUsedBalance),
+    [myBalances]
+  );
+  const displayedBalances = canConfigureLeaveTypes ? leaveBalances : myBalances;
   const groupedDisplayedBalances = useMemo(() => {
     return Array.from(
       displayedBalances
@@ -340,15 +367,25 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
     setError(null);
 
     try {
-      const [requestsData, balancesData, calendarData] = await Promise.all([
+      const [
+        requestsData,
+        balancesData,
+        calendarData,
+        capabilitiesData,
+        teamMembersData,
+      ] = await Promise.all([
         fetchLeaveRequests(token),
         fetchLeaveBalances(token),
         fetchTeamCalendar(token),
+        fetchVacationCapabilities(token),
+        fetchVacationTeamMembers(token),
       ]);
 
       setLeaveRequests(requestsData);
       setLeaveBalances(balancesData);
       setTeamEvents(calendarData);
+      setCapabilities(capabilitiesData);
+      setTeamMembers(teamMembersData);
     } catch (err) {
       console.error("Failed to load vacation data:", err);
       setError(err instanceof Error ? err.message : "Failed to load data");
@@ -364,13 +401,13 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
   }, [sessionStatus, loadData]);
 
   useEffect(() => {
-    if (canAccessVacationAdmin) return;
-
-    setIsAdminMode(false);
-    if (["admin", "policies"].includes(activeTab)) {
+    if (activeTab === "policies" && !canConfigureLeaveTypes) {
       setActiveTab("request");
     }
-  }, [activeTab, canAccessVacationAdmin]);
+    if (activeTab === "admin" && !canAdjustBalances) {
+      setActiveTab("request");
+    }
+  }, [activeTab, canAdjustBalances, canConfigureLeaveTypes]);
 
   const calculateDays = (start?: Date, end?: Date): number => {
     if (!start || !end) return 0;
@@ -436,9 +473,35 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
     }
   };
 
-  const handleApprove = async (id: string, status: "approved" | "rejected") => {
+  const openCommentDialog = (kind: CommentDialogKind, id: string) => {
     const request = leaveRequests.find((r) => r.id === id);
     if (!request) return;
+    setAdminActionError(null);
+    setCommentDialog({
+      open: true,
+      kind,
+      requestId: id,
+      employeeName: request.employeeName,
+      comment: "",
+      isSubmitting: false,
+    });
+  };
+
+  const closeCommentDialog = () => {
+    setCommentDialog((prev) => ({ ...prev, open: false }));
+  };
+
+  const handleLeadApprove = (id: string) => openCommentDialog("lead", id);
+  const handleHrApprove = (id: string) => openCommentDialog("hr", id);
+  const handleReject = (id: string) => openCommentDialog("reject", id);
+
+  const confirmCommentDialog = async () => {
+    const { kind, requestId, comment, employeeName } = commentDialog;
+    const trimmed = comment.trim();
+    if (COMMENT_DIALOG_COPY[kind].requireText && !trimmed) {
+      setAdminActionError("A reason is required to reject the request.");
+      return;
+    }
 
     const token = getAccessToken();
     if (!token) {
@@ -446,69 +509,91 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
       return;
     }
 
+    setCommentDialog((prev) => ({ ...prev, isSubmitting: true }));
     setAdminActionError(null);
 
     try {
-      let updatedRequest: LeaveRequest;
+      let updatedRequest;
+      if (kind === "lead") {
+        updatedRequest = await approveLeaveRequest(requestId, trimmed, token);
+      } else if (kind === "hr") {
+        updatedRequest = await hrApproveLeaveRequest(requestId, trimmed, token);
+      } else {
+        updatedRequest = await rejectLeaveRequest(requestId, trimmed, token);
+      }
 
-      if (status === "approved") {
-        const comments = window.prompt("Add approval comments (optional):");
-        updatedRequest = await approveLeaveRequest(id, comments || "", token);
+      setLeaveRequests((prev) =>
+        prev.map((r) => (r.id === requestId ? updatedRequest : r))
+      );
 
-        // Add to calendar if not already there
-        if (!teamEvents.find((e) => e.id === id)) {
+      if (kind === "hr") {
+        if (!teamEvents.find((e) => e.id === requestId)) {
           setTeamEvents((prev) => [
             ...prev,
             {
-              id,
-              employeeId: request.employeeId,
-              employeeName: request.employeeName,
-              leaveType: request.leaveType,
-              startDate: request.startDate,
-              endDate: request.endDate,
+              id: requestId,
+              employeeId: updatedRequest.employeeId,
+              employeeName: updatedRequest.employeeName,
+              leaveType: updatedRequest.leaveType,
+              startDate: updatedRequest.startDate,
+              endDate: updatedRequest.endDate,
               status: "approved",
             },
           ]);
         }
-      } else {
-        const reason = window.prompt("Reason for rejection:");
-        if (!reason) return; // Cancelled
-
-        updatedRequest = await rejectLeaveRequest(id, reason, token);
-      }
-
-      // Update the request in state with API response
-      setLeaveRequests((prev) =>
-        prev.map((r) => (r.id === id ? updatedRequest : r))
-      );
-
-      // Refresh balances since approval affects balance
-      if (status === "approved") {
         const balancesData = await fetchLeaveBalances(token);
         setLeaveBalances(balancesData);
       }
 
-      // Send success notification
       if (addNotification) {
-        addNotification(
-          "vacations",
-          "success",
-          `Request ${status === "approved" ? "Approved" : "Rejected"}`,
-          `Leave request for ${request.employeeName} has been ${status}.`
-        );
+        if (kind === "lead") {
+          addNotification(
+            "vacations",
+            "success",
+            "Request Lead-Approved",
+            `Leave request for ${employeeName} has been approved by lead and is pending HR review.`
+          );
+        } else if (kind === "hr") {
+          addNotification(
+            "vacations",
+            "success",
+            "Request Fully Approved",
+            `Leave request for ${employeeName} has been fully approved.`
+          );
+        } else {
+          addNotification(
+            "vacations",
+            "success",
+            "Request Rejected",
+            `Leave request for ${employeeName} has been rejected.`
+          );
+        }
       }
+
+      setCommentDialog((prev) => ({
+        ...prev,
+        open: false,
+        isSubmitting: false,
+      }));
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : `Failed to ${status} request`;
+      const fallback =
+        kind === "reject"
+          ? "Failed to reject request"
+          : kind === "hr"
+            ? "Failed to HR-approve request"
+            : "Failed to approve request";
+      const message = err instanceof Error ? err.message : fallback;
       setAdminActionError(message);
       if (addNotification) {
-        addNotification(
-          "vacations",
-          "alert",
-          `Request ${status === "approved" ? "Approval" : "Rejection"} Failed`,
-          message
-        );
+        const title =
+          kind === "reject"
+            ? "Rejection Failed"
+            : kind === "hr"
+              ? "HR Approval Failed"
+              : "Approval Failed";
+        addNotification("vacations", "alert", title, message);
       }
+      setCommentDialog((prev) => ({ ...prev, isSubmitting: false }));
     }
   };
 
@@ -580,19 +665,16 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
   };
 
   const getStatusBadge = (status: LeaveStatus) => {
-    const config = {
-      pending: "bg-amber-100 text-amber-800 border-amber-200",
-      approved: "bg-green-100 text-green-800 border-green-200",
-      rejected: "bg-red-100 text-red-800 border-red-200",
-      cancelled: "bg-gray-100 text-gray-800 border-gray-200",
-    };
-    // Defensive check for undefined status
     if (!status) {
       return <Badge className="bg-gray-100 text-gray-800">Unknown</Badge>;
     }
     return (
-      <Badge className={config[status] || config.pending}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+      <Badge
+        className={
+          LEAVE_STATUS_BADGE_COLORS[status] ?? "bg-gray-100 text-gray-800"
+        }
+      >
+        {LEAVE_STATUS_LABELS[status] ?? status}
       </Badge>
     );
   };
@@ -634,37 +716,22 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
             availability
           </p>
         </div>
-        <div className="flex gap-2">
-          {canAccessVacationAdmin && (
-            <div className="flex items-center gap-2">
-              <Label htmlFor="admin-mode" className="text-sm">
-                Admin Mode
-              </Label>
-              <Switch
-                id="admin-mode"
-                checked={isAdminMode}
-                onCheckedChange={(checked) => {
-                  setIsAdminMode(checked);
-                  if (!checked && ["admin", "policies"].includes(activeTab)) {
-                    setActiveTab("request");
-                  }
-                }}
-              />
-            </div>
-          )}
-        </div>
       </div>
 
-      {!isAdminMode && (
-        <Card className="border-gray-200">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-semibold text-gray-950">
-              My Leave Policies
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+      <Card className="border-gray-200">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold text-gray-950">
+            My Leave Policies
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {myVisibleBalances.length === 0 ? (
+            <p className="text-sm text-gray-500">
+              No leave types currently in use.
+            </p>
+          ) : (
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-              {displayedBalances.map((balance) => (
+              {myVisibleBalances.map((balance) => (
                 <div
                   key={balance.id}
                   className="rounded-lg border border-gray-200 p-3"
@@ -693,9 +760,9 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </CardContent>
+      </Card>
 
       <Tabs
         value={activeTab}
@@ -703,14 +770,20 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
         className="space-y-6"
       >
         <TabsList
-          className={`grid w-full ${isAdminMode && canAccessVacationAdmin ? "grid-cols-4" : "grid-cols-2"}`}
+          className={`grid w-full ${
+            showAdminTabs
+              ? canAdjustBalances && canConfigureLeaveTypes
+                ? "grid-cols-4"
+                : "grid-cols-3"
+              : "grid-cols-2"
+          }`}
         >
           <TabsTrigger value="request">Request Leave</TabsTrigger>
           <TabsTrigger value="calendar">Team Calendar</TabsTrigger>
-          {isAdminMode && canAccessVacationAdmin && (
+          {canConfigureLeaveTypes && (
             <TabsTrigger value="policies">Leave Policies</TabsTrigger>
           )}
-          {isAdminMode && canAccessVacationAdmin && (
+          {canAdjustBalances && (
             <TabsTrigger value="admin">Admin Panel</TabsTrigger>
           )}
         </TabsList>
@@ -747,14 +820,21 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                       <Select
                         value={coveringEmployee}
                         onValueChange={setCoveringEmployee}
+                        disabled={teamMembers.length === 0}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select covering employee" />
+                          <SelectValue
+                            placeholder={
+                              teamMembers.length === 0
+                                ? "No teammates available"
+                                : "Select covering employee"
+                            }
+                          />
                         </SelectTrigger>
                         <SelectContent>
-                          {EMPLOYEES.map((e) => (
-                            <SelectItem key={e.id} value={e.id}>
-                              {e.name}
+                          {teamMembers.map((member) => (
+                            <SelectItem key={member.id} value={member.id}>
+                              {member.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -865,6 +945,16 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                       {
                         leaveRequests.filter((r) => r.status === "pending")
                           .length
+                      }
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Lead Approved</span>
+                    <span className="font-medium text-blue-600">
+                      {
+                        leaveRequests.filter(
+                          (r) => r.status === "lead_approved"
+                        ).length
                       }
                     </span>
                   </div>
@@ -1032,7 +1122,7 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
           </Card>
         </TabsContent>
 
-        {isAdminMode && canAccessVacationAdmin && (
+        {canConfigureLeaveTypes && (
           <TabsContent value="policies" className="space-y-6">
             <Card className="border-gray-200">
               <CardHeader className="pb-3">
@@ -1114,19 +1204,34 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                         isLowBalance(balance)
                       ).length;
 
+                      const employeeAvatar = group.balances.find(
+                        (b) => b.employeeAvatar
+                      )?.employeeAvatar;
+
                       return (
                         <div
                           key={group.employeeId}
                           className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between"
                         >
-                          <div>
-                            <h2 className="font-medium text-gray-900">
-                              {group.employeeName}
-                            </h2>
-                            <p className="text-sm text-gray-500">
-                              {group.balances.length} leave types ·{" "}
-                              {totalRemaining}/{totalAllocated} days remaining
-                            </p>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage
+                                src={employeeAvatar}
+                                alt={group.employeeName}
+                              />
+                              <AvatarFallback className="text-xs">
+                                {getEmployeeInitials(group.employeeName)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <h2 className="font-medium text-gray-900">
+                                {group.employeeName}
+                              </h2>
+                              <p className="text-sm text-gray-500">
+                                {group.balances.length} leave types ·{" "}
+                                {totalRemaining}/{totalAllocated} days remaining
+                              </p>
+                            </div>
                           </div>
                           <div className="flex items-center gap-3">
                             {lowBalanceCount > 0 && (
@@ -1217,7 +1322,7 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
           </TabsContent>
         )}
 
-        {isAdminMode && canAccessVacationAdmin && (
+        {canAdjustBalances && (
           <TabsContent value="admin" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="border-gray-200">
@@ -1338,100 +1443,199 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
         )}
       </Tabs>
 
-      {canApproveVacationRequests && (
-        <Card className="border-gray-200">
-          <CardHeader>
-            <CardTitle>Pending Approvals</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {adminActionError && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Action failed</AlertTitle>
-                <AlertDescription>{adminActionError}</AlertDescription>
-              </Alert>
-            )}
+      {(canApproveRequests || canHrApprove) &&
+        (() => {
+          const pendingApprovalRequests = leaveRequests.filter((r) => {
+            if (canApproveRequests && r.status === "pending") return true;
+            if (canHrApprove && r.status === "lead_approved") return true;
+            return false;
+          });
 
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Employee</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Dates</TableHead>
-                  <TableHead>Days</TableHead>
-                  <TableHead>Reason</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {leaveRequests.map((request) => (
-                  <TableRow key={request.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="w-8 h-8">
-                          {request.employeeAvatar && (
-                            <img
-                              src={request.employeeAvatar}
-                              alt={request.employeeName}
-                            />
-                          )}
-                          <AvatarFallback>
-                            {request.employeeName
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <p className="font-medium">{request.employeeName}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge>{LEAVE_TYPE_LABELS[request.leaveType]}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sm">
-                        {formatDate(request.startDate)} to{" "}
-                        {formatDate(request.endDate)}
-                      </span>
-                    </TableCell>
-                    <TableCell>{request.days}</TableCell>
-                    <TableCell className="max-w-sm">
-                      <p className="whitespace-normal break-words text-sm text-gray-700">
-                        {request.reason?.trim() || "No reason provided"}
-                      </p>
-                    </TableCell>
-                    <TableCell>{getStatusBadge(request.status)}</TableCell>
-                    <TableCell>
-                      {request.status === "pending" && (
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            onClick={() =>
-                              handleApprove(request.id, "approved")
-                            }
-                          >
-                            <Check className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() =>
-                              handleApprove(request.id, "rejected")
-                            }
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
+          return (
+            <Card className="border-gray-200">
+              <CardHeader>
+                <CardTitle>Pending Approvals</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {adminActionError && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Action failed</AlertTitle>
+                    <AlertDescription>{adminActionError}</AlertDescription>
+                  </Alert>
+                )}
+
+                {pendingApprovalRequests.length === 0 ? (
+                  <p className="text-sm text-gray-500 text-center py-6">
+                    No requests pending your approval.
+                  </p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Employee</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Dates</TableHead>
+                        <TableHead>Days</TableHead>
+                        <TableHead>Reason</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {pendingApprovalRequests.map((request) => (
+                        <TableRow key={request.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <Avatar className="w-8 h-8">
+                                {request.employeeAvatar && (
+                                  <img
+                                    src={request.employeeAvatar}
+                                    alt={request.employeeName}
+                                  />
+                                )}
+                                <AvatarFallback>
+                                  {request.employeeName
+                                    .split(" ")
+                                    .map((n) => n[0])
+                                    .join("")}
+                                </AvatarFallback>
+                              </Avatar>
+                              <p className="font-medium">
+                                {request.employeeName}
+                              </p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge>
+                              {LEAVE_TYPE_LABELS[request.leaveType]}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <span className="text-sm">
+                              {formatDate(request.startDate)} to{" "}
+                              {formatDate(request.endDate)}
+                            </span>
+                          </TableCell>
+                          <TableCell>{request.days}</TableCell>
+                          <TableCell className="max-w-sm">
+                            <p className="whitespace-normal break-words text-sm text-gray-700">
+                              {request.reason?.trim() || "No reason provided"}
+                            </p>
+                          </TableCell>
+                          <TableCell>
+                            {getStatusBadge(request.status)}
+                          </TableCell>
+                          <TableCell>
+                            {request.status === "pending" &&
+                              canApproveRequests && (
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    onClick={() =>
+                                      handleLeadApprove(request.id)
+                                    }
+                                  >
+                                    <Check className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => handleReject(request.id)}
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              )}
+                            {request.status === "lead_approved" &&
+                              canHrApprove && (
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleHrApprove(request.id)}
+                                  >
+                                    <Check className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => handleReject(request.id)}
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })()}
+
+      <Dialog
+        open={commentDialog.open}
+        onOpenChange={(open) => {
+          if (!open && !commentDialog.isSubmitting) closeCommentDialog();
+        }}
+      >
+        <DialogContent className="max-w-md min-h-0 gap-3 p-6">
+          <DialogHeader className="gap-1">
+            <DialogTitle>
+              {COMMENT_DIALOG_COPY[commentDialog.kind].title}
+            </DialogTitle>
+            <DialogDescription>
+              {COMMENT_DIALOG_COPY[commentDialog.kind].description}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1.5">
+            <Label htmlFor="vacation-comment">
+              {COMMENT_DIALOG_COPY[commentDialog.kind].label}
+              {COMMENT_DIALOG_COPY[commentDialog.kind].requireText && " *"}
+            </Label>
+            <Textarea
+              id="vacation-comment"
+              rows={3}
+              placeholder={COMMENT_DIALOG_COPY[commentDialog.kind].placeholder}
+              value={commentDialog.comment}
+              onChange={(e) =>
+                setCommentDialog((prev) => ({
+                  ...prev,
+                  comment: e.target.value,
+                }))
+              }
+              disabled={commentDialog.isSubmitting}
+            />
+            <p className="text-xs text-gray-500">
+              For request from{" "}
+              <span className="font-medium">{commentDialog.employeeName}</span>.
+            </p>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={closeCommentDialog}
+              disabled={commentDialog.isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant={
+                commentDialog.kind === "reject" ? "destructive" : "default"
+              }
+              onClick={confirmCommentDialog}
+              disabled={commentDialog.isSubmitting}
+            >
+              {commentDialog.isSubmitting
+                ? "Processing..."
+                : COMMENT_DIALOG_COPY[commentDialog.kind].confirmLabel}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "@/lib/config";
-import { get, post, del } from "../../helpers/httpClient";
+import { get, post, patch, del } from "../../helpers/httpClient";
 import { fetchWithAuthRetry } from "../../refresh";
 import {
   TEMPLATES_CATEGORIES_PATH,
@@ -7,6 +7,7 @@ import {
   templatePath,
   templateDuplicatePath,
   templateUsePath,
+  templateVisibilityPath,
 } from "../../constants/templatesEndpoints";
 import {
   TemplateCategory,
@@ -20,6 +21,9 @@ import {
   type UseTemplatePayload,
   type TemplateOutputFormat,
 } from "@/lib/templates/templatesHelpers";
+import { DocumentAccessRole } from "@/lib/documents/documentsHelpers";
+import type { DocumentVisibilityScope } from "@/lib/documents/documentVisibilityPresets";
+import { unwrapEditorContent } from "@/components/hr-dashboard/templates/templateEditorHelpers";
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
@@ -80,6 +84,11 @@ interface ApiDocumentTemplate {
   created_at?: string;
   updated_at?: string;
   is_system_template?: boolean;
+  // TODO [BACKEND REQUIRED]: persist alongside every template — see templatesHelpers.ts
+  allowed_roles?: DocumentAccessRole[];
+  visibility_scope?: DocumentVisibilityScope;
+  body_font_family?: string;
+  body_background_color?: string;
 }
 
 interface ApiGeneratedDocument {
@@ -125,6 +134,26 @@ function mapGeneratedDocument(raw: ApiGeneratedDocument): GeneratedDocument {
 }
 
 function mapTemplate(raw: ApiDocumentTemplate): DocumentTemplate {
+  const rawContent = String(raw.content ?? "");
+  // The editor embeds visibility + body-style settings inside a wrapper div
+  // when saving, so we can recover them even if the backend hasn't yet
+  // shipped the dedicated allowed_roles / visibility_scope / body_*  columns.
+  const unwrapped = unwrapEditorContent(rawContent);
+
+  const apiAllowedRoles = Array.isArray(raw.allowed_roles)
+    ? (raw.allowed_roles as DocumentAccessRole[])
+    : undefined;
+  const apiHasAllowedRoles = apiAllowedRoles && apiAllowedRoles.length > 0;
+  const allowedRoles: DocumentAccessRole[] = apiHasAllowedRoles
+    ? apiAllowedRoles
+    : unwrapped.allowedRoles && unwrapped.allowedRoles.length > 0
+      ? (unwrapped.allowedRoles as DocumentAccessRole[])
+      : [DocumentAccessRole.Employee];
+
+  const visibilityScope: DocumentVisibilityScope = (raw.visibility_scope ??
+    unwrapped.visibilityScope ??
+    "roles") as DocumentVisibilityScope;
+
   return {
     id: raw.id ?? "",
     name: String(raw.name ?? ""),
@@ -132,15 +161,30 @@ function mapTemplate(raw: ApiDocumentTemplate): DocumentTemplate {
     category: (raw.category as TemplateCategory) ?? TemplateCategory.Other,
     visibility:
       (raw.visibility as TemplateVisibility) ?? TemplateVisibility.Private,
+    allowedRoles,
+    visibilityScope,
     status: (raw.status as TemplateStatus) ?? TemplateStatus.Draft,
-    content: String(raw.content ?? ""),
+    content: rawContent,
     fields: Array.isArray(raw.fields) ? raw.fields.map(mapTemplateField) : [],
+    bodyFontFamily: raw.body_font_family
+      ? String(raw.body_font_family)
+      : unwrapped.fontFamily,
+    bodyBackgroundColor: raw.body_background_color
+      ? String(raw.body_background_color)
+      : unwrapped.backgroundColor,
     createdBy: String(raw.created_by_name ?? ""),
     createdAt: String(raw.created_at ?? ""),
     updatedAt: String(raw.updated_at ?? ""),
     isSystem: Boolean(raw.is_system_template),
   };
 }
+
+const listRequestsInFlight = new Map<string, Promise<DocumentTemplate[]>>();
+const listResponseCache = new Map<
+  string,
+  { value: DocumentTemplate[]; cachedAtMs: number }
+>();
+const LIST_RESPONSE_CACHE_TTL_MS = 1500;
 
 // ─── Error parser ─────────────────────────────────────────────────────────────
 
@@ -174,14 +218,36 @@ export const templatesApi = {
     status?: TemplateStatus;
     visibility?: TemplateVisibility;
   }): Promise<DocumentTemplate[]> {
-    const data = await get<
-      ApiDocumentTemplate[] | { results?: ApiDocumentTemplate[] }
-    >(
-      `${API_BASE_URL}${templatesListPath(query)}`,
-      "Failed to fetch templates"
-    );
-    const rows = Array.isArray(data) ? data : (data.results ?? []);
-    return rows.map(mapTemplate);
+    const path = templatesListPath(query);
+    const nowMs = Date.now();
+    const cached = listResponseCache.get(path);
+    if (cached && nowMs - cached.cachedAtMs < LIST_RESPONSE_CACHE_TTL_MS) {
+      return cached.value;
+    }
+    const existingRequest = listRequestsInFlight.get(path);
+    if (existingRequest) {
+      return existingRequest;
+    }
+
+    const request = (async () => {
+      const data = await get<
+        ApiDocumentTemplate[] | { results?: ApiDocumentTemplate[] }
+      >(`${API_BASE_URL}${path}`, "Failed to fetch templates");
+      const rows = Array.isArray(data) ? data : (data.results ?? []);
+      const mappedRows = rows.map(mapTemplate);
+      listResponseCache.set(path, {
+        value: mappedRows,
+        cachedAtMs: Date.now(),
+      });
+      return mappedRows;
+    })();
+
+    listRequestsInFlight.set(path, request);
+    try {
+      return await request;
+    } finally {
+      listRequestsInFlight.delete(path);
+    }
   },
 
   /**
@@ -282,6 +348,30 @@ export const templatesApi = {
       documentId: data.id ?? data.document_id ?? data.documentId ?? "",
       resolvedContent: data.resolved_content ?? "",
     };
+  },
+
+  /**
+   * Update the visibility settings (scope + allowed roles) of a template.
+   * TODO [BACKEND REQUIRED]: PATCH /api/documents/templates/{id}/visibility/
+   * Body: { allowed_roles: DocumentAccessRole[]; visibility_scope: "roles" | "only_me" | "project_group" }
+   * — HR/Admin only (or owner when scope === "only_me"); returns the updated template record.
+   */
+  async updateVisibility(
+    id: number | string,
+    settings: {
+      scope: DocumentVisibilityScope;
+      allowedRoles: DocumentAccessRole[];
+    }
+  ): Promise<DocumentTemplate> {
+    const data = await patch<ApiDocumentTemplate>(
+      `${API_BASE_URL}${templateVisibilityPath(id)}`,
+      {
+        allowed_roles: settings.allowedRoles,
+        visibility_scope: settings.scope,
+      },
+      "Failed to update template visibility"
+    );
+    return mapTemplate(data);
   },
 
   async listGenerated(): Promise<GeneratedDocument[]> {

@@ -4,10 +4,19 @@ import type {
   LeaveBalance,
   LeavePolicy,
   LeaveRequest,
+  LeaveStatus,
   LeaveType,
   TeamCalendarEvent,
   UpdateLeaveBalancePayload,
+  VacationCapabilities,
+  VacationTeamMember,
 } from "@/types/vacations";
+import {
+  leaveRequestHrApprovePath,
+  LEAVE_REQUESTS_CAPABILITIES_PATH,
+  LEAVE_REQUESTS_HR_PENDING_PATH,
+  LEAVE_REQUESTS_TEAM_MEMBERS_PATH,
+} from "./constants/vacationsEndpoints";
 
 const API_BASE_URL = getApiBaseUrl();
 
@@ -66,6 +75,12 @@ interface ApiLeaveRequest {
   covering_employee_id: number | null;
   covering_employee_name: string | null;
   submitted_date: string;
+  // Tech Lead (first stage) approval fields
+  lead_approver_id: number | null;
+  lead_approver_name: string | null;
+  lead_approved_date: string | null;
+  lead_approval_comments: string;
+  // HR (final stage) approval fields
   approver_id: number | null;
   approver_name: string | null;
   approved_date: string | null;
@@ -79,6 +94,7 @@ interface ApiLeaveBalance {
   id: number;
   employee_id: number;
   employee_name: string;
+  employee_avatar: string | null;
   leave_type: string;
   leave_type_display: string;
   allocated: number;
@@ -126,12 +142,18 @@ function transformLeaveRequest(api: ApiLeaveRequest): LeaveRequest {
     endDate: api.end_date,
     days: api.days,
     reason: api.reason,
-    status: api.status as "pending" | "approved" | "rejected" | "cancelled",
+    status: api.status as LeaveStatus,
     submittedDate: api.submitted_date,
     coveringEmployeeId: api.covering_employee_id
       ? String(api.covering_employee_id)
       : undefined,
     coveringEmployeeName: api.covering_employee_name || undefined,
+    leadApproverId: api.lead_approver_id
+      ? String(api.lead_approver_id)
+      : undefined,
+    leadApproverName: api.lead_approver_name || undefined,
+    leadApprovedDate: api.lead_approved_date || undefined,
+    leadApprovalComments: api.lead_approval_comments || undefined,
     approverComments: api.approval_comments || undefined,
     rejectionReason: api.rejection_reason || undefined,
     approverId: api.approver_id ? String(api.approver_id) : undefined,
@@ -148,6 +170,7 @@ function transformLeaveBalance(api: ApiLeaveBalance): LeaveBalance {
     id: String(api.id),
     employeeId: String(api.employee_id),
     employeeName: api.employee_name || UNKNOWN_FALLBACK,
+    employeeAvatar: api.employee_avatar || undefined,
     leaveType: api.leave_type as LeaveType,
     allocated: api.allocated,
     used: api.used,
@@ -188,6 +211,96 @@ function transformTeamCalendarEvent(
     status: api.status as "pending" | "approved" | "rejected" | "cancelled",
   };
 }
+
+interface ApiVacationTeamMember {
+  id: number;
+  name: string;
+  avatar_url: string | null;
+}
+
+interface ApiVacationCapabilities {
+  can_approve_requests: boolean;
+  can_hr_approve: boolean;
+  can_adjust_balances: boolean;
+  can_configure_leave_types: boolean;
+}
+
+function transformVacationTeamMember(
+  api: ApiVacationTeamMember
+): VacationTeamMember {
+  return {
+    id: String(api.id),
+    name: api.name || UNKNOWN_FALLBACK,
+    avatarUrl: api.avatar_url || undefined,
+  };
+}
+
+function transformVacationCapabilities(
+  api: ApiVacationCapabilities
+): VacationCapabilities {
+  return {
+    canApproveRequests: !!api.can_approve_requests,
+    canHrApprove: !!api.can_hr_approve,
+    canAdjustBalances: !!api.can_adjust_balances,
+    canConfigureLeaveTypes: !!api.can_configure_leave_types,
+  };
+}
+
+/**
+ * Fetch covering-employee candidates (active project teammates, self excluded).
+ */
+export const fetchVacationTeamMembers = async (
+  accessToken: string
+): Promise<VacationTeamMember[]> => {
+  const response = await fetch(
+    `${API_BASE_URL}${LEAVE_REQUESTS_TEAM_MEMBERS_PATH}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized: Please log in again");
+    }
+    throw new Error("Failed to fetch team members");
+  }
+
+  const data: ApiVacationTeamMember[] = await response.json();
+  return data.map(transformVacationTeamMember);
+};
+
+/**
+ * Fetch per-feature capability flags for the Vacations module.
+ */
+export const fetchVacationCapabilities = async (
+  accessToken: string
+): Promise<VacationCapabilities> => {
+  const response = await fetch(
+    `${API_BASE_URL}${LEAVE_REQUESTS_CAPABILITIES_PATH}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized: Please log in again");
+    }
+    throw new Error("Failed to fetch vacation capabilities");
+  }
+
+  const data: ApiVacationCapabilities = await response.json();
+  return transformVacationCapabilities(data);
+};
 
 /**
  * Fetch leave policies
@@ -566,4 +679,74 @@ export const fetchTeamCalendar = async (
 
   const data: ApiTeamCalendarEvent[] = await response.json();
   return data.map(transformTeamCalendarEvent);
+};
+
+/**
+ * HR final approval of a leave request (LEAD_APPROVED → APPROVED).
+ * Only callable by HR/admin users.
+ */
+export const hrApproveLeaveRequest = async (
+  id: string,
+  comments: string,
+  accessToken: string
+): Promise<LeaveRequest> => {
+  const response = await fetch(
+    `${API_BASE_URL}${leaveRequestHrApprovePath(id)}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ comments }),
+    }
+  );
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized: Please log in again");
+    }
+    if (response.status === 403) {
+      throw new Error("Forbidden: Only HR can perform the final approval");
+    }
+    const error = await response.json().catch(() => ({}));
+    throw new Error(
+      getApiErrorMessage(error, "Failed to HR-approve leave request")
+    );
+  }
+
+  const data: ApiLeaveRequest = await response.json();
+  return transformLeaveRequest(data);
+};
+
+/**
+ * Fetch leave requests awaiting HR final approval (status = lead_approved).
+ * Only accessible by HR/admin users.
+ */
+export const fetchHrPendingApprovals = async (
+  accessToken: string
+): Promise<LeaveRequest[]> => {
+  const response = await fetch(
+    `${API_BASE_URL}${LEAVE_REQUESTS_HR_PENDING_PATH}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized: Please log in again");
+    }
+    if (response.status === 403) {
+      throw new Error("Forbidden: Only HR can view HR-pending approvals");
+    }
+    throw new Error("Failed to fetch HR-pending approvals");
+  }
+
+  const data: ApiLeaveRequest[] = await response.json();
+  return data.map(transformLeaveRequest);
 };

@@ -50,10 +50,33 @@ export interface DocumentTemplate {
   name: string;
   description: string;
   category: TemplateCategory;
+  /** Legacy private/shared flag — kept for backwards compat; new visibility model lives below. */
   visibility: TemplateVisibility;
+  /**
+   * Permission-tier list mirroring documents.
+   * TODO [BACKEND REQUIRED]: GET/POST/PUT /api/documents/templates/ — accept and return
+   * `allowed_roles` (DocumentAccessRole[]); default ["employee"] for new templates.
+   */
+  allowedRoles: import("@/lib/documents/documentsHelpers").DocumentAccessRole[];
+  /**
+   * Visibility scope: "roles" uses role-rank; "only_me" / "project_group" are user-scoped.
+   * TODO [BACKEND REQUIRED]: GET/POST/PUT /api/documents/templates/ — accept and return
+   * `visibility_scope` ("roles" | "only_me" | "project_group"); default "roles".
+   */
+  visibilityScope: import("@/lib/documents/documentVisibilityPresets").DocumentVisibilityScope;
   status: TemplateStatus;
   content: string;
   fields: TemplateField[];
+  /**
+   * Page-level body font / background applied around `content`. Per-element
+   * styling lives inside the HTML; these are the document defaults so the
+   * preview surfaces match what the author saw in the editor (especially
+   * after a .docx import that doesn't add inline font-family on every node).
+   * TODO [BACKEND REQUIRED]: GET/POST/PUT /api/documents/templates/ — accept
+   * and return `body_font_family` and `body_background_color` strings.
+   */
+  bodyFontFamily?: string;
+  bodyBackgroundColor?: string;
   createdBy: string;
   createdAt: string;
   updatedAt: string;
@@ -65,9 +88,13 @@ export interface TemplatePayload {
   description: string;
   category: TemplateCategory;
   visibility: TemplateVisibility;
+  allowedRoles: import("@/lib/documents/documentsHelpers").DocumentAccessRole[];
+  visibilityScope: import("@/lib/documents/documentVisibilityPresets").DocumentVisibilityScope;
   status: TemplateStatus;
   content: string;
   fields: TemplateField[];
+  bodyFontFamily?: string;
+  bodyBackgroundColor?: string;
 }
 
 export type TemplateOutputFormat = "pdf" | "docx";
@@ -206,4 +233,52 @@ export function getTemplateCategoryLabel(cat: TemplateCategory): string {
 
 export function generateFieldId(): string {
   return String(Date.now() + Math.random());
+}
+
+export function humanizePlaceholderInnerToLabel(innerTrimmed: string): string {
+  const parts = innerTrimmed.split("_").filter(Boolean);
+  if (parts.length <= 1) {
+    const w = innerTrimmed;
+    if (!w) return "";
+    return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+  }
+  return parts
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
+export function displayLabelForPlaceholder(p: {
+  key: string;
+  label: string;
+}): string {
+  const raw = p.label.trim();
+  if (!raw) return p.key;
+  if (raw.includes(" ") || raw.includes("-")) return raw;
+  if (raw.includes("_")) return humanizePlaceholderInnerToLabel(raw);
+  return raw;
+}
+
+export function mergeTemplateFieldsFromPlaceholders(
+  existing: TemplateField[],
+  html: string
+): TemplateField[] {
+  const placeholders = extractPlaceholders(html);
+  const existingKeys = new Set(existing.map((f) => f.key));
+  const additions: TemplateField[] = [];
+  for (const p of placeholders) {
+    if (!existingKeys.has(p.key)) {
+      existingKeys.add(p.key);
+      additions.push({
+        id: generateFieldId(),
+        key: p.key,
+        label: displayLabelForPlaceholder(p),
+        type: TemplateFieldType.Text,
+        placeholder: "",
+        required: false,
+        defaultValue: "",
+        options: "",
+      });
+    }
+  }
+  return additions.length > 0 ? [...existing, ...additions] : existing;
 }
