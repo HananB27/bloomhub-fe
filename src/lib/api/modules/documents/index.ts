@@ -14,6 +14,9 @@ import {
   documentUnarchivePath,
   documentVersionsPath,
   documentSignaturePath,
+  documentSignPath,
+  documentSignaturesPath,
+  documentResetSignaturesPath,
   documentReminderPath,
   documentVisibilityPath,
 } from "../../constants/documentsEndpoints";
@@ -36,6 +39,9 @@ interface ApiDocumentSigner {
   /** "signed" | "pending" | "notsent" */
   status?: string;
   signed_at?: string;
+  requested_at?: string;
+  last_reminded_at?: string;
+  signature_metadata?: Record<string, unknown>;
 }
 
 interface ApiDocumentRecord {
@@ -89,6 +95,18 @@ export interface DocumentSigner {
   email: string;
   status: "signed" | "pending" | "notsent";
   signedAt?: string;
+  requestedAt?: string;
+  lastRemindedAt?: string;
+  signatureMetadata?: Record<string, unknown>;
+}
+
+export interface SignDocumentPayload {
+  signer_email: string;
+  signature: {
+    type: "typed_name";
+    value: string;
+    accepted_terms: boolean;
+  };
 }
 
 export interface DocumentVersion {
@@ -158,6 +176,14 @@ function mapDocumentSigner(raw: ApiDocumentSigner): DocumentSigner {
     email: String(raw.email ?? ""),
     status: status === "signed" || status === "pending" ? status : "notsent",
     signedAt: raw.signed_at,
+    requestedAt: raw.requested_at,
+    lastRemindedAt: raw.last_reminded_at,
+    signatureMetadata:
+      raw.signature_metadata &&
+      typeof raw.signature_metadata === "object" &&
+      !Array.isArray(raw.signature_metadata)
+        ? raw.signature_metadata
+        : undefined,
   };
 }
 
@@ -212,6 +238,16 @@ function mapDocumentRecord(record: ApiDocumentRecord): EmployeeDocument {
     fromTemplate: Boolean(record.from_template),
     templateId: record.template_id ?? undefined,
   };
+}
+
+function mapDocumentResponse(
+  response: ApiDocumentRecord | { document?: ApiDocumentRecord }
+): EmployeeDocument {
+  const record: ApiDocumentRecord =
+    "document" in response && response.document
+      ? response.document
+      : (response as ApiDocumentRecord);
+  return mapDocumentRecord(record);
 }
 
 // ─── URL builder ──────────────────────────────────────────────────────────────
@@ -467,12 +503,58 @@ export const documentsApi = {
     documentId: number | string,
     signers: { name: string; email: string }[]
   ): Promise<EmployeeDocument> {
-    const data = await post<ApiDocumentRecord>(
+    const data = await post<
+      ApiDocumentRecord | { document?: ApiDocumentRecord }
+    >(
       `${API_BASE_URL}${documentSignaturePath(documentId)}`,
       { signers },
       "Failed to request signatures"
     );
-    return mapDocumentRecord(data);
+    return mapDocumentResponse(data);
+  },
+
+  async signDocument(
+    documentId: number | string,
+    payload: SignDocumentPayload
+  ): Promise<EmployeeDocument> {
+    const data = await post<
+      ApiDocumentRecord | { document?: ApiDocumentRecord }
+    >(
+      `${API_BASE_URL}${documentSignPath(documentId)}`,
+      payload,
+      "Failed to sign document"
+    );
+    return mapDocumentResponse(data);
+  },
+
+  /**
+   * Clear all signers and reset signature workflow for testing.
+   */
+  async resetSignatures(
+    documentId: number | string
+  ): Promise<EmployeeDocument> {
+    const data = await post<
+      ApiDocumentRecord | { document?: ApiDocumentRecord }
+    >(
+      `${API_BASE_URL}${documentResetSignaturesPath(documentId)}`,
+      {},
+      "Failed to reset signatures"
+    );
+    return mapDocumentResponse(data);
+  },
+
+  async getSignatures(documentId: number | string): Promise<DocumentSigner[]> {
+    const data = await get<
+      | ApiDocumentSigner[]
+      | { results?: ApiDocumentSigner[]; signers?: ApiDocumentSigner[] }
+    >(
+      `${API_BASE_URL}${documentSignaturesPath(documentId)}`,
+      "Failed to fetch document signatures"
+    );
+    const rows = Array.isArray(data)
+      ? data
+      : (data.signers ?? data.results ?? []);
+    return rows.map(mapDocumentSigner);
   },
 
   /**

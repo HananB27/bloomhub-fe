@@ -30,6 +30,21 @@ export function documentSignaturePath(documentId: number | string): string {
   return `${DOCUMENTS_API_BASE_PATH}${documentId}/request-signature/`;
 }
 
+export function documentSignPath(documentId: number | string): string {
+  return `${DOCUMENTS_API_BASE_PATH}${documentId}/sign/`;
+}
+
+export function documentSignaturesPath(documentId: number | string): string {
+  return `${DOCUMENTS_API_BASE_PATH}${documentId}/signatures/`;
+}
+
+export function documentResetSignaturesPath(
+  documentId: number | string
+): string {
+  // POST /api/documents/{id}/reset-signatures/ — clears all signers (testing helper)
+  return `${DOCUMENTS_API_BASE_PATH}${documentId}/reset-signatures/`;
+}
+
 export function documentReminderPath(documentId: number | string): string {
   // TODO [BACKEND REQUIRED]: POST /api/documents/{id}/send-reminder/ — re-send signature requests to pending signers
   return `${DOCUMENTS_API_BASE_PATH}${documentId}/send-reminder/`;
