@@ -2,3 +2,6 @@ export { TrainingEntryForm } from "./TrainingEntryForm";
 export { TrainingFilters } from "./TrainingFilters";
 export { TrainingEntryList } from "./TrainingEntryList";
 export { TrainingRecentSection } from "./TrainingRecentSection";
+export { ConferenceCourseRegistrationForm } from "./ConferenceCourseRegistrationForm";
+export { ConferenceCourseRegistrationList } from "./ConferenceCourseRegistrationList";
+export { ConferenceCourseRegistrationSection } from "./ConferenceCourseRegistrationSection";

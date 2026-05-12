@@ -131,13 +131,16 @@ interface ApiPerformanceReviewActionPoint {
 
 interface ApiPerformanceReviewAttachment {
   id: string;
-  review_id: string;
-  file_name: string;
-  file_size: number;
-  file_url: string;
-  uploaded_by_id: string;
-  uploaded_by_name: string;
-  uploaded_at: string;
+  review_id?: string;
+  original_name?: string;
+  file_name?: string;
+  size_bytes?: number;
+  file_size?: number;
+  file_url?: string;
+  uploaded_by_id?: string | number | null;
+  uploaded_by_name?: string | null;
+  created_at?: string;
+  uploaded_at?: string;
 }
 
 interface ApiPerformanceReviewReminder {
@@ -253,13 +256,13 @@ function transformAttachment(
 ): PerformanceReviewAttachment {
   return {
     id: api.id,
-    reviewId: api.review_id,
-    fileName: api.file_name,
-    fileSize: api.file_size,
-    fileUrl: api.file_url,
-    uploadedById: api.uploaded_by_id,
-    uploadedByName: api.uploaded_by_name,
-    uploadedAt: api.uploaded_at,
+    reviewId: api.review_id ?? "",
+    fileName: api.original_name ?? api.file_name ?? "",
+    fileSize: api.size_bytes ?? api.file_size ?? 0,
+    fileUrl: api.file_url ?? "",
+    uploadedById: api.uploaded_by_id != null ? String(api.uploaded_by_id) : "",
+    uploadedByName: api.uploaded_by_name ?? "",
+    uploadedAt: api.created_at ?? api.uploaded_at ?? "",
   };
 }
 
@@ -762,11 +765,19 @@ export const deleteActionPoint = async (
 /**
  * Upload attachment to a review
  */
+export const REVIEW_ATTACHMENT_MAX_BYTES = 10 * 1024 * 1024;
+
 export const uploadAttachment = async (
   reviewId: string,
   file: File,
   accessToken: string
 ): Promise<PerformanceReviewAttachment> => {
+  if (file.size > REVIEW_ATTACHMENT_MAX_BYTES) {
+    throw new Error(
+      `Attachment must be under ${REVIEW_ATTACHMENT_MAX_BYTES / (1024 * 1024)} MB`
+    );
+  }
+
   const formData = new FormData();
   formData.append("file", file);
 
@@ -788,13 +799,26 @@ export const uploadAttachment = async (
     if (response.status === 413) {
       throw new Error("File too large");
     }
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || "Failed to upload attachment");
+    const error = (await response.json().catch(() => ({}))) as Record<
+      string,
+      unknown
+    >;
+    throw new Error(extractAttachmentError(error));
   }
 
   const data: ApiPerformanceReviewAttachment = await response.json();
   return transformAttachment(data);
 };
+
+function extractAttachmentError(payload: Record<string, unknown>): string {
+  if (typeof payload.error === "string") return payload.error;
+  if (typeof payload.detail === "string") return payload.detail;
+  for (const value of Object.values(payload)) {
+    if (Array.isArray(value) && typeof value[0] === "string") return value[0];
+    if (typeof value === "string") return value;
+  }
+  return "Failed to upload attachment";
+}
 
 /**
  * Fetch attachments for a review
