@@ -399,7 +399,7 @@ export function DashboardView({
     case "onboarding":
       return <OnboardingModule onNavigate={onNavigate} />;
     case "training":
-      return <TrainingModule />;
+      return <TrainingModule onNavigate={onNavigate} />;
     case "compensation":
       return <CompensationModule />;
     case "feedback":
