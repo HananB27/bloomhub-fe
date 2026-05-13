@@ -1,37 +1,66 @@
-name: Vercel Deploy (Dev)
+# name: Vercel Deploy (Dev)
+
+# on:
+#   push:
+#   workflow_dispatch:
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     environment: dev
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v4
+
+#       - name: Strip Git metadata for Vercel
+#         run: rm -rf .git
+
+#       - name: Install Vercel CLI
+#         run: npm install --global vercel@latest
+
+#       - name: Pull Vercel Environment Information
+#         run: vercel pull --yes --environment=development --token="${{ secrets.VERCEL_TOKEN }}"
+#         env:
+#           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+#           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+#       - name: Build Project Artifacts
+#         run: vercel build --token="${{ secrets.VERCEL_TOKEN }}"
+#         env:
+#           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+#           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+#       - name: Deploy Project Artifacts to Vercel
+#         run: vercel deploy --prebuilt --token="${{ secrets.VERCEL_TOKEN }}"
+#         env:
+#           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+#           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+name: Vercel override commit
 
 on:
   push:
-  workflow_dispatch:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: dev
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Strip Git metadata for Vercel
-        run: rm -rf .git
-
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=development --token="${{ secrets.VERCEL_TOKEN }}"
+      - name: |
+          echo " " >> README.md
+      - name: Commit
+        run: git commit -m "chore: override commit"
         env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-      - name: Build Project Artifacts
-        run: vercel build --token="${{ secrets.VERCEL_TOKEN }}"
+          GITHUB_TOKEN: ${{ secrets.HANAN_TOKEN }}
+        
+      - name: Push Changes
+        run: git push
         env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-      - name: Deploy Project Artifacts to Vercel
-        run: vercel deploy --prebuilt --token="${{ secrets.VERCEL_TOKEN }}"
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          GITHUB_TOKEN: ${{ secrets.HANAN_TOKEN }}
