@@ -8,3 +8,6 @@ export { ConferenceCourseRegistrationSection } from "./ConferenceCourseRegistrat
 export { CertificateUploadForm } from "./CertificateUploadForm";
 export { CertificateList } from "./CertificateList";
 export { CertificatesSection } from "./CertificatesSection";
+export { PeerSessionForm } from "./PeerSessionForm";
+export { PeerSessionList } from "./PeerSessionList";
+export { PeerSessionSection } from "./PeerSessionSection";
