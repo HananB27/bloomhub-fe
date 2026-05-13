@@ -1,37 +1,35 @@
-name: Vercel Deploy (Dev)
+name: Vercel override commit
 
 on:
   push:
-  workflow_dispatch:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
 
 jobs:
-  deploy:
+  override-commit:
     runs-on: ubuntu-latest
-    environment: dev
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+          token: ${{ secrets.HANAN_TOKEN }}
 
-      - name: Strip Git metadata for Vercel
-        run: rm -rf .git
-
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=development --token="${{ secrets.VERCEL_TOKEN }}"
+      - name: Create one override commit
         env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+        run: |
+          if [ "$(git log -1 --pretty=%s)" = "chore: override commit" ]; then
+            echo "Latest commit is already the override commit. Skipping."
+            exit 0
+          fi
 
-      - name: Build Project Artifacts
-        run: vercel build --token="${{ secrets.VERCEL_TOKEN }}"
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-      - name: Deploy Project Artifacts to Vercel
-        run: vercel deploy --prebuilt --token="${{ secrets.VERCEL_TOKEN }}"
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          git config user.name "Hanan Bajramovic"
+          git config user.email "hananbajramovic075@gmail.com"
+          git commit --allow-empty -m "chore: override commit"
+          git push origin HEAD:$BRANCH
