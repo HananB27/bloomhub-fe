@@ -41,6 +41,7 @@ export interface AssetItemCapabilities {
   can_view_history?: boolean;
   can_update_condition?: boolean;
   can_generate_qr_code?: boolean;
+  can_log_replacement?: boolean;
 }
 
 export interface AssetCapabilities {
@@ -58,6 +59,7 @@ export interface AssetCapabilities {
     can_view_asset_history?: boolean;
     can_update_asset_condition?: boolean;
     can_generate_qr_codes?: boolean;
+    can_log_asset_replacement?: boolean;
   };
 }
 
@@ -153,14 +155,131 @@ export interface PendingReturnRequestApiItem {
 
 export interface AssetReplacementLogApiItem {
   id: number;
-  asset?: number;
-  asset_id: number;
-  date?: string;
+  asset: number;
+  asset_details: AssetApiItem;
+  date: string;
+  reason: string;
+  asset_status_before?: string | null;
+  asset_status_after?: string | null;
+  asset_condition_before?: string | null;
+  asset_condition_after?: string | null;
+  replaced_by?: number | null;
+  replaced_by_details: UserProfileApiItem | null;
+  replacement_asset?: number | null;
+  replacement_asset_details: AssetApiItem | null;
+  cost?: string | null;
   created_at?: string;
+}
+
+export type ScheduledMaintenanceStatus =
+  | "scheduled"
+  | "completed"
+  | "cancelled";
+
+export type ScheduledMaintenanceDueState =
+  | "upcoming"
+  | "due_today"
+  | "overdue"
+  | null;
+
+export type ScheduledMaintenanceType =
+  | "preventive"
+  | "repair"
+  | "inspection"
+  | "warranty"
+  | "replacement"
+  | "other";
+
+export interface ScheduledMaintenanceApiItem {
+  id: number;
+  asset: number;
+  due_date: string;
+  due_state: ScheduledMaintenanceDueState;
+  reason: string;
+  maintenance_type: ScheduledMaintenanceType;
+  owner: number | null;
+  estimated_cost: string | null;
+  vendor: string;
+  status: ScheduledMaintenanceStatus;
+  cancelled_reason: string;
+  completed_log: number | null;
+  created_by: number | null;
+  created_at: string;
+  updated_at: string;
+  asset_details: AssetApiItem;
+  owner_details: UserProfileApiItem | null;
+  created_by_details: UserProfileApiItem | null;
+  completed_log_details: AssetReplacementLogApiItem | null;
+}
+
+export interface ScheduledMaintenanceFilters {
+  asset?: number;
+  owner?: number;
+  status?: ScheduledMaintenanceStatus;
+  due_state?: Exclude<ScheduledMaintenanceDueState, null>;
+  due_from?: string;
+  due_to?: string;
+  maintenance_type?: ScheduledMaintenanceType;
+}
+
+export interface CreateScheduledMaintenancePayload {
+  asset: number;
+  due_date: string;
+  reason: string;
+  maintenance_type: ScheduledMaintenanceType;
+  owner?: number | null;
+  estimated_cost?: string | null;
+  vendor?: string;
+}
+
+export interface UpdateScheduledMaintenancePayload {
+  asset?: number;
+  due_date?: string;
   reason?: string;
-  notes?: string;
-  old_asset_tag?: string;
-  new_asset_tag?: string;
+  maintenance_type?: ScheduledMaintenanceType;
+  owner?: number | null;
+  estimated_cost?: string | null;
+  vendor?: string;
+  status?: ScheduledMaintenanceStatus;
+}
+
+export interface CompleteScheduledMaintenancePayload {
+  date: string;
+  reason: string;
+  cost?: string | null;
+  asset_status_before?: string | null;
+  asset_status_after?: string | null;
+  asset_condition_before?: string | null;
+  asset_condition_after?: string | null;
+  replacement_asset?: number | null;
+}
+
+export interface CancelScheduledMaintenancePayload {
+  cancelled_reason?: string;
+}
+
+export interface CreateReplacementLogPayload {
+  asset: number;
+  reason: string;
+  date: string;
+  replacement_asset?: number | null;
+  cost?: string | null;
+  asset_status_before?: string | null;
+  asset_status_after?: string | null;
+  asset_condition_before?: string | null;
+  asset_condition_after?: string | null;
+}
+
+export interface UpdateReplacementLogPayload {
+  asset?: number;
+  reason?: string;
+  date?: string;
+  replacement_asset?: number | null;
+  cost?: string | null;
+  asset_status_before?: string | null;
+  asset_status_after?: string | null;
+  asset_condition_before?: string | null;
+  asset_condition_after?: string | null;
 }
 
 interface RequestOptions {
@@ -171,7 +290,13 @@ interface RequestOptions {
 
 export interface AssetExportPayload {
   filters?: {
-    status?: "active" | "lost" | "returned" | "damaged";
+    status?:
+      | "active"
+      | "lost"
+      | "returned"
+      | "damaged"
+      | "maintenance"
+      | "retired";
     condition?: "excellent" | "good" | "fair" | "poor" | "damaged";
     category?:
       | "laptops"
@@ -204,6 +329,9 @@ const ASSIGNMENTS_PATH =
 const REPLACEMENTS_PATH =
   process.env.NEXT_PUBLIC_ASSET_REPLACEMENTS_API_PATH ||
   "/api/replacement-logs/";
+const SCHEDULED_MAINTENANCE_PATH =
+  process.env.NEXT_PUBLIC_SCHEDULED_MAINTENANCE_API_PATH ||
+  "/api/scheduled-maintenance/";
 const USERS_PATH =
   process.env.NEXT_PUBLIC_ASSIGNABLE_USERS_API_PATH || "/api/user-profiles/";
 const ASSETS_EXPORT_PATH =
@@ -489,6 +617,115 @@ export async function listReplacementLogs(
   return requestJson<AssetReplacementLogApiItem[]>(
     `${REPLACEMENTS_PATH}?asset=${assetId}`,
     { token }
+  );
+}
+
+function toQueryString(filters?: ScheduledMaintenanceFilters): string {
+  if (!filters) {
+    return "";
+  }
+
+  const params = new URLSearchParams();
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      params.set(key, String(value));
+    }
+  });
+
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}
+
+export async function listScheduledMaintenance(
+  filters?: ScheduledMaintenanceFilters,
+  token?: string
+): Promise<ScheduledMaintenanceApiItem[]> {
+  return requestJson<ScheduledMaintenanceApiItem[]>(
+    `${SCHEDULED_MAINTENANCE_PATH}${toQueryString(filters)}`,
+    { token }
+  );
+}
+
+export async function createScheduledMaintenance(
+  payload: CreateScheduledMaintenancePayload,
+  token?: string
+): Promise<ScheduledMaintenanceApiItem> {
+  return requestJson<ScheduledMaintenanceApiItem>(SCHEDULED_MAINTENANCE_PATH, {
+    method: "POST",
+    token,
+    body: payload,
+  });
+}
+
+export async function updateScheduledMaintenance(
+  maintenanceId: number,
+  payload: UpdateScheduledMaintenancePayload,
+  token?: string
+): Promise<ScheduledMaintenanceApiItem> {
+  return requestJson<ScheduledMaintenanceApiItem>(
+    `${SCHEDULED_MAINTENANCE_PATH}${maintenanceId}/`,
+    {
+      method: "PATCH",
+      token,
+      body: payload,
+    }
+  );
+}
+
+export async function completeScheduledMaintenance(
+  maintenanceId: number,
+  payload: CompleteScheduledMaintenancePayload,
+  token?: string
+): Promise<ScheduledMaintenanceApiItem> {
+  return requestJson<ScheduledMaintenanceApiItem>(
+    `${SCHEDULED_MAINTENANCE_PATH}${maintenanceId}/complete/`,
+    {
+      method: "POST",
+      token,
+      body: payload,
+    }
+  );
+}
+
+export async function cancelScheduledMaintenance(
+  maintenanceId: number,
+  payload: CancelScheduledMaintenancePayload,
+  token?: string
+): Promise<ScheduledMaintenanceApiItem> {
+  return requestJson<ScheduledMaintenanceApiItem>(
+    `${SCHEDULED_MAINTENANCE_PATH}${maintenanceId}/cancel/`,
+    {
+      method: "POST",
+      token,
+      body: payload,
+    }
+  );
+}
+
+export async function createReplacementLog(
+  payload: CreateReplacementLogPayload,
+  token?: string
+): Promise<AssetReplacementLogApiItem> {
+  return requestJson<AssetReplacementLogApiItem>(REPLACEMENTS_PATH, {
+    method: "POST",
+    token,
+    body: payload,
+  });
+}
+
+export async function updateReplacementLog(
+  logId: number,
+  payload: UpdateReplacementLogPayload,
+  token?: string
+): Promise<AssetReplacementLogApiItem> {
+  return requestJson<AssetReplacementLogApiItem>(
+    `${REPLACEMENTS_PATH}${logId}/`,
+    {
+      method: "PATCH",
+      token,
+      body: payload,
+    }
   );
 }
 

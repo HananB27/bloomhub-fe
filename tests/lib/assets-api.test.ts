@@ -1,15 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   assignAssetToEmployee,
+  cancelScheduledMaintenance,
+  completeScheduledMaintenance,
   createAsset,
+  createReplacementLog,
+  createScheduledMaintenance,
   deleteAssetById,
   getAssetCapabilities,
   listAssignments,
   listAssets,
   listAssignableUsers,
   listReplacementLogs,
+  listScheduledMaintenance,
   processAssetReturn,
   updateAsset,
+  updateReplacementLog,
 } from "@/lib/api/assets";
 import { ApiError } from "@/utils/api";
 
@@ -132,7 +138,7 @@ describe("assets api client", () => {
     expect(result).toEqual({ id: 7, is_active: false });
   });
 
-  it("appends query params when listing replacement logs", async () => {
+  it("appends query params when listing maintenance logs", async () => {
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
       new Response(JSON.stringify([{ id: 10, asset_id: 4 }]), {
         status: 200,
@@ -145,6 +151,235 @@ describe("assets api client", () => {
     const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url).toMatch(/\/api\/replacement-logs\/\?asset=4$/);
     expect(options).toMatchObject({ method: "GET" });
+  });
+
+  it("creates maintenance logs with explicit date and optional fields", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          id: 20,
+          asset: 4,
+          reason: "Display failed",
+          date: "2026-05-10",
+          replacement_asset: 9,
+          cost: "125.50",
+          asset_status_before: "active",
+          asset_status_after: "maintenance",
+          asset_condition_before: "good",
+          asset_condition_after: "damaged",
+        }),
+        {
+          status: 201,
+          headers: { "Content-Type": "application/json" },
+        }
+      )
+    );
+
+    await createReplacementLog(
+      {
+        asset: 4,
+        reason: "Display failed",
+        date: "2026-05-10",
+        replacement_asset: 9,
+        cost: "125.50",
+        asset_status_before: "active",
+        asset_status_after: "maintenance",
+        asset_condition_before: "good",
+        asset_condition_after: "damaged",
+      },
+      "token-replacement"
+    );
+
+    const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toMatch(/\/api\/replacement-logs\/$/);
+    expect(options).toMatchObject({
+      method: "POST",
+      headers: {
+        Authorization: "Bearer token-replacement",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        asset: 4,
+        reason: "Display failed",
+        date: "2026-05-10",
+        replacement_asset: 9,
+        cost: "125.50",
+        asset_status_before: "active",
+        asset_status_after: "maintenance",
+        asset_condition_before: "good",
+        asset_condition_after: "damaged",
+      }),
+    });
+    expect(JSON.parse(String(options.body))).not.toHaveProperty("replaced_by");
+  });
+
+  it("updates maintenance logs without sending replaced_by", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          id: 20,
+          asset: 4,
+          reason: "Updated reason",
+          date: "2026-05-11",
+          replacement_asset: null,
+          cost: null,
+          asset_status_after: null,
+          asset_condition_after: null,
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      )
+    );
+
+    await updateReplacementLog(
+      20,
+      {
+        asset: 4,
+        reason: "Updated reason",
+        date: "2026-05-11",
+        replacement_asset: null,
+        cost: null,
+        asset_status_after: null,
+        asset_condition_after: null,
+      },
+      "token-replacement"
+    );
+
+    const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toMatch(/\/api\/replacement-logs\/20\/$/);
+    expect(options).toMatchObject({
+      method: "PATCH",
+      body: JSON.stringify({
+        asset: 4,
+        reason: "Updated reason",
+        date: "2026-05-11",
+        replacement_asset: null,
+        cost: null,
+        asset_status_after: null,
+        asset_condition_after: null,
+      }),
+    });
+    expect(JSON.parse(String(options.body))).not.toHaveProperty("replaced_by");
+  });
+
+  it("lists scheduled maintenance with filters", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify([{ id: 30, asset: 4 }]), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      })
+    );
+
+    await listScheduledMaintenance(
+      { asset: 4, status: "scheduled", due_state: "overdue" },
+      "token-m"
+    );
+
+    const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toMatch(
+      /\/api\/scheduled-maintenance\/\?asset=4&status=scheduled&due_state=overdue$/
+    );
+    expect(options).toMatchObject({ method: "GET" });
+  });
+
+  it("creates scheduled maintenance", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ id: 31, asset: 4 }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      })
+    );
+
+    await createScheduledMaintenance(
+      {
+        asset: 4,
+        due_date: "2026-06-01",
+        reason: "Inspection",
+        maintenance_type: "inspection",
+        owner: 12,
+        estimated_cost: "150.00",
+        vendor: "Vendor Co",
+      },
+      "token-m"
+    );
+
+    const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toMatch(/\/api\/scheduled-maintenance\/$/);
+    expect(options).toMatchObject({
+      method: "POST",
+      body: JSON.stringify({
+        asset: 4,
+        due_date: "2026-06-01",
+        reason: "Inspection",
+        maintenance_type: "inspection",
+        owner: 12,
+        estimated_cost: "150.00",
+        vendor: "Vendor Co",
+      }),
+    });
+  });
+
+  it("completes and cancels scheduled maintenance", async () => {
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ id: 31, status: "completed" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        })
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ id: 32, status: "cancelled" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        })
+      );
+
+    await completeScheduledMaintenance(
+      31,
+      {
+        date: "2026-06-01",
+        reason: "Inspection completed",
+        cost: "150.00",
+        asset_status_before: "active",
+        asset_status_after: "returned",
+        asset_condition_before: "good",
+        asset_condition_after: "fair",
+        replacement_asset: 456,
+      },
+      "token-m"
+    );
+    await cancelScheduledMaintenance(
+      32,
+      { cancelled_reason: "No longer needed" },
+      "token-m"
+    );
+
+    expect(fetchMock.mock.calls[0][0]).toMatch(
+      /\/api\/scheduled-maintenance\/31\/complete\/$/
+    );
+    expect(fetchMock.mock.calls[0][1]).toMatchObject({
+      method: "POST",
+      body: JSON.stringify({
+        date: "2026-06-01",
+        reason: "Inspection completed",
+        cost: "150.00",
+        asset_status_before: "active",
+        asset_status_after: "returned",
+        asset_condition_before: "good",
+        asset_condition_after: "fair",
+        replacement_asset: 456,
+      }),
+    });
+    expect(fetchMock.mock.calls[1][0]).toMatch(
+      /\/api\/scheduled-maintenance\/32\/cancel\/$/
+    );
+    expect(fetchMock.mock.calls[1][1]).toMatchObject({
+      method: "POST",
+      body: JSON.stringify({ cancelled_reason: "No longer needed" }),
+    });
   });
 
   it("throws ApiError with detail message", async () => {
