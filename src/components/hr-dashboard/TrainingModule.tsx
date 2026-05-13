@@ -25,6 +25,7 @@ import {
   TrainingFilters,
   TrainingEntryList,
   ConferenceCourseRegistrationSection,
+  CertificatesSection,
 } from "./training";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs";
 import type { TrainingEntry, TrainingEntryFilters } from "@/types/training";
@@ -187,6 +188,7 @@ export function TrainingModule() {
           <TabsTrigger value="registrations">
             Conferences &amp; Courses
           </TabsTrigger>
+          <TabsTrigger value="certificates">Certificates</TabsTrigger>
         </TabsList>
 
         <TabsContent value="history" className="space-y-4">
@@ -269,6 +271,10 @@ export function TrainingModule() {
 
         <TabsContent value="registrations" className="space-y-4">
           <ConferenceCourseRegistrationSection accessToken={accessToken} />
+        </TabsContent>
+
+        <TabsContent value="certificates" className="space-y-4">
+          <CertificatesSection />
         </TabsContent>
       </Tabs>
 

@@ -5,3 +5,6 @@ export { TrainingRecentSection } from "./TrainingRecentSection";
 export { ConferenceCourseRegistrationForm } from "./ConferenceCourseRegistrationForm";
 export { ConferenceCourseRegistrationList } from "./ConferenceCourseRegistrationList";
 export { ConferenceCourseRegistrationSection } from "./ConferenceCourseRegistrationSection";
+export { CertificateUploadForm } from "./CertificateUploadForm";
+export { CertificateList } from "./CertificateList";
+export { CertificatesSection } from "./CertificatesSection";
