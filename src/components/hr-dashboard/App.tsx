@@ -407,9 +407,6 @@ export default function HRDashboardApp() {
                         const firstName = String(
                           storedUser?.first_name || ""
                         ).trim();
-                        const lastName = String(
-                          storedUser?.last_name || ""
-                        ).trim();
                         const name =
                           session?.user?.name ||
                           (firstName

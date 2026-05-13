@@ -101,7 +101,7 @@ function PreviewModal({
 export function downloadGeneratedDocument(
   resolvedContent: string,
   templateName: string,
-  format: TemplateOutputFormat
+  _format: TemplateOutputFormat
 ): void {
   const safeName = templateName.replace(/[/\\?%*:|"<>]/g, "-");
   const fullHtml = `<!DOCTYPE html>

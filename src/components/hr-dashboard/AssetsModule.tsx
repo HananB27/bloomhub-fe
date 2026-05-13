@@ -89,6 +89,7 @@ import {
   QrCode,
   Settings,
   History,
+  CalendarDays,
   Building,
   UserCheck,
   Package2,
@@ -98,7 +99,11 @@ import { ApiError } from "@/utils/api";
 import {
   approveAssetReturn,
   assignAssetToEmployee,
+  cancelScheduledMaintenance,
+  completeScheduledMaintenance,
   createAsset,
+  createReplacementLog,
+  createScheduledMaintenance,
   deleteAssetById,
   exportAssetsCsv,
   getAssetCapabilities,
@@ -107,15 +112,20 @@ import {
   listAssignableUsers,
   listPendingReturnRequests,
   listReplacementLogs,
+  listScheduledMaintenance,
   rejectAssetReturn,
   requestAssetReturn,
   updateAsset,
+  updateReplacementLog,
   type AssetApiItem,
   type AssetAssignmentApiItem,
   type AssetCapabilities,
   type AssetItemCapabilities,
   type PendingReturnRequestApiItem,
   type AssetReplacementLogApiItem,
+  type ScheduledMaintenanceApiItem,
+  type ScheduledMaintenanceStatus,
+  type ScheduledMaintenanceType,
 } from "@/lib/api/assets";
 import type { LucideIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -144,6 +154,14 @@ type AssetCondition =
   | "poor"
   | "damaged"
   | "unknown";
+
+type ReplacementSnapshotValue = string | null | undefined;
+type MaintenanceQueueTab =
+  | "scheduled"
+  | "due_today"
+  | "overdue"
+  | "completed"
+  | "cancelled";
 
 interface Asset {
   id: number;
@@ -216,6 +234,56 @@ interface AssignableUser {
   name: string;
 }
 
+const ASSET_STATUS_OPTIONS: { value: AssetStatus; label: string }[] = [
+  { value: "available", label: "Available" },
+  { value: "active", label: "Active" },
+  { value: "maintenance", label: "Maintenance" },
+  { value: "damaged", label: "Damaged" },
+  { value: "lost", label: "Lost" },
+  { value: "retired", label: "Retired" },
+];
+
+const MAINTENANCE_ASSET_STATUS_OPTIONS: {
+  value: "active" | "lost" | "returned" | "damaged" | "retired";
+  label: string;
+}[] = [
+  { value: "active", label: "Active" },
+  { value: "lost", label: "Lost" },
+  { value: "returned", label: "Returned" },
+  { value: "damaged", label: "Damaged" },
+  { value: "retired", label: "Retired" },
+];
+
+const ASSET_CONDITION_OPTIONS: { value: AssetCondition; label: string }[] = [
+  { value: "excellent", label: "Excellent" },
+  { value: "good", label: "Good" },
+  { value: "fair", label: "Fair" },
+  { value: "poor", label: "Poor" },
+  { value: "damaged", label: "Damaged" },
+  { value: "unknown", label: "Unknown" },
+];
+
+const MAINTENANCE_TYPE_OPTIONS: {
+  value: ScheduledMaintenanceType;
+  label: string;
+}[] = [
+  { value: "preventive", label: "Preventive" },
+  { value: "repair", label: "Repair" },
+  { value: "inspection", label: "Inspection" },
+  { value: "warranty", label: "Warranty" },
+  { value: "replacement", label: "Replacement" },
+  { value: "other", label: "Other" },
+];
+
+const MAINTENANCE_QUEUE_TABS: { value: MaintenanceQueueTab; label: string }[] =
+  [
+    { value: "scheduled", label: "Scheduled" },
+    { value: "due_today", label: "Due Today" },
+    { value: "overdue", label: "Overdue" },
+    { value: "completed", label: "Completed" },
+    { value: "cancelled", label: "Cancelled" },
+  ];
+
 const EMPTY_ASSET_CAPABILITIES: Required<
   NonNullable<AssetCapabilities["capabilities"]>
 > = {
@@ -230,6 +298,7 @@ const EMPTY_ASSET_CAPABILITIES: Required<
   can_view_asset_history: false,
   can_update_asset_condition: false,
   can_generate_qr_codes: false,
+  can_log_asset_replacement: false,
 };
 
 function toAssetCapabilities(value?: AssetCapabilities | null) {
@@ -302,14 +371,26 @@ function toAssetStatus(value?: string): AssetStatus {
     : "available";
 }
 
-function toApiAssetStatus(
-  value: AssetStatus
-): "active" | "lost" | "returned" | "damaged" {
-  if (value === "lost" || value === "returned" || value === "damaged") {
+function toApiAssetStatus(value: AssetStatus): AssetStatus {
+  return value;
+}
+
+function normalizeAssetStatusForApi(
+  value?: string | null
+): "active" | "lost" | "returned" | "damaged" | "retired" | undefined {
+  if (!value || value === "none" || value === "not_recorded") return undefined;
+  if (value === "available") return "active";
+  if (
+    value === "active" ||
+    value === "lost" ||
+    value === "returned" ||
+    value === "damaged" ||
+    value === "retired"
+  ) {
     return value;
   }
 
-  return "active";
+  return undefined;
 }
 
 function toApiAssetCondition(
@@ -328,15 +409,17 @@ function toApiAssetCondition(
   return "good";
 }
 
-function toPersonName(value?: {
-  full_name?: string | null;
-  user?: {
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-    username?: string;
-  };
-}): string {
+function toPersonName(
+  value?: {
+    full_name?: string | null;
+    user?: {
+      first_name?: string;
+      last_name?: string;
+      email?: string;
+      username?: string;
+    };
+  } | null
+): string {
   const fullName = value?.full_name?.trim();
   if (fullName) {
     return fullName;
@@ -352,9 +435,96 @@ function toPersonName(value?: {
   return value?.user?.email || value?.user?.username || "Unknown";
 }
 
-function toKnownPersonName(value?: Parameters<typeof toPersonName>[0]): string {
+function toKnownPersonName(
+  value?: Parameters<typeof toPersonName>[0] | null
+): string {
   const name = toPersonName(value);
   return name === "Unknown" ? "" : name;
+}
+
+function formatReplacementLogDate(date: string): string {
+  const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+
+  if (!dateOnlyMatch) {
+    return formatDate(date);
+  }
+
+  const [, year, month, day] = dateOnlyMatch;
+  return new Date(
+    Number(year),
+    Number(month) - 1,
+    Number(day)
+  ).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function formatSnapshotValue(value: ReplacementSnapshotValue): string {
+  if (typeof value !== "string" || !value.trim()) {
+    return "Not recorded";
+  }
+
+  return value
+    .trim()
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function formatMaintenanceType(value: ScheduledMaintenanceType): string {
+  return (
+    MAINTENANCE_TYPE_OPTIONS.find((option) => option.value === value)?.label ||
+    formatSnapshotValue(value)
+  );
+}
+
+function formatDueState(value: ScheduledMaintenanceApiItem["due_state"]) {
+  if (!value) {
+    return "Not recorded";
+  }
+
+  return formatSnapshotValue(value);
+}
+
+function formatMaintenanceStatus(value: ScheduledMaintenanceStatus): string {
+  return formatSnapshotValue(value);
+}
+
+function getMaintenanceStatusBadgeClass(value: ScheduledMaintenanceStatus) {
+  switch (value) {
+    case "scheduled":
+      return "border-sky-200 bg-sky-50 text-sky-800";
+    case "completed":
+      return "border-emerald-200 bg-emerald-50 text-emerald-800";
+    case "cancelled":
+      return "border-gray-300 bg-gray-100 text-gray-800";
+    default:
+      return "border-gray-300 bg-gray-100 text-gray-800";
+  }
+}
+
+function getMaintenanceDueBadgeClass(
+  value: ScheduledMaintenanceApiItem["due_state"]
+) {
+  switch (value) {
+    case "overdue":
+      return "border-red-200 bg-red-50 text-red-800";
+    case "due_today":
+      return "border-amber-200 bg-amber-50 text-amber-900";
+    case "upcoming":
+      return "border-indigo-200 bg-indigo-50 text-indigo-800";
+    default:
+      return "border-gray-300 bg-gray-100 text-gray-800";
+  }
+}
+
+function getTodayDateValue(): string {
+  const date = new Date();
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
 function toRecord(value: unknown): Record<string, unknown> | null {
@@ -540,21 +710,29 @@ function applyActiveAssignmentsToAssets(
     }
   });
 
-  return assets.map((asset) => {
-    const activeAssignment = activeAssignmentsByAssetId.get(asset.id);
+  return assets.map((asset) =>
+    applyActiveAssignmentToAsset(
+      asset,
+      activeAssignmentsByAssetId.get(asset.id)
+    )
+  );
+}
 
-    if (!activeAssignment) {
-      return asset;
-    }
+function applyActiveAssignmentToAsset(
+  asset: Asset,
+  activeAssignment?: Assignment
+): Asset {
+  if (!activeAssignment) {
+    return asset;
+  }
 
-    return {
-      ...asset,
-      assignedTo: asset.assignedTo || activeAssignment.employeeId,
-      assignedEmployeeName:
-        asset.assignedEmployeeName || activeAssignment.employeeName,
-      assignedDate: asset.assignedDate || activeAssignment.assignedDate,
-    };
-  });
+  return {
+    ...asset,
+    assignedTo: activeAssignment.employeeId,
+    assignedEmployeeName: activeAssignment.employeeName,
+    assignedDate: activeAssignment.assignedDate,
+    status: asset.status === "available" ? "active" : asset.status,
+  };
 }
 
 function mapPendingReturnRequestFromApi(
@@ -642,6 +820,37 @@ function getErrorMessage(error: unknown, fallback: string): string {
   }
 
   return fallback;
+}
+
+function getFieldErrors(error: unknown): Record<string, string> {
+  if (!(error instanceof ApiError)) {
+    return {};
+  }
+
+  const details =
+    error.details && typeof error.details === "object"
+      ? (error.details as Record<string, unknown>)
+      : null;
+
+  if (!details) {
+    return {};
+  }
+
+  return Object.entries(details).reduce<Record<string, string>>(
+    (errors, [field, value]) => {
+      if (Array.isArray(value)) {
+        const message = value.filter(Boolean).join(" ");
+        if (message) {
+          errors[field] = message;
+        }
+      } else if (typeof value === "string" && value.trim()) {
+        errors[field] = value;
+      }
+
+      return errors;
+    },
+    {}
+  );
 }
 
 const ADD_ASSET_LIGHT_FIELD_CLASS =
@@ -762,6 +971,8 @@ export function AssetsModule() {
     warranty: "",
     location: "",
     specifications: "",
+    condition: "good" as AssetCondition,
+    status: "available" as AssetStatus,
   });
 
   const [editAsset, setEditAsset] = useState({
@@ -795,6 +1006,82 @@ export function AssetsModule() {
   >([]);
   const [isLoadingReplacementLogs, setIsLoadingReplacementLogs] =
     useState(false);
+  const [isReplacementFormOpen, setIsReplacementFormOpen] = useState(false);
+  const [isCreatingReplacementLog, setIsCreatingReplacementLog] =
+    useState(false);
+  const [replacementForm, setReplacementForm] = useState({
+    date: "",
+    reason: "",
+    replacementAssetId: "none",
+    cost: "",
+    assetStatusBefore: "none",
+    assetStatusAfter: "none",
+    assetConditionBefore: "none",
+    assetConditionAfter: "none",
+  });
+  const [editingReplacementLogId, setEditingReplacementLogId] = useState<
+    number | null
+  >(null);
+  const [isUpdatingReplacementLog, setIsUpdatingReplacementLog] =
+    useState(false);
+  const [replacementEditForm, setReplacementEditForm] = useState({
+    assetId: "",
+    date: "",
+    reason: "",
+    replacementAssetId: "none",
+    cost: "",
+    assetStatusBefore: "none",
+    assetStatusAfter: "none",
+    assetConditionBefore: "none",
+    assetConditionAfter: "none",
+  });
+  const [replacementEditErrors, setReplacementEditErrors] = useState<
+    Record<string, string>
+  >({});
+  const [scheduledMaintenance, setScheduledMaintenance] = useState<
+    ScheduledMaintenanceApiItem[]
+  >([]);
+  const [
+    selectedAssetScheduledMaintenance,
+    setSelectedAssetScheduledMaintenance,
+  ] = useState<ScheduledMaintenanceApiItem[]>([]);
+  const [isLoadingScheduledMaintenance, setIsLoadingScheduledMaintenance] =
+    useState(false);
+  const [maintenanceQueueTab, setMaintenanceQueueTab] =
+    useState<MaintenanceQueueTab>("scheduled");
+  const [maintenanceQueueSearchTerm, setMaintenanceQueueSearchTerm] =
+    useState("");
+  const [maintenanceQueueTypeFilter, setMaintenanceQueueTypeFilter] = useState<
+    ScheduledMaintenanceType | "all"
+  >("all");
+  const [isMaintenanceFormOpen, setIsMaintenanceFormOpen] = useState(false);
+  const [maintenanceForm, setMaintenanceForm] = useState({
+    assetId: "",
+    dueDate: "",
+    reason: "",
+    maintenanceType: "preventive" as ScheduledMaintenanceType,
+    ownerId: "none",
+    estimatedCost: "",
+    vendor: "",
+  });
+  const [isSubmittingMaintenance, setIsSubmittingMaintenance] = useState(false);
+  const [maintenanceActionTarget, setMaintenanceActionTarget] =
+    useState<ScheduledMaintenanceApiItem | null>(null);
+  const [maintenanceCompletionForm, setMaintenanceCompletionForm] = useState({
+    date: getTodayDateValue(),
+    reason: "",
+    cost: "",
+    replacementAssetId: "none",
+    assetStatusBefore: "none",
+    assetStatusAfter: "none",
+    assetConditionBefore: "none",
+    assetConditionAfter: "none",
+  });
+  const [isCompletingMaintenance, setIsCompletingMaintenance] = useState(false);
+  const [maintenanceCancelTarget, setMaintenanceCancelTarget] =
+    useState<ScheduledMaintenanceApiItem | null>(null);
+  const [maintenanceCancelReason, setMaintenanceCancelReason] = useState("");
+  const [isCancellingMaintenance, setIsCancellingMaintenance] = useState(false);
 
   const [assets, setAssets] = useState<Asset[]>([]);
 
@@ -839,6 +1126,26 @@ export function AssetsModule() {
   const canUpdateAssetCondition =
     globalAssetCapabilities.can_update_asset_condition;
   const canViewAssetHistory = globalAssetCapabilities.can_view_asset_history;
+  const hasViewOwnAssetsPermission = Boolean(
+    assetCapabilities?.permissions?.includes("view_own_assets")
+  );
+  const hasScheduledMaintenanceAccess = Boolean(
+    canViewAssetHistory ||
+    hasViewOwnAssetsPermission ||
+    ["own", "team", "all"].includes(
+      String(assetCapabilities?.scope || "").toLowerCase()
+    )
+  );
+  const hasLogReplacementPermission = Boolean(
+    assetCapabilities?.permissions?.includes("log_asset_replacement")
+  );
+  const canManageMaintenance = Boolean(
+    globalAssetCapabilities.can_log_asset_replacement ||
+    hasLogReplacementPermission
+  );
+  const canLogReplacement =
+    getAssetCapability(selectedAsset, "can_log_replacement") ??
+    canManageMaintenance;
   const canConfigureAssetTypes = Boolean(
     canCreateAssets || canUpdateAssets || canDeleteAssets
   );
@@ -867,6 +1174,51 @@ export function AssetsModule() {
         new Date(selectedAssignment.assignedDate).getTime()) /
         (1000 * 3600 * 24)
     );
+  const replacementAssetOptions = selectedAsset
+    ? assets.filter((asset) => asset.id !== selectedAsset.id)
+    : [];
+  const editReplacementAssetOptions = replacementEditForm.assetId
+    ? assets.filter((asset) => String(asset.id) !== replacementEditForm.assetId)
+    : assets;
+  const maintenanceRelatedAssetOptions = maintenanceActionTarget
+    ? assets.filter((asset) => asset.id !== maintenanceActionTarget.asset)
+    : assets;
+  const visibleScheduledMaintenance = scheduledMaintenance.filter((item) => {
+    const normalizedSearchTerm = maintenanceQueueSearchTerm
+      .trim()
+      .toLowerCase();
+    const ownerName = toKnownPersonName(item.owner_details).toLowerCase();
+    const creatorName = toKnownPersonName(
+      item.created_by_details
+    ).toLowerCase();
+    const assetName = (item.asset_details?.name || "").toLowerCase();
+    const assetTag = (item.asset_details?.asset_tag || "").toLowerCase();
+    const assetSerial = (item.asset_details?.serial_number || "").toLowerCase();
+    const matchesSearch =
+      !normalizedSearchTerm ||
+      assetName.includes(normalizedSearchTerm) ||
+      assetTag.includes(normalizedSearchTerm) ||
+      assetSerial.includes(normalizedSearchTerm) ||
+      ownerName.includes(normalizedSearchTerm) ||
+      creatorName.includes(normalizedSearchTerm);
+    const matchesType =
+      maintenanceQueueTypeFilter === "all" ||
+      item.maintenance_type === maintenanceQueueTypeFilter;
+
+    if (!matchesSearch || !matchesType) {
+      return false;
+    }
+
+    if (maintenanceQueueTab === "due_today") {
+      return item.status === "scheduled" && item.due_state === "due_today";
+    }
+
+    if (maintenanceQueueTab === "overdue") {
+      return item.status === "scheduled" && item.due_state === "overdue";
+    }
+
+    return item.status === maintenanceQueueTab;
+  });
 
   const loadAssetsAndAssignments = useCallback(async () => {
     setIsLoadingAssets(true);
@@ -885,6 +1237,7 @@ export function AssetsModule() {
       setAssets([]);
       setAssignments([]);
       setPendingReturnRequests([]);
+      setScheduledMaintenance([]);
       setApiError(getErrorMessage(error, "Failed to load asset permissions."));
       setIsLoadingAssets(false);
       return;
@@ -907,19 +1260,29 @@ export function AssetsModule() {
       setAssets([]);
       setAssignments([]);
       setPendingReturnRequests([]);
+      setScheduledMaintenance([]);
       setIsLoadingAssets(false);
       return;
     }
 
     try {
-      const [assetsPayload, assignmentsPayload, pendingReturnsPayload] =
-        await Promise.all([
-          listAssets(accessToken),
-          listAssignments(accessToken).catch(() => []),
-          loadedCapabilities.can_process_return
-            ? listPendingReturnRequests(accessToken).catch(() => [])
-            : Promise.resolve([]),
-        ]);
+      const [
+        assetsPayload,
+        assignmentsPayload,
+        pendingReturnsPayload,
+        scheduledMaintenancePayload,
+      ] = await Promise.all([
+        listAssets(accessToken),
+        listAssignments(accessToken).catch(() => []),
+        loadedCapabilities.can_process_return
+          ? listPendingReturnRequests(accessToken).catch(() => [])
+          : Promise.resolve([]),
+        loadedCapabilities.can_view_asset_history ||
+        capabilitiesPayload.permissions?.includes("view_own_assets") ||
+        hasScopedViewAccess
+          ? listScheduledMaintenance(undefined, accessToken).catch(() => [])
+          : Promise.resolve([]),
+      ]);
 
       if (!isAssetsMountedRef.current) {
         return;
@@ -936,6 +1299,7 @@ export function AssetsModule() {
       setPendingReturnRequests(
         pendingReturnsPayload.map(mapPendingReturnRequestFromApi)
       );
+      setScheduledMaintenance(scheduledMaintenancePayload);
     } catch (error: unknown) {
       if (!isAssetsMountedRef.current) {
         return;
@@ -1146,18 +1510,29 @@ export function AssetsModule() {
       return "Unassigned";
     }
 
-    const fromAsset = selectedAsset.assignedEmployeeName?.trim();
-    if (fromAsset) {
-      return fromAsset;
-    }
-
     const fromAssignment = getActiveAssignmentForAsset(
       selectedAsset.id
     )?.employeeName?.trim();
-    return fromAssignment || "Unassigned";
+    if (fromAssignment) {
+      return fromAssignment;
+    }
+
+    const fromAsset = selectedAsset.assignedEmployeeName?.trim();
+    return fromAsset || "Unassigned";
   })();
 
-  const canApproveReturnForAsset = (_asset: Asset): boolean => false;
+  const canApproveReturnForAsset = (asset: Asset): boolean => {
+    if (isAssetAssignedToCurrentUser(asset)) {
+      return false;
+    }
+
+    const assetCapability = getAssetCapability(asset, "can_process_return");
+    if (assetCapability !== undefined) {
+      return assetCapability;
+    }
+
+    return globalAssetCapabilities.can_process_return;
+  };
 
   const canRequestReturnForAsset = (asset: Asset): boolean => {
     const assetCapability = getAssetCapability(asset, "can_request_return");
@@ -1376,8 +1751,8 @@ export function AssetsModule() {
           warranty_until: newAsset.warranty || undefined,
           location: newAsset.location || undefined,
           specifications: parsedSpecifications,
-          condition: "good",
-          status: "active",
+          condition: newAsset.condition,
+          status: newAsset.status,
         },
         accessToken
       );
@@ -1407,6 +1782,8 @@ export function AssetsModule() {
       warranty: "",
       location: "",
       specifications: "",
+      condition: "good" as AssetCondition,
+      status: "available" as AssetStatus,
     });
     setIsAddAssetDialogOpen(false);
   };
@@ -1450,21 +1827,440 @@ export function AssetsModule() {
     setSelectedAsset(asset);
     setIsAssetDetailsDialogOpen(true);
     setReplacementLogs([]);
+    setSelectedAssetScheduledMaintenance([]);
+    setIsReplacementFormOpen(false);
+    setReplacementForm({
+      date: "",
+      reason: "",
+      replacementAssetId: "none",
+      cost: "",
+      assetStatusBefore: "none",
+      assetStatusAfter: "none",
+      assetConditionBefore: "none",
+      assetConditionAfter: "none",
+    });
+    setEditingReplacementLogId(null);
+    setReplacementEditForm({
+      assetId: "",
+      date: "",
+      reason: "",
+      replacementAssetId: "none",
+      cost: "",
+      assetStatusBefore: "none",
+      assetStatusAfter: "none",
+      assetConditionBefore: "none",
+      assetConditionAfter: "none",
+    });
+    setReplacementEditErrors({});
 
-    if (
-      !(getAssetCapability(asset, "can_view_history") ?? canViewAssetHistory)
-    ) {
+    const canLoadAssetHistory =
+      getAssetCapability(asset, "can_view_history") ?? canViewAssetHistory;
+    const canLoadScheduledMaintenance =
+      canLoadAssetHistory || hasScheduledMaintenanceAccess;
+
+    if (!canLoadAssetHistory && !canLoadScheduledMaintenance) {
       return;
     }
 
-    setIsLoadingReplacementLogs(true);
+    setIsLoadingReplacementLogs(canLoadAssetHistory);
+    setIsLoadingScheduledMaintenance(canLoadScheduledMaintenance);
     try {
-      const logs = await listReplacementLogs(asset.id, accessToken);
+      const [logs, scheduled] = await Promise.all([
+        canLoadAssetHistory
+          ? listReplacementLogs(asset.id, accessToken)
+          : Promise.resolve([]),
+        canLoadScheduledMaintenance
+          ? listScheduledMaintenance({ asset: asset.id }, accessToken)
+          : Promise.resolve([]),
+      ]);
       setReplacementLogs(logs);
+      setSelectedAssetScheduledMaintenance(
+        scheduled.filter((item) => item.status === "scheduled")
+      );
     } catch (error: unknown) {
-      setApiError(getErrorMessage(error, "Failed to load replacement logs."));
+      setApiError(getErrorMessage(error, "Failed to load maintenance logs."));
     } finally {
       setIsLoadingReplacementLogs(false);
+      setIsLoadingScheduledMaintenance(false);
+    }
+  };
+
+  const submitReplacementLog = async () => {
+    if (!selectedAsset) return;
+    if (!canLogReplacement) {
+      setApiError("You do not have permission to log asset maintenance.");
+      return;
+    }
+
+    const reason = replacementForm.reason.trim();
+    const date = replacementForm.date.trim();
+
+    if (!reason || !date) {
+      setApiError("Maintenance date and reason are required.");
+      return;
+    }
+
+    const payload = {
+      asset: selectedAsset.id,
+      reason,
+      date,
+      ...(replacementForm.replacementAssetId !== "none"
+        ? { replacement_asset: Number(replacementForm.replacementAssetId) }
+        : {}),
+      ...(replacementForm.cost.trim()
+        ? { cost: replacementForm.cost.trim() }
+        : {}),
+      ...(replacementForm.assetStatusBefore !== "none"
+        ? { asset_status_before: replacementForm.assetStatusBefore }
+        : {}),
+      ...(replacementForm.assetStatusAfter !== "none"
+        ? { asset_status_after: replacementForm.assetStatusAfter }
+        : {}),
+      ...(replacementForm.assetConditionBefore !== "none"
+        ? { asset_condition_before: replacementForm.assetConditionBefore }
+        : {}),
+      ...(replacementForm.assetConditionAfter !== "none"
+        ? { asset_condition_after: replacementForm.assetConditionAfter }
+        : {}),
+    };
+
+    setIsCreatingReplacementLog(true);
+    try {
+      const createdLog = await createReplacementLog(payload, accessToken);
+      setReplacementLogs((prev) => [createdLog, ...prev]);
+      setReplacementForm({
+        date: "",
+        reason: "",
+        replacementAssetId: "none",
+        cost: "",
+        assetStatusBefore: "none",
+        assetStatusAfter: "none",
+        assetConditionBefore: "none",
+        assetConditionAfter: "none",
+      });
+      setIsReplacementFormOpen(false);
+      setApiError(null);
+    } catch (error: unknown) {
+      if (error instanceof ApiError && error.status === 403) {
+        setApiError("You do not have permission to log asset maintenance.");
+      } else {
+        setApiError(getErrorMessage(error, "Failed to log asset maintenance."));
+      }
+    } finally {
+      setIsCreatingReplacementLog(false);
+    }
+  };
+
+  const openReplacementLogEdit = (log: AssetReplacementLogApiItem) => {
+    if (!canLogReplacement) {
+      setApiError("You do not have permission to edit asset maintenance.");
+      return;
+    }
+
+    setEditingReplacementLogId(log.id);
+    setReplacementEditErrors({});
+    setReplacementEditForm({
+      assetId: String(log.asset),
+      date: log.date,
+      reason: log.reason,
+      replacementAssetId: log.replacement_asset
+        ? String(log.replacement_asset)
+        : "none",
+      cost: log.cost || "",
+      assetStatusBefore: log.asset_status_before || "none",
+      assetStatusAfter: log.asset_status_after || "none",
+      assetConditionBefore: log.asset_condition_before || "none",
+      assetConditionAfter: log.asset_condition_after || "none",
+    });
+  };
+
+  const cancelReplacementLogEdit = () => {
+    setEditingReplacementLogId(null);
+    setReplacementEditErrors({});
+    setReplacementEditForm({
+      assetId: "",
+      date: "",
+      reason: "",
+      replacementAssetId: "none",
+      cost: "",
+      assetStatusBefore: "none",
+      assetStatusAfter: "none",
+      assetConditionBefore: "none",
+      assetConditionAfter: "none",
+    });
+  };
+
+  const submitReplacementLogEdit = async (logId: number) => {
+    if (!canLogReplacement) {
+      setApiError("You do not have permission to edit asset maintenance.");
+      return;
+    }
+
+    const assetId = Number(replacementEditForm.assetId);
+    const reason = replacementEditForm.reason.trim();
+    const date = replacementEditForm.date.trim();
+
+    if (!assetId || !reason || !date) {
+      setReplacementEditErrors({
+        ...(!assetId ? { asset: "Asset is required." } : {}),
+        ...(!reason ? { reason: "Reason is required." } : {}),
+        ...(!date ? { date: "Maintenance date is required." } : {}),
+      });
+      return;
+    }
+
+    const payload = {
+      asset: assetId,
+      reason,
+      date,
+      replacement_asset:
+        replacementEditForm.replacementAssetId !== "none"
+          ? Number(replacementEditForm.replacementAssetId)
+          : null,
+      cost: replacementEditForm.cost.trim()
+        ? replacementEditForm.cost.trim()
+        : null,
+      asset_status_before:
+        replacementEditForm.assetStatusBefore !== "none"
+          ? replacementEditForm.assetStatusBefore
+          : null,
+      asset_status_after:
+        replacementEditForm.assetStatusAfter !== "none"
+          ? replacementEditForm.assetStatusAfter
+          : null,
+      asset_condition_before:
+        replacementEditForm.assetConditionBefore !== "none"
+          ? replacementEditForm.assetConditionBefore
+          : null,
+      asset_condition_after:
+        replacementEditForm.assetConditionAfter !== "none"
+          ? replacementEditForm.assetConditionAfter
+          : null,
+    };
+
+    setIsUpdatingReplacementLog(true);
+    setReplacementEditErrors({});
+    try {
+      const updatedLog = await updateReplacementLog(
+        logId,
+        payload,
+        accessToken
+      );
+      setReplacementLogs((prev) =>
+        prev.map((log) => (log.id === updatedLog.id ? updatedLog : log))
+      );
+      cancelReplacementLogEdit();
+      setApiError(null);
+    } catch (error: unknown) {
+      const fieldErrors = getFieldErrors(error);
+      setReplacementEditErrors(fieldErrors);
+
+      if (error instanceof ApiError && error.status === 403) {
+        setApiError("You do not have permission to edit asset maintenance.");
+      } else {
+        setApiError(
+          getErrorMessage(error, "Failed to update asset maintenance.")
+        );
+      }
+    } finally {
+      setIsUpdatingReplacementLog(false);
+    }
+  };
+
+  const upsertScheduledMaintenance = (item: ScheduledMaintenanceApiItem) => {
+    setScheduledMaintenance((prev) => {
+      const exists = prev.some((current) => current.id === item.id);
+      return exists
+        ? prev.map((current) => (current.id === item.id ? item : current))
+        : [item, ...prev];
+    });
+
+    setSelectedAssetScheduledMaintenance((prev) => {
+      if (
+        !selectedAsset ||
+        item.asset !== selectedAsset.id ||
+        item.status !== "scheduled"
+      ) {
+        return prev.filter((current) => current.id !== item.id);
+      }
+
+      const exists = prev.some((current) => current.id === item.id);
+      return exists
+        ? prev.map((current) => (current.id === item.id ? item : current))
+        : [item, ...prev];
+    });
+  };
+
+  const openMaintenanceForm = (asset?: Asset) => {
+    setMaintenanceForm({
+      assetId: asset ? String(asset.id) : "",
+      dueDate: "",
+      reason: "",
+      maintenanceType: "preventive",
+      ownerId: "none",
+      estimatedCost: "",
+      vendor: "",
+    });
+    setIsMaintenanceFormOpen(true);
+    if (assignableUsers.length === 0) {
+      void listAssignableUsers(accessToken)
+        .then((users) => setAssignableUsers(users))
+        .catch(() => setAssignableUsers([]));
+    }
+  };
+
+  const submitScheduledMaintenance = async () => {
+    if (!canManageMaintenance) {
+      setApiError("You do not have permission to schedule maintenance.");
+      return;
+    }
+
+    const assetId = Number(maintenanceForm.assetId);
+    const dueDate = maintenanceForm.dueDate.trim();
+    const reason = maintenanceForm.reason.trim();
+
+    if (!assetId || !dueDate || !reason) {
+      setApiError("Asset, due date, and reason are required.");
+      return;
+    }
+
+    const payload = {
+      asset: assetId,
+      due_date: dueDate,
+      reason,
+      maintenance_type: maintenanceForm.maintenanceType,
+      ...(maintenanceForm.ownerId !== "none"
+        ? { owner: Number(maintenanceForm.ownerId) }
+        : {}),
+      ...(maintenanceForm.estimatedCost.trim()
+        ? { estimated_cost: maintenanceForm.estimatedCost.trim() }
+        : {}),
+      ...(maintenanceForm.vendor.trim()
+        ? { vendor: maintenanceForm.vendor.trim() }
+        : {}),
+    };
+
+    setIsSubmittingMaintenance(true);
+    try {
+      const created = await createScheduledMaintenance(payload, accessToken);
+      upsertScheduledMaintenance(created);
+      setIsMaintenanceFormOpen(false);
+      setApiError(null);
+    } catch (error: unknown) {
+      setApiError(getErrorMessage(error, "Failed to schedule maintenance."));
+    } finally {
+      setIsSubmittingMaintenance(false);
+    }
+  };
+
+  const openCompleteMaintenance = (item: ScheduledMaintenanceApiItem) => {
+    setMaintenanceActionTarget(item);
+    setMaintenanceCompletionForm({
+      date: getTodayDateValue(),
+      reason: item.reason || "",
+      cost: item.estimated_cost || "",
+      replacementAssetId: "none",
+      assetStatusBefore: "none",
+      assetStatusAfter: "none",
+      assetConditionBefore: "none",
+      assetConditionAfter: "none",
+    });
+  };
+
+  const submitCompleteMaintenance = async () => {
+    if (!maintenanceActionTarget) return;
+    if (!canManageMaintenance) {
+      setApiError("You do not have permission to complete maintenance.");
+      return;
+    }
+
+    const date = maintenanceCompletionForm.date.trim();
+    const reason = maintenanceCompletionForm.reason.trim();
+    const cost = maintenanceCompletionForm.cost.trim();
+    const assetStatusBefore = normalizeAssetStatusForApi(
+      maintenanceCompletionForm.assetStatusBefore
+    );
+    const assetStatusAfter = normalizeAssetStatusForApi(
+      maintenanceCompletionForm.assetStatusAfter
+    );
+
+    if (!date || !reason) {
+      setApiError("Completion date and reason are required.");
+      return;
+    }
+
+    const payload = {
+      date,
+      reason,
+      ...(cost ? { cost } : {}),
+      ...(maintenanceCompletionForm.replacementAssetId !== "none"
+        ? {
+            replacement_asset: Number(
+              maintenanceCompletionForm.replacementAssetId
+            ),
+          }
+        : {}),
+      ...(assetStatusBefore ? { asset_status_before: assetStatusBefore } : {}),
+      ...(assetStatusAfter ? { asset_status_after: assetStatusAfter } : {}),
+      ...(maintenanceCompletionForm.assetConditionBefore !== "none"
+        ? {
+            asset_condition_before:
+              maintenanceCompletionForm.assetConditionBefore,
+          }
+        : {}),
+      ...(maintenanceCompletionForm.assetConditionAfter !== "none"
+        ? {
+            asset_condition_after:
+              maintenanceCompletionForm.assetConditionAfter,
+          }
+        : {}),
+    };
+
+    setIsCompletingMaintenance(true);
+    try {
+      const completed = await completeScheduledMaintenance(
+        maintenanceActionTarget.id,
+        payload,
+        accessToken
+      );
+      upsertScheduledMaintenance(completed);
+      if (completed.completed_log_details) {
+        setReplacementLogs((prev) => [
+          completed.completed_log_details!,
+          ...prev,
+        ]);
+      }
+      setMaintenanceActionTarget(null);
+      setApiError(null);
+    } catch (error: unknown) {
+      setApiError(getErrorMessage(error, "Failed to complete maintenance."));
+    } finally {
+      setIsCompletingMaintenance(false);
+    }
+  };
+
+  const submitCancelMaintenance = async () => {
+    if (!maintenanceCancelTarget) return;
+    if (!canManageMaintenance) {
+      setApiError("You do not have permission to cancel maintenance.");
+      return;
+    }
+
+    setIsCancellingMaintenance(true);
+    try {
+      const cancelled = await cancelScheduledMaintenance(
+        maintenanceCancelTarget.id,
+        { cancelled_reason: maintenanceCancelReason.trim() },
+        accessToken
+      );
+      upsertScheduledMaintenance(cancelled);
+      setMaintenanceCancelTarget(null);
+      setMaintenanceCancelReason("");
+      setApiError(null);
+    } catch (error: unknown) {
+      setApiError(getErrorMessage(error, "Failed to cancel maintenance."));
+    } finally {
+      setIsCancellingMaintenance(false);
     }
   };
 
@@ -1567,12 +2363,18 @@ export function AssetsModule() {
         accessToken
       );
 
+      const activeAssignment = getActiveAssignmentForAsset(selectedAsset.id);
+      const mappedUpdated = applyActiveAssignmentToAsset(
+        mapAssetFromApi(updated),
+        activeAssignment
+      );
+
       setAssets((prev) =>
         prev.map((asset) =>
-          asset.id === selectedAsset.id ? mapAssetFromApi(updated) : asset
+          asset.id === selectedAsset.id ? mappedUpdated : asset
         )
       );
-      setSelectedAsset(mapAssetFromApi(updated));
+      setSelectedAsset(mappedUpdated);
       setIsEditAssetDialogOpen(false);
       setApiError(null);
     } catch (error: unknown) {
@@ -1654,24 +2456,39 @@ export function AssetsModule() {
         assignableUsers.find((user) => user.id === assignmentForm.employeeId)
           ?.name ||
         "Assigned User";
+      const updateAssignedAsset = (asset: Asset): Asset =>
+        asset.id === targetAsset.id
+          ? {
+              ...asset,
+              status: "active",
+              assignedTo: assignmentForm.employeeId,
+              assignedEmployeeName,
+              assignedDate:
+                mapped.assignedDate || new Date().toISOString().split("T")[0],
+            }
+          : asset;
 
-      setAssignments((prev) => [mapped, ...prev]);
-      setAssets((prev) =>
-        prev.map((asset) =>
-          asset.id === targetAsset.id
+      setAssignments((prev) => [
+        mapped,
+        ...prev.map((assignment) =>
+          assignment.assetId === targetAsset.id && assignment.isActive
             ? {
-                ...asset,
-                status: "active",
-                assignedTo: assignmentForm.employeeId,
-                assignedEmployeeName,
-                assignedDate:
-                  mapped.assignedDate || new Date().toISOString().split("T")[0],
+                ...assignment,
+                isActive: false,
+                returnedDate:
+                  assignment.returnedDate ||
+                  new Date().toISOString().split("T")[0],
               }
-            : asset
-        )
+            : assignment
+        ),
+      ]);
+      setAssets((prev) => prev.map(updateAssignedAsset));
+      setSelectedAsset((prev) =>
+        prev && prev.id === targetAsset.id ? updateAssignedAsset(prev) : prev
       );
       setIsAssignDialogOpen(false);
       setApiError(null);
+      void loadAssetsAndAssignments();
     } catch (error: unknown) {
       if (error instanceof ApiError && error.status >= 500) {
         setAssignmentError(
@@ -1712,7 +2529,9 @@ export function AssetsModule() {
     } else if (
       statusFilter === "active" ||
       statusFilter === "lost" ||
-      statusFilter === "damaged"
+      statusFilter === "damaged" ||
+      statusFilter === "maintenance" ||
+      statusFilter === "retired"
     ) {
       filters.status = statusFilter;
     }
@@ -1974,13 +2793,14 @@ export function AssetsModule() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="all">All Status</SelectItem>
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="available">Available</SelectItem>
-                            <SelectItem value="lost">Lost</SelectItem>
-                            <SelectItem value="damaged">Damaged</SelectItem>
-                            <SelectItem value="maintenance">
-                              Maintenance
-                            </SelectItem>
+                            {ASSET_STATUS_OPTIONS.map((status) => (
+                              <SelectItem
+                                key={status.value}
+                                value={status.value}
+                              >
+                                {status.label}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                         <Button
@@ -2116,28 +2936,28 @@ export function AssetsModule() {
                                     View
                                   </Button>
                                   {asset.status === "active" &&
-                                    (isAssetCurrentlyAssigned(asset) ? (
+                                  isAssetCurrentlyAssigned(asset) ? (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      disabled={
+                                        !canProcessReturnForAsset(asset) ||
+                                        returnStatus === "pending"
+                                      }
+                                      onClick={() => {
+                                        openReturnDialogForAsset(asset);
+                                      }}
+                                    >
+                                      {canApproveReturnForAsset(asset)
+                                        ? "Approve Return"
+                                        : "Request Return"}
+                                    </Button>
+                                  ) : (
+                                    isAssetAssignable(asset) && (
                                       <Button
                                         variant="outline"
                                         size="sm"
                                         disabled={
-                                          !canProcessReturnForAsset(asset) ||
-                                          returnStatus === "pending"
-                                        }
-                                        onClick={() => {
-                                          openReturnDialogForAsset(asset);
-                                        }}
-                                      >
-                                        {canApproveReturnForAsset(asset)
-                                          ? "Approve Return"
-                                          : "Request Return"}
-                                      </Button>
-                                    ) : (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        disabled={
-                                          !isAssetAssignable(asset) ||
                                           !(
                                             getAssetCapability(
                                               asset,
@@ -2151,7 +2971,8 @@ export function AssetsModule() {
                                       >
                                         Assign Asset
                                       </Button>
-                                    ))}
+                                    )
+                                  )}
                                   <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                       <Button variant="ghost" size="sm">
@@ -2193,7 +3014,12 @@ export function AssetsModule() {
                                           Assign Asset
                                         </DropdownMenuItem>
                                       )}
-                                      <DropdownMenuItem>
+                                      <DropdownMenuItem
+                                        disabled={!canManageMaintenance}
+                                        onClick={() =>
+                                          openMaintenanceForm(asset)
+                                        }
+                                      >
                                         <Wrench className="w-4 h-4 mr-2" />
                                         Schedule Maintenance
                                       </DropdownMenuItem>
@@ -2634,65 +3460,187 @@ export function AssetsModule() {
 
                   <TabsContent value="maintenance" className="space-y-6 mt-0">
                     <div className="space-y-4">
-                      <h3 className="font-medium text-gray-900 dark:text-gray-100">
-                        Maintenance Schedule
-                      </h3>
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                          Maintenance Queue
+                        </h3>
+                        {canManageMaintenance && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openMaintenanceForm()}
+                          >
+                            <Wrench className="mr-2 h-4 w-4" />
+                            Schedule Maintenance
+                          </Button>
+                        )}
+                      </div>
 
-                      <div className="space-y-3">
-                        {assets
-                          .filter((asset) => asset.nextMaintenance)
-                          .map((asset) => (
+                      <Tabs
+                        value={maintenanceQueueTab}
+                        onValueChange={(value) =>
+                          setMaintenanceQueueTab(value as MaintenanceQueueTab)
+                        }
+                      >
+                        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
+                          {MAINTENANCE_QUEUE_TABS.map((tab) => (
+                            <TabsTrigger key={tab.value} value={tab.value}>
+                              {tab.label}
+                            </TabsTrigger>
+                          ))}
+                        </TabsList>
+                      </Tabs>
+
+                      <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                          <Input
+                            value={maintenanceQueueSearchTerm}
+                            onChange={(event) =>
+                              setMaintenanceQueueSearchTerm(event.target.value)
+                            }
+                            placeholder="Search asset or user"
+                            className="pl-10"
+                          />
+                        </div>
+                        <Select
+                          value={maintenanceQueueTypeFilter}
+                          onValueChange={(value) =>
+                            setMaintenanceQueueTypeFilter(
+                              value as ScheduledMaintenanceType | "all"
+                            )
+                          }
+                        >
+                          <SelectTrigger>
+                            <Filter className="mr-2 h-4 w-4 text-gray-500" />
+                            <SelectValue placeholder="All types" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All types</SelectItem>
+                            {MAINTENANCE_TYPE_OPTIONS.map((option) => (
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                              >
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {!hasScheduledMaintenanceAccess ? (
+                        <div className="text-center py-8">
+                          <History className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                            Maintenance hidden
+                          </h3>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            You do not have permission to view scheduled
+                            maintenance.
+                          </p>
+                        </div>
+                      ) : isLoadingAssets ? (
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Loading maintenance...
+                        </p>
+                      ) : visibleScheduledMaintenance.length === 0 ? (
+                        <div className="text-center py-8">
+                          <Wrench className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                            No maintenance items
+                          </h3>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            Matching maintenance items will appear here.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {visibleScheduledMaintenance.map((item) => (
                             <Card
-                              key={asset.id}
-                              className="border-gray-200 dark:border-gray-700"
+                              key={item.id}
+                              className="border-gray-200 bg-white text-gray-900 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
                             >
                               <CardContent className="p-4">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-3">
+                                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                                  <div className="flex items-start gap-3">
                                     <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                                       <Wrench className="w-5 h-5 text-blue-600" />
                                     </div>
-                                    <div>
+                                    <div className="space-y-1">
                                       <h4 className="font-medium text-gray-900 dark:text-gray-100">
-                                        {asset.name}
+                                        {item.asset_details?.name ||
+                                          `Asset #${item.asset}`}
                                       </h4>
                                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                                        {asset.assetTag} • {asset.brand}{" "}
-                                        {asset.model}
+                                        {formatMaintenanceType(
+                                          item.maintenance_type
+                                        )}{" "}
+                                        • Due {formatDate(item.due_date)}
                                       </p>
+                                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                                        {item.reason}
+                                      </p>
+                                      <div className="flex flex-wrap items-center gap-2">
+                                        <Badge
+                                          variant="outline"
+                                          className={getMaintenanceStatusBadgeClass(
+                                            item.status
+                                          )}
+                                        >
+                                          {formatMaintenanceStatus(item.status)}
+                                        </Badge>
+                                        <Badge
+                                          variant="outline"
+                                          className={getMaintenanceDueBadgeClass(
+                                            item.due_state
+                                          )}
+                                        >
+                                          {formatDueState(item.due_state)}
+                                        </Badge>
+                                        {item.owner_details && (
+                                          <Badge
+                                            variant="outline"
+                                            className="border-violet-200 bg-violet-50 text-violet-800"
+                                          >
+                                            Owner:{" "}
+                                            {toPersonName(item.owner_details)}
+                                          </Badge>
+                                        )}
+                                      </div>
                                     </div>
                                   </div>
-                                  <div className="text-right">
-                                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                      Next:{" "}
-                                      {asset.nextMaintenance
-                                        ? formatDate(asset.nextMaintenance)
-                                        : "Not scheduled"}
-                                    </p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                                      Last:{" "}
-                                      {asset.lastMaintenance
-                                        ? formatDate(asset.lastMaintenance)
-                                        : "Never"}
-                                    </p>
-                                  </div>
+                                  {canManageMaintenance &&
+                                    item.status === "scheduled" && (
+                                      <div className="flex gap-2">
+                                        <Button
+                                          type="button"
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() =>
+                                            openCompleteMaintenance(item)
+                                          }
+                                        >
+                                          Complete
+                                        </Button>
+                                        <Button
+                                          type="button"
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => {
+                                            setMaintenanceCancelTarget(item);
+                                            setMaintenanceCancelReason("");
+                                          }}
+                                        >
+                                          Cancel
+                                        </Button>
+                                      </div>
+                                    )}
                                 </div>
                               </CardContent>
                             </Card>
                           ))}
-                      </div>
-
-                      {assets.filter((asset) => asset.nextMaintenance)
-                        .length === 0 && (
-                        <div className="text-center py-8">
-                          <Wrench className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                            No maintenance scheduled
-                          </h3>
-                          <p className="text-gray-600 dark:text-gray-400">
-                            Maintenance schedules will appear here when assets
-                            require service.
-                          </p>
                         </div>
                       )}
                     </div>
@@ -2734,7 +3682,8 @@ export function AssetsModule() {
                 <QuickActionButton
                   label="Schedule Maintenance"
                   icon={Wrench}
-                  onClick={() => {}}
+                  onClick={() => openMaintenanceForm()}
+                  disabled={!canManageMaintenance}
                 />
                 {canConfigureAssetTypes && (
                   <>
@@ -3347,7 +4296,10 @@ export function AssetsModule() {
                     }))
                   }
                 >
-                  <SelectTrigger className={ADD_ASSET_LIGHT_FIELD_CLASS}>
+                  <SelectTrigger
+                    id="asset-category"
+                    className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                  >
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent className={ADD_ASSET_LIGHT_SURFACE_CLASS}>
@@ -3395,6 +4347,69 @@ export function AssetsModule() {
                   }
                   placeholder="Auto-generated if empty"
                 />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="asset-status">Status</Label>
+                <Select
+                  value={newAsset.status}
+                  onValueChange={(value) =>
+                    setNewAsset((prev) => ({
+                      ...prev,
+                      status: value as AssetStatus,
+                    }))
+                  }
+                >
+                  <SelectTrigger
+                    id="asset-status"
+                    className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                  >
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent className={ADD_ASSET_LIGHT_SURFACE_CLASS}>
+                    {ASSET_STATUS_OPTIONS.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                        className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                      >
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="asset-condition">Condition</Label>
+                <Select
+                  value={newAsset.condition}
+                  onValueChange={(value) =>
+                    setNewAsset((prev) => ({
+                      ...prev,
+                      condition: value as AssetCondition,
+                    }))
+                  }
+                >
+                  <SelectTrigger
+                    id="asset-condition"
+                    className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                  >
+                    <SelectValue placeholder="Select condition" />
+                  </SelectTrigger>
+                  <SelectContent className={ADD_ASSET_LIGHT_SURFACE_CLASS}>
+                    {ASSET_CONDITION_OPTIONS.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                        className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                      >
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -3698,7 +4713,7 @@ export function AssetsModule() {
         onOpenChange={setIsAssetDetailsDialogOpen}
       >
         <DialogContent
-          className={`max-w-3xl ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
+          className={`max-w-3xl max-h-[90vh] overflow-y-auto ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
           style={FORCED_LIGHT_SURFACE_STYLE}
         >
           <DialogHeader>
@@ -3706,7 +4721,7 @@ export function AssetsModule() {
               {selectedAsset?.name || "Asset Details"}
             </DialogTitle>
             <DialogDescription className="text-black">
-              View asset metadata, assignment status, and replacement history.
+              View asset metadata, assignment status, and maintenance history.
             </DialogDescription>
           </DialogHeader>
 
@@ -3752,14 +4767,446 @@ export function AssetsModule() {
               </div>
 
               <div className="rounded-md border border-gray-200 p-3">
-                <p className="font-medium mb-2 text-black">Replacement Logs</p>
+                <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="font-medium text-black">
+                    Scheduled Maintenance
+                  </p>
+                  {canLogReplacement && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (selectedAsset) {
+                          openMaintenanceForm(selectedAsset);
+                        }
+                      }}
+                    >
+                      <Wrench className="mr-2 h-4 w-4" />
+                      Schedule Maintenance
+                    </Button>
+                  )}
+                </div>
+
+                {isLoadingScheduledMaintenance ? (
+                  <p className="text-sm text-black">
+                    Loading scheduled maintenance...
+                  </p>
+                ) : selectedAssetScheduledMaintenance.length === 0 ? (
+                  <p className="text-sm text-black">
+                    No scheduled maintenance available.
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {selectedAssetScheduledMaintenance.map((item) => (
+                      <div
+                        key={item.id}
+                        className="rounded-md border border-gray-200 bg-gray-50 p-3 text-sm text-gray-900"
+                      >
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                          <div>
+                            <p className="font-medium text-gray-950">
+                              {item.reason}
+                            </p>
+                            <p className="text-gray-700">
+                              {formatMaintenanceType(item.maintenance_type)} •
+                              Due {formatDate(item.due_date)}
+                            </p>
+                            <div className="mt-2 flex flex-wrap items-center gap-2">
+                              <Badge
+                                variant="outline"
+                                className={getMaintenanceStatusBadgeClass(
+                                  item.status
+                                )}
+                              >
+                                Status: {formatMaintenanceStatus(item.status)}
+                              </Badge>
+                              <Badge
+                                variant="outline"
+                                className={getMaintenanceDueBadgeClass(
+                                  item.due_state
+                                )}
+                              >
+                                Due state: {formatDueState(item.due_state)}
+                              </Badge>
+                              {item.owner_details && (
+                                <Badge
+                                  variant="outline"
+                                  className="border-violet-200 bg-violet-50 text-violet-800"
+                                >
+                                  Owner: {toPersonName(item.owner_details)}
+                                </Badge>
+                              )}
+                            </div>
+                            {item.estimated_cost && (
+                              <p className="mt-2 text-gray-700">
+                                Estimated cost:{" "}
+                                {formatCurrency(Number(item.estimated_cost))}
+                              </p>
+                            )}
+                            {item.vendor && (
+                              <p className="text-gray-700">
+                                Vendor: {item.vendor}
+                              </p>
+                            )}
+                            {item.cancelled_reason && (
+                              <p className="text-gray-700">
+                                Cancel reason: {item.cancelled_reason}
+                              </p>
+                            )}
+                          </div>
+                          {canLogReplacement && item.status === "scheduled" && (
+                            <div className="flex gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openCompleteMaintenance(item)}
+                              >
+                                Complete
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setMaintenanceCancelTarget(item);
+                                  setMaintenanceCancelReason("");
+                                }}
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-md border border-gray-200 p-3">
+                <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="font-medium text-black">Maintenance</p>
+                  {canLogReplacement && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsReplacementFormOpen((prev) => !prev)}
+                    >
+                      <CalendarDays className="mr-2 h-4 w-4" />
+                      Log Maintenance
+                    </Button>
+                  )}
+                </div>
+
+                {isReplacementFormOpen && (
+                  <div className="mb-3 rounded-md border border-gray-200 bg-gray-50 p-3">
+                    <div className="mb-3 flex gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                      <p>
+                        This creates a history record only. It will not change
+                        asset status, condition, availability, assignment, or
+                        the selected related asset.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="replacement-date">
+                          Maintenance Date *
+                        </Label>
+                        <DatePicker
+                          mode="single"
+                          value={replacementForm.date}
+                          onChange={(date) =>
+                            setReplacementForm((prev) => ({
+                              ...prev,
+                              date,
+                            }))
+                          }
+                          placeholder="Select date"
+                          size="compact"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="replacement-cost">Cost</Label>
+                        <Input
+                          id="replacement-cost"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                          value={replacementForm.cost}
+                          onChange={(event) =>
+                            setReplacementForm((prev) => ({
+                              ...prev,
+                              cost: event.target.value,
+                            }))
+                          }
+                          placeholder="0.00"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mt-3 space-y-2">
+                      <Label htmlFor="replacement-reason">Reason *</Label>
+                      <Textarea
+                        id="replacement-reason"
+                        className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                        value={replacementForm.reason}
+                        onChange={(event) =>
+                          setReplacementForm((prev) => ({
+                            ...prev,
+                            reason: event.target.value,
+                          }))
+                        }
+                        placeholder="Why is this maintenance being logged?"
+                        rows={3}
+                      />
+                    </div>
+
+                    <div className="mt-3 space-y-2">
+                      <Label htmlFor="replacement-asset">Related Asset</Label>
+                      <Select
+                        value={replacementForm.replacementAssetId}
+                        onValueChange={(value) =>
+                          setReplacementForm((prev) => ({
+                            ...prev,
+                            replacementAssetId: value,
+                          }))
+                        }
+                      >
+                        <SelectTrigger
+                          id="replacement-asset"
+                          className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                        >
+                          <SelectValue placeholder="Optional related asset" />
+                        </SelectTrigger>
+                        <SelectContent
+                          className={ADD_ASSET_LIGHT_SURFACE_CLASS}
+                        >
+                          <SelectItem
+                            value="none"
+                            className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                          >
+                            No related asset
+                          </SelectItem>
+                          {replacementAssetOptions.map((asset) => (
+                            <SelectItem
+                              key={asset.id}
+                              value={String(asset.id)}
+                              className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                            >
+                              {asset.name} ({asset.assetTag})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="replacement-status-before">
+                          Status before
+                        </Label>
+                        <Select
+                          value={replacementForm.assetStatusBefore}
+                          onValueChange={(value) =>
+                            setReplacementForm((prev) => ({
+                              ...prev,
+                              assetStatusBefore: value,
+                            }))
+                          }
+                        >
+                          <SelectTrigger
+                            id="replacement-status-before"
+                            className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                          >
+                            <SelectValue placeholder="Use current asset status" />
+                          </SelectTrigger>
+                          <SelectContent
+                            className={ADD_ASSET_LIGHT_SURFACE_CLASS}
+                          >
+                            <SelectItem
+                              value="none"
+                              className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                            >
+                              Status before: Not recorded
+                            </SelectItem>
+                            {ASSET_STATUS_OPTIONS.map((status) => (
+                              <SelectItem
+                                key={status.value}
+                                value={status.value}
+                                className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                              >
+                                {status.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="replacement-status-after">
+                          Status after
+                        </Label>
+                        <Select
+                          value={replacementForm.assetStatusAfter}
+                          onValueChange={(value) =>
+                            setReplacementForm((prev) => ({
+                              ...prev,
+                              assetStatusAfter: value,
+                            }))
+                          }
+                        >
+                          <SelectTrigger
+                            id="replacement-status-after"
+                            className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                          >
+                            <SelectValue placeholder="Optional after-state status" />
+                          </SelectTrigger>
+                          <SelectContent
+                            className={ADD_ASSET_LIGHT_SURFACE_CLASS}
+                          >
+                            <SelectItem
+                              value="none"
+                              className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                            >
+                              Status after: Not recorded
+                            </SelectItem>
+                            {ASSET_STATUS_OPTIONS.map((status) => (
+                              <SelectItem
+                                key={status.value}
+                                value={status.value}
+                                className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                              >
+                                {status.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="replacement-condition-before">
+                          Condition before
+                        </Label>
+                        <Select
+                          value={replacementForm.assetConditionBefore}
+                          onValueChange={(value) =>
+                            setReplacementForm((prev) => ({
+                              ...prev,
+                              assetConditionBefore: value,
+                            }))
+                          }
+                        >
+                          <SelectTrigger
+                            id="replacement-condition-before"
+                            className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                          >
+                            <SelectValue placeholder="Use current asset condition" />
+                          </SelectTrigger>
+                          <SelectContent
+                            className={ADD_ASSET_LIGHT_SURFACE_CLASS}
+                          >
+                            <SelectItem
+                              value="none"
+                              className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                            >
+                              Condition before: Not recorded
+                            </SelectItem>
+                            {ASSET_CONDITION_OPTIONS.map((condition) => (
+                              <SelectItem
+                                key={condition.value}
+                                value={condition.value}
+                                className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                              >
+                                {condition.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="replacement-condition-after">
+                          Condition after
+                        </Label>
+                        <Select
+                          value={replacementForm.assetConditionAfter}
+                          onValueChange={(value) =>
+                            setReplacementForm((prev) => ({
+                              ...prev,
+                              assetConditionAfter: value,
+                            }))
+                          }
+                        >
+                          <SelectTrigger
+                            id="replacement-condition-after"
+                            className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                          >
+                            <SelectValue placeholder="Optional after-state condition" />
+                          </SelectTrigger>
+                          <SelectContent
+                            className={ADD_ASSET_LIGHT_SURFACE_CLASS}
+                          >
+                            <SelectItem
+                              value="none"
+                              className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                            >
+                              Condition after: Not recorded
+                            </SelectItem>
+                            {ASSET_CONDITION_OPTIONS.map((condition) => (
+                              <SelectItem
+                                key={condition.value}
+                                value={condition.value}
+                                className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                              >
+                                {condition.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex gap-2">
+                      <Button
+                        type="button"
+                        variant="primary"
+                        onClick={() => {
+                          void submitReplacementLog();
+                        }}
+                        disabled={
+                          isCreatingReplacementLog ||
+                          !replacementForm.date ||
+                          !replacementForm.reason.trim()
+                        }
+                      >
+                        {isCreatingReplacementLog
+                          ? "Logging..."
+                          : "Save Maintenance"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsReplacementFormOpen(false)}
+                        disabled={isCreatingReplacementLog}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
                 {isLoadingReplacementLogs ? (
                   <p className="text-sm text-black">
-                    Loading replacement logs...
+                    Loading maintenance logs...
                   </p>
                 ) : replacementLogs.length === 0 ? (
                   <p className="text-sm text-black">
-                    No replacement logs available.
+                    No maintenance logs available.
                   </p>
                 ) : (
                   <div className="space-y-2">
@@ -3768,15 +5215,478 @@ export function AssetsModule() {
                         key={log.id}
                         className="rounded border border-gray-100 p-2 text-sm"
                       >
-                        <p className="font-medium text-black">
-                          {log.reason || "Replacement record"}
-                        </p>
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="font-medium text-black">
+                            {log.reason || "Maintenance record"}
+                          </p>
+                          {canLogReplacement && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openReplacementLogEdit(log)}
+                              disabled={isUpdatingReplacementLog}
+                            >
+                              <Edit3 className="mr-1 h-3 w-3" />
+                              Edit
+                            </Button>
+                          )}
+                        </div>
                         <p className="text-black">
-                          {log.date || log.created_at
-                            ? formatDate(log.date || log.created_at || "")
-                            : "Unknown date"}
+                          {log.date
+                            ? formatReplacementLogDate(log.date)
+                            : log.created_at
+                              ? formatReplacementLogDate(log.created_at)
+                              : "Date not recorded"}
                         </p>
-                        {log.notes && <p className="text-black">{log.notes}</p>}
+                        <div className="mt-2 grid grid-cols-1 gap-2 text-black md:grid-cols-2">
+                          <p>
+                            Status before:{" "}
+                            {formatSnapshotValue(log.asset_status_before)}
+                          </p>
+                          <p>
+                            Status after:{" "}
+                            {formatSnapshotValue(log.asset_status_after)}
+                          </p>
+                          <p>
+                            Condition before:{" "}
+                            {formatSnapshotValue(log.asset_condition_before)}
+                          </p>
+                          <p>
+                            Condition after:{" "}
+                            {formatSnapshotValue(log.asset_condition_after)}
+                          </p>
+                        </div>
+                        {log.replaced_by_details && (
+                          <p className="text-black">
+                            Logged by: {toPersonName(log.replaced_by_details)}
+                          </p>
+                        )}
+                        {log.replacement_asset_details && (
+                          <p className="text-black">
+                            Related asset: {log.replacement_asset_details.name}
+                          </p>
+                        )}
+                        {log.cost && (
+                          <p className="text-black">
+                            Cost: {formatCurrency(Number(log.cost))}
+                          </p>
+                        )}
+                        {editingReplacementLogId === log.id && (
+                          <div className="mt-3 rounded-md border border-gray-200 bg-gray-50 p-3">
+                            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                              <div className="space-y-2">
+                                <Label
+                                  htmlFor={`replacement-log-asset-${log.id}`}
+                                >
+                                  Asset
+                                </Label>
+                                <Select
+                                  value={replacementEditForm.assetId}
+                                  onValueChange={(value) => {
+                                    setReplacementEditForm((prev) => ({
+                                      ...prev,
+                                      assetId: value,
+                                      replacementAssetId:
+                                        prev.replacementAssetId === value
+                                          ? "none"
+                                          : prev.replacementAssetId,
+                                    }));
+                                  }}
+                                  disabled={isUpdatingReplacementLog}
+                                >
+                                  <SelectTrigger
+                                    id={`replacement-log-asset-${log.id}`}
+                                    className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                                  >
+                                    <SelectValue placeholder="Select asset" />
+                                  </SelectTrigger>
+                                  <SelectContent
+                                    className={ADD_ASSET_LIGHT_SURFACE_CLASS}
+                                  >
+                                    {assets.map((asset) => (
+                                      <SelectItem
+                                        key={asset.id}
+                                        value={String(asset.id)}
+                                        className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                                      >
+                                        {asset.name} ({asset.assetTag})
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                {replacementEditErrors.asset && (
+                                  <p className="text-xs text-red-600">
+                                    {replacementEditErrors.asset}
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label>Maintenance date</Label>
+                                <DatePicker
+                                  mode="single"
+                                  value={replacementEditForm.date}
+                                  onChange={(date) =>
+                                    setReplacementEditForm((prev) => ({
+                                      ...prev,
+                                      date,
+                                    }))
+                                  }
+                                  placeholder="Select date"
+                                  size="compact"
+                                  disabled={isUpdatingReplacementLog}
+                                />
+                                {replacementEditErrors.date && (
+                                  <p className="text-xs text-red-600">
+                                    {replacementEditErrors.date}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="mt-3 space-y-2">
+                              <Label
+                                htmlFor={`replacement-log-reason-${log.id}`}
+                              >
+                                Reason
+                              </Label>
+                              <Textarea
+                                id={`replacement-log-reason-${log.id}`}
+                                className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                                value={replacementEditForm.reason}
+                                onChange={(event) =>
+                                  setReplacementEditForm((prev) => ({
+                                    ...prev,
+                                    reason: event.target.value,
+                                  }))
+                                }
+                                rows={3}
+                                disabled={isUpdatingReplacementLog}
+                              />
+                              {replacementEditErrors.reason && (
+                                <p className="text-xs text-red-600">
+                                  {replacementEditErrors.reason}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+                              <div className="space-y-2">
+                                <Label
+                                  htmlFor={`replacement-log-replacement-asset-${log.id}`}
+                                >
+                                  Related asset
+                                </Label>
+                                <Select
+                                  value={replacementEditForm.replacementAssetId}
+                                  onValueChange={(value) =>
+                                    setReplacementEditForm((prev) => ({
+                                      ...prev,
+                                      replacementAssetId: value,
+                                    }))
+                                  }
+                                  disabled={isUpdatingReplacementLog}
+                                >
+                                  <SelectTrigger
+                                    id={`replacement-log-replacement-asset-${log.id}`}
+                                    className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                                  >
+                                    <SelectValue placeholder="Optional related asset" />
+                                  </SelectTrigger>
+                                  <SelectContent
+                                    className={ADD_ASSET_LIGHT_SURFACE_CLASS}
+                                  >
+                                    <SelectItem
+                                      value="none"
+                                      className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                                    >
+                                      No related asset
+                                    </SelectItem>
+                                    {editReplacementAssetOptions.map(
+                                      (asset) => (
+                                        <SelectItem
+                                          key={asset.id}
+                                          value={String(asset.id)}
+                                          className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                                        >
+                                          {asset.name} ({asset.assetTag})
+                                        </SelectItem>
+                                      )
+                                    )}
+                                  </SelectContent>
+                                </Select>
+                                {replacementEditErrors.replacement_asset && (
+                                  <p className="text-xs text-red-600">
+                                    {replacementEditErrors.replacement_asset}
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label
+                                  htmlFor={`replacement-log-cost-${log.id}`}
+                                >
+                                  Cost
+                                </Label>
+                                <Input
+                                  id={`replacement-log-cost-${log.id}`}
+                                  type="number"
+                                  step="0.01"
+                                  min="0"
+                                  className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                                  value={replacementEditForm.cost}
+                                  onChange={(event) =>
+                                    setReplacementEditForm((prev) => ({
+                                      ...prev,
+                                      cost: event.target.value,
+                                    }))
+                                  }
+                                  placeholder="0.00"
+                                  disabled={isUpdatingReplacementLog}
+                                />
+                                {replacementEditErrors.cost && (
+                                  <p className="text-xs text-red-600">
+                                    {replacementEditErrors.cost}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+                              <div className="space-y-2">
+                                <Label
+                                  htmlFor={`replacement-log-status-before-${log.id}`}
+                                >
+                                  Status before
+                                </Label>
+                                <Select
+                                  value={replacementEditForm.assetStatusBefore}
+                                  onValueChange={(value) =>
+                                    setReplacementEditForm((prev) => ({
+                                      ...prev,
+                                      assetStatusBefore: value,
+                                    }))
+                                  }
+                                  disabled={isUpdatingReplacementLog}
+                                >
+                                  <SelectTrigger
+                                    id={`replacement-log-status-before-${log.id}`}
+                                    className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                                  >
+                                    <SelectValue placeholder="Optional before-state status" />
+                                  </SelectTrigger>
+                                  <SelectContent
+                                    className={ADD_ASSET_LIGHT_SURFACE_CLASS}
+                                  >
+                                    <SelectItem
+                                      value="none"
+                                      className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                                    >
+                                      Status before: Not recorded
+                                    </SelectItem>
+                                    {ASSET_STATUS_OPTIONS.map((status) => (
+                                      <SelectItem
+                                        key={status.value}
+                                        value={status.value}
+                                        className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                                      >
+                                        {status.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                {replacementEditErrors.asset_status_before && (
+                                  <p className="text-xs text-red-600">
+                                    {replacementEditErrors.asset_status_before}
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label
+                                  htmlFor={`replacement-log-status-after-${log.id}`}
+                                >
+                                  Status after
+                                </Label>
+                                <Select
+                                  value={replacementEditForm.assetStatusAfter}
+                                  onValueChange={(value) =>
+                                    setReplacementEditForm((prev) => ({
+                                      ...prev,
+                                      assetStatusAfter: value,
+                                    }))
+                                  }
+                                  disabled={isUpdatingReplacementLog}
+                                >
+                                  <SelectTrigger
+                                    id={`replacement-log-status-after-${log.id}`}
+                                    className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                                  >
+                                    <SelectValue placeholder="Optional after-state status" />
+                                  </SelectTrigger>
+                                  <SelectContent
+                                    className={ADD_ASSET_LIGHT_SURFACE_CLASS}
+                                  >
+                                    <SelectItem
+                                      value="none"
+                                      className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                                    >
+                                      Status after: Not recorded
+                                    </SelectItem>
+                                    {ASSET_STATUS_OPTIONS.map((status) => (
+                                      <SelectItem
+                                        key={status.value}
+                                        value={status.value}
+                                        className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                                      >
+                                        {status.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                {replacementEditErrors.asset_status_after && (
+                                  <p className="text-xs text-red-600">
+                                    {replacementEditErrors.asset_status_after}
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label
+                                  htmlFor={`replacement-log-condition-before-${log.id}`}
+                                >
+                                  Condition before
+                                </Label>
+                                <Select
+                                  value={
+                                    replacementEditForm.assetConditionBefore
+                                  }
+                                  onValueChange={(value) =>
+                                    setReplacementEditForm((prev) => ({
+                                      ...prev,
+                                      assetConditionBefore: value,
+                                    }))
+                                  }
+                                  disabled={isUpdatingReplacementLog}
+                                >
+                                  <SelectTrigger
+                                    id={`replacement-log-condition-before-${log.id}`}
+                                    className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                                  >
+                                    <SelectValue placeholder="Optional before-state condition" />
+                                  </SelectTrigger>
+                                  <SelectContent
+                                    className={ADD_ASSET_LIGHT_SURFACE_CLASS}
+                                  >
+                                    <SelectItem
+                                      value="none"
+                                      className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                                    >
+                                      Condition before: Not recorded
+                                    </SelectItem>
+                                    {ASSET_CONDITION_OPTIONS.map(
+                                      (condition) => (
+                                        <SelectItem
+                                          key={condition.value}
+                                          value={condition.value}
+                                          className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                                        >
+                                          {condition.label}
+                                        </SelectItem>
+                                      )
+                                    )}
+                                  </SelectContent>
+                                </Select>
+                                {replacementEditErrors.asset_condition_before && (
+                                  <p className="text-xs text-red-600">
+                                    {
+                                      replacementEditErrors.asset_condition_before
+                                    }
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label
+                                  htmlFor={`replacement-log-condition-after-${log.id}`}
+                                >
+                                  Condition after
+                                </Label>
+                                <Select
+                                  value={
+                                    replacementEditForm.assetConditionAfter
+                                  }
+                                  onValueChange={(value) =>
+                                    setReplacementEditForm((prev) => ({
+                                      ...prev,
+                                      assetConditionAfter: value,
+                                    }))
+                                  }
+                                  disabled={isUpdatingReplacementLog}
+                                >
+                                  <SelectTrigger
+                                    id={`replacement-log-condition-after-${log.id}`}
+                                    className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                                  >
+                                    <SelectValue placeholder="Optional after-state condition" />
+                                  </SelectTrigger>
+                                  <SelectContent
+                                    className={ADD_ASSET_LIGHT_SURFACE_CLASS}
+                                  >
+                                    <SelectItem
+                                      value="none"
+                                      className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                                    >
+                                      Condition after: Not recorded
+                                    </SelectItem>
+                                    {ASSET_CONDITION_OPTIONS.map(
+                                      (condition) => (
+                                        <SelectItem
+                                          key={condition.value}
+                                          value={condition.value}
+                                          className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                                        >
+                                          {condition.label}
+                                        </SelectItem>
+                                      )
+                                    )}
+                                  </SelectContent>
+                                </Select>
+                                {replacementEditErrors.asset_condition_after && (
+                                  <p className="text-xs text-red-600">
+                                    {
+                                      replacementEditErrors.asset_condition_after
+                                    }
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="mt-4 flex gap-2">
+                              <Button
+                                type="button"
+                                variant="primary"
+                                onClick={() => {
+                                  void submitReplacementLogEdit(log.id);
+                                }}
+                                disabled={isUpdatingReplacementLog}
+                              >
+                                {isUpdatingReplacementLog
+                                  ? "Saving..."
+                                  : "Save Changes"}
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={cancelReplacementLogEdit}
+                                disabled={isUpdatingReplacementLog}
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -3784,6 +5694,513 @@ export function AssetsModule() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Schedule Maintenance Dialog */}
+      <Dialog
+        open={isMaintenanceFormOpen}
+        onOpenChange={setIsMaintenanceFormOpen}
+      >
+        <DialogContent
+          className={`max-w-2xl ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
+          style={FORCED_LIGHT_SURFACE_STYLE}
+        >
+          <DialogHeader>
+            <DialogTitle className="text-gray-900">
+              Schedule Maintenance
+            </DialogTitle>
+            <DialogDescription className="text-gray-700">
+              Create planned maintenance for an asset.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="maintenance-asset">Asset *</Label>
+                <Select
+                  value={maintenanceForm.assetId}
+                  onValueChange={(value) =>
+                    setMaintenanceForm((prev) => ({
+                      ...prev,
+                      assetId: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger
+                    id="maintenance-asset"
+                    className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                  >
+                    <SelectValue placeholder="Select asset" />
+                  </SelectTrigger>
+                  <SelectContent className={ADD_ASSET_LIGHT_SURFACE_CLASS}>
+                    {assets.map((asset) => (
+                      <SelectItem
+                        key={asset.id}
+                        value={String(asset.id)}
+                        className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                      >
+                        {asset.name} ({asset.assetTag})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Due date *</Label>
+                <DatePicker
+                  mode="single"
+                  value={maintenanceForm.dueDate}
+                  onChange={(date) =>
+                    setMaintenanceForm((prev) => ({
+                      ...prev,
+                      dueDate: date,
+                    }))
+                  }
+                  placeholder="Select date"
+                  size="compact"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="maintenance-type">Type *</Label>
+                <Select
+                  value={maintenanceForm.maintenanceType}
+                  onValueChange={(value) =>
+                    setMaintenanceForm((prev) => ({
+                      ...prev,
+                      maintenanceType: value as ScheduledMaintenanceType,
+                    }))
+                  }
+                >
+                  <SelectTrigger
+                    id="maintenance-type"
+                    className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                  >
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent className={ADD_ASSET_LIGHT_SURFACE_CLASS}>
+                    {MAINTENANCE_TYPE_OPTIONS.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                        className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                      >
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="maintenance-owner">Owner</Label>
+                <Select
+                  value={maintenanceForm.ownerId}
+                  onValueChange={(value) =>
+                    setMaintenanceForm((prev) => ({
+                      ...prev,
+                      ownerId: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger
+                    id="maintenance-owner"
+                    className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                  >
+                    <SelectValue placeholder="Optional owner" />
+                  </SelectTrigger>
+                  <SelectContent className={ADD_ASSET_LIGHT_SURFACE_CLASS}>
+                    <SelectItem
+                      value="none"
+                      className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                    >
+                      No owner
+                    </SelectItem>
+                    {assignableUsers.map((user) => (
+                      <SelectItem
+                        key={user.id}
+                        value={user.id}
+                        className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                      >
+                        {user.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="maintenance-reason">Reason *</Label>
+              <Textarea
+                id="maintenance-reason"
+                className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                value={maintenanceForm.reason}
+                onChange={(event) =>
+                  setMaintenanceForm((prev) => ({
+                    ...prev,
+                    reason: event.target.value,
+                  }))
+                }
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="maintenance-estimated-cost">
+                  Estimated cost
+                </Label>
+                <Input
+                  id="maintenance-estimated-cost"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                  value={maintenanceForm.estimatedCost}
+                  onChange={(event) =>
+                    setMaintenanceForm((prev) => ({
+                      ...prev,
+                      estimatedCost: event.target.value,
+                    }))
+                  }
+                  placeholder="0.00"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="maintenance-vendor">Vendor</Label>
+                <Input
+                  id="maintenance-vendor"
+                  className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                  value={maintenanceForm.vendor}
+                  onChange={(event) =>
+                    setMaintenanceForm((prev) => ({
+                      ...prev,
+                      vendor: event.target.value,
+                    }))
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="primary"
+                onClick={() => {
+                  void submitScheduledMaintenance();
+                }}
+                disabled={
+                  isSubmittingMaintenance ||
+                  !maintenanceForm.assetId ||
+                  !maintenanceForm.dueDate ||
+                  !maintenanceForm.reason.trim()
+                }
+              >
+                {isSubmittingMaintenance ? "Scheduling..." : "Schedule"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsMaintenanceFormOpen(false)}
+                disabled={isSubmittingMaintenance}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Complete Maintenance Dialog */}
+      <Dialog
+        open={Boolean(maintenanceActionTarget)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setMaintenanceActionTarget(null);
+          }
+        }}
+      >
+        <DialogContent
+          className={`max-w-2xl ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
+          style={FORCED_LIGHT_SURFACE_STYLE}
+        >
+          <DialogHeader>
+            <DialogTitle className="text-gray-900">
+              Complete Maintenance
+            </DialogTitle>
+            <DialogDescription className="text-gray-700">
+              Complete schedule and create maintenance history.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mb-3 flex gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>
+              Completion creates a history record only. It will not change asset
+              status, condition, availability, or assignment.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label>Completion date *</Label>
+                <DatePicker
+                  mode="single"
+                  value={maintenanceCompletionForm.date}
+                  onChange={(date) =>
+                    setMaintenanceCompletionForm((prev) => ({
+                      ...prev,
+                      date,
+                    }))
+                  }
+                  placeholder="Select date"
+                  size="compact"
+                  disabled={isCompletingMaintenance}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="maintenance-completion-cost">Cost</Label>
+                <Input
+                  id="maintenance-completion-cost"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                  value={maintenanceCompletionForm.cost}
+                  onChange={(event) =>
+                    setMaintenanceCompletionForm((prev) => ({
+                      ...prev,
+                      cost: event.target.value,
+                    }))
+                  }
+                  placeholder="0.00"
+                  disabled={isCompletingMaintenance}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="maintenance-completion-reason">Reason *</Label>
+              <Textarea
+                id="maintenance-completion-reason"
+                className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                value={maintenanceCompletionForm.reason}
+                onChange={(event) =>
+                  setMaintenanceCompletionForm((prev) => ({
+                    ...prev,
+                    reason: event.target.value,
+                  }))
+                }
+                rows={3}
+                disabled={isCompletingMaintenance}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="maintenance-completion-related-asset">
+                Related Asset
+              </Label>
+              <Select
+                value={maintenanceCompletionForm.replacementAssetId}
+                onValueChange={(value) =>
+                  setMaintenanceCompletionForm((prev) => ({
+                    ...prev,
+                    replacementAssetId: value,
+                  }))
+                }
+                disabled={isCompletingMaintenance}
+              >
+                <SelectTrigger
+                  id="maintenance-completion-related-asset"
+                  className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                >
+                  <SelectValue placeholder="Optional related asset" />
+                </SelectTrigger>
+                <SelectContent className={ADD_ASSET_LIGHT_SURFACE_CLASS}>
+                  <SelectItem
+                    value="none"
+                    className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                  >
+                    No related asset
+                  </SelectItem>
+                  {maintenanceRelatedAssetOptions.map((asset) => (
+                    <SelectItem
+                      key={asset.id}
+                      value={String(asset.id)}
+                      className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                    >
+                      {asset.name} ({asset.assetTag})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {[
+                [
+                  "assetStatusBefore",
+                  "Status before",
+                  MAINTENANCE_ASSET_STATUS_OPTIONS,
+                ],
+                [
+                  "assetStatusAfter",
+                  "Status after",
+                  MAINTENANCE_ASSET_STATUS_OPTIONS,
+                ],
+                [
+                  "assetConditionBefore",
+                  "Condition before",
+                  ASSET_CONDITION_OPTIONS,
+                ],
+                [
+                  "assetConditionAfter",
+                  "Condition after",
+                  ASSET_CONDITION_OPTIONS,
+                ],
+              ].map(([field, label, options]) => {
+                const fieldLabel = String(label);
+                const notRecordedLabel = `${fieldLabel}: Not recorded`;
+
+                return (
+                  <div key={String(field)} className="space-y-2">
+                    <Label>{fieldLabel}</Label>
+                    <Select
+                      value={
+                        maintenanceCompletionForm[
+                          field as keyof typeof maintenanceCompletionForm
+                        ]
+                      }
+                      onValueChange={(value) =>
+                        setMaintenanceCompletionForm((prev) => ({
+                          ...prev,
+                          [String(field)]: value,
+                        }))
+                      }
+                      disabled={isCompletingMaintenance}
+                    >
+                      <SelectTrigger className={ADD_ASSET_LIGHT_FIELD_CLASS}>
+                        <SelectValue placeholder={notRecordedLabel} />
+                      </SelectTrigger>
+                      <SelectContent className={ADD_ASSET_LIGHT_SURFACE_CLASS}>
+                        <SelectItem
+                          value="none"
+                          className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                        >
+                          {notRecordedLabel}
+                        </SelectItem>
+                        {(
+                          options as Array<{ value: string; label: string }>
+                        ).map((option) => (
+                          <SelectItem
+                            key={option.value}
+                            value={option.value}
+                            className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                          >
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="primary"
+                onClick={() => {
+                  void submitCompleteMaintenance();
+                }}
+                disabled={
+                  isCompletingMaintenance ||
+                  !maintenanceCompletionForm.date ||
+                  !maintenanceCompletionForm.reason.trim()
+                }
+              >
+                {isCompletingMaintenance ? "Completing..." : "Complete"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setMaintenanceActionTarget(null)}
+                disabled={isCompletingMaintenance}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancel Maintenance Dialog */}
+      <Dialog
+        open={Boolean(maintenanceCancelTarget)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setMaintenanceCancelTarget(null);
+          }
+        }}
+      >
+        <DialogContent
+          className={`w-[calc(100vw-2rem)] max-w-sm max-h-[80vh] overflow-y-auto p-4 sm:p-5 ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
+          style={FORCED_LIGHT_SURFACE_STYLE}
+        >
+          <DialogHeader>
+            <DialogTitle className="text-gray-900">
+              Cancel Maintenance
+            </DialogTitle>
+            <DialogDescription className="text-gray-700">
+              Add optional reason for cancelling this maintenance.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="maintenance-cancel-reason">Reason</Label>
+              <Textarea
+                id="maintenance-cancel-reason"
+                className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                value={maintenanceCancelReason}
+                onChange={(event) =>
+                  setMaintenanceCancelReason(event.target.value)
+                }
+                rows={2}
+                disabled={isCancellingMaintenance}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="primary"
+                onClick={() => {
+                  void submitCancelMaintenance();
+                }}
+                disabled={isCancellingMaintenance}
+              >
+                {isCancellingMaintenance
+                  ? "Cancelling..."
+                  : "Cancel Maintenance"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setMaintenanceCancelTarget(null)}
+                disabled={isCancellingMaintenance}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -3869,42 +6286,15 @@ export function AssetsModule() {
                     className={ADD_ASSET_LIGHT_SURFACE_CLASS}
                     style={FORCED_LIGHT_SURFACE_STYLE}
                   >
-                    <SelectItem
-                      value="available"
-                      className={ADD_ASSET_LIGHT_ITEM_CLASS}
-                    >
-                      Available
-                    </SelectItem>
-                    <SelectItem
-                      value="active"
-                      className={ADD_ASSET_LIGHT_ITEM_CLASS}
-                    >
-                      Active
-                    </SelectItem>
-                    <SelectItem
-                      value="maintenance"
-                      className={ADD_ASSET_LIGHT_ITEM_CLASS}
-                    >
-                      Maintenance
-                    </SelectItem>
-                    <SelectItem
-                      value="damaged"
-                      className={ADD_ASSET_LIGHT_ITEM_CLASS}
-                    >
-                      Damaged
-                    </SelectItem>
-                    <SelectItem
-                      value="lost"
-                      className={ADD_ASSET_LIGHT_ITEM_CLASS}
-                    >
-                      Lost
-                    </SelectItem>
-                    <SelectItem
-                      value="retired"
-                      className={ADD_ASSET_LIGHT_ITEM_CLASS}
-                    >
-                      Retired
-                    </SelectItem>
+                    {ASSET_STATUS_OPTIONS.map((status) => (
+                      <SelectItem
+                        key={status.value}
+                        value={status.value}
+                        className={ADD_ASSET_LIGHT_ITEM_CLASS}
+                      >
+                        {status.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
