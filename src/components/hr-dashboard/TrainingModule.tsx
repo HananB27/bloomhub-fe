@@ -25,6 +25,8 @@ import {
   TrainingFilters,
   TrainingEntryList,
   ConferenceCourseRegistrationSection,
+  CertificatesSection,
+  PeerSessionSection,
 } from "./training";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs";
 import type { TrainingEntry, TrainingEntryFilters } from "@/types/training";
@@ -39,7 +41,11 @@ import {
   Award,
 } from "lucide-react";
 
-export function TrainingModule() {
+interface TrainingModuleProps {
+  onNavigate?: (moduleId: string) => void;
+}
+
+export function TrainingModule({ onNavigate }: TrainingModuleProps = {}) {
   const { data: session } = useSession() as {
     data: { accessToken?: string; user?: { name?: string } } | null;
   };
@@ -187,6 +193,8 @@ export function TrainingModule() {
           <TabsTrigger value="registrations">
             Conferences &amp; Courses
           </TabsTrigger>
+          <TabsTrigger value="certificates">Certificates</TabsTrigger>
+          <TabsTrigger value="peer-sessions">Peer Sessions</TabsTrigger>
         </TabsList>
 
         <TabsContent value="history" className="space-y-4">
@@ -269,6 +277,19 @@ export function TrainingModule() {
 
         <TabsContent value="registrations" className="space-y-4">
           <ConferenceCourseRegistrationSection accessToken={accessToken} />
+        </TabsContent>
+
+        <TabsContent value="certificates" className="space-y-4">
+          <CertificatesSection />
+        </TabsContent>
+
+        <TabsContent value="peer-sessions" className="space-y-4">
+          <PeerSessionSection
+            accessToken={accessToken}
+            onNavigateToCompensation={
+              onNavigate ? () => onNavigate("compensation") : undefined
+            }
+          />
         </TabsContent>
       </Tabs>
 

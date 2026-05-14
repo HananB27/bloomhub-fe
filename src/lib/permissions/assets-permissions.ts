@@ -11,6 +11,7 @@ export type AssetPermissionAction =
   | "initiate_asset_return"
   | "process_asset_return"
   | "log_asset_lost"
+  | "log_asset_replacement"
   | "generate_qr_codes"
   | "view_asset_history"
   | "configure_asset_types"
@@ -27,6 +28,7 @@ const FULL_ASSET_PERMISSIONS = new Set<AssetPermissionAction>([
   "initiate_asset_return",
   "process_asset_return",
   "log_asset_lost",
+  "log_asset_replacement",
   "generate_qr_codes",
   "view_asset_history",
   "configure_asset_types",

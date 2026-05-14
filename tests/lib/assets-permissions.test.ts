@@ -37,6 +37,7 @@ describe("assets-permissions", () => {
       "view_all_assets",
       "assign_assets",
       "process_asset_return",
+      "log_asset_replacement",
       "configure_asset_types",
       "export_inventory",
     ];
@@ -63,6 +64,7 @@ describe("assets-permissions", () => {
       "initiate_asset_return",
       "process_asset_return",
       "log_asset_lost",
+      "log_asset_replacement",
       "generate_qr_codes",
       "view_asset_history",
       "configure_asset_types",

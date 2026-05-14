@@ -4,6 +4,7 @@ import { Download, Eye, Lock, MoreVertical } from "lucide-react";
 import {
   DOCUMENT_CATEGORIES,
   DocumentsListSource,
+  documentExpiryBucket,
   isRestrictedDocument,
 } from "@/lib/documents/documentsHelpers";
 import type { DocumentsTableRowModel } from "../documentsModuleHelpers";
@@ -34,12 +35,21 @@ export function DocumentsTableRow({
   const cat = DOCUMENT_CATEGORIES.find((c) => c.value === doc.category);
   const isTemplate = row.listSource === DocumentsListSource.Template;
   const gen = row.generated;
+  const expiryBucket = documentExpiryBucket(doc.expiryDate);
+  const expiryAccent =
+    expiryBucket === "expired"
+      ? "shadow-[inset_3px_0_0_#dc2626] bg-red-50/40"
+      : expiryBucket === "soon"
+        ? "shadow-[inset_3px_0_0_#d97706] bg-amber-50/40"
+        : isRestrictedDocument(doc)
+          ? "shadow-[inset_3px_0_0_#d97706]"
+          : "";
 
   return (
     <div
       className={`grid items-center gap-4 px-4 py-3.5 border-b border-gray-100 last:border-0 transition-colors relative ${
         selected ? "bg-gray-50/80" : "hover:bg-gray-50/60"
-      } ${isRestrictedDocument(doc) ? "shadow-[inset_3px_0_0_#d97706]" : ""}`}
+      } ${expiryAccent}`}
       style={{
         gridTemplateColumns: "28px 1fr 140px 130px 130px 150px 80px 100px",
       }}

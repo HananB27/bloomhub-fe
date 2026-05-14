@@ -1,37 +1,35 @@
-name: Vercel Deploy (Dev)
+name: Vercel override commit
 
 on:
   push:
-  workflow_dispatch:
+    branches:
+      - main
+
+permissions:
+  contents: write
 
 jobs:
   deploy:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
-    environment: dev
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.HANAN_TOKEN }}
 
-      - name: Strip Git metadata for Vercel
-        run: rm -rf .git
+      - name: Configure Git
+        run: |
+          git config user.name "Hanan Bajramovic"
+          git config user.email "hananbajramovic075@gmail.com"
 
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+      - name: Commit
+        run: |
+          git commit --allow-empty -m "chore: override commit"
 
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=development --token="${{ secrets.VERCEL_TOKEN }}"
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-      - name: Build Project Artifacts
-        run: vercel build --token="${{ secrets.VERCEL_TOKEN }}"
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-      - name: Deploy Project Artifacts to Vercel
-        run: vercel deploy --prebuilt --token="${{ secrets.VERCEL_TOKEN }}"
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      - name: Push Changes
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.HANAN_TOKEN }}@github.com/HananB27/bloomhub-fe.git
+          git push origin HEAD:main
