@@ -108,6 +108,13 @@ describe("HRDashboardApp", () => {
     );
   });
 
+  it("uses provided initial active module", () => {
+    render(<HRDashboardApp initialActiveModule="assets" />);
+    expect(screen.getByTestId("dashboard-view")).toHaveTextContent(
+      "Active: assets"
+    );
+  });
+
   it("shows search dropdown when typing and filters modules", async () => {
     render(<HRDashboardApp />);
 

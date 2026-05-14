@@ -46,7 +46,15 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { getStoredUser, storeTokens } from "@/lib/api/tokens";
 
-export default function HRDashboardApp() {
+interface HRDashboardAppProps {
+  initialActiveModule?: HrModuleId;
+  initialAssetId?: number | string;
+}
+
+export default function HRDashboardApp({
+  initialActiveModule = "dashboard",
+  initialAssetId,
+}: HRDashboardAppProps = {}) {
   const { data: session, status } = useSession();
   const [mounted, setMounted] = useState(false);
   const [careerLevel, setCareerLevel] = useState<string | null>(null);
@@ -115,7 +123,8 @@ export default function HRDashboardApp() {
     }
   }, [session]);
 
-  const [activeModule, setActiveModule] = useState<HrModuleId>("dashboard");
+  const [activeModule, setActiveModule] =
+    useState<HrModuleId>(initialActiveModule);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -594,6 +603,7 @@ export default function HRDashboardApp() {
             <DashboardView
               activeModule={activeModule}
               addNotification={addNotification}
+              initialAssetId={initialAssetId}
               onNavigate={(moduleId) => setActiveModule(moduleId as HrModuleId)}
             />
           </div>

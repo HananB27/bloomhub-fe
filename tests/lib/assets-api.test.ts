@@ -7,7 +7,10 @@ import {
   createReplacementLog,
   createScheduledMaintenance,
   deleteAssetById,
+  downloadAssetQrCode,
   getAssetCapabilities,
+  getAssetFrontendUrl,
+  getAssetQrCodeUrl,
   listAssignments,
   listAssets,
   listAssignableUsers,
@@ -433,6 +436,55 @@ describe("assets api client", () => {
       method: "PATCH",
       body: JSON.stringify({ condition: "fair" }),
     });
+  });
+
+  it("builds asset QR download URLs from the backend endpoint", () => {
+    expect(getAssetQrCodeUrl(42)).toMatch(/\/api\/assets\/42\/qr-code\/$/);
+  });
+
+  it("builds frontend asset scan URLs with the current frontend host", () => {
+    expect(getAssetFrontendUrl(42)).toBe("http://localhost:3000/assets/42");
+  });
+
+  it("downloads asset QR code PNG through the backend endpoint", async () => {
+    const pngBlob = new Blob(["png-bytes"], { type: "image/png" });
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(pngBlob, {
+        status: 200,
+        headers: {
+          "Content-Type": "image/png",
+          "Content-Disposition": 'attachment; filename="asset-42-qr.png"',
+        },
+      })
+    );
+
+    const result = await downloadAssetQrCode(42, "tok-qr");
+
+    const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toMatch(/\/api\/assets\/42\/qr-code\/$/);
+    expect(options).toMatchObject({
+      method: "GET",
+      headers: { Authorization: "Bearer tok-qr" },
+    });
+    expect(result.filename).toBe("asset-42-qr.png");
+    expect(result.blob.type).toBe("image/png");
+  });
+
+  it("throws ApiError for QR download failures", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ detail: "Forbidden" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      })
+    );
+
+    await expect(downloadAssetQrCode(42, "tok-qr")).rejects.toEqual(
+      expect.objectContaining<ApiError>({
+        name: "ApiError",
+        status: 403,
+        message: "Forbidden",
+      })
+    );
   });
 
   it("lists assignment records", async () => {

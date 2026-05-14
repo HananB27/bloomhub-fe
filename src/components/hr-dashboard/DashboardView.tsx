@@ -37,6 +37,7 @@ import type { AddNotification } from "./notifications";
 interface DashboardViewProps {
   activeModule: string;
   addNotification?: AddNotification;
+  initialAssetId?: number | string;
   onNavigate?: (moduleId: string) => void;
 }
 
@@ -385,6 +386,7 @@ function DashboardOverview() {
 export function DashboardView({
   activeModule,
   addNotification,
+  initialAssetId,
   onNavigate,
 }: DashboardViewProps) {
   switch (activeModule) {
@@ -411,7 +413,7 @@ export function DashboardView({
     case "documents":
       return <DocumentsModule />;
     case "assets":
-      return <AssetsModule />;
+      return <AssetsModule initialAssetId={initialAssetId} />;
     case "orgchart":
       return <OrgChartModule />;
     case "analytics":

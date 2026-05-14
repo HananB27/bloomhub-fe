@@ -1,4 +1,4 @@
-import { getApiBaseUrl } from "@/lib/config";
+import { getApiBaseUrl, getFrontendBaseUrl } from "@/lib/config";
 import { ApiError } from "@/utils/api";
 
 export interface AssetApiItem {
@@ -28,6 +28,8 @@ export interface AssetApiItem {
   last_maintenance?: string;
   next_maintenance?: string;
   specifications?: Record<string, string>;
+  qr_code_payload?: string | null;
+  qr_code_url?: string | null;
   capabilities?: AssetItemCapabilities;
 }
 
@@ -320,6 +322,11 @@ export interface AssetExportResult {
   filename: string;
 }
 
+export interface AssetQrCodeDownloadResult {
+  blob: Blob;
+  filename: string;
+}
+
 const ASSETS_PATH = process.env.NEXT_PUBLIC_ASSETS_API_PATH || "/api/assets/";
 const ASSET_CAPABILITIES_PATH =
   process.env.NEXT_PUBLIC_ASSET_CAPABILITIES_API_PATH ||
@@ -484,6 +491,54 @@ export async function updateAsset(
     token,
     body: payload,
   });
+}
+
+export function getAssetQrCodeUrl(assetId: number | string): string {
+  return `${getApiBaseUrl()}${normalizePath(`${ASSETS_PATH}${assetId}/qr-code/`)}`;
+}
+
+export function getAssetFrontendUrl(assetId: number | string): string {
+  return `${getFrontendBaseUrl()}${normalizePath(`/assets/${assetId}`)}`;
+}
+
+export async function downloadAssetQrCode(
+  assetId: number | string,
+  token?: string
+): Promise<AssetQrCodeDownloadResult> {
+  const authToken = token || getStoredAccessToken();
+  const headers: HeadersInit = {};
+
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
+  }
+
+  const response = await fetch(getAssetQrCodeUrl(assetId), {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    const contentType = response.headers.get("content-type") || "";
+    const errorPayload = contentType.includes("application/json")
+      ? await response.json().catch(() => ({}))
+      : await response.text().catch(() => "");
+
+    throw new ApiError(
+      extractErrorMessage(errorPayload, response.status),
+      response.status,
+      errorPayload
+    );
+  }
+
+  const blob = await response.blob();
+  const filenameFromHeader = parseContentDispositionFilename(
+    response.headers.get("content-disposition")
+  );
+
+  return {
+    blob,
+    filename: filenameFromHeader || `asset-${assetId}-qr.png`,
+  };
 }
 
 export async function deleteAssetById(

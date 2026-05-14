@@ -105,8 +105,10 @@ import {
   createReplacementLog,
   createScheduledMaintenance,
   deleteAssetById,
+  downloadAssetQrCode,
   exportAssetsCsv,
   getAssetCapabilities,
+  getAssetFrontendUrl,
   listAssets,
   listAssignments,
   listAssignableUsers,
@@ -185,8 +187,22 @@ interface Asset {
   lastMaintenance?: string;
   nextMaintenance?: string;
   specifications: { [key: string]: string };
+  qrCodePayload?: string;
+  qrCodeUrl?: string;
   isAvailable?: boolean;
   capabilities?: AssetItemCapabilities;
+}
+
+interface BarcodeDetectorResult {
+  rawValue?: string;
+}
+
+interface BarcodeDetectorInstance {
+  detect(source: HTMLVideoElement): Promise<BarcodeDetectorResult[]>;
+}
+
+interface BarcodeDetectorConstructor {
+  new (options?: { formats?: string[] }): BarcodeDetectorInstance;
 }
 
 interface Assignment {
@@ -314,6 +330,37 @@ function getAssetCapability(
 ): boolean | undefined {
   const value = asset?.capabilities?.[key];
   return typeof value === "boolean" ? value : undefined;
+}
+
+function getAssetIdFromQrPayload(payload: string): string | null {
+  const trimmedPayload = payload.trim();
+
+  if (!trimmedPayload) {
+    return null;
+  }
+
+  try {
+    const baseUrl =
+      typeof window !== "undefined" && window.location.origin
+        ? window.location.origin
+        : "http://localhost:3000";
+    const url = new URL(trimmedPayload, baseUrl);
+    const match = url.pathname.match(/^\/assets\/([^/?#]+)/);
+    return match?.[1] ? decodeURIComponent(match[1]) : null;
+  } catch {
+    const match = trimmedPayload.match(/(?:^|\/)assets\/([^/?#]+)/);
+    return match?.[1] ? decodeURIComponent(match[1]) : null;
+  }
+}
+
+function getAssetQrDownloadFilename(asset: Pick<Asset, "id" | "name">): string {
+  const safeName =
+    asset.name
+      .trim()
+      .replace(/[^a-z0-9]+/gi, "-")
+      .replace(/^-+|-+$/g, "") || "Asset";
+
+  return `${safeName}-${asset.id}-qr.png`;
 }
 
 function toAssetCategory(value?: string): AssetCategory {
@@ -626,6 +673,9 @@ function mapAssetFromApi(item: AssetApiItem): Asset {
     : item.is_available
       ? "available"
       : undefined;
+  const qrCodePayload = item.qr_code_payload?.startsWith("/")
+    ? `${getAssetFrontendUrl(item.id).replace(/\/assets\/\d+$/, "")}${item.qr_code_payload}`
+    : item.qr_code_payload || getAssetFrontendUrl(item.id);
 
   return {
     id: item.id,
@@ -652,6 +702,8 @@ function mapAssetFromApi(item: AssetApiItem): Asset {
     lastMaintenance: item.last_maintenance,
     nextMaintenance: item.next_maintenance,
     specifications: item.specifications || {},
+    qrCodePayload,
+    qrCodeUrl: item.qr_code_url || undefined,
     isAvailable: item.is_available,
     capabilities: item.capabilities,
   };
@@ -870,7 +922,11 @@ const FORCED_LIGHT_SURFACE_STYLE: CSSProperties = {
   opacity: 1,
 };
 
-export function AssetsModule() {
+interface AssetsModuleProps {
+  initialAssetId?: number | string;
+}
+
+export function AssetsModule({ initialAssetId }: AssetsModuleProps = {}) {
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("assets");
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(true);
@@ -888,6 +944,10 @@ export function AssetsModule() {
   const [isAssignmentFormDialogOpen, setIsAssignmentFormDialogOpen] =
     useState(false);
   const [isReturnDialogOpen, setIsReturnDialogOpen] = useState(false);
+  const [isQrScannerOpen, setIsQrScannerOpen] = useState(false);
+  const [isQrScannerStarting, setIsQrScannerStarting] = useState(false);
+  const [qrScannerError, setQrScannerError] = useState<string | null>(null);
+  const [manualQrPayload, setManualQrPayload] = useState("");
   const [selectedReturnRequest, setSelectedReturnRequest] =
     useState<PendingReturnRequest | null>(null);
   const [isReturnRequestDetailsOpen, setIsReturnRequestDetailsOpen] =
@@ -900,6 +960,12 @@ export function AssetsModule() {
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [isLoadingAssets, setIsLoadingAssets] = useState(true);
   const [isExportingAssets, setIsExportingAssets] = useState(false);
+  const [downloadingQrCodeAssetId, setDownloadingQrCodeAssetId] = useState<
+    number | null
+  >(null);
+  const [qrCodeError, setQrCodeError] = useState<string | null>(null);
+  const [qrCodePreviewUrl, setQrCodePreviewUrl] = useState<string | null>(null);
+  const [isQrCodePreviewLoading, setIsQrCodePreviewLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [assignmentError, setAssignmentError] = useState<string | null>(null);
   const [deleteTargetAssetId, setDeleteTargetAssetId] = useState<number | null>(
@@ -1092,6 +1158,10 @@ export function AssetsModule() {
   const [assetCapabilities, setAssetCapabilities] =
     useState<AssetCapabilities | null>(null);
   const isAssetsMountedRef = useRef(true);
+  const openedInitialAssetIdRef = useRef<string | null>(null);
+  const qrScannerVideoRef = useRef<HTMLVideoElement | null>(null);
+  const qrScannerStreamRef = useRef<MediaStream | null>(null);
+  const qrScannerTimerRef = useRef<number | null>(null);
 
   const accessToken = (session as { accessToken?: string } | null)?.accessToken;
   const sessionUser = (
@@ -1323,6 +1393,77 @@ export function AssetsModule() {
       isAssetsMountedRef.current = false;
     };
   }, [loadAssetsAndAssignments]);
+
+  useEffect(() => {
+    if (!initialAssetId || isLoadingAssets) {
+      return;
+    }
+
+    const normalizedInitialAssetId = String(initialAssetId);
+    if (openedInitialAssetIdRef.current === normalizedInitialAssetId) {
+      return;
+    }
+
+    const targetAsset = assets.find(
+      (asset) => String(asset.id) === normalizedInitialAssetId
+    );
+
+    if (!targetAsset) {
+      return;
+    }
+
+    openedInitialAssetIdRef.current = normalizedInitialAssetId;
+    setActiveTab("assets");
+    setSelectedAsset(targetAsset);
+    setIsAssetDetailsDialogOpen(true);
+  }, [assets, initialAssetId, isLoadingAssets]);
+
+  useEffect(() => {
+    let isCancelled = false;
+    let objectUrl: string | null = null;
+
+    setQrCodePreviewUrl(null);
+
+    if (!isAssetDetailsDialogOpen || !selectedAsset?.qrCodeUrl) {
+      setIsQrCodePreviewLoading(false);
+      return;
+    }
+
+    setIsQrCodePreviewLoading(true);
+
+    void downloadAssetQrCode(selectedAsset.id, accessToken)
+      .then(({ blob }) => {
+        if (isCancelled) {
+          return;
+        }
+
+        objectUrl = window.URL.createObjectURL(blob);
+        setQrCodePreviewUrl(objectUrl);
+      })
+      .catch((error: unknown) => {
+        if (!isCancelled) {
+          setQrCodeError(getErrorMessage(error, "Failed to load QR code."));
+        }
+      })
+      .finally(() => {
+        if (!isCancelled) {
+          setIsQrCodePreviewLoading(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+
+      if (objectUrl) {
+        window.URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [
+    accessToken,
+    isAssetDetailsDialogOpen,
+    selectedAsset?.id,
+    selectedAsset?.qrCodeUrl,
+  ]);
 
   const categories: {
     value: AssetCategory;
@@ -1826,6 +1967,7 @@ export function AssetsModule() {
   const openAssetDetails = async (asset: Asset) => {
     setSelectedAsset(asset);
     setIsAssetDetailsDialogOpen(true);
+    setQrCodeError(null);
     setReplacementLogs([]);
     setSelectedAssetScheduledMaintenance([]);
     setIsReplacementFormOpen(false);
@@ -2588,6 +2730,174 @@ export function AssetsModule() {
     }
   };
 
+  const handleDownloadAssetQrCode = async (asset: Asset) => {
+    if (downloadingQrCodeAssetId !== null) {
+      return;
+    }
+
+    if (!asset.qrCodeUrl) {
+      setQrCodeError("QR code is not available for this asset.");
+      return;
+    }
+
+    setDownloadingQrCodeAssetId(asset.id);
+    setQrCodeError(null);
+
+    try {
+      const { blob } = await downloadAssetQrCode(asset.id, accessToken);
+      const objectUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = getAssetQrDownloadFilename(asset);
+      link.rel = "noopener";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(objectUrl);
+    } catch (error: unknown) {
+      if (error instanceof ApiError) {
+        if (error.status === 401) {
+          setQrCodeError(
+            "Your session has expired. Please sign in again to download this QR code."
+          );
+        } else if (error.status === 403) {
+          setQrCodeError(
+            "You do not have permission to download this QR code."
+          );
+        } else if (error.status === 404) {
+          setQrCodeError("QR code is missing for this asset.");
+        } else {
+          setQrCodeError(getErrorMessage(error, "Failed to download QR code."));
+        }
+      } else {
+        setQrCodeError(getErrorMessage(error, "Failed to download QR code."));
+      }
+    } finally {
+      setDownloadingQrCodeAssetId(null);
+    }
+  };
+
+  const stopQrScanner = useCallback(() => {
+    if (qrScannerTimerRef.current !== null) {
+      window.clearInterval(qrScannerTimerRef.current);
+      qrScannerTimerRef.current = null;
+    }
+
+    qrScannerStreamRef.current?.getTracks().forEach((track) => track.stop());
+    qrScannerStreamRef.current = null;
+
+    if (qrScannerVideoRef.current) {
+      qrScannerVideoRef.current.srcObject = null;
+    }
+  }, []);
+
+  const openScannedAsset = useCallback(
+    (payload: string) => {
+      const assetId = getAssetIdFromQrPayload(payload);
+
+      if (!assetId) {
+        setQrScannerError("Scanned QR code is not an asset link.");
+        return;
+      }
+
+      stopQrScanner();
+      setIsQrScannerOpen(false);
+      window.location.assign(getAssetFrontendUrl(assetId));
+    },
+    [stopQrScanner]
+  );
+
+  const startQrScanner = useCallback(async () => {
+    const browserWindow = window as Window &
+      typeof globalThis & {
+        BarcodeDetector?: BarcodeDetectorConstructor;
+      };
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setQrScannerError("Camera scanning is not available in this browser.");
+      return;
+    }
+
+    if (!browserWindow.BarcodeDetector) {
+      setQrScannerError(
+        "QR camera scanning is not supported in this browser. Paste an asset QR link below."
+      );
+      return;
+    }
+
+    setIsQrScannerStarting(true);
+    setQrScannerError(null);
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+        audio: false,
+      });
+      qrScannerStreamRef.current = stream;
+
+      if (!qrScannerVideoRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
+      qrScannerVideoRef.current.srcObject = stream;
+      await qrScannerVideoRef.current.play();
+
+      const detector = new browserWindow.BarcodeDetector({
+        formats: ["qr_code"],
+      });
+
+      qrScannerTimerRef.current = window.setInterval(() => {
+        const video = qrScannerVideoRef.current;
+
+        if (!video || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+          return;
+        }
+
+        void detector
+          .detect(video)
+          .then((codes) => {
+            const payload = codes.find((code) => code.rawValue)?.rawValue;
+
+            if (payload) {
+              openScannedAsset(payload);
+            }
+          })
+          .catch(() => {
+            setQrScannerError("Failed to read QR code from camera.");
+          });
+      }, 500);
+    } catch (error: unknown) {
+      setQrScannerError(
+        getErrorMessage(
+          error,
+          "Camera access failed. Check browser permissions."
+        )
+      );
+    } finally {
+      setIsQrScannerStarting(false);
+    }
+  }, [openScannedAsset]);
+
+  const openQrScanner = () => {
+    setManualQrPayload("");
+    setQrScannerError(null);
+    setIsQrScannerOpen(true);
+  };
+
+  useEffect(() => {
+    if (!isQrScannerOpen) {
+      stopQrScanner();
+      return;
+    }
+
+    void startQrScanner();
+
+    return () => {
+      stopQrScanner();
+    };
+  }, [isQrScannerOpen, startQrScanner, stopQrScanner]);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -2632,7 +2942,12 @@ export function AssetsModule() {
               <Download className="w-4 h-4 mr-2" />
               {isExportingAssets ? "Exporting..." : "Export"}
             </Button>
-            <Button variant="outline" size="sm" disabled={!canGenerateQr}>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!canGenerateQr}
+              onClick={openQrScanner}
+            >
               <QrCode className="w-4 h-4 mr-2" />
               Scan QR
             </Button>
@@ -3668,7 +3983,7 @@ export function AssetsModule() {
                 <QuickActionButton
                   label="Scan QR Code"
                   icon={QrCode}
-                  onClick={() => {}}
+                  onClick={openQrScanner}
                   disabled={!canGenerateQr}
                 />
                 <QuickActionButton
@@ -4713,7 +5028,7 @@ export function AssetsModule() {
         onOpenChange={setIsAssetDetailsDialogOpen}
       >
         <DialogContent
-          className={`max-w-3xl max-h-[90vh] overflow-y-auto ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
+          className={`max-w-4xl max-h-[90vh] overflow-y-auto ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
           style={FORCED_LIGHT_SURFACE_STYLE}
         >
           <DialogHeader>
@@ -4727,42 +5042,86 @@ export function AssetsModule() {
 
           {selectedAsset && (
             <div className="space-y-4 text-black">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className={ASSET_DETAILS_LABEL_CLASS}>Asset Tag</p>
-                  <p className={ASSET_DETAILS_VALUE_CLASS}>
-                    {selectedAsset.assetTag}
-                  </p>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_236px]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className={ASSET_DETAILS_LABEL_CLASS}>Asset Tag</p>
+                    <p className={ASSET_DETAILS_VALUE_CLASS}>
+                      {selectedAsset.assetTag}
+                    </p>
+                  </div>
+                  <div>
+                    <p className={ASSET_DETAILS_LABEL_CLASS}>Serial Number</p>
+                    <p className={ASSET_DETAILS_VALUE_CLASS}>
+                      {selectedAsset.serialNumber}
+                    </p>
+                  </div>
+                  <div>
+                    <p className={ASSET_DETAILS_LABEL_CLASS}>Status</p>
+                    <p className={ASSET_DETAILS_VALUE_CLASS}>
+                      {selectedAsset.status}
+                    </p>
+                  </div>
+                  <div>
+                    <p className={ASSET_DETAILS_LABEL_CLASS}>Condition</p>
+                    <p className={ASSET_DETAILS_VALUE_CLASS}>
+                      {selectedAsset.condition}
+                    </p>
+                  </div>
+                  <div>
+                    <p className={ASSET_DETAILS_LABEL_CLASS}>Assigned To</p>
+                    <p className={ASSET_DETAILS_VALUE_CLASS}>
+                      {selectedAssetAssigneeName}
+                    </p>
+                  </div>
+                  <div>
+                    <p className={ASSET_DETAILS_LABEL_CLASS}>Location</p>
+                    <p className={ASSET_DETAILS_VALUE_CLASS}>
+                      {selectedAsset.location}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className={ASSET_DETAILS_LABEL_CLASS}>Serial Number</p>
-                  <p className={ASSET_DETAILS_VALUE_CLASS}>
-                    {selectedAsset.serialNumber}
-                  </p>
-                </div>
-                <div>
-                  <p className={ASSET_DETAILS_LABEL_CLASS}>Status</p>
-                  <p className={ASSET_DETAILS_VALUE_CLASS}>
-                    {selectedAsset.status}
-                  </p>
-                </div>
-                <div>
-                  <p className={ASSET_DETAILS_LABEL_CLASS}>Condition</p>
-                  <p className={ASSET_DETAILS_VALUE_CLASS}>
-                    {selectedAsset.condition}
-                  </p>
-                </div>
-                <div>
-                  <p className={ASSET_DETAILS_LABEL_CLASS}>Assigned To</p>
-                  <p className={ASSET_DETAILS_VALUE_CLASS}>
-                    {selectedAssetAssigneeName}
-                  </p>
-                </div>
-                <div>
-                  <p className={ASSET_DETAILS_LABEL_CLASS}>Location</p>
-                  <p className={ASSET_DETAILS_VALUE_CLASS}>
-                    {selectedAsset.location}
-                  </p>
+
+                <div className="rounded-md border border-gray-200 p-2 text-center">
+                  <p className="font-medium text-black">QR Code</p>
+                  <div className="mt-2 flex min-h-[212px] items-center justify-center rounded-md border border-gray-100 bg-white p-0">
+                    {qrCodePreviewUrl ? (
+                      <img
+                        src={qrCodePreviewUrl}
+                        alt={`${selectedAsset.name} QR code`}
+                        className="h-52 w-52 object-contain"
+                      />
+                    ) : (
+                      <p className="text-xs text-gray-600">
+                        {isQrCodePreviewLoading
+                          ? "Loading QR..."
+                          : "QR not available"}
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-3 w-full"
+                    disabled={
+                      !selectedAsset.qrCodeUrl ||
+                      downloadingQrCodeAssetId === selectedAsset.id
+                    }
+                    onClick={() => {
+                      void handleDownloadAssetQrCode(selectedAsset);
+                    }}
+                  >
+                    <QrCode className="mr-2 h-4 w-4" />
+                    {downloadingQrCodeAssetId === selectedAsset.id
+                      ? "Downloading..."
+                      : "Download QR"}
+                  </Button>
+                  {qrCodeError && (
+                    <p className="mt-2 text-left text-sm text-red-700">
+                      {qrCodeError}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -5209,16 +5568,31 @@ export function AssetsModule() {
                     No maintenance logs available.
                   </p>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {replacementLogs.map((log) => (
                       <div
                         key={log.id}
-                        className="rounded border border-gray-100 p-2 text-sm"
+                        className="overflow-hidden rounded-lg border border-gray-200 bg-white text-sm shadow-sm"
                       >
-                        <div className="flex items-start justify-between gap-2">
-                          <p className="font-medium text-black">
-                            {log.reason || "Maintenance record"}
-                          </p>
+                        <div className="flex flex-col gap-3 border-b border-gray-100 bg-gray-50 px-3 py-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="flex min-w-0 gap-3">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-gray-200 bg-white">
+                              <Wrench className="h-4 w-4 text-gray-700" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-medium text-gray-950">
+                                {log.reason || "Maintenance record"}
+                              </p>
+                              <p className="mt-1 flex items-center gap-1 text-xs text-gray-600">
+                                <CalendarDays className="h-3.5 w-3.5" />
+                                {log.date
+                                  ? formatReplacementLogDate(log.date)
+                                  : log.created_at
+                                    ? formatReplacementLogDate(log.created_at)
+                                    : "Date not recorded"}
+                              </p>
+                            </div>
+                          </div>
                           {canLogReplacement && (
                             <Button
                               type="button"
@@ -5226,54 +5600,63 @@ export function AssetsModule() {
                               size="sm"
                               onClick={() => openReplacementLogEdit(log)}
                               disabled={isUpdatingReplacementLog}
+                              className="shrink-0"
                             >
                               <Edit3 className="mr-1 h-3 w-3" />
                               Edit
                             </Button>
                           )}
                         </div>
-                        <p className="text-black">
-                          {log.date
-                            ? formatReplacementLogDate(log.date)
-                            : log.created_at
-                              ? formatReplacementLogDate(log.created_at)
-                              : "Date not recorded"}
-                        </p>
-                        <div className="mt-2 grid grid-cols-1 gap-2 text-black md:grid-cols-2">
-                          <p>
-                            Status before:{" "}
-                            {formatSnapshotValue(log.asset_status_before)}
-                          </p>
-                          <p>
-                            Status after:{" "}
-                            {formatSnapshotValue(log.asset_status_after)}
-                          </p>
-                          <p>
-                            Condition before:{" "}
-                            {formatSnapshotValue(log.asset_condition_before)}
-                          </p>
-                          <p>
-                            Condition after:{" "}
-                            {formatSnapshotValue(log.asset_condition_after)}
-                          </p>
+
+                        <div className="space-y-3 p-3">
+                          <div className="grid grid-cols-1 gap-2 text-black md:grid-cols-2">
+                            <p className="rounded-md border border-gray-100 bg-gray-50 px-3 py-2">
+                              Status before:{" "}
+                              {formatSnapshotValue(log.asset_status_before)}
+                            </p>
+                            <p className="rounded-md border border-gray-100 bg-gray-50 px-3 py-2">
+                              Status after:{" "}
+                              {formatSnapshotValue(log.asset_status_after)}
+                            </p>
+                            <p className="rounded-md border border-gray-100 bg-gray-50 px-3 py-2">
+                              Condition before:{" "}
+                              {formatSnapshotValue(log.asset_condition_before)}
+                            </p>
+                            <p className="rounded-md border border-gray-100 bg-gray-50 px-3 py-2">
+                              Condition after:{" "}
+                              {formatSnapshotValue(log.asset_condition_after)}
+                            </p>
+                          </div>
+
+                          {(log.replaced_by_details ||
+                            log.replacement_asset_details ||
+                            log.cost) && (
+                            <div className="flex flex-wrap gap-2">
+                              {log.replaced_by_details && (
+                                <p className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-xs text-gray-800">
+                                  <User className="h-3.5 w-3.5" />
+                                  Logged by:{" "}
+                                  {toPersonName(log.replaced_by_details)}
+                                </p>
+                              )}
+                              {log.replacement_asset_details && (
+                                <p className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-xs text-gray-800">
+                                  <Package2 className="h-3.5 w-3.5" />
+                                  Related asset:{" "}
+                                  {log.replacement_asset_details.name}
+                                </p>
+                              )}
+                              {log.cost && (
+                                <p className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-xs text-gray-800">
+                                  <Activity className="h-3.5 w-3.5" />
+                                  Cost: {formatCurrency(Number(log.cost))}
+                                </p>
+                              )}
+                            </div>
+                          )}
                         </div>
-                        {log.replaced_by_details && (
-                          <p className="text-black">
-                            Logged by: {toPersonName(log.replaced_by_details)}
-                          </p>
-                        )}
-                        {log.replacement_asset_details && (
-                          <p className="text-black">
-                            Related asset: {log.replacement_asset_details.name}
-                          </p>
-                        )}
-                        {log.cost && (
-                          <p className="text-black">
-                            Cost: {formatCurrency(Number(log.cost))}
-                          </p>
-                        )}
                         {editingReplacementLogId === log.id && (
-                          <div className="mt-3 rounded-md border border-gray-200 bg-gray-50 p-3">
+                          <div className="mx-3 mb-3 rounded-md border border-gray-200 bg-gray-50 p-3">
                             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                               <div className="space-y-2">
                                 <Label
@@ -6582,6 +6965,71 @@ export function AssetsModule() {
                 onClick={() => setIsAssignDialogOpen(false)}
               >
                 Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isQrScannerOpen} onOpenChange={setIsQrScannerOpen}>
+        <DialogContent
+          className={`max-w-lg ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
+          style={FORCED_LIGHT_SURFACE_STYLE}
+        >
+          <DialogHeader>
+            <DialogTitle className="text-black">Scan QR Code</DialogTitle>
+            <DialogDescription className="text-black">
+              Scan an asset QR code to open the asset details page.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 text-black">
+            <div className="overflow-hidden rounded-md border border-gray-200 bg-black">
+              <video
+                ref={qrScannerVideoRef}
+                className="aspect-video w-full object-cover"
+                muted
+                playsInline
+              />
+            </div>
+
+            {isQrScannerStarting && (
+              <p className="text-sm text-gray-700">Starting camera...</p>
+            )}
+
+            {qrScannerError && (
+              <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                {qrScannerError}
+              </p>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="manual-qr-payload" className="text-gray-900">
+                Asset QR link
+              </Label>
+              <Input
+                id="manual-qr-payload"
+                className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                value={manualQrPayload}
+                onChange={(event) => setManualQrPayload(event.target.value)}
+                placeholder="https://frontend.example.com/assets/42"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsQrScannerOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                onClick={() => openScannedAsset(manualQrPayload)}
+              >
+                Open Asset
               </Button>
             </div>
           </div>

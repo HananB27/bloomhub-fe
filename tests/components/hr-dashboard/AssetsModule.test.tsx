@@ -27,6 +27,7 @@ const mockCreateScheduledMaintenance = vi.fn();
 const mockCompleteScheduledMaintenance = vi.fn();
 const mockCancelScheduledMaintenance = vi.fn();
 const mockExportAssetsCsv = vi.fn();
+const mockDownloadAssetQrCode = vi.fn();
 const mockGetAssetCapabilities = vi.fn();
 
 let sessionRole = "Employee";
@@ -95,6 +96,8 @@ vi.mock("next-auth/react", () => ({
 vi.mock("@/lib/api/assets", () => ({
   getAssetCapabilities: (...args: unknown[]) =>
     mockGetAssetCapabilities(...args),
+  getAssetFrontendUrl: (assetId: number | string) =>
+    `http://localhost:3000/assets/${assetId}`,
   listAssets: (...args: unknown[]) => mockListAssets(...args),
   listAssignments: (...args: unknown[]) => mockListAssignments(...args),
   listAssignableUsers: (...args: unknown[]) => mockListAssignableUsers(...args),
@@ -121,6 +124,7 @@ vi.mock("@/lib/api/assets", () => ({
   cancelScheduledMaintenance: (...args: unknown[]) =>
     mockCancelScheduledMaintenance(...args),
   exportAssetsCsv: (...args: unknown[]) => mockExportAssetsCsv(...args),
+  downloadAssetQrCode: (...args: unknown[]) => mockDownloadAssetQrCode(...args),
   deleteAssetById: vi.fn(),
 }));
 
@@ -222,6 +226,10 @@ describe("AssetsModule", () => {
     mockExportAssetsCsv.mockResolvedValue({
       blob: new Blob(["asset_id,name\nAST-1,Device\n"], { type: "text/csv" }),
       filename: "asset_export.csv",
+    });
+    mockDownloadAssetQrCode.mockResolvedValue({
+      blob: new Blob(["png-bytes"], { type: "image/png" }),
+      filename: "asset-1-qr.png",
     });
   });
 
@@ -410,6 +418,38 @@ describe("AssetsModule", () => {
     );
   });
 
+  it("opens the QR scanner from the header Scan QR button", async () => {
+    sessionRole = "HR";
+    render(<AssetsModule />);
+
+    await screen.findByText(/No assets found/i);
+
+    fireEvent.click(screen.getByRole("button", { name: /^Scan QR$/i }));
+
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByText("Scan QR Code")).toBeInTheDocument();
+    expect(
+      within(dialog).getByText(/Scan an asset QR code/i)
+    ).toBeInTheDocument();
+    expect(
+      await within(dialog).findByText(/Camera scanning is not available/i)
+    ).toBeInTheDocument();
+  });
+
+  it("opens the QR scanner from quick actions", async () => {
+    sessionRole = "HR";
+    render(<AssetsModule />);
+
+    await screen.findByText(/No assets found/i);
+
+    const scanButtons = screen
+      .getAllByRole("button", { name: /Scan QR/i })
+      .filter((button) => !button.hasAttribute("disabled"));
+    fireEvent.click(scanButtons[scanButtons.length - 1]);
+
+    expect(await screen.findByRole("dialog")).toHaveTextContent("Scan QR Code");
+  });
+
   it("shows admin actions for SUPER_ADMIN role", async () => {
     sessionRole = "SUPER_ADMIN";
     render(<AssetsModule />);
@@ -470,6 +510,112 @@ describe("AssetsModule", () => {
     expect(
       within(screen.getByRole("dialog")).getByText("Fallback Assignee")
     ).toBeInTheDocument();
+  });
+
+  it("shows and downloads QR code from asset details", async () => {
+    const createObjectURLSpy = vi
+      .spyOn(URL, "createObjectURL")
+      .mockReturnValue("blob:qr-url");
+    const revokeObjectURLSpy = vi
+      .spyOn(URL, "revokeObjectURL")
+      .mockImplementation(() => undefined);
+    const originalCreateElement = document.createElement.bind(document);
+    let downloadAnchor: HTMLAnchorElement | null = null;
+    const createElementSpy = vi
+      .spyOn(document, "createElement")
+      .mockImplementation((tagName: string) => {
+        const element = originalCreateElement(tagName);
+
+        if (tagName.toLowerCase() === "a") {
+          downloadAnchor = element as HTMLAnchorElement;
+          vi.spyOn(downloadAnchor, "click").mockImplementation(() => undefined);
+        }
+
+        return element;
+      });
+    mockListAssets.mockResolvedValueOnce([
+      {
+        id: 42,
+        name: "QR Laptop",
+        category: "laptops",
+        serial_number: "SN-QR",
+        asset_tag: "AT-QR",
+        status: "available",
+        condition: "good",
+        qr_code_payload: "http://localhost:3000/assets/42",
+        qr_code_url: "/api/assets/42/qr-code/",
+      },
+    ]);
+    mockDownloadAssetQrCode.mockResolvedValueOnce({
+      blob: new Blob(["png-bytes"], { type: "image/png" }),
+      filename: "asset-42-qr.png",
+    });
+
+    render(<AssetsModule />);
+    await screen.findByText("QR Laptop");
+
+    fireEvent.click(screen.getByRole("button", { name: /^View$/i }));
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByText("QR Code")).toBeInTheDocument();
+    expect(
+      await within(dialog).findByRole("img", { name: /QR Laptop QR code/i })
+    ).toHaveAttribute("src", "blob:qr-url");
+
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: /Download QR/i })
+    );
+
+    await waitFor(() => {
+      expect(mockDownloadAssetQrCode).toHaveBeenCalledWith(42, "test-token");
+    });
+    expect(downloadAnchor?.download).toBe("QR-Laptop-42-qr.png");
+    expect(createObjectURLSpy).toHaveBeenCalled();
+    expect(revokeObjectURLSpy).toHaveBeenCalledWith("blob:qr-url");
+
+    createElementSpy.mockRestore();
+    createObjectURLSpy.mockRestore();
+    revokeObjectURLSpy.mockRestore();
+  });
+
+  it("shows QR download errors using asset details error pattern", async () => {
+    const createObjectURLSpy = vi
+      .spyOn(URL, "createObjectURL")
+      .mockReturnValue("blob:qr-url");
+    mockListAssets.mockResolvedValueOnce([
+      {
+        id: 43,
+        name: "Forbidden QR Laptop",
+        category: "laptops",
+        serial_number: "SN-QR-403",
+        asset_tag: "AT-QR-403",
+        status: "available",
+        condition: "good",
+        qr_code_url: "/api/assets/43/qr-code/",
+      },
+    ]);
+    mockDownloadAssetQrCode
+      .mockResolvedValueOnce({
+        blob: new Blob(["png-bytes"], { type: "image/png" }),
+        filename: "asset-43-qr.png",
+      })
+      .mockRejectedValueOnce(new ApiError("Forbidden", 403));
+
+    render(<AssetsModule />);
+    await screen.findByText("Forbidden QR Laptop");
+
+    fireEvent.click(screen.getByRole("button", { name: /^View$/i }));
+    const dialog = await screen.findByRole("dialog");
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: /Download QR/i })
+    );
+
+    expect(
+      await within(dialog).findByText(
+        /do not have permission to download this QR code/i
+      )
+    ).toBeInTheDocument();
+
+    createObjectURLSpy.mockRestore();
   });
 
   it("processes return when checklist is complete", async () => {
