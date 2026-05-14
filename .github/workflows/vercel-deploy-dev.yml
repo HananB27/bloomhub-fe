@@ -14,22 +14,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Debug GitHub context
-        run: |
-          echo "Repository: ${{ github.repository }}"
-          echo "Actor: ${{ github.actor }}"
-          echo "Ref: ${{ github.ref }}"
-          echo "SHA: ${{ github.sha }}"
-
-      - name: Check token exists
-        run: |
-          if [ -z "${{ secrets.HANAN_TOKEN }}" ]; then
-            echo "HANAN_TOKEN is missing or empty"
-            exit 1
-          else
-            echo "HANAN_TOKEN exists"
-          fi
-
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
@@ -40,42 +24,12 @@ jobs:
         run: |
           git config user.name "Hanan Bajramovic"
           git config user.email "hananbajramovic075@gmail.com"
-          git config --list | grep user
-
-      - name: Debug auth and remote
-        run: |
-          echo "Current branch:"
-          git branch --show-current
-
-          echo "Remote before override:"
-          git remote -v
-
-          echo "Setting authenticated remote..."
-          git remote set-url origin https://x-access-token:${{ secrets.HANAN_TOKEN }}@github.com/HananB27/bloomhub-fe.git
-
-          echo "Remote after override, token hidden:"
-          git remote -v | sed 's/x-access-token:.*@github.com/x-access-token:***@github.com/g'
-
-          echo "Testing token with GitHub API:"
-          curl -sS \
-            -H "Authorization: Bearer ${{ secrets.HANAN_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            https://api.github.com/user
-
-          echo ""
-          echo "Testing repo access:"
-          curl -sS \
-            -H "Authorization: Bearer ${{ secrets.HANAN_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/HananB27/bloomhub-fe \
-            | grep -E '"full_name"|"permissions"|"push"|"admin"|"maintain"|"write"'
 
       - name: Commit
         run: |
-          git status
           git commit --allow-empty -m "chore: override commit"
 
       - name: Push Changes
         run: |
-          echo "Pushing to main..."
-          GIT_TRACE=1 GIT_CURL_VERBOSE=1 git push origin HEAD:main
+          git remote set-url origin https://x-access-token:${{ secrets.HANAN_TOKEN }}@github.com/HananB27/bloomhub-fe.git
+          git push origin HEAD:main
