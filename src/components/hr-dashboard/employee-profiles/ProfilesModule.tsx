@@ -132,7 +132,13 @@ function profileHistoryValueText(field: string, value: unknown): string {
   return String(value);
 }
 
-export default function ProfilesModule() {
+interface ProfilesModuleProps {
+  onNavigate?: (moduleId: string) => void;
+}
+
+export default function ProfilesModule({
+  onNavigate,
+}: ProfilesModuleProps = {}) {
   const [employees, setEmployees] = useState<EmployeeProfileData[]>([]);
   const [selectedEmployee, setSelectedEmployee] =
     useState<EmployeeProfileData | null>(null);
@@ -265,6 +271,18 @@ export default function ProfilesModule() {
       stale = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (employees.length === 0) return;
+    const focusId = sessionStorage.getItem("profiles_focus_employee_id");
+    if (!focusId) return;
+    sessionStorage.removeItem("profiles_focus_employee_id");
+    const target = employees.find((e) => String(e.id) === focusId);
+    if (target) {
+      void openEmployeeDialog(target, "view");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [employees]);
 
   // Fetch CPF levels based on role name
   const fetchCPFLevelsByRole = useCallback(async (roleName?: string) => {
@@ -410,6 +428,11 @@ export default function ProfilesModule() {
     setEditMode(false);
     setSaveError(null);
     setSaveSuccess(false);
+    const returnTo = sessionStorage.getItem("profiles_return_to");
+    if (returnTo && onNavigate) {
+      sessionStorage.removeItem("profiles_return_to");
+      onNavigate(returnTo);
+    }
     setCvVersions([]);
     setProfileChangeHistory([]);
     setIsLoadingProfileHistory(false);
@@ -858,7 +881,19 @@ export default function ProfilesModule() {
       )}
 
       {/* Employee View/Edit Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) {
+            const returnTo = sessionStorage.getItem("profiles_return_to");
+            if (returnTo && onNavigate) {
+              sessionStorage.removeItem("profiles_return_to");
+              onNavigate(returnTo);
+            }
+          }
+        }}
+      >
         <DialogContent className="max-w-4xl p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[92vh] flex flex-col rounded-2xl ring-1 ring-zinc-900/6">
           <DialogTitle className="sr-only">
             {selectedEmployee
