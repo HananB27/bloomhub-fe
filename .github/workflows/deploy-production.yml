@@ -9,6 +9,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -20,11 +23,12 @@ concurrency:
 
 jobs:
   deploy-prod:
-    name: Deploy to Vercel production
+    name: Deploy to Vercel
     runs-on: ubuntu-latest
-    environment: production
+    environment: ${{ github.event_name == 'pull_request' && 'preview' || 'production' }}
     env:
-      NEXT_PUBLIC_ENV: prod
+      VERCEL_ENV: ${{ github.event_name == 'pull_request' && 'preview' || 'production' }}
+      NEXT_PUBLIC_ENV: ${{ github.event_name == 'pull_request' && 'preview' || 'prod' }}
       NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL || vars.NEXTAUTH_URL }}
       NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
@@ -44,17 +48,17 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Pull Vercel env (production)
-        run: vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
+      - name: Pull Vercel env
+        run: vercel pull --yes --environment="${{ env.VERCEL_ENV }}" --token="${{ secrets.VERCEL_TOKEN }}"
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      - name: Resolve production auth URL
+      - name: Resolve auth URL
         run: |
           node <<'NODE'
           const fs = require("fs");
-          const envPath = ".vercel/.env.production.local";
+          const envPath = `.vercel/.env.${process.env.VERCEL_ENV}.local`;
           const fallbackUrl = "https://bloomhub-fe-dev.vercel.app";
 
           const readPulledValue = () => {
@@ -82,14 +86,30 @@ jobs:
           }
           NODE
 
-      - name: Build
+      - name: Build production
+        if: github.event_name != 'pull_request'
         run: vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
+      - name: Build preview
+        if: github.event_name == 'pull_request'
+        run: vercel build --token="${{ secrets.VERCEL_TOKEN }}"
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
       - name: Deploy to production
+        if: github.event_name != 'pull_request'
         run: vercel deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}"
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Deploy preview
+        if: github.event_name == 'pull_request'
+        run: vercel deploy --prebuilt --token="${{ secrets.VERCEL_TOKEN }}"
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
