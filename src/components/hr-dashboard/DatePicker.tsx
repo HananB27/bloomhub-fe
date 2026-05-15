@@ -22,6 +22,7 @@ interface SingleDatePickerProps {
   size?: "default" | "compact";
   popoverAlign?: "start" | "end" | "auto";
   floatPortal?: boolean;
+  portalContainer?: HTMLElement | null;
 }
 
 interface RangeDatePickerProps {
@@ -36,6 +37,7 @@ interface RangeDatePickerProps {
   size?: "default" | "compact";
   popoverAlign?: "start" | "end" | "auto";
   floatPortal?: boolean;
+  portalContainer?: HTMLElement | null;
 }
 
 type DatePickerProps = SingleDatePickerProps | RangeDatePickerProps;
@@ -577,14 +579,27 @@ export function DatePicker(props: DatePickerProps) {
       );
       if (props.floatPortal) {
         const POP_W = 320;
+        const portalRect = props.portalContainer?.getBoundingClientRect();
+        const leftBase = portalRect ? rect.left - portalRect.left : rect.left;
+        const availableWidth = portalRect?.width ?? window.innerWidth;
         const left = Math.max(
           8,
-          Math.min(rect.left, window.innerWidth - POP_W - 8)
+          Math.min(leftBase, availableWidth - POP_W - 8)
         );
         setFloatPos(
           flip
-            ? { left, bottom: window.innerHeight - rect.top + 8 }
-            : { left, top: rect.bottom + 8 }
+            ? {
+                left,
+                bottom: portalRect
+                  ? portalRect.bottom - rect.top + 8
+                  : window.innerHeight - rect.top + 8,
+              }
+            : {
+                left,
+                top: portalRect
+                  ? rect.bottom - portalRect.top + 8
+                  : rect.bottom + 8,
+              }
         );
       }
     }
@@ -636,11 +651,17 @@ export function DatePicker(props: DatePickerProps) {
           const popover = (
             <div
               ref={popoverRef}
+              data-datepicker-popover="true"
+              onPointerDown={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
               style={
                 props.floatPortal
                   ? {
                       position: "fixed",
+                      ...(props.portalContainer
+                        ? { position: "absolute" }
+                        : {}),
                       left: floatPos.left,
                       ...(floatPos.top !== undefined
                         ? { top: floatPos.top }
@@ -745,7 +766,10 @@ export function DatePicker(props: DatePickerProps) {
             </div>
           );
           return props.floatPortal && typeof document !== "undefined"
-            ? ReactDOM.createPortal(popover, document.body)
+            ? ReactDOM.createPortal(
+                popover,
+                props.portalContainer ?? document.body
+              )
             : popover;
         })()}
     </div>
