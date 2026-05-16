@@ -11,11 +11,14 @@ import type {
   UpdateTrainingEntryPayload,
   TrainingEntry,
 } from "@/types/training";
+import type { TrainingBudgetWarning } from "@/types/trainingBudget";
 import { createTrainingEntry, updateTrainingEntry } from "@/lib/api/training";
+import { notifyWarning, notifyError } from "@/utils/notificationHelpers";
+import { formatCurrency } from "@/utils/format";
 
 interface TrainingEntryFormProps {
   accessToken: string;
-  onSuccess?: (entry: TrainingEntry) => void;
+  onSuccess?: (entry: TrainingEntry, warning?: TrainingBudgetWarning) => void;
   onCancel?: () => void;
   editingEntry?: TrainingEntry;
   employeeId?: number;
@@ -151,6 +154,7 @@ export function TrainingEntryForm({
     setIsLoading(true);
     try {
       let result: TrainingEntry;
+      let warning: TrainingBudgetWarning | undefined;
       if (isEditing && editingEntry) {
         result = await updateTrainingEntry(
           editingEntry.id,
@@ -158,7 +162,9 @@ export function TrainingEntryForm({
           accessToken
         );
       } else {
-        result = await createTrainingEntry(formData, accessToken);
+        const created = await createTrainingEntry(formData, accessToken);
+        result = created.entry;
+        warning = created.budgetWarning;
         setFormData({
           courseTitle: "",
           provider: "",
@@ -171,13 +177,25 @@ export function TrainingEntryForm({
           employeeId,
         });
       }
-      if (onSuccess) onSuccess(result);
+      if (warning) {
+        notifyBudgetWarning(warning);
+      }
+      if (onSuccess) onSuccess(result, warning);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsLoading(false);
     }
   };
+
+  function notifyBudgetWarning(warning: TrainingBudgetWarning) {
+    const message = `${warning.percentUsed}% of FY ${warning.fiscalYear} budget used (${formatCurrency(warning.usedBudget)} of ${formatCurrency(warning.allocatedBudget)}).`;
+    if (warning.level === "exceeded") {
+      notifyError(`Training budget exceeded — ${message}`);
+    } else {
+      notifyWarning(`Training budget limit approaching — ${message}`);
+    }
+  }
 
   const inputCls =
     "w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-gray-400 focus:bg-white disabled:opacity-50";
