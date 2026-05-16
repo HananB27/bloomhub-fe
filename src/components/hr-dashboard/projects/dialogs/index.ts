@@ -13,4 +13,6 @@ export {
   type ExportProjectsValues,
 } from "./ExportProjectsDialog";
 export { AddMemberDialog } from "./AddMemberDialog";
+export { EditAssignmentDialog } from "./EditAssignmentDialog";
+export { EndAssignmentDialog } from "./EndAssignmentDialog";
 export { ProjectDocumentUploadDialog } from "./ProjectDocumentUploadDialog";

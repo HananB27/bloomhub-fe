@@ -180,11 +180,13 @@ function FilterSelect({ label, value, onChange, options }: FilterSelectProps) {
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {options.map((o) => (
-            <SelectItem key={o} value={o}>
-              {o}
-            </SelectItem>
-          ))}
+          {options
+            .filter((o) => o !== "")
+            .map((o) => (
+              <SelectItem key={o} value={o}>
+                {o}
+              </SelectItem>
+            ))}
         </SelectContent>
       </Select>
     </div>

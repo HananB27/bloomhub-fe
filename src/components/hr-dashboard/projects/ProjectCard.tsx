@@ -4,7 +4,6 @@ import { type KeyboardEvent } from "react";
 import { cn } from "../ui/utils";
 import {
   MemberStack,
-  ProgressBar,
   ProjectActionMenu,
   ProjectIcon,
   StageChip,
@@ -65,16 +64,6 @@ export function ProjectCard({
       </div>
 
       <StageChip stage={project.stage} className="mb-2.5" />
-
-      <div className="mb-1">
-        <div className="mb-1.5 flex justify-between text-[11px] text-gray-500">
-          <span>Progress</span>
-          <span className="font-mono font-semibold text-gray-700">
-            {project.progress}%
-          </span>
-        </div>
-        <ProgressBar value={project.progress} status={project.status} />
-      </div>
 
       <div className="mt-3 flex flex-wrap gap-1">
         {project.technologies.slice(0, 3).map((t) => (

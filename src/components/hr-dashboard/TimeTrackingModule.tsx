@@ -106,6 +106,19 @@ interface TimeEntry {
   notes?: string;
 }
 
+// TODO: Integrate with ProjectAssignment (see src/lib/api/modules/projects).
+// Each TimeEntry should reference a ProjectAssignment.id, so logged hours can
+// be compared against `allocation_percentage` (% of a weekly baseline, e.g.
+// 100% = 40h/week) and surfaced as over/under-allocation on the project view.
+// Steps for the colleague picking this up:
+//   1. Replace this local Project shape with the API Project + load assignments
+//      via projectApi.listAssignments(projectId).
+//   2. Add `assignment_id: number` to TimeEntry and persist via a new
+//      /api/time-entries/ endpoint (backend work required).
+//   3. Compute expected_hours_per_week = allocation_percentage / 100 * 40 and
+//      compare against weekly summed entry hours.
+//   4. Surface variance in ProjectMembersSection (badge per row) and on the
+//      employee profile.
 interface Project {
   id: string;
   name: string;

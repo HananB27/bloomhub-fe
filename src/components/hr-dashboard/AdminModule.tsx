@@ -51,11 +51,22 @@ import {
   Upload,
   Trash2,
   Loader2,
+  Briefcase,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ApiError, uploadRolePermissionsCsv } from "@/utils/api";
 import { fetchEmployees, type Employee } from "@/lib/api/employees";
 import { useAdminAccess } from "@/hooks/useAdminAccess";
+import {
+  addProjectClient,
+  getProjectClients,
+  getProjectDefaults,
+  removeProjectClient,
+  renameProjectClient,
+  setProjectDefaults,
+  type ProjectAdminDefaults,
+} from "@/lib/projects/adminSettings";
 
 interface UserData {
   id: string;
@@ -416,6 +427,10 @@ export function AdminModule() {
             <Package className="h-4 w-4" />
             Assets
           </TabsTrigger>
+          <TabsTrigger value="projects" className="flex items-center gap-2">
+            <Briefcase className="h-4 w-4" />
+            Projects
+          </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             System Settings
@@ -613,6 +628,10 @@ export function AdminModule() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="projects">
+          <ProjectsAdminTab />
+        </TabsContent>
+
         <TabsContent value="settings">
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
@@ -808,6 +827,265 @@ export function AdminModule() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function ProjectsAdminTab() {
+  const [clients, setClients] = useState<string[]>([]);
+  const [defaults, setDefaults] = useState<ProjectAdminDefaults>({
+    default_status: "active",
+    default_project_type: "client",
+    default_app_stack: "",
+    require_lead: true,
+  });
+  const [newClient, setNewClient] = useState("");
+  const [editingClient, setEditingClient] = useState<string | null>(null);
+  const [editClientName, setEditClientName] = useState("");
+
+  useEffect(() => {
+    setClients(getProjectClients());
+    setDefaults(getProjectDefaults());
+  }, []);
+
+  const handleAddClient = () => {
+    const trimmed = newClient.trim();
+    if (!trimmed) return;
+    if (clients.includes(trimmed)) {
+      toast.error("Client already exists");
+      return;
+    }
+    setClients(addProjectClient(trimmed));
+    setNewClient("");
+    toast.success(`Added client "${trimmed}"`);
+  };
+
+  const handleRemoveClient = (name: string) => {
+    setClients(removeProjectClient(name));
+    toast.success(`Removed client "${name}"`);
+  };
+
+  const handleStartEdit = (name: string) => {
+    setEditingClient(name);
+    setEditClientName(name);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingClient) return;
+    const trimmed = editClientName.trim();
+    if (!trimmed || trimmed === editingClient) {
+      setEditingClient(null);
+      return;
+    }
+    setClients(renameProjectClient(editingClient, trimmed));
+    setEditingClient(null);
+    toast.success("Client renamed");
+  };
+
+  const updateDefault = <K extends keyof ProjectAdminDefaults>(
+    key: K,
+    value: ProjectAdminDefaults[K]
+  ) => {
+    const next = { ...defaults, [key]: value };
+    setDefaults(next);
+    setProjectDefaults(next);
+    toast.success("Project defaults saved");
+  };
+
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      <Card>
+        <CardHeader>
+          <CardTitle>Project Clients</CardTitle>
+          <CardDescription>
+            Manage the client list shown in the project create dialog.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-end gap-2">
+            <div className="flex-1">
+              <Label htmlFor="admin-new-client">Add client</Label>
+              <Input
+                id="admin-new-client"
+                value={newClient}
+                onChange={(e) => setNewClient(e.target.value)}
+                placeholder="e.g. Globex Industries"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddClient();
+                  }
+                }}
+              />
+            </div>
+            <Button onClick={handleAddClient} disabled={!newClient.trim()}>
+              <Plus className="mr-1.5 h-4 w-4" /> Add
+            </Button>
+          </div>
+          <Separator />
+          {clients.length === 0 ? (
+            <p className="text-sm text-gray-500">No clients yet.</p>
+          ) : (
+            <ul className="divide-y divide-gray-100 rounded-lg border border-gray-200">
+              {clients.map((name) => (
+                <li
+                  key={name}
+                  className="flex items-center justify-between gap-2 px-3 py-2"
+                >
+                  {editingClient === name ? (
+                    <>
+                      <Input
+                        value={editClientName}
+                        onChange={(e) => setEditClientName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleSaveEdit();
+                          } else if (e.key === "Escape") {
+                            setEditingClient(null);
+                          }
+                        }}
+                        autoFocus
+                        className="h-8 flex-1"
+                      />
+                      <Button size="sm" onClick={handleSaveEdit}>
+                        Save
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setEditingClient(null)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <span className="flex-1 truncate text-sm text-gray-900">
+                        {name}
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleStartEdit(name)}
+                      >
+                        <Edit className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                        onClick={() => handleRemoveClient(name)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Project Defaults</CardTitle>
+          <CardDescription>
+            Defaults applied when creating a new project.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="space-y-0.5">
+              <Label>Default status</Label>
+              <p className="text-sm text-gray-500">
+                Starting status for new projects
+              </p>
+            </div>
+            <Select
+              value={defaults.default_status}
+              onValueChange={(v) =>
+                updateDefault(
+                  "default_status",
+                  v as ProjectAdminDefaults["default_status"]
+                )
+              }
+            >
+              <SelectTrigger className="w-[160px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="planned">Planned</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="on_hold">On hold</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Separator />
+          <div className="flex items-center justify-between gap-3">
+            <div className="space-y-0.5">
+              <Label>Default project type</Label>
+              <p className="text-sm text-gray-500">Client or Internal</p>
+            </div>
+            <Select
+              value={defaults.default_project_type}
+              onValueChange={(v) =>
+                updateDefault(
+                  "default_project_type",
+                  v as ProjectAdminDefaults["default_project_type"]
+                )
+              }
+            >
+              <SelectTrigger className="w-[160px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="client">Client</SelectItem>
+                <SelectItem value="internal">Internal</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Separator />
+          <div className="space-y-1.5">
+            <Label htmlFor="admin-default-stack">Default app stack</Label>
+            <p className="text-sm text-gray-500">
+              Pre-fills the technologies field on new projects (comma
+              separated).
+            </p>
+            <Input
+              id="admin-default-stack"
+              value={defaults.default_app_stack}
+              onChange={(e) =>
+                setDefaults((d) => ({
+                  ...d,
+                  default_app_stack: e.target.value,
+                }))
+              }
+              onBlur={() =>
+                updateDefault("default_app_stack", defaults.default_app_stack)
+              }
+              placeholder="React, Django, PostgreSQL"
+            />
+          </div>
+          <Separator />
+          <div className="flex items-center justify-between gap-3">
+            <div className="space-y-0.5">
+              <Label>Require project lead</Label>
+              <p className="text-sm text-gray-500">
+                Block project creation unless a lead is selected
+              </p>
+            </div>
+            <Switch
+              checked={defaults.require_lead}
+              onCheckedChange={(checked) =>
+                updateDefault("require_lead", checked)
+              }
+            />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
