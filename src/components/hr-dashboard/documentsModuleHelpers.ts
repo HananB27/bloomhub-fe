@@ -163,6 +163,7 @@ export function filterAndSortTableRows(
         d.name.toLowerCase().includes(q) ||
         d.description.toLowerCase().includes(q) ||
         d.tags.some((t) => t.toLowerCase().includes(q)) ||
+        (d.projectName ?? "").toLowerCase().includes(q) ||
         (gen?.sourceTemplateName ?? "").toLowerCase().includes(q) ||
         fieldBlob.includes(q)
       );

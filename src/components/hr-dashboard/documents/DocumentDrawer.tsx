@@ -389,10 +389,12 @@ export function DocumentDrawer({
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">
                     Access ·{" "}
-                    {documentVisibilityLabel(
-                      doc.visibilityScope,
-                      doc.allowedRoles
-                    )}
+                    {doc.visibilityScope === "project_group" && doc.projectName
+                      ? doc.projectName
+                      : documentVisibilityLabel(
+                          doc.visibilityScope,
+                          doc.allowedRoles
+                        )}
                   </h4>
                   {isHR && !isTemplate && (
                     <button

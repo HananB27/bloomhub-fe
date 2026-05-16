@@ -114,6 +114,7 @@ export function DocumentsTableRow({
               <VisibilityBadge
                 scope={doc.visibilityScope}
                 allowedRoles={doc.allowedRoles}
+                projectName={doc.projectName}
               />
             )}
             {isTemplate && gen?.sourceTemplateName && (

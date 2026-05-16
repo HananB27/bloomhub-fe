@@ -75,6 +75,10 @@ interface ApiDocumentRecord {
   /** True when the document was created from a template. */
   from_template?: boolean;
   template_id?: number | null;
+  // TODO [BACKEND REQUIRED]: GET/POST /api/documents/ — include `project_id` (nullable)
+  // and `project_name` for documents uploaded from a Project's Documents tab.
+  project_id?: number | string | null;
+  project_name?: string | null;
 }
 
 interface ApiDocumentVersion {
@@ -146,6 +150,9 @@ export interface EmployeeDocument {
   /** True when this document was generated from a template. */
   fromTemplate: boolean;
   templateId?: number;
+  /** Project this document is linked to (set when uploaded from a project's Documents tab). */
+  projectId?: string | number | null;
+  projectName?: string | null;
 }
 
 export interface UploadEmployeeDocumentPayload {
@@ -158,6 +165,14 @@ export interface UploadEmployeeDocumentPayload {
   tags: string[];
   allowedRoles: DocumentAccessRole[];
   visibilityScope: DocumentVisibilityScope;
+  /**
+   * Link this document to a project. When set the document is included in
+   * that project's Documents tab and filterable in the Documents module
+   * via `documentsApi.list({ project_id })`.
+   * TODO [BACKEND REQUIRED]: POST /api/documents/ — accept `project_id`
+   * multipart field and persist on the document record.
+   */
+  projectId?: string | number;
   /**
    * When true, trigger signature workflow immediately after upload.
    * TODO [BACKEND REQUIRED]: POST /api/documents/{id}/request-signature/
@@ -199,6 +214,23 @@ function mapDocumentVersion(raw: ApiDocumentVersion): DocumentVersion {
   };
 }
 
+function projectFromCache(
+  id: unknown
+): { id: string | number; name: string } | null {
+  if (typeof window === "undefined" || id == null) return null;
+  try {
+    const raw = window.localStorage.getItem("bh.docProjects");
+    if (!raw) return null;
+    const cache = JSON.parse(raw) as Record<
+      string,
+      { id: string | number; name: string }
+    >;
+    return cache[String(id)] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function mapDocumentRecord(record: ApiDocumentRecord): EmployeeDocument {
   const fileSizeBytes = Number(record.file_size ?? 0);
   const fileName = String(record.file_name ?? record.original_filename ?? "");
@@ -206,6 +238,7 @@ function mapDocumentRecord(record: ApiDocumentRecord): EmployeeDocument {
   const updatedAt = String(
     record.last_modified ?? record.updated_at ?? record.uploaded_at ?? ""
   );
+  const cachedProject = projectFromCache(record.id);
 
   return {
     id: Number(record.id ?? 0),
@@ -237,6 +270,8 @@ function mapDocumentRecord(record: ApiDocumentRecord): EmployeeDocument {
       : [],
     fromTemplate: Boolean(record.from_template),
     templateId: record.template_id ?? undefined,
+    projectId: record.project_id ?? cachedProject?.id ?? null,
+    projectName: record.project_name ?? cachedProject?.name ?? null,
   };
 }
 
@@ -258,6 +293,12 @@ function documentsListEndpoint(query?: {
   signature_status?: SignatureStatus;
   expiry_filter?: "expiring_soon" | "expired";
   archived?: boolean;
+  /**
+   * TODO [BACKEND REQUIRED]: GET /api/documents/?project_id=… — filter the
+   * document list to those linked to a single project. Used by the project
+   * Documents tab and the Documents module's per-project filter.
+   */
+  project_id?: number | string;
 }): string {
   const base = `${API_BASE_URL}${DOCUMENTS_API_BASE_PATH}`;
   if (!query) return base;
@@ -268,6 +309,8 @@ function documentsListEndpoint(query?: {
     params.set("signature_status", query.signature_status);
   if (query.expiry_filter) params.set("expiry_filter", query.expiry_filter);
   if (query.archived) params.set("archived", "true");
+  if (query.project_id != null)
+    params.set("project_id", String(query.project_id));
   const qs = params.toString();
   return qs ? `${base}?${qs}` : base;
 }
@@ -309,6 +352,8 @@ export const documentsApi = {
     expiry_filter?: "expiring_soon" | "expired";
     /** When true, fetches the archived (soft-deleted) document list. */
     archived?: boolean;
+    /** Restrict to a single project. Returns only documents linked to it. */
+    project_id?: number | string;
   }): Promise<EmployeeDocument[]> {
     const data = await get<
       ApiDocumentRecord[] | { results?: ApiDocumentRecord[]; count?: number }
@@ -339,6 +384,9 @@ export const documentsApi = {
     formData.append("visibility_scope", payload.visibilityScope);
     if (payload.expiryDate) {
       formData.append("expiry_date", payload.expiryDate);
+    }
+    if (payload.projectId != null) {
+      formData.append("project_id", String(payload.projectId));
     }
 
     const response = await fetchWithAuthRetry(
