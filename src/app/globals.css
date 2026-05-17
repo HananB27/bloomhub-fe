@@ -440,6 +440,97 @@ tr:hover {
   background-color: #f0f9ff;
 }
 
+/* ─── Employee Profiles redesign tokens (scoped via .ep-scope) ──────────── */
+/* Design source: /tmp/bloomhub_design/employee-profiles.html + Audit (D-01..D-19). */
+/* Prefixed --ep-* to avoid clashing with global theme. Consume via arbitrary */
+/* value Tailwind classes, e.g. bg-[var(--ep-card)] text-[var(--ep-fg)].      */
+.ep-scope {
+  --ep-bg: #ffffff;
+  --ep-fg: #18181b;
+  --ep-fg-2: #3f3f46;
+  --ep-fg-3: #52525b;
+  --ep-card: #ffffff;
+  --ep-primary: #171717;
+  --ep-primary-fg: #ffffff;
+  --ep-secondary: #f7f7f6;
+  --ep-muted: #f3f4f6;
+  --ep-muted-fg: #6b7280;
+  --ep-accent: #f3f4f6;
+  --ep-border: #e5e7eb;
+  --ep-border-strong: #d1d5db;
+  --ep-input-bg: #ffffff;
+  --ep-ring: #6b7280;
+  --ep-sidebar-active: #f3f0eb;
+
+  --ep-success: #16a34a;
+  --ep-success-bg: #f0fdf4;
+  --ep-warning: #d97706;
+  --ep-warning-bg: #fffbeb;
+  --ep-warning-strong: #b45309;
+  --ep-warning-border: #fde68a;
+  --ep-warning-pill-bg: #fef3c7;
+  --ep-danger: #dc2626;
+  --ep-danger-bg: #fef2f2;
+  --ep-info: #2563eb;
+  --ep-info-bg: #eff6ff;
+
+  --ep-chip-project-bg: #eef2ff;
+  --ep-chip-project-fg: #4338ca;
+  --ep-chip-lang-bg: #f0fdf4;
+  --ep-chip-lang-fg: #15803d;
+  --ep-chip-autolink-bg: #f0f9ff;
+  --ep-chip-autolink-fg: #0369a1;
+  --ep-chip-autolink-border: #bae6fd;
+
+  /* D-15 locked 4-step radius scale */
+  --ep-radius-xs: 4px;
+  --ep-radius-sm: 8px;
+  --ep-radius-md: 12px;
+  --ep-radius-lg: 16px;
+
+  background: #f7f7f6;
+  color: #18181b;
+  font-size: 14px;
+}
+.ep-scope h1,
+.ep-scope h2,
+.ep-scope h3,
+.ep-scope h4 {
+  color: #18181b;
+}
+.ep-scope .ep-mono {
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  font-feature-settings: "tnum";
+}
+/* D-12 sticky save footer pulse */
+@keyframes ep-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+.ep-pulse {
+  animation: ep-pulse 1.5s infinite;
+}
+
+/* D-09 skeleton shimmer */
+@keyframes ep-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+.ep-shimmer {
+  background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%);
+  background-size: 200% 100%;
+  animation: ep-shimmer 1.4s infinite;
+}
+
 /* ─── Template editor rich-text styles ───────────────────────────────────── */
 /* Applied when contentEditable has the .template-editor class               */
 .template-editor h1 {
