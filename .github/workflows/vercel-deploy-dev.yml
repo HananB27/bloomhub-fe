@@ -2,33 +2,34 @@ name: Vercel override commit
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: write
 
 jobs:
-  deploy:
-    if: github.actor != 'github-actions[bot]'
+  override-commit:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
+          ref: ${{ github.head_ref || github.ref_name }}
           token: ${{ secrets.HANAN_TOKEN }}
-          ref: main
 
-      - name: Configure Git
+      - name: Create one override commit
+        env:
+          BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
+          if [ "$(git log -1 --pretty=%s)" = "chore: override commit" ]; then
+            echo "Latest commit is already the override commit. Skipping."
+            exit 0
+          fi
+
           git config user.name "Hanan Bajramovic"
           git config user.email "hananbajramovic075@gmail.com"
-
-      - name: Commit
-        run: |
           git commit --allow-empty -m "chore: override commit"
-
-      - name: Push Changes
-        run: |
-          git push origin HEAD:main
+          git push origin HEAD:$BRANCH

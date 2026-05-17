@@ -1,5 +1,7 @@
-import { EditableInput } from "../ui/editable-form";
 import type { EmployeeProfileData } from "@/lib/api/employees";
+import { EditableInput } from "../ui/editable-form";
+import { ProfileSection, RestrictedBlock } from "./atoms";
+import type { ProfileViewerAccess } from "./sectionPermissions";
 
 interface ProfileEmergencyContactSectionProps {
   selectedEmployee: EmployeeProfileData;
@@ -7,6 +9,8 @@ interface ProfileEmergencyContactSectionProps {
   currentUserId: number | null;
   editMode: boolean;
   onEmployeeChange: (employee: EmployeeProfileData) => void;
+  /** Optional viewer-role access; absent = no role-based gating. */
+  access?: ProfileViewerAccess;
 }
 
 export function ProfileEmergencyContactSection({
@@ -15,46 +19,56 @@ export function ProfileEmergencyContactSection({
   currentUserId,
   editMode,
   onEmployeeChange,
+  access,
 }: ProfileEmergencyContactSectionProps) {
+  const restricted = access?.emergency.visibility === "restricted";
+  const disabled = !canEditAll && currentUserId !== selectedEmployee.id;
   return (
-    <div className="space-y-6">
-      <div className="flex items-baseline justify-between border-b border-gray-100 pb-2">
-        <h3 className="text-lg font-bold text-gray-900 tracking-tight">
-          Emergency Contact
-        </h3>
-        <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
-          SECTION 05
-        </span>
-      </div>
-      <div className="grid grid-cols-2 gap-x-8 gap-y-6">
-        <EditableInput
-          label="Contact Name"
-          value={selectedEmployee.emergency_contact_name}
-          onChange={(value) =>
-            onEmployeeChange({
-              ...selectedEmployee,
-              emergency_contact_name: value,
-            })
-          }
-          disabled={!canEditAll && currentUserId !== selectedEmployee.id}
-          isEditing={editMode}
-          placeholder="Full name"
+    <ProfileSection
+      id="emergency"
+      kicker="In case of"
+      title="Emergency contact"
+    >
+      {restricted ? (
+        <RestrictedBlock
+          title="Restricted"
+          description="Emergency contact details are only visible to HR administrators and the employee."
         />
-        <EditableInput
-          label="Contact Phone"
-          value={selectedEmployee.emergency_contact_phone}
-          onChange={(value) =>
-            onEmployeeChange({
-              ...selectedEmployee,
-              emergency_contact_phone: value.slice(0, 30),
-            })
-          }
-          disabled={!canEditAll && currentUserId !== selectedEmployee.id}
-          isEditing={editMode}
-          placeholder="+XXXXXXXXXXX"
-          maxLength={30}
-        />
-      </div>
-    </div>
+      ) : (
+        <div className="grid grid-cols-12 gap-x-[22px] gap-y-[18px]">
+          <div className="col-span-12 sm:col-span-6">
+            <EditableInput
+              label="Contact Name"
+              value={selectedEmployee.emergency_contact_name}
+              onChange={(value) =>
+                onEmployeeChange({
+                  ...selectedEmployee,
+                  emergency_contact_name: value,
+                })
+              }
+              disabled={disabled}
+              isEditing={editMode}
+              placeholder="Full name"
+            />
+          </div>
+          <div className="col-span-12 sm:col-span-6">
+            <EditableInput
+              label="Contact Phone"
+              value={selectedEmployee.emergency_contact_phone}
+              onChange={(value) =>
+                onEmployeeChange({
+                  ...selectedEmployee,
+                  emergency_contact_phone: value.slice(0, 30),
+                })
+              }
+              disabled={disabled}
+              isEditing={editMode}
+              placeholder="+XXXXXXXXXXX"
+              maxLength={30}
+            />
+          </div>
+        </div>
+      )}
+    </ProfileSection>
   );
 }

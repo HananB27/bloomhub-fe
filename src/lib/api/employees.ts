@@ -79,3 +79,11 @@ export { employeeApi } from "./modules/employees";
 export type { EmployeeProfileData } from "./modules/employees";
 export type { SalaryHistoryItem } from "./modules/employees";
 export type { EmployeeProfileChangeHistoryItem } from "./modules/employees";
+export type {
+  CreateEmployeePayload,
+  EmployeeEmailAvailability,
+  EmployeeExportFormat,
+  EmployeeExportPayload,
+  EmployeeExportResult,
+  EmployeeExportScope,
+} from "./modules/employees";
