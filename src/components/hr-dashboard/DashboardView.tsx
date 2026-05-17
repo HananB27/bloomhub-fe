@@ -393,7 +393,7 @@ export function DashboardView({
     case "vacations":
       return <VacationsModule addNotification={addNotification} />;
     case "profiles":
-      return <ProfilesModule onNavigate={onNavigate} />;
+      return <ProfilesModule />;
     case "reviews":
       return <ReviewsModule />;
     case "onboarding":

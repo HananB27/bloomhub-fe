@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "./ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -524,7 +531,9 @@ interface OnboardingModuleProps {
   onNavigate?: (moduleId: string) => void;
 }
 
-export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
+export function OnboardingModule({
+  onNavigate: _onNavigate,
+}: OnboardingModuleProps = {}) {
   const { data: session } = useSession();
   const sessionUser = session?.user as
     | { is_staff?: boolean; role?: string; image?: string }
@@ -566,6 +575,7 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
   const [confirmUnassignId, setConfirmUnassignId] = useState<number | null>(
     null
   );
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [newComment, setNewComment] = useState("");
   // Template management state
   const [templates, setTemplates] = useState<ChecklistTemplate[]>([]);
@@ -1699,29 +1709,16 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
                               </span>
                             </div>
                           </div>
-                          {onNavigate && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="w-full mt-2"
-                              onClick={() => {
-                                if (selectedEmployee) {
-                                  sessionStorage.setItem(
-                                    "profiles_focus_employee_id",
-                                    selectedEmployee
-                                  );
-                                  sessionStorage.setItem(
-                                    "profiles_return_to",
-                                    "onboarding"
-                                  );
-                                }
-                                onNavigate("profiles");
-                              }}
-                            >
-                              <User className="w-4 h-4 mr-2" />
-                              View Full Profile
-                            </Button>
-                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full mt-2"
+                            onClick={() => setProfileModalOpen(true)}
+                            disabled={!selectedEmployeeProfile}
+                          >
+                            <User className="w-4 h-4 mr-2" />
+                            View Full Profile
+                          </Button>
                         </>
                       ) : (
                         <div className="py-8 text-center text-sm text-gray-500">
@@ -2212,6 +2209,54 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
           </div>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={profileModalOpen} onOpenChange={setProfileModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedEmployeeProfile
+                ? employeeDisplayName(selectedEmployeeProfile)
+                : "Employee Profile"}
+            </DialogTitle>
+            <DialogDescription>
+              Read-only profile snapshot for the selected employee.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedEmployeeProfile && (
+            <div className="grid grid-cols-2 gap-4 pt-2">
+              {[
+                ["Employee ID", String(selectedEmployeeProfile.id)],
+                ["Email", selectedEmployeeProfile.email],
+                ["Phone", selectedEmployeeProfile.phone_number],
+                ["Department", selectedEmployeeProfile.department],
+                ["Role", selectedEmployeeProfile.role?.name],
+                ["Start Date", selectedEmployeeProfile.start_date],
+                ["Birth Date", selectedEmployeeProfile.birth_date],
+                ["Address", selectedEmployeeProfile.address],
+                [
+                  "Employment Status",
+                  selectedEmployeeProfile.employment_status,
+                ],
+                [
+                  "Managers",
+                  Array.isArray(selectedEmployeeProfile.manager_names)
+                    ? selectedEmployeeProfile.manager_names.join(", ")
+                    : selectedEmployeeProfile.manager_names,
+                ],
+              ].map(([label, value]) => (
+                <div key={label as string} className="space-y-1">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    {label}
+                  </p>
+                  <p className="text-sm text-gray-900">
+                    {value && String(value).trim() ? String(value) : "N/A"}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
