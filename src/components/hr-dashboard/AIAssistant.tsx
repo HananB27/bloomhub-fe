@@ -25,6 +25,7 @@ import {
   Clock,
   MapPin,
   FileText,
+  FolderKanban,
   Package,
   Network,
   BarChart3,
@@ -81,6 +82,15 @@ const hrModuleCapabilities: Record<
       "Manage roles",
       "Track skills",
       "View org structure",
+    ],
+  },
+  projects: {
+    icon: FolderKanban,
+    capabilities: [
+      "Browse projects",
+      "View assignments",
+      "Track allocation",
+      "See project history",
     ],
   },
   reviews: {
