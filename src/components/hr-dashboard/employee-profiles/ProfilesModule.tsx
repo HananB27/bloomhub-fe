@@ -56,8 +56,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
-import { formatDate } from "@/utils";
-import { cn } from "../ui/utils";
+import { formatDate as _formatDate } from "@/utils";
+import { cn as _cn } from "../ui/utils";
 import {
   employeeApi,
   EmployeeProfileData,
@@ -91,7 +91,7 @@ import type { TechnologyTag } from "@/types/technology-tags";
 import {
   buildEmployeeUpdatePayload,
   canUploadCvForEmployee,
-  cvVersionSupportsEmbeddedPreview,
+  cvVersionSupportsEmbeddedPreview as _cvVersionSupportsEmbeddedPreview,
   getEmbeddedPreviewUrl,
   inferCvLinkProvider,
   normalizeExternalCvUrl,
@@ -506,14 +506,14 @@ function shouldUseLocalExportFallback(error: unknown) {
   );
 }
 
-function profileHistoryFieldLabel(field: string): string {
+function _profileHistoryFieldLabel(field: string): string {
   if (field === "cpf" || field === "cpf_level") return "CPF Level";
   if (field === "role") return "Role";
   if (field === "salary") return "Salary";
   return field.replace(/_/g, " ");
 }
 
-function profileHistoryValueText(field: string, value: unknown): string {
+function _profileHistoryValueText(field: string, value: unknown): string {
   if (value === null || value === undefined || value === "") return "—";
   if (field === "salary") {
     const amount = typeof value === "number" ? value : Number(value);
@@ -592,6 +592,12 @@ export default function ProfilesModule() {
   const [allTechnologyTags, setAllTechnologyTags] = useState<TechnologyTag[]>(
     []
   );
+  // Restored after merge conflict resolution dropped these state declarations
+  const [_cpfLevels, setCpfLevels] = useState<string[]>([]);
+  const [_loadingCpfLevels, setLoadingCpfLevels] = useState(false);
+  const [_isLoadingEmployee, setIsLoadingEmployee] = useState(false);
+  const [_saveError, setSaveError] = useState<string | null>(null);
+  const [_saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
     let stale = false;
@@ -840,7 +846,7 @@ export default function ProfilesModule() {
     };
   }, [selectedEmployee, permissionBits, currentUserId]);
 
-  const closeEmployeeDialog = () => {
+  const _closeEmployeeDialog = () => {
     setSelectedEmployee(null);
     setEditMode(false);
     setSaveError(null);
