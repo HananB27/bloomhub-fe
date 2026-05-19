@@ -2,7 +2,7 @@
 
 import { Pencil } from "lucide-react";
 import { Button } from "../../ui/button";
-import { ProgressBar, TechBadge } from "../atoms";
+import { TechBadge } from "../atoms";
 import { ProjectStageTrack } from "../ProjectStageTrack";
 import { fmtDate, fmtRelative } from "../projectsHelpers";
 import type { Project, ProjectStageId } from "../types";
@@ -22,7 +22,12 @@ export function ProjectOverviewSection({
         kicker="Lifecycle"
         title="Stage"
         action={
-          <Button variant="ghost" size="sm" onClick={() => onEditStage()}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-gray-300 bg-white text-gray-900 hover:bg-gray-100 hover:text-gray-900"
+            onClick={() => onEditStage()}
+          >
             <Pencil className="mr-1 h-3 w-3" /> Edit
           </Button>
         }
@@ -43,32 +48,17 @@ export function ProjectOverviewSection({
 
       <Section kicker="Progress" title="Status & timeline">
         <div className="grid grid-cols-12 gap-4">
-          <Field span={4} label="Completion">
-            <div className="flex items-center gap-2.5">
-              <div className="flex-1">
-                <ProgressBar value={project.progress} status={project.status} />
-              </div>
-              <span className="font-mono font-semibold">
-                {project.progress}%
-              </span>
-            </div>
-          </Field>
-          <Field span={4} label="Hours logged">
-            <span className="font-mono font-medium">
-              {project.hours_logged.toLocaleString()}h
-            </span>
-          </Field>
-          <Field span={4} label="Last activity">
-            <span className="font-medium">
-              {fmtDate(project.last_activity)} ·{" "}
-              {fmtRelative(project.last_activity)}
-            </span>
-          </Field>
           <Field span={6} label="Start date">
             <span className="font-medium">{fmtDate(project.start_date)}</span>
           </Field>
           <Field span={6} label="End date">
             <span className="font-medium">{fmtDate(project.end_date)}</span>
+          </Field>
+          <Field span={12} label="Last activity">
+            <span className="font-medium">
+              {fmtDate(project.last_activity)} ·{" "}
+              {fmtRelative(project.last_activity)}
+            </span>
           </Field>
         </div>
       </Section>

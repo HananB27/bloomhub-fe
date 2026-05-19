@@ -23,12 +23,18 @@ import {
 import { Textarea } from "../../ui/textarea";
 import { cn } from "../../ui/utils";
 import { StatusPill, TechBadge } from "../atoms";
-import { PROJECT_STATUSES, STAGES, STAGE_BY_ID } from "../projectsData";
+import { PROJECT_STATUSES, STAGES } from "../projectsData";
 import type { Project, ProjectStageId, ProjectStatus } from "../types";
 import { employeeApi } from "@/lib/api/modules/employees";
+import type { EmployeeProfileData } from "@/lib/api/helpers/transformers";
 import { technologyTagsApi } from "@/lib/api/modules/technology-tags";
 import type { TechnologyTag } from "@/types/technology-tags";
 import { searchTech } from "@/lib/tech/techCatalog";
+import {
+  getProjectClients,
+  getProjectDefaults,
+  onProjectAdminSettingsChange,
+} from "@/lib/projects/adminSettings";
 
 export interface CreateProjectFormValues {
   name: string;
@@ -40,6 +46,7 @@ export interface CreateProjectFormValues {
   start_date: string;
   end_date: string;
   technologies: string[];
+  lead_ids: number[];
 }
 
 interface CreateProjectDrawerProps {
@@ -55,27 +62,46 @@ const STEPS = [
   { n: 4, l: "Review" },
 ];
 
-const CLIENT_OPTIONS = [
-  "Internal",
-  "Acme Logistics",
-  "Northwind Retail",
-  "BlueWave Studios",
-  "Lumen Health",
-  "Other",
-];
+const FALLBACK_CLIENT = "Internal";
 
 const EMPTY: CreateProjectFormValues & { techInput: string } = {
   name: "",
   code: "",
-  client: "Internal",
+  client: FALLBACK_CLIENT,
   status: "Active",
   stage: "intake",
   description: "",
   start_date: "",
   end_date: "",
   technologies: [],
+  lead_ids: [],
   techInput: "",
 };
+
+const API_STATUS_TO_UI: Record<string, ProjectStatus> = {
+  planned: "Active",
+  active: "Active",
+  on_hold: "On hold",
+  completed: "Completed",
+  cancelled: "Archived",
+  archived: "Archived",
+};
+
+function buildEmptyForm(): CreateProjectFormValues & { techInput: string } {
+  const defaults = getProjectDefaults();
+  const clients = getProjectClients();
+  return {
+    ...EMPTY,
+    client: clients[0] ?? FALLBACK_CLIENT,
+    status: API_STATUS_TO_UI[defaults.default_status] ?? "Active",
+    technologies: defaults.default_app_stack
+      ? defaults.default_app_stack
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [],
+  };
+}
 
 const CODE_STOP_WORDS = new Set([
   "project",
@@ -185,12 +211,28 @@ export function CreateProjectDrawer({
   onCreate,
 }: CreateProjectDrawerProps) {
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState(EMPTY);
+  const [form, setForm] = useState(() => buildEmptyForm());
   const [errors, setErrors] = useState<
     Partial<Record<keyof CreateProjectFormValues, string>>
   >({});
   const [codeTouched, setCodeTouched] = useState(false);
   const [tagCatalog, setTagCatalog] = useState<TechnologyTag[]>([]);
+  const [employees, setEmployees] = useState<EmployeeProfileData[]>([]);
+  const [leadSearch, setLeadSearch] = useState("");
+  const [clientOptions, setClientOptions] = useState<string[]>(() =>
+    getProjectClients()
+  );
+  const [requireLead, setRequireLead] = useState<boolean>(
+    () => getProjectDefaults().require_lead
+  );
+
+  useEffect(() => {
+    const refresh = () => {
+      setClientOptions(getProjectClients());
+      setRequireLead(getProjectDefaults().require_lead);
+    };
+    return onProjectAdminSettingsChange(refresh);
+  }, []);
 
   // Pull the tech-tag catalogue from /api/employees so the picker mirrors
   // what employees can already self-assign. Falls back to the DEFAULT list
@@ -199,13 +241,15 @@ export function CreateProjectDrawer({
     if (!open) return;
     let cancelled = false;
     employeeApi
-      .listEmployees({ page_size: 200 })
+      .listEmployees({ page_size: 200, is_active: true })
       .then((res) => {
         if (cancelled) return;
+        setEmployees(res.results);
         setTagCatalog(technologyTagsApi.getAllTags(res.results));
       })
       .catch(() => {
         if (cancelled) return;
+        setEmployees([]);
         setTagCatalog(technologyTagsApi.getAllTags([]));
       });
     return () => {
@@ -267,14 +311,19 @@ export function CreateProjectDrawer({
       if (form.end_date && form.start_date && form.end_date < form.start_date)
         e.end_date = "End date must be after start";
     }
+    if (s === 3) {
+      if (requireLead && form.lead_ids.length === 0)
+        e.lead_ids = "At least one lead is required";
+    }
     return e;
   };
 
   const reset = () => {
     setStep(1);
-    setForm(EMPTY);
+    setForm(buildEmptyForm());
     setErrors({});
     setCodeTouched(false);
+    setLeadSearch("");
   };
 
   const handleNext = () => {
@@ -409,7 +458,7 @@ export function CreateProjectDrawer({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {CLIENT_OPTIONS.map((c) => (
+                    {clientOptions.map((c) => (
                       <SelectItem key={c} value={c}>
                         {c}
                       </SelectItem>
@@ -553,11 +602,145 @@ export function CreateProjectDrawer({
               </div>
               <div>
                 <Label className="mb-1.5 block text-[12px] font-medium text-gray-700">
-                  Members
+                  Project leads <span className="text-red-600">*</span>
                 </Label>
-                <p className="text-[12px] text-gray-700">
-                  Invite team members and assign roles after creating the
-                  project.
+                <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3">
+                  <Search className="h-3.5 w-3.5 text-gray-500" />
+                  <Input
+                    value={leadSearch}
+                    onChange={(e) => setLeadSearch(e.target.value)}
+                    placeholder="Search employees…"
+                    className="h-9 border-0 bg-transparent px-0 text-[13px] text-gray-900 shadow-none placeholder:text-gray-500 focus-visible:ring-0"
+                  />
+                </div>
+
+                {form.lead_ids.length > 0 ? (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {form.lead_ids.map((id) => {
+                      const emp = employees.find((e) => e.id === id);
+                      const name = emp
+                        ? `${emp.first_name ?? ""} ${emp.last_name ?? ""}`.trim() ||
+                          emp.username ||
+                          emp.email
+                        : `Employee #${id}`;
+                      return (
+                        <span
+                          key={id}
+                          className="inline-flex items-center gap-1 rounded-full bg-gray-900 px-2.5 py-0.5 text-[11px] font-medium text-white"
+                        >
+                          {name}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              set(
+                                "lead_ids",
+                                form.lead_ids.filter((x) => x !== id)
+                              )
+                            }
+                            className="ml-0.5 rounded-full hover:bg-white/20"
+                            aria-label={`Remove ${name}`}
+                          >
+                            <Check className="hidden" />
+                            <span className="block h-3 w-3 text-center leading-3">
+                              ×
+                            </span>
+                          </button>
+                        </span>
+                      );
+                    })}
+                  </div>
+                ) : null}
+
+                {leadSearch.trim() ? (
+                  <div className="mt-2 max-h-[220px] overflow-y-auto rounded-lg border border-gray-200">
+                    {employees.length === 0 ? (
+                      <div className="px-3 py-4 text-center text-[12px] text-gray-600">
+                        Loading employees…
+                      </div>
+                    ) : (
+                      (() => {
+                        const q = leadSearch.toLowerCase();
+                        const filtered = employees
+                          .filter(
+                            (emp) =>
+                              `${emp.first_name} ${emp.last_name}`
+                                .toLowerCase()
+                                .includes(q) ||
+                              (emp.email ?? "").toLowerCase().includes(q)
+                          )
+                          .slice(0, 50);
+                        if (filtered.length === 0) {
+                          return (
+                            <div className="px-3 py-4 text-center text-[12px] text-gray-600">
+                              No employees match your search.
+                            </div>
+                          );
+                        }
+                        return (
+                          <ul className="divide-y divide-gray-100">
+                            {filtered.map((emp) => {
+                              const selected = form.lead_ids.includes(emp.id);
+                              const name =
+                                `${emp.first_name ?? ""} ${emp.last_name ?? ""}`.trim() ||
+                                emp.username ||
+                                emp.email;
+                              return (
+                                <li key={emp.id}>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      set(
+                                        "lead_ids",
+                                        selected
+                                          ? form.lead_ids.filter(
+                                              (x) => x !== emp.id
+                                            )
+                                          : [...form.lead_ids, emp.id]
+                                      )
+                                    }
+                                    className={cn(
+                                      "flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] transition-colors",
+                                      selected
+                                        ? "bg-gray-100 font-medium text-gray-900"
+                                        : "text-gray-800 hover:bg-gray-50"
+                                    )}
+                                  >
+                                    <span
+                                      className={cn(
+                                        "grid h-4 w-4 shrink-0 place-items-center rounded border",
+                                        selected
+                                          ? "border-gray-900 bg-gray-900 text-white"
+                                          : "border-gray-300 bg-white"
+                                      )}
+                                    >
+                                      {selected ? (
+                                        <Check className="h-3 w-3" />
+                                      ) : null}
+                                    </span>
+                                    <span className="flex-1 truncate">
+                                      {name}
+                                    </span>
+                                    <span className="truncate text-[11px] text-gray-600">
+                                      {emp.role?.name || emp.department || ""}
+                                    </span>
+                                  </button>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        );
+                      })()
+                    )}
+                  </div>
+                ) : null}
+                {errors.lead_ids ? (
+                  <div className="mt-1.5 flex items-center gap-1 text-[11px] font-medium text-red-600">
+                    <AlertCircle className="h-3 w-3" /> {errors.lead_ids}
+                  </div>
+                ) : null}
+                <p className="mt-2 text-[11px] text-gray-600">
+                  Each selected lead is assigned at 100% allocation when the
+                  project is created. Multiple leads allowed.
                 </p>
               </div>
             </div>
@@ -583,10 +766,6 @@ export function CreateProjectDrawer({
                   value={<StatusPill status={form.status} />}
                 />
                 <ReviewRow
-                  label="Stage"
-                  value={<strong>{STAGE_BY_ID[form.stage]?.label}</strong>}
-                />
-                <ReviewRow
                   label="Timeline"
                   value={
                     <strong>{`${form.start_date || "—"} → ${form.end_date || "—"}`}</strong>
@@ -599,6 +778,26 @@ export function CreateProjectDrawer({
                       {form.technologies.length
                         ? form.technologies.join(", ")
                         : "—"}
+                    </strong>
+                  }
+                />
+                <ReviewRow
+                  label={form.lead_ids.length > 1 ? "Leads" : "Lead"}
+                  value={
+                    <strong>
+                      {(() => {
+                        if (form.lead_ids.length === 0) return "—";
+                        const names = form.lead_ids.map((id) => {
+                          const emp = employees.find((e) => e.id === id);
+                          if (!emp) return `Employee #${id}`;
+                          return (
+                            `${emp.first_name ?? ""} ${emp.last_name ?? ""}`.trim() ||
+                            emp.username ||
+                            emp.email
+                          );
+                        });
+                        return names.join(", ");
+                      })()}
                     </strong>
                   }
                   last

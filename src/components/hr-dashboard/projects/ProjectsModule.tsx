@@ -8,14 +8,22 @@ import {
   AddMemberDialog,
   ConfirmActionDialog,
   CreateProjectDrawer,
+  EditAssignmentDialog,
   EditProjectDialog,
+  EndAssignmentDialog,
   ExportProjectsDialog,
   StatusEditorDialog,
   type CreateProjectFormValues,
   type ExportProjectsValues,
   type StatusEditResult,
 } from "./dialogs";
-import { SEED_PROJECTS, STAGE_BY_ID } from "./projectsData";
+import {
+  apiProjectToUi,
+  uiToCreateProjectPayload,
+  uiStatusToApi,
+} from "./projectsHelpers";
+import { projectApi } from "@/lib/api/modules/projects";
+import { getProjectDefaults } from "@/lib/projects/adminSettings";
 import type {
   Project,
   ProjectActionKind,
@@ -24,7 +32,6 @@ import type {
 } from "./types";
 
 interface ProjectsModuleProps {
-  initialProjects?: Project[];
   initialProjectId?: string | null;
   onNavigate?: (moduleId: string) => void;
 }
@@ -38,47 +45,58 @@ type ActionTarget =
 type LoadState = "loading" | "populated" | "error";
 
 export function ProjectsModule({
-  initialProjects = SEED_PROJECTS,
   initialProjectId = null,
   onNavigate,
 }: ProjectsModuleProps) {
-  const [projects, setProjects] = useState<Project[]>(initialProjects);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [activeId, setActiveId] = useState<string | null>(initialProjectId);
   const [showCreate, setShowCreate] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [addMemberFor, setAddMemberFor] = useState<Project | null>(null);
+  const [editAssignment, setEditAssignment] = useState<{
+    project: Project;
+    assignment: ProjectMember;
+  } | null>(null);
+  const [endAssignment, setEndAssignment] = useState<{
+    project: Project;
+    assignment: ProjectMember;
+  } | null>(null);
   const [target, setTarget] = useState<ActionTarget | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
     setLoadState("loading");
-    const timer = setTimeout(() => {
-      if (cancelled) return;
-      const override =
-        typeof window !== "undefined"
-          ? new URLSearchParams(window.location.search).get("projects_state")
-          : null;
-      if (override === "error") {
-        setLoadState("error");
-        return;
-      }
-      if (override === "empty") {
-        setProjects([]);
+    projectApi
+      .list(undefined, { signal: controller.signal })
+      .then((res) => {
+        setProjects(res.results.map(apiProjectToUi));
         setLoadState("populated");
-        return;
-      }
-      if (override === "loading") {
-        return;
-      }
-      setLoadState("populated");
-    }, 600);
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
-    };
+      })
+      .catch((err: unknown) => {
+        if ((err as { name?: string })?.name === "AbortError") return;
+        setLoadState("error");
+        toast.error("Failed to load projects", {
+          description: err instanceof Error ? err.message : "Unknown error",
+        });
+      });
+    return () => controller.abort();
   }, [reloadKey]);
+
+  const reloadProject = useCallback(async (apiId: number) => {
+    try {
+      const fresh = await projectApi.get(apiId);
+      const ui = apiProjectToUi(fresh);
+      setProjects((arr) => arr.map((p) => (p.api_id === apiId ? ui : p)));
+      return ui;
+    } catch (err) {
+      toast.error("Failed to refresh project", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      });
+      return null;
+    }
+  }, []);
 
   const handleRetry = useCallback(() => setReloadKey((k) => k + 1), []);
 
@@ -86,6 +104,22 @@ export function ProjectsModule({
     () => (activeId ? (projects.find((p) => p.id === activeId) ?? null) : null),
     [activeId, projects]
   );
+
+  useEffect(() => {
+    if (!activeProject) return;
+    let cancelled = false;
+    projectApi
+      .get(activeProject.api_id)
+      .then((fresh) => {
+        if (cancelled) return;
+        const ui = apiProjectToUi(fresh);
+        setProjects((arr) => arr.map((p) => (p.api_id === ui.api_id ? ui : p)));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [activeProject?.api_id]);
 
   const handleOpen = useCallback((id: string) => {
     setActiveId(id);
@@ -119,22 +153,11 @@ export function ProjectsModule({
         case "delete":
           setTarget({ kind: "delete", project });
           return;
-        case "duplicate": {
-          const copy: Project = {
-            ...project,
-            id: `${project.id}-copy-${Math.random().toString(36).slice(2, 6)}`,
-            name: `${project.name} (copy)`,
-            code: `${project.code.slice(0, 3)}C`.slice(0, 4).toUpperCase(),
-            status: "On hold",
-            progress: 0,
-            last_activity: new Date().toISOString(),
-          };
-          setProjects((arr) => [copy, ...arr]);
-          toast.success(`${project.name} duplicated`, {
-            description: `Created "${copy.name}" in draft state.`,
+        case "duplicate":
+          toast.info("Duplicate not supported", {
+            description: "Project duplication is not available yet.",
           });
           return;
-        }
         case "share": {
           const url =
             typeof window !== "undefined"
@@ -153,76 +176,120 @@ export function ProjectsModule({
 
   const closeTarget = () => setTarget(null);
 
-  const onCreate = (form: CreateProjectFormValues) => {
-    const id = `${(form.code || "PRJ").toLowerCase()}-${Math.random().toString(36).slice(2, 5)}`;
-    const newProject: Project = {
-      id,
-      name: form.name.trim(),
-      code: form.code.trim().toUpperCase(),
-      client: form.client,
-      status: form.status,
-      stage: form.stage,
-      stage_note: "",
-      progress: 0,
-      start_date: form.start_date,
-      end_date: form.end_date,
-      last_activity: new Date().toISOString(),
-      technologies: form.technologies,
-      members: [
-        { id: 12, name: "Aida Salihović", role: "Lead", color: "rose" },
-      ],
-      hours_logged: 0,
-      document_count: 0,
-      description: form.description || "No description yet.",
-    };
-    setProjects((arr) => [newProject, ...arr]);
-    toast.success("Project created", {
-      description: `${newProject.name} is ready. Add members next.`,
-    });
-    setShowCreate(false);
+  const onCreate = async (form: CreateProjectFormValues) => {
+    try {
+      const adminDefaults = getProjectDefaults();
+      const primaryLead = form.lead_ids[0] ?? null;
+      const payload = uiToCreateProjectPayload({
+        name: form.name.trim(),
+        description: form.description,
+        client: form.client,
+        app_stack: form.technologies.join(", "),
+        project_type: adminDefaults.default_project_type,
+        status: form.status,
+        stage: form.stage,
+        start_date: form.start_date,
+        end_date: form.end_date,
+        owner_id: primaryLead,
+      });
+      const created = await projectApi.create(payload);
+      const startDate =
+        form.start_date || new Date().toISOString().slice(0, 10);
+      for (const leadId of form.lead_ids) {
+        try {
+          await projectApi.createAssignment(created.id, {
+            user_profile_id: leadId,
+            role: "Lead",
+            allocation_percentage: 100,
+            start_date: startDate,
+            status: "active",
+          });
+        } catch (err) {
+          toast.warning("Lead assignment failed", {
+            description: err instanceof Error ? err.message : "Unknown error",
+          });
+        }
+      }
+      const fresh = await projectApi.get(created.id);
+      setProjects((arr) => [apiProjectToUi(fresh), ...arr]);
+      toast.success("Project created", {
+        description: `${fresh.name} is ready.`,
+      });
+      setShowCreate(false);
+    } catch (err) {
+      toast.error("Create failed", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      });
+    }
   };
 
-  const onSaveEdit = (next: Project) => {
-    setProjects((arr) => arr.map((p) => (p.id === next.id ? next : p)));
-    toast.success("Project updated", {
-      description: `Saved changes to ${next.name}`,
-    });
+  const onSaveEdit = async (next: Project) => {
+    try {
+      await projectApi.update(next.api_id, {
+        name: next.name,
+        description: next.description,
+        client: next.client,
+        app_stack: next.technologies.join(", "),
+        status: uiStatusToApi(next.status),
+        start_date: next.start_date || null,
+        end_date: next.end_date || null,
+      });
+      await reloadProject(next.api_id);
+      toast.success("Project updated", {
+        description: `Saved changes to ${next.name}`,
+      });
+    } catch (err) {
+      toast.error("Update failed", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      });
+    }
   };
 
-  const onSaveStatus = (project: Project, next: StatusEditResult) => {
-    setProjects((arr) =>
-      arr.map((p) =>
-        p.id === project.id
-          ? {
-              ...p,
-              status: next.status,
-              stage: next.stage,
-              stage_note: next.note || p.stage_note,
-              last_activity: new Date().toISOString(),
-            }
-          : p
-      )
-    );
-    toast.success("Status updated", {
-      description: `${project.name} is now ${next.status} · ${STAGE_BY_ID[next.stage].label}`,
-    });
+  const onSaveStatus = async (project: Project, next: StatusEditResult) => {
+    try {
+      await projectApi.update(project.api_id, {
+        status: uiStatusToApi(next.status),
+        stage: next.stage,
+        stage_note: next.note || "",
+      });
+      await reloadProject(project.api_id);
+      toast.success("Status updated", {
+        description: `${project.name} is now ${next.status}`,
+      });
+    } catch (err) {
+      toast.error("Status update failed", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      });
+    }
   };
 
-  const onConfirmArchive = (project: Project) => {
-    setProjects((arr) =>
-      arr.map((p) => (p.id === project.id ? { ...p, status: "Archived" } : p))
-    );
-    toast.warning("Project archived", {
-      description: `${project.name} moved to the Archived filter.`,
-    });
+  const onConfirmArchive = async (project: Project) => {
+    try {
+      await projectApi.archive(project.api_id);
+      await reloadProject(project.api_id);
+      toast.warning("Project archived", {
+        description: `${project.name} moved to the Archived filter.`,
+      });
+    } catch (err) {
+      toast.error("Archive failed", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      });
+    }
     closeTarget();
   };
 
-  const onConfirmDelete = (project: Project) => {
-    setProjects((arr) => arr.filter((p) => p.id !== project.id));
-    toast.error("Project deleted", {
-      description: `${project.name} was permanently removed.`,
-    });
+  const onConfirmDelete = async (project: Project) => {
+    try {
+      await projectApi.delete(project.api_id);
+      setProjects((arr) => arr.filter((p) => p.id !== project.id));
+      toast.error("Project deleted", {
+        description: `${project.name} permanently removed.`,
+      });
+    } catch (err) {
+      toast.error("Delete failed", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      });
+    }
     closeTarget();
     if (activeId === project.id) handleBack();
   };
@@ -230,17 +297,88 @@ export function ProjectsModule({
   const onExport = () => setShowExport(true);
 
   const handleAddMember = useCallback(
-    (project: Project, member: ProjectMember) => {
-      setProjects((arr) =>
-        arr.map((p) =>
-          p.id === project.id ? { ...p, members: [...p.members, member] } : p
-        )
-      );
-      toast.success("Member added", {
-        description: `${member.name} added to ${project.name}.`,
-      });
+    async (
+      project: Project,
+      input: Omit<ProjectMember, "created_by" | "created_at" | "assignment_id">
+    ) => {
+      try {
+        await projectApi.createAssignment(project.api_id, {
+          user_profile_id: input.id,
+          role: input.role,
+          allocation_percentage: input.allocation,
+          start_date: input.start_date,
+          end_date: input.end_date,
+          notes: input.notes,
+          status: "active",
+        });
+        await reloadProject(project.api_id);
+        toast.success("Assignment created", {
+          description: `${input.name} assigned to ${project.name} at ${input.allocation}%.`,
+        });
+      } catch (err) {
+        toast.error("Assign failed", {
+          description: err instanceof Error ? err.message : "Unknown error",
+        });
+      }
     },
-    []
+    [reloadProject]
+  );
+
+  const handleUpdateAssignment = useCallback(
+    async (project: Project, next: ProjectMember) => {
+      try {
+        await projectApi.updateAssignment(next.assignment_id, {
+          role: next.role,
+          allocation_percentage: next.allocation,
+          start_date: next.start_date,
+          end_date: next.end_date,
+          notes: next.notes ?? null,
+        });
+        await reloadProject(project.api_id);
+        toast.success("Assignment updated", {
+          description: `Saved changes for ${next.name}.`,
+        });
+      } catch (err) {
+        toast.error("Update failed", {
+          description: err instanceof Error ? err.message : "Unknown error",
+        });
+      }
+    },
+    [reloadProject]
+  );
+
+  const handleDeleteAssignment = useCallback(
+    async (project: Project, assignment: ProjectMember) => {
+      try {
+        await projectApi.deleteAssignment(assignment.assignment_id);
+        await reloadProject(project.api_id);
+        toast.success("Assignment deleted", {
+          description: `Removed historical record for ${assignment.name}.`,
+        });
+      } catch (err) {
+        toast.error("Delete failed", {
+          description: err instanceof Error ? err.message : "Unknown error",
+        });
+      }
+    },
+    [reloadProject]
+  );
+
+  const handleEndAssignment = useCallback(
+    async (project: Project, assignment: ProjectMember, endDate: string) => {
+      try {
+        await projectApi.endAssignment(assignment.assignment_id, endDate);
+        await reloadProject(project.api_id);
+        toast.warning("Assignment ended", {
+          description: `${assignment.name} ended on ${endDate}.`,
+        });
+      } catch (err) {
+        toast.error("End failed", {
+          description: err instanceof Error ? err.message : "Unknown error",
+        });
+      }
+    },
+    [reloadProject]
   );
 
   const handleExportConfirm = (values: ExportProjectsValues) => {
@@ -258,6 +396,13 @@ export function ProjectsModule({
           onBack={handleBack}
           onAction={(action, p, ctx) => handleAction(action, p, ctx)}
           onAddMember={(p) => setAddMemberFor(p)}
+          onEditAssignment={(p, a) =>
+            setEditAssignment({ project: p, assignment: a })
+          }
+          onEndAssignment={(p, a) =>
+            setEndAssignment({ project: p, assignment: a })
+          }
+          onDeleteAssignment={(p, a) => handleDeleteAssignment(p, a)}
           onOpenDocument={(documentId) => {
             if (typeof window !== "undefined") {
               sessionStorage.setItem("bh.openDocumentId", String(documentId));
@@ -289,6 +434,33 @@ export function ProjectsModule({
           onOpenChange={(o) => (o ? null : setAddMemberFor(null))}
           project={addMemberFor}
           onAdd={(m) => handleAddMember(addMemberFor, m)}
+        />
+      ) : null}
+
+      {editAssignment ? (
+        <EditAssignmentDialog
+          open
+          onOpenChange={(o) => (o ? null : setEditAssignment(null))}
+          project={editAssignment.project}
+          assignment={editAssignment.assignment}
+          onSave={(next) =>
+            handleUpdateAssignment(editAssignment.project, next)
+          }
+        />
+      ) : null}
+
+      {endAssignment ? (
+        <EndAssignmentDialog
+          open
+          onOpenChange={(o) => (o ? null : setEndAssignment(null))}
+          assignment={endAssignment.assignment}
+          onConfirm={(date) =>
+            handleEndAssignment(
+              endAssignment.project,
+              endAssignment.assignment,
+              date
+            )
+          }
         />
       ) : null}
 

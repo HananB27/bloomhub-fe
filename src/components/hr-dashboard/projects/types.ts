@@ -14,21 +14,36 @@ export type MemberRole = "Lead" | "Contributor";
 
 export type AvatarColor = "gray" | "green" | "indigo" | "rose" | "orange";
 
+export type AssignmentStatus = "Active" | "Ended";
+
 export interface ProjectMember {
   id: number;
+  assignment_id: number;
   name: string;
   role: MemberRole;
   color: AvatarColor;
+  allocation: number;
+  start_date: string;
+  end_date: string | null;
+  notes?: string;
+  created_by: string;
+  created_at: string;
+  updated_by?: string;
+  updated_at?: string;
 }
 
 export interface Project {
   id: string;
+  api_id: number;
   name: string;
   code: string;
   client: string;
   status: ProjectStatus;
   stage: ProjectStageId;
   stage_note: string;
+  /** Completion percentage (0-100). Currently always 0 — backend has no
+   *  progress column and no signal to derive from. See TODO in
+   *  projectsHelpers.apiProjectToUi for implementation options. */
   progress: number;
   start_date: string;
   end_date: string;
@@ -38,6 +53,8 @@ export interface Project {
   hours_logged: number;
   document_count: number;
   description: string;
+  project_type?: "client" | "internal";
+  owner_id?: number | null;
 }
 
 export interface ProjectStage {

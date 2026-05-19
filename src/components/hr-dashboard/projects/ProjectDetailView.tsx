@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ProjectDetailHeader } from "./ProjectDetailHeader";
 import { ProjectRail } from "./ProjectRail";
@@ -10,8 +10,15 @@ import {
   ProjectMembersSection,
   ProjectOverviewSection,
 } from "./sections";
-import { PROJECT_ACTIVITY, PROJECT_DOCUMENTS } from "./projectsData";
-import type { Project, ProjectActionKind, ProjectStageId } from "./types";
+import { isAssignmentActive } from "./projectsHelpers";
+import { projectApi } from "@/lib/api/modules/projects";
+import type { ProjectActivityEvent } from "./types";
+import type {
+  Project,
+  ProjectActionKind,
+  ProjectMember,
+  ProjectStageId,
+} from "./types";
 
 interface ProjectDetailViewProps {
   project: Project;
@@ -22,6 +29,9 @@ interface ProjectDetailViewProps {
     ctx?: { stage?: ProjectStageId }
   ) => void;
   onAddMember?: (project: Project) => void;
+  onEditAssignment?: (project: Project, assignment: ProjectMember) => void;
+  onEndAssignment?: (project: Project, assignment: ProjectMember) => void;
+  onDeleteAssignment?: (project: Project, assignment: ProjectMember) => void;
   onOpenDocument?: (documentId: string | number) => void;
 }
 
@@ -30,24 +40,26 @@ export function ProjectDetailView({
   onBack,
   onAction,
   onAddMember,
+  onEditAssignment,
+  onEndAssignment,
+  onDeleteAssignment,
   onOpenDocument,
 }: ProjectDetailViewProps) {
   const [tab, setTab] = useState("overview");
-  const activity = PROJECT_ACTIVITY[project.id] ?? [
-    {
-      id: "g1",
-      at: project.last_activity,
-      actor: "Aida Salihović",
-      message: "Last updated",
-    },
-    {
-      id: "g0",
-      at: `${project.start_date}T09:00:00Z`,
-      actor: "Aida Salihović",
-      message: `Created project ${project.name}`,
-    },
-  ];
-  const documents = PROJECT_DOCUMENTS[project.id] ?? [];
+  const [activity, setActivity] = useState<ProjectActivityEvent[]>([]);
+  const documents: never[] = [];
+
+  useEffect(() => {
+    const controller = new AbortController();
+    projectApi
+      .getActivity(project.api_id, { signal: controller.signal })
+      .then((events) => setActivity(events))
+      .catch(() => setActivity([]));
+    return () => controller.abort();
+  }, [project.api_id, project.last_activity, project.members.length]);
+  const activeMemberCount = project.members.filter((m) =>
+    isAssignmentActive(m)
+  ).length;
 
   return (
     <div className="mx-auto grid max-w-[1320px] grid-cols-1 items-start gap-0 px-8 pt-7 md:grid-cols-[1fr_280px]">
@@ -62,8 +74,8 @@ export function ProjectDetailView({
           <TabsList className="!h-auto w-full !justify-start !gap-6 !rounded-none !border-b !border-gray-200 !bg-transparent !p-0">
             {[
               { id: "overview", l: "Overview" },
-              { id: "members", l: `Members · ${project.members.length}` },
-              { id: "documents", l: `Documents · ${documents.length}` },
+              { id: "members", l: `Members · ${activeMemberCount}` },
+              { id: "documents", l: "Documents" },
               { id: "activity", l: "Activity" },
             ].map((t) => (
               <TabsTrigger
@@ -88,6 +100,21 @@ export function ProjectDetailView({
                 project={project}
                 onAddMember={
                   onAddMember ? () => onAddMember(project) : undefined
+                }
+                onEditAssignment={
+                  onEditAssignment
+                    ? (a) => onEditAssignment(project, a)
+                    : undefined
+                }
+                onEndAssignment={
+                  onEndAssignment
+                    ? (a) => onEndAssignment(project, a)
+                    : undefined
+                }
+                onDeleteAssignment={
+                  onDeleteAssignment
+                    ? (a) => onDeleteAssignment(project, a)
+                    : undefined
                 }
               />
             </TabsContent>
