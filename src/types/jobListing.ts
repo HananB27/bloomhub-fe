@@ -52,3 +52,16 @@ export interface JobListingFilters {
 export interface ApplyToListingPayload {
   coverNote?: string;
 }
+
+export interface CreateListingPayload {
+  title: string;
+  description: string;
+  departmentId?: number | null;
+  openAt: string;
+  closeAt: string;
+  status?: JobListingStatus;
+}
+
+export interface UpdateApplicationStatusPayload {
+  status: ApplicationStatus;
+}

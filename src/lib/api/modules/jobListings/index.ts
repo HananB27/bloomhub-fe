@@ -3,16 +3,19 @@ import {
   buildQueryString,
   get,
   handleListResponse,
+  patch,
   post,
 } from "../../helpers/httpClient";
 import type {
   ApplicationStatus,
   ApplyToListingPayload,
+  CreateListingPayload,
   JobApplication,
   JobListing,
   JobListingDetail,
   JobListingFilters,
   JobListingStatus,
+  UpdateApplicationStatusPayload,
 } from "@/types/jobListing";
 
 const BASE = `${API_BASE_URL}/api/job-listings`;
@@ -132,5 +135,46 @@ export const jobListingsApi = {
       ApiJobApplication[] | { results?: ApiJobApplication[]; count?: number }
     >(`${BASE}/my-applications/`, "Failed to fetch your applications");
     return handleListResponse(data).results.map(transformApplication);
+  },
+
+  async listApplicationsForListing(
+    listingId: number
+  ): Promise<JobApplication[]> {
+    const data = await get<
+      ApiJobApplication[] | { results?: ApiJobApplication[]; count?: number }
+    >(
+      `${BASE}/${listingId}/applications/`,
+      "Failed to fetch listing applications"
+    );
+    return handleListResponse(data).results.map(transformApplication);
+  },
+
+  async createListing(payload: CreateListingPayload): Promise<JobListing> {
+    const body = {
+      title: payload.title,
+      description: payload.description,
+      department_id: payload.departmentId ?? null,
+      open_at: payload.openAt,
+      close_at: payload.closeAt,
+      status: payload.status ?? "open",
+    };
+    const data = await post<ApiJobListing>(
+      `${BASE}/`,
+      body,
+      "Failed to post role"
+    );
+    return transformListing(data);
+  },
+
+  async updateApplicationStatus(
+    applicationId: number,
+    payload: UpdateApplicationStatusPayload
+  ): Promise<JobApplication> {
+    const data = await patch<ApiJobApplication>(
+      `${API_BASE_URL}/api/job-applications/${applicationId}/`,
+      { status: payload.status },
+      "Failed to update application status"
+    );
+    return transformApplication(data);
   },
 };
