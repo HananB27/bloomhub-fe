@@ -27,6 +27,7 @@ const mockCreateScheduledMaintenance = vi.fn();
 const mockCompleteScheduledMaintenance = vi.fn();
 const mockCancelScheduledMaintenance = vi.fn();
 const mockExportAssetsCsv = vi.fn();
+const mockDownloadAssetQrCode = vi.fn();
 const mockGetAssetCapabilities = vi.fn();
 
 let sessionRole = "Employee";
@@ -95,6 +96,8 @@ vi.mock("next-auth/react", () => ({
 vi.mock("@/lib/api/assets", () => ({
   getAssetCapabilities: (...args: unknown[]) =>
     mockGetAssetCapabilities(...args),
+  getAssetFrontendUrl: (assetId: number | string) =>
+    `http://localhost:3000/assets/${assetId}`,
   listAssets: (...args: unknown[]) => mockListAssets(...args),
   listAssignments: (...args: unknown[]) => mockListAssignments(...args),
   listAssignableUsers: (...args: unknown[]) => mockListAssignableUsers(...args),
@@ -121,6 +124,7 @@ vi.mock("@/lib/api/assets", () => ({
   cancelScheduledMaintenance: (...args: unknown[]) =>
     mockCancelScheduledMaintenance(...args),
   exportAssetsCsv: (...args: unknown[]) => mockExportAssetsCsv(...args),
+  downloadAssetQrCode: (...args: unknown[]) => mockDownloadAssetQrCode(...args),
   deleteAssetById: vi.fn(),
 }));
 
@@ -222,6 +226,10 @@ describe("AssetsModule", () => {
     mockExportAssetsCsv.mockResolvedValue({
       blob: new Blob(["asset_id,name\nAST-1,Device\n"], { type: "text/csv" }),
       filename: "asset_export.csv",
+    });
+    mockDownloadAssetQrCode.mockResolvedValue({
+      blob: new Blob(["png-bytes"], { type: "image/png" }),
+      filename: "asset-1-qr.png",
     });
   });
 
@@ -470,6 +478,143 @@ describe("AssetsModule", () => {
     expect(
       within(screen.getByRole("dialog")).getByText("Fallback Assignee")
     ).toBeInTheDocument();
+  });
+
+  it("shows and downloads QR code from asset details", async () => {
+    const createObjectURLSpy = vi
+      .spyOn(URL, "createObjectURL")
+      .mockReturnValue("blob:qr-url");
+    const revokeObjectURLSpy = vi
+      .spyOn(URL, "revokeObjectURL")
+      .mockImplementation(() => undefined);
+    const originalCreateElement = document.createElement.bind(document);
+    const downloadAnchorRef: { current: HTMLAnchorElement | null } = {
+      current: null,
+    };
+    const createElementSpy = vi
+      .spyOn(document, "createElement")
+      .mockImplementation((tagName: string) => {
+        const element = originalCreateElement(tagName);
+
+        if (tagName.toLowerCase() === "a") {
+          downloadAnchorRef.current = element as HTMLAnchorElement;
+          vi.spyOn(downloadAnchorRef.current, "click").mockImplementation(
+            () => undefined
+          );
+        }
+
+        return element;
+      });
+    mockListAssets.mockResolvedValueOnce([
+      {
+        id: 42,
+        name: "QR Laptop",
+        category: "laptops",
+        serial_number: "SN-QR",
+        asset_tag: "AT-QR",
+        status: "available",
+        condition: "good",
+        qr_code_payload: "http://localhost:3000/assets/42",
+        qr_code_url: "/api/assets/42/qr-code/",
+      },
+    ]);
+    mockDownloadAssetQrCode.mockResolvedValueOnce({
+      blob: new Blob(["png-bytes"], { type: "image/png" }),
+      filename: "asset-42-qr.png",
+    });
+
+    render(<AssetsModule />);
+    await screen.findByText("QR Laptop");
+
+    fireEvent.click(screen.getByRole("button", { name: /^View$/i }));
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByText("QR Code")).toBeInTheDocument();
+    expect(
+      await within(dialog).findByRole("img", { name: /QR Laptop QR code/i })
+    ).toHaveAttribute("src", "blob:qr-url");
+
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: /Download QR/i })
+    );
+
+    await waitFor(() => {
+      expect(mockDownloadAssetQrCode).toHaveBeenCalledWith(42, "test-token");
+    });
+    if (!downloadAnchorRef.current) {
+      throw new Error("Download anchor was not created");
+    }
+    expect(downloadAnchorRef.current.download).toBe("QR-Laptop-42-qr.png");
+    expect(createObjectURLSpy).toHaveBeenCalled();
+    expect(revokeObjectURLSpy).toHaveBeenCalledWith("blob:qr-url");
+
+    createElementSpy.mockRestore();
+    createObjectURLSpy.mockRestore();
+    revokeObjectURLSpy.mockRestore();
+  });
+
+  it("shows QR download errors using asset details error pattern", async () => {
+    const createObjectURLSpy = vi
+      .spyOn(URL, "createObjectURL")
+      .mockReturnValue("blob:qr-url");
+    mockListAssets.mockResolvedValueOnce([
+      {
+        id: 43,
+        name: "Forbidden QR Laptop",
+        category: "laptops",
+        serial_number: "SN-QR-403",
+        asset_tag: "AT-QR-403",
+        status: "available",
+        condition: "good",
+        qr_code_url: "/api/assets/43/qr-code/",
+      },
+    ]);
+    mockDownloadAssetQrCode
+      .mockResolvedValueOnce({
+        blob: new Blob(["png-bytes"], { type: "image/png" }),
+        filename: "asset-43-qr.png",
+      })
+      .mockRejectedValueOnce(new ApiError("Forbidden", 403));
+
+    render(<AssetsModule />);
+    await screen.findByText("Forbidden QR Laptop");
+
+    fireEvent.click(screen.getByRole("button", { name: /^View$/i }));
+    const dialog = await screen.findByRole("dialog");
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: /Download QR/i })
+    );
+
+    expect(
+      await within(dialog).findByText(
+        /do not have permission to download this QR code/i
+      )
+    ).toBeInTheDocument();
+
+    createObjectURLSpy.mockRestore();
+  });
+
+  it("renders warranty_until in asset details", async () => {
+    mockListAssets.mockResolvedValueOnce([
+      {
+        id: 44,
+        name: "Warranty Laptop",
+        category: "laptops",
+        serial_number: "SN-WARRANTY",
+        asset_tag: "AT-WARRANTY",
+        status: "available",
+        condition: "good",
+        warranty_until: "2027-05-01",
+      },
+    ]);
+
+    render(<AssetsModule />);
+    await screen.findByText("Warranty Laptop");
+
+    fireEvent.click(screen.getByRole("button", { name: /^View$/i }));
+
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByText("Warranty Until")).toBeInTheDocument();
+    expect(within(dialog).getByText("2027-05-01")).toBeInTheDocument();
   });
 
   it("processes return when checklist is complete", async () => {
@@ -730,6 +875,49 @@ describe("AssetsModule", () => {
     expect(screen.getByRole("button", { name: /Return/i })).toBeDisabled();
   });
 
+  it.each(["lost", "retired", "maintenance"] as const)(
+    "shows return action for an assigned %s asset",
+    async (status) => {
+      sessionRole = "HR";
+      mockListAssets.mockResolvedValueOnce([
+        {
+          id: 15,
+          name: `${status} Assigned Device`,
+          category: "laptops",
+          serial_number: `SN-${status}-assigned`,
+          asset_tag: `AT-${status}-assigned`,
+          status,
+          condition: "good",
+          assigned_to: "99",
+        },
+      ]);
+      mockListAssignments.mockResolvedValueOnce([
+        {
+          id: 315,
+          asset_id: 15,
+          employee_id: "99",
+          employee_name: "Assigned Employee",
+          assigned_date: "2026-04-01",
+          is_active: true,
+        },
+      ]);
+
+      render(<AssetsModule />);
+
+      expect(
+        await screen.findByText(`${status} Assigned Device`)
+      ).toBeInTheDocument();
+      const assetCard = withinAssetCard(`${status} Assigned Device`);
+
+      expect(
+        assetCard.getByRole("button", { name: /Approve Return/i })
+      ).toBeEnabled();
+      expect(
+        assetCard.queryByRole("button", { name: /Assign Asset/i })
+      ).toBeNull();
+    }
+  );
+
   it("shows assign action for an active asset with no active assignment", async () => {
     sessionRole = "HR";
     mockListAssets.mockResolvedValueOnce([
@@ -786,6 +974,36 @@ describe("AssetsModule", () => {
     expect(assetCard.queryByRole("button", { name: /Return/i })).toBeNull();
   });
 
+  it.each(["lost", "retired", "maintenance"] as const)(
+    "shows assign action for an unassigned %s asset",
+    async (status) => {
+      sessionRole = "HR";
+      mockListAssets.mockResolvedValueOnce([
+        {
+          id: 14,
+          name: `${status} Assignable Device`,
+          category: "laptops",
+          serial_number: `SN-${status}`,
+          asset_tag: `AT-${status}`,
+          status,
+        },
+      ]);
+      mockListAssignments.mockResolvedValueOnce([]);
+
+      render(<AssetsModule />);
+
+      expect(
+        await screen.findByText(`${status} Assignable Device`)
+      ).toBeInTheDocument();
+      const assetCard = withinAssetCard(`${status} Assignable Device`);
+
+      expect(
+        assetCard.getByRole("button", { name: /Assign Asset/i })
+      ).toBeEnabled();
+      expect(assetCard.queryByRole("button", { name: /Return/i })).toBeNull();
+    }
+  );
+
   it("creates a new asset through the API and renders it", async () => {
     sessionRole = "HR";
     mockCreateAsset.mockResolvedValueOnce({
@@ -829,6 +1047,206 @@ describe("AssetsModule", () => {
     });
 
     expect(await screen.findByText("Surface Laptop")).toBeInTheDocument();
+    const assetCard = withinAssetCard("Surface Laptop");
+    expect(
+      assetCard.getByRole("button", { name: /^View$/i })
+    ).toBeInTheDocument();
+    expect(
+      assetCard.getByRole("button", { name: /Assign Asset/i })
+    ).toBeInTheDocument();
+  });
+
+  it("does not expose Unknown as an asset status option", async () => {
+    sessionRole = "HR";
+    mockListAssets.mockResolvedValueOnce([
+      {
+        id: 703,
+        name: "Unknown Status Laptop",
+        category: "laptops",
+        serial_number: "SN-703",
+        asset_tag: "AT-703",
+        status: "unknown",
+        condition: "good",
+      },
+    ]);
+
+    render(<AssetsModule />);
+    await screen.findByText("Unknown Status Laptop");
+
+    const assetCard = withinAssetCard("Unknown Status Laptop");
+    const overflowButton = assetCard.getAllByRole("button").at(-1);
+    if (!overflowButton) {
+      throw new Error("Asset actions menu not found");
+    }
+
+    fireEvent.pointerDown(overflowButton);
+    fireEvent.click(await screen.findByRole("menuitem", { name: /Edit/i }));
+
+    const dialog = await screen.findByRole("dialog", { name: /Edit Asset/i });
+    fireEvent.click(
+      within(dialog).getByRole("combobox", { name: /^Status$/i })
+    );
+
+    expect(
+      screen.queryByRole("option", { name: /^Unknown$/i })
+    ).not.toBeInTheDocument();
+  });
+
+  it("does not expose Available as an asset status filter or form option", async () => {
+    sessionRole = "HR";
+    mockListAssets.mockResolvedValueOnce([
+      {
+        id: 705,
+        name: "Legacy Available Laptop",
+        category: "laptops",
+        serial_number: "SN-705",
+        asset_tag: "AT-705",
+        status: "available",
+        condition: "good",
+      },
+    ]);
+
+    render(<AssetsModule />);
+    await screen.findByText("Legacy Available Laptop");
+
+    const filterStatusTrigger = screen.getAllByRole("combobox")[1];
+    fireEvent.click(filterStatusTrigger);
+
+    expect(
+      screen.queryByRole("option", { name: /^Available$/i })
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("option", { name: /^All Status$/i }));
+
+    fireEvent.click(getAnyEnabledButton(/Add Asset/i));
+    const addDialog = await screen.findByRole("dialog");
+    fireEvent.click(
+      within(addDialog).getByRole("combobox", { name: /^Status$/i })
+    );
+
+    expect(
+      screen.queryByRole("option", { name: /^Available$/i })
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("option", { name: /^Active$/i }));
+
+    fireEvent.click(within(addDialog).getByRole("button", { name: /Cancel/i }));
+
+    const assetCard = withinAssetCard("Legacy Available Laptop");
+    const overflowButton = assetCard.getAllByRole("button").at(-1);
+    if (!overflowButton) {
+      throw new Error("Asset actions menu not found");
+    }
+
+    fireEvent.pointerDown(overflowButton);
+    fireEvent.click(await screen.findByRole("menuitem", { name: /Edit/i }));
+
+    const editDialog = await screen.findByRole("dialog", {
+      name: /Edit Asset/i,
+    });
+    fireEvent.click(
+      within(editDialog).getByRole("combobox", { name: /^Status$/i })
+    );
+
+    expect(
+      screen.queryByRole("option", { name: /^Available$/i })
+    ).not.toBeInTheDocument();
+  });
+
+  it("exposes all core asset fields in the edit form and submits updates", async () => {
+    sessionRole = "HR";
+    mockListAssets.mockResolvedValueOnce([
+      {
+        id: 704,
+        asset_id: "AST-704",
+        name: "Editable Laptop",
+        category: "laptops",
+        condition: "good",
+        warranty_until: "2027-05-01",
+        warranty: "2027-05-01",
+        purchase_date: "2026-01-15",
+        status: "available",
+        serial_number: "SN-704",
+        model: "XPS 13",
+        manufacturer: "Dell",
+        purchase_price: 1500,
+        description: "Original description",
+      },
+    ]);
+    mockUpdateAsset.mockResolvedValueOnce({
+      id: 704,
+      asset_id: "AST-704-UPDATED",
+      name: "Editable Laptop Updated",
+      category: "monitors",
+      condition: "excellent",
+      warranty_until: "2027-05-01",
+      warranty: "2027-05-01",
+      purchase_date: "2026-01-15",
+      status: "available",
+      serial_number: "SN-704-UPDATED",
+      model: "UltraSharp",
+      manufacturer: "Dell Pro",
+      purchase_price: 1700,
+      description: "Updated description",
+    });
+
+    render(<AssetsModule />);
+    await screen.findByText("Editable Laptop");
+
+    const assetCard = withinAssetCard("Editable Laptop");
+    const overflowButton = assetCard.getAllByRole("button").at(-1);
+    if (!overflowButton) {
+      throw new Error("Asset actions menu not found");
+    }
+
+    fireEvent.pointerDown(overflowButton);
+    fireEvent.click(await screen.findByRole("menuitem", { name: /Edit/i }));
+
+    const dialog = await screen.findByRole("dialog", { name: /Edit Asset/i });
+    fireEvent.change(within(dialog).getByLabelText(/Asset ID/i), {
+      target: { value: "AST-704-UPDATED" },
+    });
+    fireEvent.change(within(dialog).getByLabelText(/Asset Name/i), {
+      target: { value: "Editable Laptop Updated" },
+    });
+    fireEvent.change(within(dialog).getByLabelText(/Serial Number/i), {
+      target: { value: "SN-704-UPDATED" },
+    });
+    fireEvent.change(within(dialog).getByLabelText(/Manufacturer/i), {
+      target: { value: "Dell Pro" },
+    });
+    fireEvent.change(within(dialog).getByLabelText(/Model/i), {
+      target: { value: "UltraSharp" },
+    });
+    fireEvent.change(within(dialog).getByLabelText(/Purchase Price/i), {
+      target: { value: "1700" },
+    });
+    fireEvent.change(within(dialog).getByLabelText(/Description/i), {
+      target: { value: "Updated description" },
+    });
+
+    expect(within(dialog).getByText("Jan 15, 2026")).toBeInTheDocument();
+    expect(within(dialog).getByText("May 1, 2027")).toBeInTheDocument();
+
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: /Save Changes/i })
+    );
+
+    await waitFor(() => {
+      expect(mockUpdateAsset).toHaveBeenCalledWith(
+        704,
+        expect.objectContaining({
+          asset_id: "AST-704-UPDATED",
+          name: "Editable Laptop Updated",
+          serial_number: "SN-704-UPDATED",
+          manufacturer: "Dell Pro",
+          model: "UltraSharp",
+          purchase_date: "2026-01-15",
+          purchase_price: 1700,
+          warranty_until: "2027-05-01",
+          description: "Updated description",
+        }),
+        "test-token"
+      );
+    });
   });
 
   it("sends maintenance status when editing an asset", async () => {
@@ -1124,7 +1542,7 @@ describe("AssetsModule", () => {
     expect(originalCard.getByText("active")).toBeInTheDocument();
     expect(originalCard.getByText("damaged")).toBeInTheDocument();
     expect(originalCard.getByText("Current Assignee")).toBeInTheDocument();
-    expect(replacementCard.getByText("available")).toBeInTheDocument();
+    expect(replacementCard.getByText("active")).toBeInTheDocument();
     expect(replacementCard.getByText("excellent")).toBeInTheDocument();
     expect(replacementCard.getByText("--")).toBeInTheDocument();
 
@@ -1187,7 +1605,7 @@ describe("AssetsModule", () => {
     expect(originalCard.getByText("active")).toBeInTheDocument();
     expect(originalCard.getByText("damaged")).toBeInTheDocument();
     expect(originalCard.getByText("Current Assignee")).toBeInTheDocument();
-    expect(replacementCard.getByText("available")).toBeInTheDocument();
+    expect(replacementCard.getByText("active")).toBeInTheDocument();
     expect(replacementCard.getByText("excellent")).toBeInTheDocument();
     expect(replacementCard.getByText("--")).toBeInTheDocument();
   });

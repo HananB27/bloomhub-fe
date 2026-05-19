@@ -66,17 +66,17 @@ export function ProjectDocumentsSection({
   const [error, setError] = useState<string | null>(null);
   const [uploadOpen, setUploadOpen] = useState(false);
 
+  // TODO [BACKEND REQUIRED]: Document model has no project_id FK and the list
+  // endpoint ignores `project_id`. Re-enable the fetch once the backend links
+  // documents to projects. Until then, render an empty state so unrelated
+  // employee documents do not leak into project pages.
+  void documentsApi;
+  void mapToRow;
   const load = useCallback(() => {
-    setLoading(true);
+    setLoading(false);
     setError(null);
-    documentsApi
-      .list({ project_id: project.id })
-      .then((res) => setRows(res.map(mapToRow)))
-      .catch((e: unknown) => {
-        setError(e instanceof Error ? e.message : "Failed to load documents.");
-      })
-      .finally(() => setLoading(false));
-  }, [project.id]);
+    setRows([]);
+  }, []);
 
   useEffect(() => {
     load();
@@ -118,8 +118,8 @@ export function ProjectDocumentsSection({
           </Button>
         </div>
       ) : rows.length === 0 ? (
-        <div className="py-8 text-center text-[13px] text-gray-700">
-          No documents linked yet.
+        <div className="rounded-lg border border-dashed border-gray-200 px-4 py-10 text-center text-[13px] text-gray-600">
+          No documents linked to this project.
         </div>
       ) : (
         <Table>
