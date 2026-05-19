@@ -105,8 +105,10 @@ import {
   createReplacementLog,
   createScheduledMaintenance,
   deleteAssetById,
+  downloadAssetQrCode,
   exportAssetsCsv,
   getAssetCapabilities,
+  getAssetFrontendUrl,
   listAssets,
   listAssignments,
   listAssignableUsers,
@@ -132,7 +134,6 @@ import { useSession } from "next-auth/react";
 
 type AssetStatus =
   | "active"
-  | "available"
   | "returned"
   | "lost"
   | "damaged"
@@ -185,6 +186,8 @@ interface Asset {
   lastMaintenance?: string;
   nextMaintenance?: string;
   specifications: { [key: string]: string };
+  qrCodePayload?: string;
+  qrCodeUrl?: string;
   isAvailable?: boolean;
   capabilities?: AssetItemCapabilities;
 }
@@ -235,7 +238,6 @@ interface AssignableUser {
 }
 
 const ASSET_STATUS_OPTIONS: { value: AssetStatus; label: string }[] = [
-  { value: "available", label: "Available" },
   { value: "active", label: "Active" },
   { value: "maintenance", label: "Maintenance" },
   { value: "damaged", label: "Damaged" },
@@ -356,19 +358,20 @@ function toAssetCategory(value?: string): AssetCategory {
 function toAssetStatus(value?: string): AssetStatus {
   const allowed: AssetStatus[] = [
     "active",
-    "available",
     "lost",
     "damaged",
     "maintenance",
     "retired",
   ];
 
-  if (!value) return "available";
+  if (!value) return "active";
 
   const normalized = value.trim().toLowerCase();
+  if (normalized === "available") return "active";
+
   return allowed.includes(normalized as AssetStatus)
     ? (normalized as AssetStatus)
-    : "available";
+    : "active";
 }
 
 function toApiAssetStatus(value: AssetStatus): AssetStatus {
@@ -470,6 +473,24 @@ function formatSnapshotValue(value: ReplacementSnapshotValue): string {
     .trim()
     .replace(/[_-]+/g, " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function getAssetQrDownloadFilename(asset: Pick<Asset, "id" | "name">): string {
+  const safeName =
+    asset.name
+      .trim()
+      .replace(/[^a-z0-9]+/gi, "-")
+      .replace(/^-+|-+$/g, "") || "Asset";
+
+  return `${safeName}-${asset.id}-qr.png`;
+}
+
+function formatAssetDetailValue(value?: string | number | null): string {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? String(value) : "Not recorded";
+  }
+
+  return value && String(value).trim() ? String(value) : "Not recorded";
 }
 
 function formatMaintenanceType(value: ScheduledMaintenanceType): string {
@@ -626,6 +647,9 @@ function mapAssetFromApi(item: AssetApiItem): Asset {
     : item.is_available
       ? "available"
       : undefined;
+  const qrCodePayload = item.qr_code_payload?.startsWith("/")
+    ? `${getAssetFrontendUrl(item.id).replace(/\/assets\/\d+$/, "")}${item.qr_code_payload}`
+    : item.qr_code_payload || getAssetFrontendUrl(item.id);
 
   return {
     id: item.id,
@@ -641,7 +665,7 @@ function mapAssetFromApi(item: AssetApiItem): Asset {
       "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop",
     purchaseDate: item.purchase_date || "",
     purchasePrice: Number(item.purchase_price || 0),
-    warranty: item.warranty || "",
+    warranty: item.warranty_until || item.warranty || "",
     status: toAssetStatus(item.status || fallbackStatus),
     condition: toAssetCondition(item.condition),
     location: item.location || "IT Storage Room",
@@ -652,6 +676,8 @@ function mapAssetFromApi(item: AssetApiItem): Asset {
     lastMaintenance: item.last_maintenance,
     nextMaintenance: item.next_maintenance,
     specifications: item.specifications || {},
+    qrCodePayload,
+    qrCodeUrl: item.qr_code_url || undefined,
     isAvailable: item.is_available,
     capabilities: item.capabilities,
   };
@@ -731,7 +757,7 @@ function applyActiveAssignmentToAsset(
     assignedTo: activeAssignment.employeeId,
     assignedEmployeeName: activeAssignment.employeeName,
     assignedDate: activeAssignment.assignedDate,
-    status: asset.status === "available" ? "active" : asset.status,
+    status: asset.status,
   };
 }
 
@@ -807,7 +833,7 @@ function isAssetAssignable(asset: Asset): boolean {
     return false;
   }
 
-  return !["lost", "damaged", "maintenance", "retired"].includes(asset.status);
+  return asset.status !== "damaged";
 }
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -863,6 +889,9 @@ const ADD_ASSET_LIGHT_LABEL_CLASS = "!text-gray-700 dark:!text-gray-700";
 const ASSET_DETAILS_LABEL_CLASS =
   "text-xs font-medium uppercase tracking-wide text-gray-600";
 const ASSET_DETAILS_VALUE_CLASS = "mt-1 text-sm font-semibold text-black";
+const ASSET_DETAILS_FIELD_LABEL_CLASS = "text-xs font-semibold text-gray-900";
+const ASSET_DETAILS_FIELD_VALUE_CLASS =
+  "min-h-8 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm font-normal text-gray-900";
 const FORCED_LIGHT_SURFACE_STYLE: CSSProperties = {
   backgroundColor: "#ffffff",
   color: "#111827",
@@ -900,6 +929,12 @@ export function AssetsModule() {
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [isLoadingAssets, setIsLoadingAssets] = useState(true);
   const [isExportingAssets, setIsExportingAssets] = useState(false);
+  const [downloadingQrCodeAssetId, setDownloadingQrCodeAssetId] = useState<
+    number | null
+  >(null);
+  const [qrCodeError, setQrCodeError] = useState<string | null>(null);
+  const [qrCodePreviewUrl, setQrCodePreviewUrl] = useState<string | null>(null);
+  const [isQrCodePreviewLoading, setIsQrCodePreviewLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [assignmentError, setAssignmentError] = useState<string | null>(null);
   const [deleteTargetAssetId, setDeleteTargetAssetId] = useState<number | null>(
@@ -972,7 +1007,7 @@ export function AssetsModule() {
     location: "",
     specifications: "",
     condition: "good" as AssetCondition,
-    status: "available" as AssetStatus,
+    status: "active" as AssetStatus,
   });
 
   const [editAsset, setEditAsset] = useState({
@@ -989,7 +1024,7 @@ export function AssetsModule() {
     location: "",
     specifications: "",
     condition: "unknown" as AssetCondition,
-    status: "available" as AssetStatus,
+    status: "active" as AssetStatus,
   });
 
   const [assignmentForm, setAssignmentForm] = useState({
@@ -1324,6 +1359,54 @@ export function AssetsModule() {
     };
   }, [loadAssetsAndAssignments]);
 
+  useEffect(() => {
+    let isCancelled = false;
+    let objectUrl: string | null = null;
+
+    setQrCodePreviewUrl(null);
+    setQrCodeError(null);
+
+    if (!isAssetDetailsDialogOpen || !selectedAsset?.qrCodeUrl) {
+      setIsQrCodePreviewLoading(false);
+      return;
+    }
+
+    setIsQrCodePreviewLoading(true);
+
+    void downloadAssetQrCode(selectedAsset.id, accessToken)
+      .then(({ blob }) => {
+        if (isCancelled) {
+          return;
+        }
+
+        objectUrl = window.URL.createObjectURL(blob);
+        setQrCodePreviewUrl(objectUrl);
+      })
+      .catch((error: unknown) => {
+        if (!isCancelled) {
+          setQrCodeError(getErrorMessage(error, "Failed to load QR code."));
+        }
+      })
+      .finally(() => {
+        if (!isCancelled) {
+          setIsQrCodePreviewLoading(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+
+      if (objectUrl) {
+        window.URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [
+    accessToken,
+    isAssetDetailsDialogOpen,
+    selectedAsset?.id,
+    selectedAsset?.qrCodeUrl,
+  ]);
+
   const categories: {
     value: AssetCategory;
     label: string;
@@ -1419,8 +1502,6 @@ export function AssetsModule() {
     switch (status) {
       case "active":
         return "bg-green-100 text-green-800";
-      case "available":
-        return "bg-blue-100 text-blue-800";
       case "lost":
         return "bg-red-100 text-red-800";
       case "damaged":
@@ -1438,8 +1519,6 @@ export function AssetsModule() {
     switch (status) {
       case "active":
         return CheckCircle;
-      case "available":
-        return Package;
       case "lost":
         return AlertCircle;
       case "damaged":
@@ -1783,7 +1862,7 @@ export function AssetsModule() {
       location: "",
       specifications: "",
       condition: "good" as AssetCondition,
-      status: "available" as AssetStatus,
+      status: "active" as AssetStatus,
     });
     setIsAddAssetDialogOpen(false);
   };
@@ -2524,9 +2603,7 @@ export function AssetsModule() {
       filters.category = categoryFilter;
     }
 
-    if (statusFilter === "available") {
-      filters.available = true;
-    } else if (
+    if (
       statusFilter === "active" ||
       statusFilter === "lost" ||
       statusFilter === "damaged" ||
@@ -2585,6 +2662,53 @@ export function AssetsModule() {
       }
     } finally {
       setIsExportingAssets(false);
+    }
+  };
+
+  const handleDownloadAssetQrCode = async (asset: Asset) => {
+    if (downloadingQrCodeAssetId !== null) {
+      return;
+    }
+
+    if (!asset.qrCodeUrl) {
+      setQrCodeError("QR code is not available for this asset.");
+      return;
+    }
+
+    setDownloadingQrCodeAssetId(asset.id);
+    setQrCodeError(null);
+
+    try {
+      const { blob } = await downloadAssetQrCode(asset.id, accessToken);
+      const objectUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = getAssetQrDownloadFilename(asset);
+      link.rel = "noopener";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(objectUrl);
+    } catch (error: unknown) {
+      if (error instanceof ApiError) {
+        if (error.status === 401) {
+          setQrCodeError(
+            "Your session has expired. Please sign in again to download this QR code."
+          );
+        } else if (error.status === 403) {
+          setQrCodeError(
+            "You do not have permission to download this QR code."
+          );
+        } else if (error.status === 404) {
+          setQrCodeError("QR code is missing for this asset.");
+        } else {
+          setQrCodeError(getErrorMessage(error, "Failed to download QR code."));
+        }
+      } else {
+        setQrCodeError(getErrorMessage(error, "Failed to download QR code."));
+      }
+    } finally {
+      setDownloadingQrCodeAssetId(null);
     }
   };
 
@@ -2834,9 +2958,9 @@ export function AssetsModule() {
                         return (
                           <Card
                             key={asset.id}
-                            className="border-gray-200 dark:border-gray-700 hover:shadow-sm transition-shadow"
+                            className="h-full border-gray-200 dark:border-gray-700 hover:shadow-sm transition-shadow"
                           >
-                            <CardContent className="p-4">
+                            <CardContent className="flex h-full flex-col p-4">
                               <div className="relative mb-3">
                                 <ImageWithFallback
                                   src={asset.image}
@@ -2862,7 +2986,7 @@ export function AssetsModule() {
                                 </div>
                               </div>
 
-                              <div className="space-y-3">
+                              <div className="flex flex-1 flex-col space-y-3">
                                 <div>
                                   <div className="flex items-center gap-2 mb-1">
                                     <CategoryIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
@@ -2923,7 +3047,7 @@ export function AssetsModule() {
                                   </div>
                                 </div>
 
-                                <div className="flex gap-2 pt-2">
+                                <div className="mt-auto flex gap-2 pt-2">
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -2935,8 +3059,7 @@ export function AssetsModule() {
                                     <Eye className="w-3 h-3 mr-1" />
                                     View
                                   </Button>
-                                  {asset.status === "active" &&
-                                  isAssetCurrentlyAssigned(asset) ? (
+                                  {isAssetCurrentlyAssigned(asset) ? (
                                     <Button
                                       variant="outline"
                                       size="sm"
@@ -4726,48 +4849,210 @@ export function AssetsModule() {
           </DialogHeader>
 
           {selectedAsset && (
-            <div className="space-y-4 text-black">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className={ASSET_DETAILS_LABEL_CLASS}>Asset Tag</p>
-                  <p className={ASSET_DETAILS_VALUE_CLASS}>
-                    {selectedAsset.assetTag}
-                  </p>
+            <div className="space-y-3 text-black">
+              <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_148px] lg:items-start">
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 gap-x-3 gap-y-2.5 md:grid-cols-2">
+                    <div className="space-y-1">
+                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
+                        Asset Tag
+                      </p>
+                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
+                        {formatAssetDetailValue(selectedAsset.assetTag)}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
+                        Serial Number
+                      </p>
+                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
+                        {formatAssetDetailValue(selectedAsset.serialNumber)}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
+                        Category
+                      </p>
+                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
+                        {formatSnapshotValue(selectedAsset.category)}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>Status</p>
+                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
+                        {formatSnapshotValue(selectedAsset.status)}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>Brand</p>
+                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
+                        {formatAssetDetailValue(selectedAsset.brand)}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
+                        Condition
+                      </p>
+                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
+                        {formatSnapshotValue(selectedAsset.condition)}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>Model</p>
+                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
+                        {formatAssetDetailValue(selectedAsset.model)}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
+                        Assigned To
+                      </p>
+                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
+                        {selectedAssetAssigneeName}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
+                        Assigned Date
+                      </p>
+                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
+                        {selectedAsset.assignedDate
+                          ? formatDate(selectedAsset.assignedDate)
+                          : "Not recorded"}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
+                        Purchase Date
+                      </p>
+                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
+                        {selectedAsset.purchaseDate
+                          ? formatDate(selectedAsset.purchaseDate)
+                          : "Not recorded"}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
+                        Purchase Price
+                      </p>
+                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
+                        {Number.isFinite(selectedAsset.purchasePrice)
+                          ? formatCurrency(selectedAsset.purchasePrice)
+                          : "Not recorded"}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
+                        Warranty Until
+                      </p>
+                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
+                        {formatAssetDetailValue(selectedAsset.warranty)}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
+                        Location
+                      </p>
+                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
+                        {formatAssetDetailValue(selectedAsset.location)}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
+                        Availability
+                      </p>
+                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
+                        {selectedAsset.isAvailable ? "Available" : "In use"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
+                      Description
+                    </p>
+                    <p
+                      className={`${ASSET_DETAILS_FIELD_VALUE_CLASS} min-h-14`}
+                    >
+                      {formatAssetDetailValue(selectedAsset.description)}
+                    </p>
+                  </div>
+
+                  {Object.keys(selectedAsset.specifications || {}).length >
+                    0 && (
+                    <div className="space-y-1">
+                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
+                        Specifications
+                      </p>
+                      <div className="grid grid-cols-1 gap-1.5 rounded-md border border-gray-300 bg-white p-2 md:grid-cols-2">
+                        {Object.entries(selectedAsset.specifications).map(
+                          ([key, value]) => (
+                            <p
+                              key={key}
+                              className="flex items-center justify-between gap-2 rounded border border-gray-100 bg-gray-50 px-2 py-1 text-xs text-gray-900"
+                            >
+                              <span className="font-semibold">
+                                {formatSnapshotValue(key)}
+                              </span>
+                              <span className="font-normal text-right">
+                                {value}
+                              </span>
+                            </p>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <p className={ASSET_DETAILS_LABEL_CLASS}>Serial Number</p>
-                  <p className={ASSET_DETAILS_VALUE_CLASS}>
-                    {selectedAsset.serialNumber}
-                  </p>
-                </div>
-                <div>
-                  <p className={ASSET_DETAILS_LABEL_CLASS}>Status</p>
-                  <p className={ASSET_DETAILS_VALUE_CLASS}>
-                    {selectedAsset.status}
-                  </p>
-                </div>
-                <div>
-                  <p className={ASSET_DETAILS_LABEL_CLASS}>Condition</p>
-                  <p className={ASSET_DETAILS_VALUE_CLASS}>
-                    {selectedAsset.condition}
-                  </p>
-                </div>
-                <div>
-                  <p className={ASSET_DETAILS_LABEL_CLASS}>Assigned To</p>
-                  <p className={ASSET_DETAILS_VALUE_CLASS}>
-                    {selectedAssetAssigneeName}
-                  </p>
-                </div>
-                <div>
-                  <p className={ASSET_DETAILS_LABEL_CLASS}>Location</p>
-                  <p className={ASSET_DETAILS_VALUE_CLASS}>
-                    {selectedAsset.location}
-                  </p>
+
+                <div className="rounded-md border border-gray-200 bg-gray-50 p-2 text-center lg:sticky lg:top-0">
+                  <div className="flex items-center justify-center gap-1.5 text-xs font-medium text-black">
+                    <QrCode className="h-3.5 w-3.5" />
+                    QR Code
+                  </div>
+                  <div className="mt-2 flex min-h-28 items-center justify-center rounded-md border border-gray-200 bg-white p-1.5">
+                    {qrCodePreviewUrl ? (
+                      <img
+                        src={qrCodePreviewUrl}
+                        alt={`${selectedAsset.name} QR code`}
+                        className="h-24 w-24 object-contain"
+                      />
+                    ) : (
+                      <p className="text-xs text-gray-600">
+                        {isQrCodePreviewLoading
+                          ? "Loading QR..."
+                          : "QR not available"}
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-2 h-8 w-full px-2 text-xs"
+                    disabled={
+                      !selectedAsset.qrCodeUrl ||
+                      downloadingQrCodeAssetId === selectedAsset.id
+                    }
+                    onClick={() => {
+                      void handleDownloadAssetQrCode(selectedAsset);
+                    }}
+                  >
+                    <QrCode className="mr-2 h-4 w-4" />
+                    {downloadingQrCodeAssetId === selectedAsset.id
+                      ? "Downloading..."
+                      : "Download QR"}
+                  </Button>
+                  {qrCodeError && (
+                    <p className="mt-2 text-left text-sm text-red-700">
+                      {qrCodeError}
+                    </p>
+                  )}
                 </div>
               </div>
 
-              <div className="rounded-md border border-gray-200 p-3">
-                <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="rounded-md border border-gray-200 p-2.5">
+                <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <p className="font-medium text-black">
                     Scheduled Maintenance
                   </p>
@@ -4781,6 +5066,7 @@ export function AssetsModule() {
                           openMaintenanceForm(selectedAsset);
                         }
                       }}
+                      className="h-8"
                     >
                       <Wrench className="mr-2 h-4 w-4" />
                       Schedule Maintenance
@@ -4885,8 +5171,8 @@ export function AssetsModule() {
                 )}
               </div>
 
-              <div className="rounded-md border border-gray-200 p-3">
-                <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="rounded-md border border-gray-200 p-2.5">
+                <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <p className="font-medium text-black">Maintenance</p>
                   {canLogReplacement && (
                     <Button
@@ -4894,6 +5180,7 @@ export function AssetsModule() {
                       variant="outline"
                       size="sm"
                       onClick={() => setIsReplacementFormOpen((prev) => !prev)}
+                      className="h-8"
                     >
                       <CalendarDays className="mr-2 h-4 w-4" />
                       Log Maintenance
@@ -5703,7 +5990,7 @@ export function AssetsModule() {
         onOpenChange={setIsMaintenanceFormOpen}
       >
         <DialogContent
-          className={`max-w-2xl ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
+          className={`max-w-3xl ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
           style={FORCED_LIGHT_SURFACE_STYLE}
         >
           <DialogHeader>
@@ -6220,8 +6507,28 @@ export function AssetsModule() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="max-h-[75vh] space-y-4 overflow-y-auto pr-1">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="edit-asset-id"
+                  className={ADD_ASSET_LIGHT_LABEL_CLASS}
+                >
+                  Asset ID
+                </Label>
+                <Input
+                  id="edit-asset-id"
+                  className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                  value={editAsset.assetTag}
+                  onChange={(e) =>
+                    setEditAsset((prev) => ({
+                      ...prev,
+                      assetTag: e.target.value,
+                    }))
+                  }
+                  placeholder="Asset identifier"
+                />
+              </div>
               <div className="space-y-2">
                 <Label
                   htmlFor="edit-asset-name"
@@ -6238,6 +6545,9 @@ export function AssetsModule() {
                   }
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label
                   htmlFor="edit-asset-serial"
@@ -6255,6 +6565,26 @@ export function AssetsModule() {
                       serialNumber: e.target.value,
                     }))
                   }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="edit-asset-manufacturer"
+                  className={ADD_ASSET_LIGHT_LABEL_CLASS}
+                >
+                  Manufacturer
+                </Label>
+                <Input
+                  id="edit-asset-manufacturer"
+                  className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                  value={editAsset.brand}
+                  onChange={(e) =>
+                    setEditAsset((prev) => ({
+                      ...prev,
+                      brand: e.target.value,
+                    }))
+                  }
+                  placeholder="Enter manufacturer"
                 />
               </div>
             </div>
@@ -6298,6 +6628,9 @@ export function AssetsModule() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label
                   htmlFor="edit-asset-category"
@@ -6336,9 +6669,6 @@ export function AssetsModule() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label
                   htmlFor="edit-asset-condition"
@@ -6404,6 +6734,116 @@ export function AssetsModule() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="edit-asset-model"
+                  className={ADD_ASSET_LIGHT_LABEL_CLASS}
+                >
+                  Model
+                </Label>
+                <Input
+                  id="edit-asset-model"
+                  className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                  value={editAsset.model}
+                  onChange={(e) =>
+                    setEditAsset((prev) => ({
+                      ...prev,
+                      model: e.target.value,
+                    }))
+                  }
+                  placeholder="Enter model"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="edit-asset-purchase-price"
+                  className={ADD_ASSET_LIGHT_LABEL_CLASS}
+                >
+                  Purchase Price
+                </Label>
+                <Input
+                  id="edit-asset-purchase-price"
+                  type="number"
+                  className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                  value={editAsset.purchasePrice}
+                  onChange={(e) =>
+                    setEditAsset((prev) => ({
+                      ...prev,
+                      purchasePrice: e.target.value,
+                    }))
+                  }
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="edit-asset-purchase-date"
+                  className={ADD_ASSET_LIGHT_LABEL_CLASS}
+                >
+                  Purchase Date
+                </Label>
+                <DatePicker
+                  mode="single"
+                  value={editAsset.purchaseDate}
+                  onChange={(date) =>
+                    setEditAsset((prev) => ({
+                      ...prev,
+                      purchaseDate: date,
+                    }))
+                  }
+                  placeholder="Select date"
+                  size="compact"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="edit-asset-warranty"
+                  className={ADD_ASSET_LIGHT_LABEL_CLASS}
+                >
+                  Warranty Until
+                </Label>
+                <DatePicker
+                  mode="single"
+                  value={editAsset.warranty}
+                  onChange={(date) =>
+                    setEditAsset((prev) => ({
+                      ...prev,
+                      warranty: date,
+                    }))
+                  }
+                  placeholder="Select date"
+                  size="compact"
+                  popoverAlign="end"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label
+                htmlFor="edit-asset-description"
+                className={ADD_ASSET_LIGHT_LABEL_CLASS}
+              >
+                Description
+              </Label>
+              <Textarea
+                id="edit-asset-description"
+                className={ADD_ASSET_LIGHT_FIELD_CLASS}
+                value={editAsset.description}
+                onChange={(e) =>
+                  setEditAsset((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+                placeholder="Brief description of the asset..."
+                rows={3}
+              />
             </div>
 
             <div className="space-y-2">
