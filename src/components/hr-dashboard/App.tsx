@@ -189,6 +189,12 @@ export default function HRDashboardApp({
   };
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  useEffect(() => {
+    const width = sidebarCollapsed
+      ? SIDEBAR_COLLAPSED_OFFSET
+      : SIDEBAR_EXPANDED_OFFSET;
+    document.documentElement.style.setProperty("--ws-sidebar-w", `${width}px`);
+  }, [sidebarCollapsed]);
   const primaryItems = useMemo(
     () =>
       HR_MODULES.map((m) => ({
@@ -598,7 +604,7 @@ export default function HRDashboardApp({
           </div>
         </header>
 
-        <div className="flex min-h-0 flex-1 overflow-auto bg-gray-50 p-4 dark:bg-gray-950">
+        <div className="flex min-h-0 flex-1 overflow-auto p-4 dark:bg-gray-950 bg-[#F6F6F7]">
           <div className="w-full min-w-0">
             <DashboardView
               activeModule={activeModule}

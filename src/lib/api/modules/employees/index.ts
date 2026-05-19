@@ -21,6 +21,7 @@ import {
   type HrProfilesPageBundleApplied,
 } from "./hrProfileBundles";
 import type { ProfileModalBundleSection } from "../../constants/hrEmployeeProfilesEndpoints";
+import { fetchWithAuthRetry } from "../../refresh";
 
 export interface SalaryHistoryItem {
   id: number;
@@ -46,6 +47,61 @@ export interface EmployeeProfileChangeHistoryItem {
   created_at?: string;
 }
 
+export type EmployeeExportFormat = "csv" | "xlsx" | "json" | "pdf";
+export type EmployeeExportScope = "all" | "filtered";
+
+export interface CreateEmployeePayload {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number?: string;
+  birth_date?: string;
+  address?: string;
+  avatar_color?: string;
+  role?: number | null;
+  role_name?: string;
+  job_title?: string;
+  employment_type?: string;
+  department?: string;
+  team?: string;
+  location?: string;
+  start_date?: string;
+  employment_status?: string;
+  manager?: number | null;
+  manager_name?: string;
+  project?: number | null;
+  project_id?: number | null;
+  onboarding_template?: number | null;
+  onboarding_template_id?: number | null;
+  send_invite?: boolean;
+  start_onboarding?: boolean;
+}
+
+export interface EmployeeEmailAvailability {
+  email: string;
+  available: boolean;
+  employee_id?: number | string | null;
+  user_id?: number | string | null;
+}
+
+export interface EmployeeExportPayload {
+  format: EmployeeExportFormat;
+  scope: EmployeeExportScope;
+  columns: string[];
+  include_header: boolean;
+  filename?: string;
+  filters?: {
+    search?: string;
+    department?: string;
+    status?: string;
+  };
+}
+
+export interface EmployeeExportResult {
+  blob: Blob;
+  filename: string;
+}
+
 export type { EmployeeProfileData } from "../../helpers/transformers";
 
 export type {
@@ -57,6 +113,39 @@ export type {
 export type { ProfileModalBundleSection } from "../../constants/hrEmployeeProfilesEndpoints";
 
 export { PROFILE_MODAL_BUNDLE_SECTIONS } from "../../constants/hrEmployeeProfilesEndpoints";
+
+function parseContentDispositionFilename(value: string | null): string | null {
+  if (!value) return null;
+
+  const utf8Match = value.match(/filename\*=UTF-8''([^;]+)/i);
+  if (utf8Match?.[1]) {
+    try {
+      return decodeURIComponent(utf8Match[1].trim().replace(/^"|"$/g, ""));
+    } catch {
+      return utf8Match[1].trim().replace(/^"|"$/g, "");
+    }
+  }
+
+  const filenameMatch = value.match(/filename=([^;]+)/i);
+  return filenameMatch?.[1]?.trim().replace(/^"|"$/g, "") ?? null;
+}
+
+function buildEmployeeExportQuery(payload: EmployeeExportPayload): string {
+  const params = new URLSearchParams();
+  params.set("format", payload.format);
+  params.set("scope", payload.scope);
+  params.set("columns", payload.columns.join(","));
+  params.set("include_header", String(payload.include_header));
+  if (payload.filename) params.set("filename", payload.filename);
+
+  if (payload.filters?.search) params.set("search", payload.filters.search);
+  if (payload.filters?.department) {
+    params.set("department", payload.filters.department);
+  }
+  if (payload.filters?.status) params.set("status", payload.filters.status);
+
+  return params.toString();
+}
 
 export const employeeApi = {
   async listEmployees(
@@ -100,6 +189,106 @@ export const employeeApi = {
       "Failed to update employee"
     );
     return transformEmployeeData(responseData);
+  },
+
+  async createEmployee(
+    data: CreateEmployeePayload
+  ): Promise<EmployeeProfileData> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const responseData = await post<any>(
+      `${API_BASE_URL}/api/employees/`,
+      data,
+      "Failed to create employee"
+    );
+    return transformEmployeeData(responseData);
+  },
+
+  async checkEmailAvailability(
+    email: string,
+    init?: RequestInit
+  ): Promise<EmployeeEmailAvailability> {
+    const url = `${API_BASE_URL}/api/employees/email-availability/${buildQueryString({ email })}`;
+    const data = await get<unknown>(
+      url,
+      "Failed to check employee email",
+      init
+    );
+    const obj = data as Record<string, unknown>;
+    const normalizedEmail = String(obj.email ?? email);
+    const available =
+      typeof obj.available === "boolean"
+        ? obj.available
+        : typeof obj.exists === "boolean"
+          ? !obj.exists
+          : true;
+
+    return {
+      email: normalizedEmail,
+      available,
+      employee_id:
+        (obj.employee_id as number | string | null | undefined) ?? null,
+      user_id: (obj.user_id as number | string | null | undefined) ?? null,
+    };
+  },
+
+  async exportEmployees(
+    payload: EmployeeExportPayload
+  ): Promise<EmployeeExportResult> {
+    const query = buildEmployeeExportQuery(payload);
+    let response = await fetchWithAuthRetry(
+      `${API_BASE_URL}/api/employees/export/${query ? `?${query}` : ""}`,
+      {
+        method: "GET",
+        headers: {
+          Accept:
+            payload.format === "json"
+              ? "application/json"
+              : "application/octet-stream",
+        },
+      }
+    );
+
+    if (response.status === 404) {
+      response = await fetchWithAuthRetry(
+        `${API_BASE_URL}/api/employees/export${query ? `?${query}` : ""}`,
+        {
+          method: "GET",
+          headers: {
+            Accept:
+              payload.format === "json"
+                ? "application/json"
+                : "application/octet-stream",
+          },
+        }
+      );
+    }
+
+    if (!response.ok) {
+      const contentType = response.headers.get("content-type") || "";
+      const errorPayload = contentType.includes("application/json")
+        ? await response.json().catch(() => ({}))
+        : await response.text().catch(() => "");
+
+      const message =
+        errorPayload && typeof errorPayload === "object"
+          ? ((errorPayload as { detail?: string; message?: string }).detail ??
+            (errorPayload as { detail?: string; message?: string }).message)
+          : undefined;
+      throw new Error(message || "Failed to export employees");
+    }
+
+    const blob = await response.blob();
+    const filenameFromHeader = parseContentDispositionFilename(
+      response.headers.get("content-disposition")
+    );
+
+    return {
+      blob,
+      filename:
+        filenameFromHeader ||
+        payload.filename ||
+        `bloomhub-employees.${payload.format}`,
+    };
   },
 
   async getSalaryHistory(

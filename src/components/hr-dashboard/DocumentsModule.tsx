@@ -38,6 +38,7 @@ import {
   type DocumentsTableRowModel,
   filterAndSortTableRows,
   buildMergedTableRows,
+  buildUploadTableRow,
   tableRowKey,
   uploadDocumentIdsFromRowKeys,
   downloadGeneratedDocumentHtmlFile,
@@ -171,6 +172,22 @@ export function DocumentsModule() {
         /* non-critical */
       });
   }, []);
+
+  // Open document requested from another module (e.g. project Documents tab).
+  // Other modules drop the target id into sessionStorage and navigate here.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const pendingId = sessionStorage.getItem("bh.openDocumentId");
+    if (!pendingId || docs.length === 0) return;
+    const numericId = Number(pendingId);
+    const match = docs.find(
+      (d) => String(d.id) === pendingId || d.id === numericId
+    );
+    if (match) {
+      setDrawerRow(buildUploadTableRow(match));
+      sessionStorage.removeItem("bh.openDocumentId");
+    }
+  }, [docs]);
 
   // ─── Mutation handlers ───────────────────────────────────────────────────────
 
@@ -764,8 +781,8 @@ export function DocumentsModule() {
                     <input
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
-                      placeholder="Search by name, description, or tag…"
-                      className="w-full h-9 pl-9 pr-3 text-[13px] border border-gray-200 rounded-lg bg-gray-50 outline-none focus:border-gray-400 focus:bg-white transition-colors"
+                      placeholder="Search by name, description, tag, or project…"
+                      className="w-full h-9 pl-9 pr-3 text-[13px] text-gray-900 placeholder:text-gray-500 border border-gray-200 rounded-lg bg-gray-50 outline-none focus:border-gray-400 focus:bg-white transition-colors"
                     />
                   </div>
                   <Select value={statusFilter} onValueChange={setStatusFilter}>

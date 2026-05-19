@@ -19,6 +19,7 @@ import { useSession } from "next-auth/react";
 // ... (rest of imports unchanged)
 import { VacationsModule } from "./VacationsModule";
 import ProfilesModule from "./ProfilesModule";
+import { ProjectsModule } from "./projects";
 import { ReviewsModule } from "./ReviewsModule";
 import { OnboardingModule } from "./OnboardingModule";
 import { TrainingModule } from "./TrainingModule";
@@ -396,6 +397,8 @@ export function DashboardView({
       return <VacationsModule addNotification={addNotification} />;
     case "profiles":
       return <ProfilesModule />;
+    case "projects":
+      return <ProjectsModule onNavigate={onNavigate} />;
     case "reviews":
       return <ReviewsModule />;
     case "onboarding":
