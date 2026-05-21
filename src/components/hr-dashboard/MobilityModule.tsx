@@ -34,11 +34,17 @@ import {
   FileText,
   AlertCircle,
   Sparkles,
+  TrendingUp,
+  ArrowRight,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { formatDate } from "@/utils";
 import { useSession } from "next-auth/react";
 import { isHrLikeRole } from "@/lib/permissions/assets-permissions";
 import { jobListingsApi } from "@/lib/api/modules/jobListings";
+import { promotionsApi } from "@/lib/api/modules/promotions";
+import { employeeApi } from "@/lib/api/modules/employees";
 import { departmentsApi, type Department } from "@/lib/api/departments";
 import type {
   ApplicationStatus,
@@ -47,6 +53,10 @@ import type {
   JobListing,
   JobListingDetail,
 } from "@/types/jobListing";
+import type {
+  CreatePromotionPayload,
+  PromotionRecord,
+} from "@/types/promotion";
 
 const DEPARTMENT_FILTER_ALL = "all";
 
@@ -148,7 +158,7 @@ function Pill({ label, bg, dot }: { label: string; bg: string; dot: string }) {
   );
 }
 
-type TabKey = "jobs" | "applications" | "history";
+type TabKey = "jobs" | "applications" | "history" | "promotions";
 
 export function MobilityModule() {
   const { data: session } = useSession();
@@ -183,6 +193,16 @@ export function MobilityModule() {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const [isPostDialogOpen, setIsPostDialogOpen] = useState(false);
+
+  const [promotions, setPromotions] = useState<PromotionRecord[]>([]);
+  const [promotionsLoading, setPromotionsLoading] = useState(true);
+  const [promotionsError, setPromotionsError] = useState<string | null>(null);
+  const [isPromotionDialogOpen, setIsPromotionDialogOpen] = useState(false);
+  const [editingPromotion, setEditingPromotion] =
+    useState<PromotionRecord | null>(null);
+  const [deletingPromotion, setDeletingPromotion] =
+    useState<PromotionRecord | null>(null);
+  const [deletingPromotionBusy, setDeletingPromotionBusy] = useState(false);
 
   const sessionUser = session?.user as
     | {
@@ -258,6 +278,25 @@ export function MobilityModule() {
   useEffect(() => {
     void loadMyApplications();
   }, [loadMyApplications]);
+
+  const loadPromotions = useCallback(async () => {
+    setPromotionsLoading(true);
+    setPromotionsError(null);
+    try {
+      const rows = await promotionsApi.listPromotions();
+      setPromotions(rows);
+    } catch (err) {
+      setPromotionsError(
+        err instanceof Error ? err.message : "Failed to load promotions."
+      );
+    } finally {
+      setPromotionsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadPromotions();
+  }, [loadPromotions]);
 
   const appliedListingIds = useMemo(
     () => new Set(myApplications.map((a) => a.listingId)),
@@ -347,11 +386,34 @@ export function MobilityModule() {
         a.status === "rejected" ||
         a.status === "withdrawn"
     ).length,
+    promotions: promotions.length,
   };
 
   const handleListingCreated = async () => {
     setIsPostDialogOpen(false);
     await loadListings();
+  };
+
+  const handlePromotionSaved = async () => {
+    setIsPromotionDialogOpen(false);
+    setEditingPromotion(null);
+    await loadPromotions();
+  };
+
+  const confirmDeletePromotion = async () => {
+    if (!deletingPromotion) return;
+    setDeletingPromotionBusy(true);
+    try {
+      await promotionsApi.deletePromotion(deletingPromotion.id);
+      await loadPromotions();
+    } catch (err) {
+      setPromotionsError(
+        err instanceof Error ? err.message : "Failed to delete promotion."
+      );
+    } finally {
+      setDeletingPromotionBusy(false);
+      setDeletingPromotion(null);
+    }
   };
 
   return (
@@ -436,6 +498,12 @@ export function MobilityModule() {
             active={activeTab === "history"}
             onClick={() => setActiveTab("history")}
           />
+          <TabButton
+            label="Promotions"
+            count={tabCounts.promotions}
+            active={activeTab === "promotions"}
+            onClick={() => setActiveTab("promotions")}
+          />
         </nav>
       </header>
 
@@ -472,6 +540,23 @@ export function MobilityModule() {
                 a.status === "rejected" ||
                 a.status === "withdrawn"
             )}
+          />
+        )}
+        {activeTab === "promotions" && (
+          <PromotionsTab
+            promotions={promotions}
+            loading={promotionsLoading}
+            error={promotionsError}
+            isHRUser={isHRUser}
+            onAdd={() => {
+              setEditingPromotion(null);
+              setIsPromotionDialogOpen(true);
+            }}
+            onEdit={(p) => {
+              setEditingPromotion(p);
+              setIsPromotionDialogOpen(true);
+            }}
+            onDelete={setDeletingPromotion}
           />
         )}
       </div>
@@ -515,6 +600,61 @@ export function MobilityModule() {
           departments={departments}
           onCreated={handleListingCreated}
         />
+      )}
+
+      {/* Promotion form modal (HR/admin) */}
+      {isHRUser && (
+        <PromotionDialog
+          open={isPromotionDialogOpen}
+          onOpenChange={(v) => {
+            setIsPromotionDialogOpen(v);
+            if (!v) setEditingPromotion(null);
+          }}
+          editing={editingPromotion}
+          onSaved={handlePromotionSaved}
+        />
+      )}
+
+      {/* Delete promotion confirmation (HR/admin) */}
+      {isHRUser && (
+        <Dialog
+          open={deletingPromotion !== null}
+          onOpenChange={(v) => {
+            if (!v && !deletingPromotionBusy) setDeletingPromotion(null);
+          }}
+        >
+          <DialogContent className="max-w-md min-h-0">
+            <DialogHeader>
+              <DialogTitle>Delete promotion record</DialogTitle>
+              <DialogDescription>
+                {deletingPromotion
+                  ? `Delete the promotion for ${
+                      deletingPromotion.employeeName || "this employee"
+                    } dated ${formatDate(
+                      deletingPromotion.date
+                    )}? This cannot be undone.`
+                  : ""}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setDeletingPromotion(null)}
+                disabled={deletingPromotionBusy}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={confirmDeletePromotion}
+                disabled={deletingPromotionBusy}
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                {deletingPromotionBusy ? "Deleting…" : "Delete"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
@@ -1507,6 +1647,400 @@ function PostRoleDialog({
             >
               <Send className="w-3.5 h-3.5" />
               {posting ? "Posting…" : "Post role"}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ============ Promotions Tab ============ */
+function PromotionsTab({
+  promotions,
+  loading,
+  error,
+  isHRUser,
+  onAdd,
+  onEdit,
+  onDelete,
+}: {
+  promotions: PromotionRecord[];
+  loading: boolean;
+  error: string | null;
+  isHRUser: boolean;
+  onAdd: () => void;
+  onEdit: (p: PromotionRecord) => void;
+  onDelete: (p: PromotionRecord) => void;
+}) {
+  if (loading) {
+    return (
+      <div className="text-center py-8 text-sm text-gray-500 dark:text-gray-400">
+        Loading promotion history…
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-4">
+        <SectionHead
+          icon={<TrendingUp className="w-3 h-3" />}
+          title={isHRUser ? "Promotion records" : "Your promotion history"}
+          sub={
+            isHRUser
+              ? "Every recorded promotion across the organisation."
+              : "Milestones in your career advancement."
+          }
+        />
+        {isHRUser && (
+          <Button variant="primary" onClick={onAdd}>
+            <Plus className="w-3.5 h-3.5" />
+            Add promotion
+          </Button>
+        )}
+      </div>
+
+      {error && (
+        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          {error}
+        </div>
+      )}
+
+      {promotions.length === 0 ? (
+        <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg py-12 px-6 text-center">
+          <TrendingUp className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+          <h3 className="text-base font-medium mb-1">No promotions recorded</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            {isHRUser
+              ? "Record a promotion to start building employee career histories."
+              : "Your promotion history will appear here once HR records one."}
+          </p>
+          {isHRUser && (
+            <Button variant="outline" onClick={onAdd}>
+              <Plus className="w-3.5 h-3.5" />
+              Add promotion
+            </Button>
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {promotions.map((p) => (
+            <PromotionCard
+              key={p.id}
+              promotion={p}
+              isHRUser={isHRUser}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PromotionCard({
+  promotion,
+  isHRUser,
+  onEdit,
+  onDelete,
+}: {
+  promotion: PromotionRecord;
+  isHRUser: boolean;
+  onEdit: (p: PromotionRecord) => void;
+  onDelete: (p: PromotionRecord) => void;
+}) {
+  return (
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3.5">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            {isHRUser && (
+              <span className="text-[13.5px] font-semibold">
+                {promotion.employeeName || `Employee #${promotion.employeeId}`}
+              </span>
+            )}
+            <Pill
+              label={formatDate(promotion.date)}
+              bg="bg-emerald-50 text-emerald-700"
+              dot="bg-emerald-600"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-2 mt-2 text-sm">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[12px] text-gray-700 dark:text-gray-200">
+              {promotion.previousRoleName || "—"}
+            </span>
+            <ArrowRight className="w-3.5 h-3.5 text-gray-400" />
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 rounded text-[12px] font-medium">
+              {promotion.newRoleName || "—"}
+            </span>
+          </div>
+          {(promotion.previousCpfLevel || promotion.newCpfLevel) && (
+            <div className="text-[11.5px] text-gray-500 mt-1.5">
+              CPF: {promotion.previousCpfLevel || "—"} →{" "}
+              {promotion.newCpfLevel || "—"}
+            </div>
+          )}
+          {promotion.notes && (
+            <p className="text-xs mt-1.5 text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+              {promotion.notes}
+            </p>
+          )}
+        </div>
+        {isHRUser && (
+          <div className="flex shrink-0 gap-1">
+            <button
+              onClick={() => onEdit(promotion)}
+              className="w-7 h-7 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 grid place-items-center"
+              aria-label="Edit promotion"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => onDelete(promotion)}
+              className="w-7 h-7 rounded-md text-gray-500 hover:bg-red-50 hover:text-red-600 grid place-items-center"
+              aria-label="Delete promotion"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ============ Promotion Dialog ============ */
+const ROLE_NONE = "__none";
+
+function PromotionDialog({
+  open,
+  onOpenChange,
+  editing,
+  onSaved,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  editing: PromotionRecord | null;
+  onSaved: () => void | Promise<void>;
+}) {
+  const [employees, setEmployees] = useState<{ id: number; name: string }[]>(
+    []
+  );
+  const [roles, setRoles] = useState<{ id: number; name: string }[]>([]);
+  const [refsLoading, setRefsLoading] = useState(false);
+
+  const [employeeId, setEmployeeId] = useState<string>("");
+  const [previousRoleId, setPreviousRoleId] = useState<string>(ROLE_NONE);
+  const [newRoleId, setNewRoleId] = useState<string>(ROLE_NONE);
+  const [date, setDate] = useState<string>(
+    new Date().toISOString().slice(0, 10)
+  );
+  const [notes, setNotes] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    setRefsLoading(true);
+    Promise.all([
+      employeeApi
+        .listEmployees({ page_size: 200 })
+        .then((res) =>
+          res.results.map((e) => ({
+            id: e.id,
+            name: `${e.first_name} ${e.last_name}`.trim() || `#${e.id}`,
+          }))
+        )
+        .catch(() => [] as { id: number; name: string }[]),
+      employeeApi.getRoles().catch(() => [] as { id: number; name: string }[]),
+    ])
+      .then(([emps, rls]) => {
+        if (cancelled) return;
+        setEmployees(emps);
+        setRoles(rls);
+      })
+      .finally(() => {
+        if (!cancelled) setRefsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    if (editing) {
+      setEmployeeId(String(editing.employeeId));
+      setPreviousRoleId(
+        editing.previousRoleId != null
+          ? String(editing.previousRoleId)
+          : ROLE_NONE
+      );
+      setNewRoleId(
+        editing.newRoleId != null ? String(editing.newRoleId) : ROLE_NONE
+      );
+      setDate(editing.date);
+      setNotes(editing.notes);
+    } else {
+      setEmployeeId("");
+      setPreviousRoleId(ROLE_NONE);
+      setNewRoleId(ROLE_NONE);
+      setDate(new Date().toISOString().slice(0, 10));
+      setNotes("");
+    }
+    setError(null);
+  }, [open, editing]);
+
+  const submit = async () => {
+    if (!employeeId) {
+      setError("Select an employee.");
+      return;
+    }
+    if (!date) {
+      setError("Promotion date is required.");
+      return;
+    }
+    const payload: CreatePromotionPayload = {
+      employeeId: Number(employeeId),
+      previousRoleId:
+        previousRoleId === ROLE_NONE ? null : Number(previousRoleId),
+      newRoleId: newRoleId === ROLE_NONE ? null : Number(newRoleId),
+      date,
+      notes: notes.trim(),
+    };
+    setSaving(true);
+    setError(null);
+    try {
+      if (editing) {
+        await promotionsApi.updatePromotion(editing.id, payload);
+      } else {
+        await promotionsApi.createPromotion(payload);
+      }
+      await onSaved();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to save promotion."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle>
+            {editing ? "Edit promotion record" : "Record a promotion"}
+          </DialogTitle>
+          <DialogDescription>
+            Capture the role change, effective date, and any context worth
+            keeping in the employee&apos;s career history.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label>Employee</Label>
+            <Select value={employeeId} onValueChange={setEmployeeId}>
+              <SelectTrigger>
+                <SelectValue
+                  placeholder={
+                    refsLoading ? "Loading employees…" : "Select employee"
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {employees.map((e) => (
+                  <SelectItem key={e.id} value={String(e.id)}>
+                    {e.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Previous role</Label>
+              <Select value={previousRoleId} onValueChange={setPreviousRoleId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ROLE_NONE}>Unspecified</SelectItem>
+                  {roles.map((r) => (
+                    <SelectItem key={r.id} value={String(r.id)}>
+                      {r.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>New role</Label>
+              <Select value={newRoleId} onValueChange={setNewRoleId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ROLE_NONE}>Unspecified</SelectItem>
+                  {roles.map((r) => (
+                    <SelectItem key={r.id} value={String(r.id)}>
+                      {r.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="promo-date">Effective date</Label>
+            <Input
+              id="promo-date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="promo-notes">Notes</Label>
+            <Textarea
+              id="promo-notes"
+              rows={4}
+              placeholder="Context about the promotion — scope change, performance, sponsor…"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+          </div>
+
+          {error && (
+            <div className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+              <AlertCircle className="w-3.5 h-3.5 inline mr-1.5" />
+              {error}
+            </div>
+          )}
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+            <Button
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+              disabled={saving}
+            >
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={submit} disabled={saving}>
+              <Check className="w-3.5 h-3.5" />
+              {saving
+                ? "Saving…"
+                : editing
+                  ? "Save changes"
+                  : "Record promotion"}
             </Button>
           </div>
         </div>
