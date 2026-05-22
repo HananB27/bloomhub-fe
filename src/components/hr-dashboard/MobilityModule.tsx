@@ -44,6 +44,8 @@ import { useSession } from "next-auth/react";
 import { isHrLikeRole } from "@/lib/permissions/assets-permissions";
 import { jobListingsApi } from "@/lib/api/modules/jobListings";
 import { promotionsApi } from "@/lib/api/modules/promotions";
+import { cpfLevelChangesApi } from "@/lib/api/modules/cpf-level-changes";
+import { cpfLevelsApi } from "@/lib/api/modules/cpf-levels";
 import { employeeApi } from "@/lib/api/modules/employees";
 import { departmentsApi, type Department } from "@/lib/api/departments";
 import type {
@@ -57,6 +59,16 @@ import type {
   CreatePromotionPayload,
   PromotionRecord,
 } from "@/types/promotion";
+import {
+  ALL_CPF_CHANGE_SOURCES,
+  CPF_CHANGE_SOURCE_LABELS,
+  CPF_PROGRESSION_EVENT_TYPE_BADGE_COLORS,
+  CPF_PROGRESSION_EVENT_TYPE_LABELS,
+  type CPFChangeSource,
+  type CPFProgression,
+  type CPFProgressionEvent,
+  type CreateCPFLevelChangePayload,
+} from "@/types/cpf";
 
 const DEPARTMENT_FILTER_ALL = "all";
 
@@ -158,7 +170,7 @@ function Pill({ label, bg, dot }: { label: string; bg: string; dot: string }) {
   );
 }
 
-type TabKey = "jobs" | "applications" | "history" | "promotions";
+type TabKey = "jobs" | "applications" | "history" | "promotions" | "cpf";
 
 export function MobilityModule() {
   const { data: session } = useSession();
@@ -446,7 +458,7 @@ export function MobilityModule() {
                 Post a role
               </Button>
             )}
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => setActiveTab("cpf")}>
               <Layers className="w-3.5 h-3.5" />
               CPF ladder
             </Button>
@@ -504,6 +516,11 @@ export function MobilityModule() {
             active={activeTab === "promotions"}
             onClick={() => setActiveTab("promotions")}
           />
+          <TabButton
+            label="Career progression"
+            active={activeTab === "cpf"}
+            onClick={() => setActiveTab("cpf")}
+          />
         </nav>
       </header>
 
@@ -559,6 +576,7 @@ export function MobilityModule() {
             onDelete={setDeletingPromotion}
           />
         )}
+        {activeTab === "cpf" && <CPFProgressionTab isHRUser={isHRUser} />}
       </div>
 
       {/* Role drawer (overlay) */}
@@ -698,7 +716,7 @@ function TabButton({
   onClick,
 }: {
   label: string;
-  count: number;
+  count?: number;
   active: boolean;
   onClick: () => void;
 }) {
@@ -712,15 +730,17 @@ function TabButton({
       }`}
     >
       {label}
-      <span
-        className={`text-[11px] font-mono font-medium px-1.5 py-0.5 rounded ${
-          active
-            ? "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900"
-            : "bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300"
-        }`}
-      >
-        {count}
-      </span>
+      {count !== undefined && (
+        <span
+          className={`text-[11px] font-mono font-medium px-1.5 py-0.5 rounded ${
+            active
+              ? "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900"
+              : "bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300"
+          }`}
+        >
+          {count}
+        </span>
+      )}
     </button>
   );
 }
@@ -2041,6 +2061,514 @@ function PromotionDialog({
                 : editing
                   ? "Save changes"
                   : "Record promotion"}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ============ Career Progression (CPF) Tab ============ */
+interface CPFEmployeeOption {
+  id: number;
+  name: string;
+  cpfLevel: string;
+  roleName: string;
+}
+
+function CPFProgressionTab({ isHRUser }: { isHRUser: boolean }) {
+  const [employees, setEmployees] = useState<CPFEmployeeOption[]>([]);
+  const [selectedEmployee, setSelectedEmployee] = useState<string>("");
+  const [progression, setProgression] = useState<CPFProgression | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isRecordDialogOpen, setIsRecordDialogOpen] = useState(false);
+
+  // HR picks whose timeline to view. The roster carries each employee's
+  // current CPF level, so it is refreshed after every recorded change.
+  const loadEmployees = useCallback(async () => {
+    if (!isHRUser) return;
+    try {
+      const res = await employeeApi.listEmployees({ page_size: 200 });
+      setEmployees(
+        res.results.map((e) => ({
+          id: e.id,
+          name: `${e.first_name} ${e.last_name}`.trim() || `#${e.id}`,
+          cpfLevel: e.cpf_level ?? "",
+          roleName: e.role?.name ?? "",
+        }))
+      );
+    } catch {
+      setEmployees([]);
+    }
+  }, [isHRUser]);
+
+  useEffect(() => {
+    void loadEmployees();
+  }, [loadEmployees]);
+
+  const load = useCallback(async () => {
+    // HR must select an employee; everyone else gets their own timeline.
+    if (isHRUser && !selectedEmployee) {
+      setProgression(null);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await cpfLevelChangesApi.getProgression(
+        isHRUser ? Number(selectedEmployee) : undefined
+      );
+      setProgression(data);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to load CPF progression."
+      );
+      setProgression(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [isHRUser, selectedEmployee]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const handleRecorded = async () => {
+    setIsRecordDialogOpen(false);
+    await Promise.all([load(), loadEmployees()]);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <SectionHead
+          icon={<TrendingUp className="w-3 h-3" />}
+          title={isHRUser ? "Career progression" : "Your career progression"}
+          sub="CPF level advancement over time — recorded changes and review outcomes."
+        />
+        <div className="flex items-center gap-2">
+          {isHRUser && (
+            <Select
+              value={selectedEmployee}
+              onValueChange={setSelectedEmployee}
+            >
+              <SelectTrigger className="w-56 h-9">
+                <SelectValue placeholder="Select employee" />
+              </SelectTrigger>
+              <SelectContent>
+                {employees.map((e) => (
+                  <SelectItem key={e.id} value={String(e.id)}>
+                    {e.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          {isHRUser && (
+            <Button
+              variant="primary"
+              onClick={() => setIsRecordDialogOpen(true)}
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Record CPF change
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {error && (
+        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          {error}
+        </div>
+      )}
+
+      {isHRUser && !selectedEmployee ? (
+        <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg py-12 px-6 text-center">
+          <Layers className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+          <h3 className="text-base font-medium mb-1">Pick an employee</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Select an employee above to view their CPF career progression
+            timeline.
+          </p>
+        </div>
+      ) : loading ? (
+        <div className="text-center py-8 text-sm text-gray-500 dark:text-gray-400">
+          Loading career progression…
+        </div>
+      ) : progression ? (
+        <CPFProgressionView progression={progression} />
+      ) : null}
+
+      {isHRUser && (
+        <CPFChangeDialog
+          open={isRecordDialogOpen}
+          onOpenChange={setIsRecordDialogOpen}
+          employees={employees}
+          defaultEmployeeId={selectedEmployee}
+          onSaved={handleRecorded}
+        />
+      )}
+    </div>
+  );
+}
+
+function CPFProgressionView({ progression }: { progression: CPFProgression }) {
+  const { timeline } = progression;
+  return (
+    <div className="space-y-4">
+      {/* Current level summary */}
+      <div className="flex items-center gap-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3.5">
+        <div className="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 grid place-items-center shrink-0">
+          <Award className="w-5 h-5 text-indigo-600 dark:text-indigo-300" />
+        </div>
+        <div className="min-w-0">
+          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500">
+            Current CPF level
+          </div>
+          <div className="text-lg font-semibold tracking-tight">
+            {progression.currentLevel || "Not set"}
+          </div>
+        </div>
+        <div className="ml-auto text-right">
+          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500">
+            Timeline events
+          </div>
+          <div className="text-lg font-semibold tabular-nums">
+            {timeline.length}
+          </div>
+        </div>
+      </div>
+
+      {timeline.length === 0 ? (
+        <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg py-12 px-6 text-center">
+          <TrendingUp className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+          <h3 className="text-base font-medium mb-1">No progression yet</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            CPF level changes and review outcomes will appear here as a
+            timeline.
+          </p>
+        </div>
+      ) : (
+        <ol className="relative pl-6">
+          {/* connecting line */}
+          <span className="absolute left-[9px] top-1.5 bottom-1.5 w-px bg-gray-200 dark:bg-gray-700" />
+          {timeline.map((event, i) => (
+            <CPFTimelineNode
+              key={`${event.eventType}-${event.referenceId ?? "x"}-${i}`}
+              event={event}
+            />
+          ))}
+        </ol>
+      )}
+    </div>
+  );
+}
+
+function CPFTimelineNode({ event }: { event: CPFProgressionEvent }) {
+  return (
+    <li className="relative pb-4 last:pb-0">
+      {/* node dot */}
+      <span className="absolute -left-[15px] top-2 w-2.5 h-2.5 rounded-full bg-white dark:bg-gray-800 border-2 border-indigo-500" />
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${
+              CPF_PROGRESSION_EVENT_TYPE_BADGE_COLORS[event.eventType]
+            }`}
+          >
+            {CPF_PROGRESSION_EVENT_TYPE_LABELS[event.eventType]}
+          </span>
+          <span className="text-[11.5px] text-gray-500 tabular-nums">
+            {formatDate(event.date)}
+          </span>
+          {event.cpfScore !== null && (
+            <span className="ml-auto text-[11px] text-gray-500">
+              CPF score{" "}
+              <span className="font-semibold text-gray-900 dark:text-gray-100">
+                {event.cpfScore}
+              </span>
+            </span>
+          )}
+        </div>
+        <div className="flex flex-wrap items-center gap-2 mt-2 text-sm">
+          <span className="inline-flex items-center px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[12px] text-gray-700 dark:text-gray-200">
+            {event.previousLevel || "—"}
+          </span>
+          <ArrowRight className="w-3.5 h-3.5 text-gray-400" />
+          <span className="inline-flex items-center px-2 py-0.5 bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 rounded text-[12px] font-medium">
+            {event.newLevel || "—"}
+          </span>
+        </div>
+        {event.referenceLabel && (
+          <div className="text-[11.5px] text-gray-500 mt-1.5">
+            {event.referenceLabel}
+          </div>
+        )}
+        {event.notes && (
+          <p className="text-xs mt-1.5 text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+            {event.notes}
+          </p>
+        )}
+      </div>
+    </li>
+  );
+}
+
+function CPFChangeDialog({
+  open,
+  onOpenChange,
+  employees,
+  defaultEmployeeId,
+  onSaved,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  employees: CPFEmployeeOption[];
+  defaultEmployeeId: string;
+  onSaved: () => void | Promise<void>;
+}) {
+  const [employeeId, setEmployeeId] = useState<string>("");
+  const [newLevel, setNewLevel] = useState("");
+  const [effectiveDate, setEffectiveDate] = useState<string>(
+    new Date().toISOString().slice(0, 10)
+  );
+  const [source, setSource] = useState<CPFChangeSource>("manual");
+  const [cpfScore, setCpfScore] = useState<string>("");
+  const [notes, setNotes] = useState("");
+  const [roleLevels, setRoleLevels] = useState<string[]>([]);
+  const [levelsLoading, setLevelsLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const selectedEmp =
+    employees.find((e) => String(e.id) === employeeId) ?? null;
+  // Previous level is the employee's actual current CPF level — never typed.
+  const previousLevel = selectedEmp?.cpfLevel ?? "";
+  // The ladder is ordered; offer only levels above the current one.
+  const currentIdx = roleLevels.indexOf(previousLevel);
+  const nextLevels =
+    currentIdx >= 0 ? roleLevels.slice(currentIdx + 1) : roleLevels;
+
+  useEffect(() => {
+    if (!open) return;
+    setEmployeeId(defaultEmployeeId || "");
+    setNewLevel("");
+    setEffectiveDate(new Date().toISOString().slice(0, 10));
+    setSource("manual");
+    setCpfScore("");
+    setNotes("");
+    setRoleLevels([]);
+    setError(null);
+  }, [open, defaultEmployeeId]);
+
+  // Load the selected employee's role-specific CPF ladder.
+  useEffect(() => {
+    const emp = employees.find((e) => String(e.id) === employeeId);
+    if (!open || !emp || !emp.roleName) {
+      setRoleLevels([]);
+      return;
+    }
+    let cancelled = false;
+    setLevelsLoading(true);
+    setNewLevel("");
+    cpfLevelsApi
+      .getCPFLevelsByRole(emp.roleName)
+      .then((levels) => {
+        if (!cancelled) setRoleLevels(levels);
+      })
+      .catch(() => {
+        if (!cancelled) setRoleLevels([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLevelsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, employeeId, employees]);
+
+  const submit = async () => {
+    if (!employeeId) {
+      setError("Select an employee.");
+      return;
+    }
+    if (!newLevel) {
+      setError("Select a new CPF level.");
+      return;
+    }
+    if (!effectiveDate) {
+      setError("Effective date is required.");
+      return;
+    }
+    const score = cpfScore.trim() === "" ? null : Number(cpfScore);
+    if (score !== null && (Number.isNaN(score) || score < 0 || score > 100)) {
+      setError("CPF score must be a number between 0 and 100.");
+      return;
+    }
+    const payload: CreateCPFLevelChangePayload = {
+      employeeId: Number(employeeId),
+      previousLevel,
+      newLevel,
+      effectiveDate,
+      source,
+      cpfScore: score,
+      notes: notes.trim(),
+    };
+    setSaving(true);
+    setError(null);
+    try {
+      await cpfLevelChangesApi.createChange(payload);
+      await onSaved();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to record CPF change."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle>Record a CPF level change</DialogTitle>
+          <DialogDescription>
+            Capture a Career Progression Framework level change for an
+            employee&apos;s longitudinal history.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label>Employee</Label>
+            <Select value={employeeId} onValueChange={setEmployeeId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select employee" />
+              </SelectTrigger>
+              <SelectContent>
+                {employees.map((e) => (
+                  <SelectItem key={e.id} value={String(e.id)}>
+                    {e.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Previous level</Label>
+              <div className="h-9 px-3 flex items-center rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 text-sm text-gray-700 dark:text-gray-200">
+                {employeeId ? previousLevel || "Not set" : "—"}
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label>New level</Label>
+              <Select
+                value={newLevel}
+                onValueChange={setNewLevel}
+                disabled={
+                  !employeeId || levelsLoading || nextLevels.length === 0
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue
+                    placeholder={
+                      !employeeId
+                        ? "Select an employee first"
+                        : levelsLoading
+                          ? "Loading levels…"
+                          : nextLevels.length === 0
+                            ? "No higher level available"
+                            : "Select new level"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {nextLevels.map((lvl) => (
+                    <SelectItem key={lvl} value={lvl}>
+                      {lvl}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="cpf-date">Effective date</Label>
+              <Input
+                id="cpf-date"
+                type="date"
+                value={effectiveDate}
+                onChange={(e) => setEffectiveDate(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Source</Label>
+              <Select
+                value={source}
+                onValueChange={(v) => setSource(v as CPFChangeSource)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ALL_CPF_CHANGE_SOURCES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {CPF_CHANGE_SOURCE_LABELS[s]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="cpf-score">CPF score (0–100)</Label>
+              <Input
+                id="cpf-score"
+                type="number"
+                min={0}
+                max={100}
+                placeholder="Optional"
+                value={cpfScore}
+                onChange={(e) => setCpfScore(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="cpf-notes">Notes</Label>
+            <Textarea
+              id="cpf-notes"
+              rows={3}
+              placeholder="Context — review outcome, sponsor, rationale…"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+          </div>
+
+          {error && (
+            <div className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+              <AlertCircle className="w-3.5 h-3.5 inline mr-1.5" />
+              {error}
+            </div>
+          )}
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+            <Button
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+              disabled={saving}
+            >
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={submit} disabled={saving}>
+              <Check className="w-3.5 h-3.5" />
+              {saving ? "Saving…" : "Record change"}
             </Button>
           </div>
         </div>
