@@ -52,7 +52,8 @@ export function filterAndSortProjects(
       (p) =>
         p.name.toLowerCase().includes(q) ||
         p.client.toLowerCase().includes(q) ||
-        p.code.toLowerCase().includes(q)
+        p.code.toLowerCase().includes(q) ||
+        p.members.some((m) => (m.name ?? "").toLowerCase().includes(q))
     );
   }
   if (filters.status !== "All")

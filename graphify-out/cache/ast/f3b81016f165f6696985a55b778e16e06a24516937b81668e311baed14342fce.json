@@ -1,0 +1,470 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_lib_api_permissions_ts",
+      "label": "permissions.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "api_permissions_employee_permissions",
+      "label": "EMPLOYEE_PERMISSIONS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L5"
+    },
+    {
+      "id": "api_permissions_getbitvalue",
+      "label": "getBitValue()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L21"
+    },
+    {
+      "id": "api_permissions_haspermission",
+      "label": "hasPermission()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L26"
+    },
+    {
+      "id": "api_permissions_hasallpermissions",
+      "label": "hasAllPermissions()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L40"
+    },
+    {
+      "id": "api_permissions_hasanypermission",
+      "label": "hasAnyPermission()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L47"
+    },
+    {
+      "id": "api_permissions_addpermission",
+      "label": "addPermission()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L54"
+    },
+    {
+      "id": "api_permissions_removepermission",
+      "label": "removePermission()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L61"
+    },
+    {
+      "id": "api_permissions_getpermissionbits",
+      "label": "getPermissionBits()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L68"
+    },
+    {
+      "id": "api_permissions_getpermissionnames",
+      "label": "getPermissionNames()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L80"
+    },
+    {
+      "id": "api_permissions_permission_requirements",
+      "label": "PERMISSION_REQUIREMENTS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L88"
+    },
+    {
+      "id": "api_permissions_getuserpermissions",
+      "label": "getUserPermissions()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L123"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_permissions_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_tokens_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_permissions_ts",
+      "target": "api_tokens_getaccesstoken",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_permissions_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_refresh_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_permissions_ts",
+      "target": "api_refresh_fetchwithauthretry",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_permissions_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_config_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_permissions_ts",
+      "target": "lib_config_getapibaseurl",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_permissions_ts",
+      "target": "api_permissions_employee_permissions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_permissions_ts",
+      "target": "api_permissions_getbitvalue",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_permissions_ts",
+      "target": "api_permissions_haspermission",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_permissions_ts",
+      "target": "api_permissions_hasallpermissions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_permissions_ts",
+      "target": "api_permissions_hasanypermission",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L47",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_permissions_ts",
+      "target": "api_permissions_addpermission",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_permissions_ts",
+      "target": "api_permissions_removepermission",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_permissions_ts",
+      "target": "api_permissions_getpermissionbits",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L68",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_permissions_ts",
+      "target": "api_permissions_getpermissionnames",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_permissions_ts",
+      "target": "api_permissions_permission_requirements",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L88",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_permissions_ts",
+      "target": "api_permissions_getuserpermissions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L123",
+      "weight": 1.0
+    },
+    {
+      "source": "api_permissions_addpermission",
+      "target": "api_permissions_getbitvalue",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "api_permissions_removepermission",
+      "target": "api_permissions_getbitvalue",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L65",
+      "weight": 1.0
+    },
+    {
+      "source": "api_permissions_getpermissionbits",
+      "target": "api_permissions_haspermission",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L75",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "api_permissions_getbitvalue",
+      "callee": "pow",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L22"
+    },
+    {
+      "caller_nid": "api_permissions_haspermission",
+      "callee": "BigInt",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "api_permissions_haspermission",
+      "callee": "BigInt",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "api_permissions_haspermission",
+      "callee": "isSafeInteger",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "api_permissions_haspermission",
+      "callee": "BigInt",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "api_permissions_haspermission",
+      "callee": "BigInt",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L36"
+    },
+    {
+      "caller_nid": "api_permissions_haspermission",
+      "callee": "BigInt",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "api_permissions_hasallpermissions",
+      "callee": "every",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "api_permissions_hasanypermission",
+      "callee": "some",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "api_permissions_getpermissionbits",
+      "callee": "max",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "api_permissions_getpermissionbits",
+      "callee": "values",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "api_permissions_getpermissionbits",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L75"
+    },
+    {
+      "caller_nid": "api_permissions_getpermissionnames",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L83"
+    },
+    {
+      "caller_nid": "api_permissions_getpermissionnames",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L83"
+    },
+    {
+      "caller_nid": "api_permissions_getpermissionnames",
+      "callee": "entries",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L83"
+    },
+    {
+      "caller_nid": "api_permissions_getuserpermissions",
+      "callee": "getAccessToken",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "api_permissions_getuserpermissions",
+      "callee": "fetchWithAuthRetry",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "api_permissions_getuserpermissions",
+      "callee": "getApiBaseUrl",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L129"
+    },
+    {
+      "caller_nid": "api_permissions_getuserpermissions",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L140"
+    },
+    {
+      "caller_nid": "api_permissions_getuserpermissions",
+      "callee": "decimalString",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L146"
+    },
+    {
+      "caller_nid": "api_permissions_getuserpermissions",
+      "callee": "decimalString",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L146"
+    },
+    {
+      "caller_nid": "api_permissions_getuserpermissions",
+      "callee": "BigInt",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L149"
+    },
+    {
+      "caller_nid": "api_permissions_getuserpermissions",
+      "callee": "isSafeInteger",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L157"
+    },
+    {
+      "caller_nid": "api_permissions_getuserpermissions",
+      "callee": "isSafeInteger",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L163"
+    },
+    {
+      "caller_nid": "api_permissions_getuserpermissions",
+      "callee": "isArray",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L168"
+    },
+    {
+      "caller_nid": "api_permissions_getuserpermissions",
+      "callee": "reduce",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L169"
+    },
+    {
+      "caller_nid": "api_permissions_getuserpermissions",
+      "callee": "BigInt",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts",
+      "source_location": "L172"
+    }
+  ]
+}

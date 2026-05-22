@@ -1,0 +1,17 @@
+{
+  "nodes": [
+    {
+      "id": "workflows_deploy_production",
+      "label": "deploy-production workflow",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/.github/workflows/deploy-production.yml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

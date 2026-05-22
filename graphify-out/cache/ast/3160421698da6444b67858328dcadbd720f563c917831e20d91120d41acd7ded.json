@@ -1,0 +1,158 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_types_joblisting_ts",
+      "label": "jobListing.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "types_joblisting_joblistingstatus",
+      "label": "JobListingStatus",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "types_joblisting_applicationstatus",
+      "label": "ApplicationStatus",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L3"
+    },
+    {
+      "id": "types_joblisting_joblisting",
+      "label": "JobListing",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L11"
+    },
+    {
+      "id": "types_joblisting_joblistingdetail",
+      "label": "JobListingDetail",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L25"
+    },
+    {
+      "id": "types_joblisting_jobapplication",
+      "label": "JobApplication",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L32"
+    },
+    {
+      "id": "types_joblisting_joblistingfilters",
+      "label": "JobListingFilters",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L46"
+    },
+    {
+      "id": "types_joblisting_applytolistingpayload",
+      "label": "ApplyToListingPayload",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L52"
+    },
+    {
+      "id": "types_joblisting_createlistingpayload",
+      "label": "CreateListingPayload",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L56"
+    },
+    {
+      "id": "types_joblisting_updateapplicationstatuspayload",
+      "label": "UpdateApplicationStatusPayload",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L65"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_joblisting_ts",
+      "target": "types_joblisting_joblistingstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_joblisting_ts",
+      "target": "types_joblisting_applicationstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_joblisting_ts",
+      "target": "types_joblisting_joblisting",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_joblisting_ts",
+      "target": "types_joblisting_joblistingdetail",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_joblisting_ts",
+      "target": "types_joblisting_jobapplication",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_joblisting_ts",
+      "target": "types_joblisting_joblistingfilters",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_joblisting_ts",
+      "target": "types_joblisting_applytolistingpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_joblisting_ts",
+      "target": "types_joblisting_createlistingpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_joblisting_ts",
+      "target": "types_joblisting_updateapplicationstatuspayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts",
+      "source_location": "L65",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

@@ -23,6 +23,7 @@ import {
   uiStatusToApi,
 } from "./projectsHelpers";
 import { projectApi } from "@/lib/api/modules/projects";
+import { consumeOpenProjectRequest } from "../orgchart/crossModuleNav";
 import { getProjectDefaults } from "@/lib/projects/adminSettings";
 import type {
   Project,
@@ -49,7 +50,12 @@ export function ProjectsModule({
   onNavigate,
 }: ProjectsModuleProps) {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(initialProjectId);
+  // Hydrate from cross-module nav request first (e.g. clicked from an
+  // employee profile chip), fall back to explicit prop.
+  const [activeId, setActiveId] = useState<string | null>(() => {
+    const pending = consumeOpenProjectRequest();
+    return pending ?? initialProjectId;
+  });
   const [showCreate, setShowCreate] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [addMemberFor, setAddMemberFor] = useState<Project | null>(null);
@@ -73,6 +79,31 @@ export function ProjectsModule({
       .then((res) => {
         setProjects(res.results.map(apiProjectToUi));
         setLoadState("populated");
+
+        // The list endpoint omits `active_members` (only the detail endpoint
+        // returns them), so cards render with 0 avatars until the user opens
+        // a project. Hydrate member rosters in parallel via detail fetches
+        // so cards fill in shortly after the list paints.
+        // TODO[BHB-projects]: drop this once `GET /api/projects/` includes
+        // `active_members` (or at least a slim member list) in the list
+        // response.
+        for (const apiProject of res.results) {
+          if (controller.signal.aborted) break;
+          if (apiProject.active_members && apiProject.active_members.length > 0)
+            continue;
+          projectApi
+            .get(apiProject.id, { signal: controller.signal })
+            .then((fresh) => {
+              const ui = apiProjectToUi(fresh);
+              setProjects((arr) =>
+                arr.map((p) => (p.api_id === ui.api_id ? ui : p))
+              );
+            })
+            .catch((err: unknown) => {
+              if ((err as { name?: string })?.name === "AbortError") return;
+              // Swallow: card just stays without members until next refresh.
+            });
+        }
       })
       .catch((err: unknown) => {
         if ((err as { name?: string })?.name === "AbortError") return;

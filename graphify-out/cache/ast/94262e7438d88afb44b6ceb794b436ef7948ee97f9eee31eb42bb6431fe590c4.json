@@ -1,0 +1,940 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "label": "onboarding.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "api_onboarding_buildapiurl",
+      "label": "buildApiUrl()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L5"
+    },
+    {
+      "id": "api_onboarding_getauthheaders",
+      "label": "getAuthHeaders()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L11"
+    },
+    {
+      "id": "api_onboarding_templaterole",
+      "label": "TemplateRole",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L27"
+    },
+    {
+      "id": "api_onboarding_tasktemplate",
+      "label": "TaskTemplate",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L29"
+    },
+    {
+      "id": "api_onboarding_checklisttemplate",
+      "label": "ChecklistTemplate",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L35"
+    },
+    {
+      "id": "api_onboarding_userprofilesummary",
+      "label": "UserProfileSummary",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L43"
+    },
+    {
+      "id": "api_onboarding_checklistinstance",
+      "label": "ChecklistInstance",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L55"
+    },
+    {
+      "id": "api_onboarding_checklistinstancesummary",
+      "label": "ChecklistInstanceSummary",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L64"
+    },
+    {
+      "id": "api_onboarding_checklisttaskstatus",
+      "label": "ChecklistTaskStatus",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L66"
+    },
+    {
+      "id": "api_onboarding_task_status_labels",
+      "label": "TASK_STATUS_LABELS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L68"
+    },
+    {
+      "id": "api_onboarding_task_status_badge_colors",
+      "label": "TASK_STATUS_BADGE_COLORS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L74"
+    },
+    {
+      "id": "api_onboarding_checklisttask",
+      "label": "ChecklistTask",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L80"
+    },
+    {
+      "id": "api_onboarding_checklisttemplateinput",
+      "label": "ChecklistTemplateInput",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L91"
+    },
+    {
+      "id": "api_onboarding_parseresponse",
+      "label": "parseResponse()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L93"
+    },
+    {
+      "id": "api_onboarding_fetchtemplates",
+      "label": "fetchTemplates()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L125"
+    },
+    {
+      "id": "api_onboarding_createtemplate",
+      "label": "createTemplate()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L134"
+    },
+    {
+      "id": "api_onboarding_updatetemplate",
+      "label": "updateTemplate()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L146"
+    },
+    {
+      "id": "api_onboarding_deletetemplate",
+      "label": "deleteTemplate()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L162"
+    },
+    {
+      "id": "api_onboarding_clonetemplate",
+      "label": "cloneTemplate()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L178"
+    },
+    {
+      "id": "api_onboarding_fetchmytasks",
+      "label": "fetchMyTasks()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L192"
+    },
+    {
+      "id": "api_onboarding_fetchemployeetasks",
+      "label": "fetchEmployeeTasks()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L199"
+    },
+    {
+      "id": "api_onboarding_updatetaskstatus",
+      "label": "updateTaskStatus()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L212"
+    },
+    {
+      "id": "api_onboarding_fetchinstances",
+      "label": "fetchInstances()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L228"
+    },
+    {
+      "id": "api_onboarding_createchecklistinstance",
+      "label": "createChecklistInstance()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L237"
+    },
+    {
+      "id": "api_onboarding_deleteinstance",
+      "label": "deleteInstance()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L258"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_utils_api_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "utils_api_apierror",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_config_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "lib_config_api_base_url",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_buildapiurl",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_getauthheaders",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_templaterole",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_tasktemplate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_checklisttemplate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_userprofilesummary",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_checklistinstance",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_checklistinstancesummary",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L64",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_checklisttaskstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_task_status_labels",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L68",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_task_status_badge_colors",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L74",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_checklisttask",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_checklisttemplateinput",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_parseresponse",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_fetchtemplates",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L125",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_createtemplate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L134",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_updatetemplate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L146",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_deletetemplate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L162",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_clonetemplate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L178",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_fetchmytasks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L192",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_fetchemployeetasks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L199",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_updatetaskstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L212",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_fetchinstances",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L228",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_createchecklistinstance",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L237",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_onboarding_ts",
+      "target": "api_onboarding_deleteinstance",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L258",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_fetchtemplates",
+      "target": "api_onboarding_buildapiurl",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L128",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_fetchtemplates",
+      "target": "api_onboarding_getauthheaders",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L129",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_fetchtemplates",
+      "target": "api_onboarding_parseresponse",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L131",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_createtemplate",
+      "target": "api_onboarding_buildapiurl",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L138",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_createtemplate",
+      "target": "api_onboarding_getauthheaders",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L140",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_createtemplate",
+      "target": "api_onboarding_parseresponse",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L143",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_updatetemplate",
+      "target": "api_onboarding_buildapiurl",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L152",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_updatetemplate",
+      "target": "api_onboarding_getauthheaders",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L155",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_updatetemplate",
+      "target": "api_onboarding_parseresponse",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L159",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_deletetemplate",
+      "target": "api_onboarding_buildapiurl",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L167",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_deletetemplate",
+      "target": "api_onboarding_getauthheaders",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L170",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_clonetemplate",
+      "target": "api_onboarding_buildapiurl",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L183",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_clonetemplate",
+      "target": "api_onboarding_getauthheaders",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L186",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_clonetemplate",
+      "target": "api_onboarding_parseresponse",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L189",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_fetchmytasks",
+      "target": "api_onboarding_buildapiurl",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L193",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_fetchmytasks",
+      "target": "api_onboarding_getauthheaders",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L194",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_fetchmytasks",
+      "target": "api_onboarding_parseresponse",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L196",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_fetchemployeetasks",
+      "target": "api_onboarding_buildapiurl",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L204",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_fetchemployeetasks",
+      "target": "api_onboarding_getauthheaders",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L206",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_fetchemployeetasks",
+      "target": "api_onboarding_parseresponse",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L209",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_updatetaskstatus",
+      "target": "api_onboarding_buildapiurl",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L218",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_updatetaskstatus",
+      "target": "api_onboarding_getauthheaders",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L221",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_updatetaskstatus",
+      "target": "api_onboarding_parseresponse",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L225",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_fetchinstances",
+      "target": "api_onboarding_buildapiurl",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L231",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_fetchinstances",
+      "target": "api_onboarding_getauthheaders",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L232",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_fetchinstances",
+      "target": "api_onboarding_parseresponse",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L234",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_createchecklistinstance",
+      "target": "api_onboarding_buildapiurl",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L244",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_createchecklistinstance",
+      "target": "api_onboarding_getauthheaders",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L246",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_createchecklistinstance",
+      "target": "api_onboarding_parseresponse",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L255",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_deleteinstance",
+      "target": "api_onboarding_buildapiurl",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L263",
+      "weight": 1.0
+    },
+    {
+      "source": "api_onboarding_deleteinstance",
+      "target": "api_onboarding_getauthheaders",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L266",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "api_onboarding_buildapiurl",
+      "callee": "replace",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L6"
+    },
+    {
+      "caller_nid": "api_onboarding_buildapiurl",
+      "callee": "replace",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L7"
+    },
+    {
+      "caller_nid": "api_onboarding_getauthheaders",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L12"
+    },
+    {
+      "caller_nid": "api_onboarding_parseresponse",
+      "callee": "get",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "api_onboarding_parseresponse",
+      "callee": "text",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "api_onboarding_parseresponse",
+      "callee": "includes",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "api_onboarding_parseresponse",
+      "callee": "toLowerCase",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "api_onboarding_parseresponse",
+      "callee": "parse",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L101"
+    },
+    {
+      "caller_nid": "api_onboarding_parseresponse",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L119"
+    },
+    {
+      "caller_nid": "api_onboarding_fetchtemplates",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "api_onboarding_createtemplate",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L138"
+    },
+    {
+      "caller_nid": "api_onboarding_createtemplate",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L141"
+    },
+    {
+      "caller_nid": "api_onboarding_updatetemplate",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "api_onboarding_updatetemplate",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L156"
+    },
+    {
+      "caller_nid": "api_onboarding_deletetemplate",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L166"
+    },
+    {
+      "caller_nid": "api_onboarding_clonetemplate",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L182"
+    },
+    {
+      "caller_nid": "api_onboarding_fetchmytasks",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L193"
+    },
+    {
+      "caller_nid": "api_onboarding_fetchemployeetasks",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L203"
+    },
+    {
+      "caller_nid": "api_onboarding_updatetaskstatus",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L217"
+    },
+    {
+      "caller_nid": "api_onboarding_updatetaskstatus",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L222"
+    },
+    {
+      "caller_nid": "api_onboarding_fetchinstances",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L231"
+    },
+    {
+      "caller_nid": "api_onboarding_createchecklistinstance",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L244"
+    },
+    {
+      "caller_nid": "api_onboarding_createchecklistinstance",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L247"
+    },
+    {
+      "caller_nid": "api_onboarding_createchecklistinstance",
+      "callee": "keys",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L252"
+    },
+    {
+      "caller_nid": "api_onboarding_deleteinstance",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts",
+      "source_location": "L262"
+    }
+  ]
+}

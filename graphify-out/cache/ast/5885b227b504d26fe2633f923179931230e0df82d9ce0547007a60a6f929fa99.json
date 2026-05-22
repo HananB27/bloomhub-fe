@@ -1,0 +1,138 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_statuspill_tsx",
+      "label": "StatusPill.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/StatusPill.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "atoms_statuspill_employeestatuskey",
+      "label": "EmployeeStatusKey",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/StatusPill.tsx",
+      "source_location": "L7"
+    },
+    {
+      "id": "atoms_statuspill_statusvisual",
+      "label": "StatusVisual",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/StatusPill.tsx",
+      "source_location": "L13"
+    },
+    {
+      "id": "atoms_statuspill_employee_status_visuals",
+      "label": "EMPLOYEE_STATUS_VISUALS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/StatusPill.tsx",
+      "source_location": "L20"
+    },
+    {
+      "id": "atoms_statuspill_getemployeestatusvisual",
+      "label": "getEmployeeStatusVisual()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/StatusPill.tsx",
+      "source_location": "L32"
+    },
+    {
+      "id": "atoms_statuspill_statuspillprops",
+      "label": "StatusPillProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/StatusPill.tsx",
+      "source_location": "L36"
+    },
+    {
+      "id": "atoms_statuspill_statuspill",
+      "label": "StatusPill()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/StatusPill.tsx",
+      "source_location": "L42"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_statuspill_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_utils_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/StatusPill.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_statuspill_tsx",
+      "target": "ui_utils_cn",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/StatusPill.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_statuspill_tsx",
+      "target": "atoms_statuspill_employeestatuskey",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/StatusPill.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_statuspill_tsx",
+      "target": "atoms_statuspill_statusvisual",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/StatusPill.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_statuspill_tsx",
+      "target": "atoms_statuspill_employee_status_visuals",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/StatusPill.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_statuspill_tsx",
+      "target": "atoms_statuspill_getemployeestatusvisual",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/StatusPill.tsx",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_statuspill_tsx",
+      "target": "atoms_statuspill_statuspillprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/StatusPill.tsx",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_statuspill_tsx",
+      "target": "atoms_statuspill_statuspill",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/StatusPill.tsx",
+      "source_location": "L42",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "atoms_statuspill_statuspill",
+      "callee": "cn",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/StatusPill.tsx",
+      "source_location": "L46"
+    }
+  ]
+}

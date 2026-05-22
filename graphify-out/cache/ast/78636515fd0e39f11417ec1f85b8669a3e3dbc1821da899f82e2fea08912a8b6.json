@@ -1,0 +1,382 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "label": "vacations.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "types_vacations_leavetype",
+      "label": "LeaveType",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "types_vacations_leavestatus",
+      "label": "LeaveStatus",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L11"
+    },
+    {
+      "id": "types_vacations_leave_status_labels",
+      "label": "LEAVE_STATUS_LABELS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L18"
+    },
+    {
+      "id": "types_vacations_leave_status_badge_colors",
+      "label": "LEAVE_STATUS_BADGE_COLORS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L26"
+    },
+    {
+      "id": "types_vacations_all_leave_statuses",
+      "label": "ALL_LEAVE_STATUSES",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L34"
+    },
+    {
+      "id": "types_vacations_leaverequest",
+      "label": "LeaveRequest",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L42"
+    },
+    {
+      "id": "types_vacations_leavebalance",
+      "label": "LeaveBalance",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L69"
+    },
+    {
+      "id": "types_vacations_leavebalancesummary",
+      "label": "LeaveBalanceSummary",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L82"
+    },
+    {
+      "id": "types_vacations_teamcalendarevent",
+      "label": "TeamCalendarEvent",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L93"
+    },
+    {
+      "id": "types_vacations_leavepolicy",
+      "label": "LeavePolicy",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L103"
+    },
+    {
+      "id": "types_vacations_approvalworkflowstatus",
+      "label": "ApprovalWorkflowStatus",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L113"
+    },
+    {
+      "id": "types_vacations_leaveapprovalworkflow",
+      "label": "LeaveApprovalWorkflow",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L119"
+    },
+    {
+      "id": "types_vacations_createleaverequestpayload",
+      "label": "CreateLeaveRequestPayload",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L128"
+    },
+    {
+      "id": "types_vacations_approveleaverequestpayload",
+      "label": "ApproveLeaveRequestPayload",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L136"
+    },
+    {
+      "id": "types_vacations_hrapproveleaverequestpayload",
+      "label": "HrApproveLeaveRequestPayload",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L142"
+    },
+    {
+      "id": "types_vacations_updateleavebalancepayload",
+      "label": "UpdateLeaveBalancePayload",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L146"
+    },
+    {
+      "id": "types_vacations_vacationteammember",
+      "label": "VacationTeamMember",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L155"
+    },
+    {
+      "id": "types_vacations_vacationcapabilities",
+      "label": "VacationCapabilities",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L161"
+    },
+    {
+      "id": "types_vacations_default_vacation_capabilities",
+      "label": "DEFAULT_VACATION_CAPABILITIES",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L168"
+    },
+    {
+      "id": "types_vacations_leave_type_labels",
+      "label": "LEAVE_TYPE_LABELS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L175"
+    },
+    {
+      "id": "types_vacations_leave_type_colors",
+      "label": "LEAVE_TYPE_COLORS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L186"
+    },
+    {
+      "id": "types_vacations_leave_type_badge_colors",
+      "label": "LEAVE_TYPE_BADGE_COLORS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L197"
+    },
+    {
+      "id": "types_vacations_all_leave_types",
+      "label": "ALL_LEAVE_TYPES",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L208"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_leavetype",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_leavestatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_leave_status_labels",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_leave_status_badge_colors",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_all_leave_statuses",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_leaverequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_leavebalance",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L69",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_leavebalancesummary",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L82",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_teamcalendarevent",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_leavepolicy",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_approvalworkflowstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L113",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_leaveapprovalworkflow",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L119",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_createleaverequestpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L128",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_approveleaverequestpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L136",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_hrapproveleaverequestpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L142",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_updateleavebalancepayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L146",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_vacationteammember",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L155",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_vacationcapabilities",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L161",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_default_vacation_capabilities",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L168",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_leave_type_labels",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L175",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_leave_type_colors",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L186",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_leave_type_badge_colors",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L197",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "target": "types_vacations_all_leave_types",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts",
+      "source_location": "L208",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

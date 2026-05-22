@@ -41,6 +41,7 @@ import { Badge } from "./ui/badge";
 import { Switch } from "./ui/switch";
 import { Separator } from "./ui/separator";
 import {
+  Building,
   Users,
   Shield,
   Package,
@@ -54,6 +55,7 @@ import {
   Briefcase,
   X,
 } from "lucide-react";
+import { AdminDepartmentsTab } from "./AdminDepartmentsTab";
 import { toast } from "sonner";
 import { ApiError, uploadRolePermissionsCsv } from "@/utils/api";
 import { fetchEmployees, type Employee } from "@/lib/api/employees";
@@ -431,6 +433,10 @@ export function AdminModule() {
             <Briefcase className="h-4 w-4" />
             Projects
           </TabsTrigger>
+          <TabsTrigger value="departments" className="flex items-center gap-2">
+            <Building className="h-4 w-4" />
+            Departments
+          </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             System Settings
@@ -630,6 +636,10 @@ export function AdminModule() {
 
         <TabsContent value="projects">
           <ProjectsAdminTab />
+        </TabsContent>
+
+        <TabsContent value="departments">
+          <AdminDepartmentsTab />
         </TabsContent>
 
         <TabsContent value="settings">

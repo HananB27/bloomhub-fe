@@ -1,0 +1,224 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_lib_api_modules_technology_tags_index_ts",
+      "label": "index.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "technology_tags_index_error_messages",
+      "label": "ERROR_MESSAGES",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L8"
+    },
+    {
+      "id": "technology_tags_index_default_technology_tags",
+      "label": "DEFAULT_TECHNOLOGY_TAGS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L21"
+    },
+    {
+      "id": "technology_tags_index_getalltags",
+      "label": "getAllTags()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L56"
+    },
+    {
+      "id": "technology_tags_index_updateemployeetags",
+      "label": "updateEmployeeTags()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L81"
+    },
+    {
+      "id": "technology_tags_index_technologytagsapi",
+      "label": "technologyTagsApi",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L92"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_technology_tags_index_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_config_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_technology_tags_index_ts",
+      "target": "lib_config_api_base_url",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_technology_tags_index_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_helpers_httpclient_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_technology_tags_index_ts",
+      "target": "helpers_httpclient_patch",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_technology_tags_index_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_types_technology_tags_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_technology_tags_index_ts",
+      "target": "types_technology_tags_technologytag",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_technology_tags_index_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_helpers_transformers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_technology_tags_index_ts",
+      "target": "helpers_transformers_employeeprofiledata",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_technology_tags_index_ts",
+      "target": "technology_tags_index_error_messages",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_technology_tags_index_ts",
+      "target": "technology_tags_index_default_technology_tags",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_technology_tags_index_ts",
+      "target": "technology_tags_index_getalltags",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_technology_tags_index_ts",
+      "target": "technology_tags_index_updateemployeetags",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L81",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_technology_tags_index_ts",
+      "target": "technology_tags_index_technologytagsapi",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L92",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "technology_tags_index_getalltags",
+      "callee": "set",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "technology_tags_index_getalltags",
+      "callee": "has",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "technology_tags_index_getalltags",
+      "callee": "set",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "technology_tags_index_getalltags",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L71"
+    },
+    {
+      "caller_nid": "technology_tags_index_getalltags",
+      "callee": "from",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L71"
+    },
+    {
+      "caller_nid": "technology_tags_index_getalltags",
+      "callee": "values",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L71"
+    },
+    {
+      "caller_nid": "technology_tags_index_updateemployeetags",
+      "callee": "await patch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts",
+      "source_location": "L85"
+    }
+  ]
+}

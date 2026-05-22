@@ -1,0 +1,528 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "label": "reviewsModuleHelpers.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "reviews_reviewsmodulehelpers_review_status_filter_all",
+      "label": "REVIEW_STATUS_FILTER_ALL",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L3"
+    },
+    {
+      "id": "reviews_reviewsmodulehelpers_reviewstatusfilter",
+      "label": "ReviewStatusFilter",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L4"
+    },
+    {
+      "id": "reviews_reviewsmodulehelpers_review_status_filter_options",
+      "label": "REVIEW_STATUS_FILTER_OPTIONS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L6"
+    },
+    {
+      "id": "reviews_reviewsmodulehelpers_reviewbuckets",
+      "label": "ReviewBuckets",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L17"
+    },
+    {
+      "id": "reviews_reviewsmodulehelpers_reviewstats",
+      "label": "ReviewStats",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L23"
+    },
+    {
+      "id": "reviews_reviewsmodulehelpers_daysuntil",
+      "label": "daysUntil()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L32"
+    },
+    {
+      "id": "reviews_reviewsmodulehelpers_duelabel",
+      "label": "dueLabel()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L40"
+    },
+    {
+      "id": "reviews_reviewsmodulehelpers_isoverdue",
+      "label": "isOverdue()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L49"
+    },
+    {
+      "id": "reviews_reviewsmodulehelpers_filterreviews",
+      "label": "filterReviews()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L54"
+    },
+    {
+      "id": "reviews_reviewsmodulehelpers_bucketopenreviews",
+      "label": "bucketOpenReviews()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L71"
+    },
+    {
+      "id": "reviews_reviewsmodulehelpers_computereviewstats",
+      "label": "computeReviewStats()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L95"
+    },
+    {
+      "id": "reviews_reviewsmodulehelpers_sorthistory",
+      "label": "sortHistory()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L120"
+    },
+    {
+      "id": "reviews_reviewsmodulehelpers_person_avatar_colors",
+      "label": "PERSON_AVATAR_COLORS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L132"
+    },
+    {
+      "id": "reviews_reviewsmodulehelpers_avatarcolor",
+      "label": "avatarColor()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L143"
+    },
+    {
+      "id": "reviews_reviewsmodulehelpers_initials",
+      "label": "initials()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L151"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_types_reviews_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "target": "types_reviews_performancereviewlistitem",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "target": "types_reviews_reviewstatus",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "target": "reviews_reviewsmodulehelpers_review_status_filter_all",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "target": "reviews_reviewsmodulehelpers_reviewstatusfilter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "target": "reviews_reviewsmodulehelpers_review_status_filter_options",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "target": "reviews_reviewsmodulehelpers_reviewbuckets",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "target": "reviews_reviewsmodulehelpers_reviewstats",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "target": "reviews_reviewsmodulehelpers_daysuntil",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "target": "reviews_reviewsmodulehelpers_duelabel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "target": "reviews_reviewsmodulehelpers_isoverdue",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "target": "reviews_reviewsmodulehelpers_filterreviews",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "target": "reviews_reviewsmodulehelpers_bucketopenreviews",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L71",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "target": "reviews_reviewsmodulehelpers_computereviewstats",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L95",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "target": "reviews_reviewsmodulehelpers_sorthistory",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L120",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "target": "reviews_reviewsmodulehelpers_person_avatar_colors",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L132",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "target": "reviews_reviewsmodulehelpers_avatarcolor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L143",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "target": "reviews_reviewsmodulehelpers_initials",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L151",
+      "weight": 1.0
+    },
+    {
+      "source": "reviews_reviewsmodulehelpers_duelabel",
+      "target": "reviews_reviewsmodulehelpers_daysuntil",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "reviews_reviewsmodulehelpers_isoverdue",
+      "target": "reviews_reviewsmodulehelpers_daysuntil",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "reviews_reviewsmodulehelpers_bucketopenreviews",
+      "target": "reviews_reviewsmodulehelpers_daysuntil",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L81",
+      "weight": 1.0
+    },
+    {
+      "source": "reviews_reviewsmodulehelpers_computereviewstats",
+      "target": "reviews_reviewsmodulehelpers_isoverdue",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L108",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_daysuntil",
+      "callee": "setHours",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_daysuntil",
+      "callee": "setHours",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L36"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_daysuntil",
+      "callee": "round",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_daysuntil",
+      "callee": "getTime",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_daysuntil",
+      "callee": "getTime",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_duelabel",
+      "callee": "abs",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L46"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_filterreviews",
+      "callee": "toLowerCase",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_filterreviews",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_filterreviews",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_bucketopenreviews",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_bucketopenreviews",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_bucketopenreviews",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L83"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_bucketopenreviews",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_bucketopenreviews",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L89"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_bucketopenreviews",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_bucketopenreviews",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_computereviewstats",
+      "callee": "setMonth",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_computereviewstats",
+      "callee": "setHours",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_computereviewstats",
+      "callee": "getTime",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_computereviewstats",
+      "callee": "getTime",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_sorthistory",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L123"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_sorthistory",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L123"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_avatarcolor",
+      "callee": "charCodeAt",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L146"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_avatarcolor",
+      "callee": "abs",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_initials",
+      "callee": "slice",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L152"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_initials",
+      "callee": "split",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L152"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_initials",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L152"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_initials",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L153"
+    },
+    {
+      "caller_nid": "reviews_reviewsmodulehelpers_initials",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts",
+      "source_location": "L153"
+    }
+  ]
+}

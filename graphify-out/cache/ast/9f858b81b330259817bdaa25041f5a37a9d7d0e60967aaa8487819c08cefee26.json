@@ -1,0 +1,131 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_notifications_test_ts",
+      "label": "notifications.test.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/notifications.test.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "hr_dashboard_notifications_test_mocknotifications",
+      "label": "mockNotifications",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/notifications.test.ts",
+      "source_location": "L5"
+    },
+    {
+      "id": "hr_dashboard_notifications_test_result",
+      "label": "{ result }",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/notifications.test.ts",
+      "source_location": "L37"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_notifications_test_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/notifications.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_notifications_test_ts",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/notifications.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_notifications_test_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_notifications_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/notifications.test.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_notifications_test_ts",
+      "target": "hr_dashboard_notifications_usenotifications",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/notifications.test.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_notifications_test_ts",
+      "target": "hr_dashboard_notifications_test_mocknotifications",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/notifications.test.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_notifications_test_ts",
+      "target": "hr_dashboard_notifications_test_result",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/notifications.test.ts",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_notifications_test_ts",
+      "target": "hr_dashboard_notifications_test_result",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/notifications.test.ts",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_notifications_test_ts",
+      "target": "hr_dashboard_notifications_test_result",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/notifications.test.ts",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_notifications_test_ts",
+      "target": "hr_dashboard_notifications_test_result",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/notifications.test.ts",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_notifications_test_ts",
+      "target": "hr_dashboard_notifications_test_result",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/notifications.test.ts",
+      "source_location": "L74",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_notifications_test_ts",
+      "target": "hr_dashboard_notifications_test_result",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/notifications.test.ts",
+      "source_location": "L85",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

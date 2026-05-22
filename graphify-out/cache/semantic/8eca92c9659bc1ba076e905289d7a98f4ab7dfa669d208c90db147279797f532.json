@@ -1,0 +1,28 @@
+{
+  "nodes": [
+    {
+      "id": "commitlint_config",
+      "label": "commitlint.config.mjs",
+      "file_type": "code",
+      "source_file": "commitlint.config.mjs",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "commitlint_config",
+      "target": "package",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "commitlint.config.mjs",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

@@ -1,0 +1,12 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_husky_husky_sh",
+      "label": "husky.sh",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/.husky/_/husky.sh",
+      "source_location": "L1"
+    }
+  ],
+  "edges": []
+}

@@ -1,0 +1,126 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_lib_api_constants_vacationsendpoints_ts",
+      "label": "vacationsEndpoints.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/vacationsEndpoints.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "constants_vacationsendpoints_leavebalancedetailpath",
+      "label": "leaveBalanceDetailPath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/vacationsEndpoints.ts",
+      "source_location": "L13"
+    },
+    {
+      "id": "constants_vacationsendpoints_leavebalanceadjustpath",
+      "label": "leaveBalanceAdjustPath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/vacationsEndpoints.ts",
+      "source_location": "L17"
+    },
+    {
+      "id": "constants_vacationsendpoints_leaverequestdetailpath",
+      "label": "leaveRequestDetailPath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/vacationsEndpoints.ts",
+      "source_location": "L21"
+    },
+    {
+      "id": "constants_vacationsendpoints_leaverequestapprovepath",
+      "label": "leaveRequestApprovePath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/vacationsEndpoints.ts",
+      "source_location": "L25"
+    },
+    {
+      "id": "constants_vacationsendpoints_leaverequesthrapprovepath",
+      "label": "leaveRequestHrApprovePath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/vacationsEndpoints.ts",
+      "source_location": "L29"
+    },
+    {
+      "id": "constants_vacationsendpoints_leaverequestrejectpath",
+      "label": "leaveRequestRejectPath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/vacationsEndpoints.ts",
+      "source_location": "L33"
+    },
+    {
+      "id": "constants_vacationsendpoints_leaverequestcancelpath",
+      "label": "leaveRequestCancelPath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/vacationsEndpoints.ts",
+      "source_location": "L37"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_vacationsendpoints_ts",
+      "target": "constants_vacationsendpoints_leavebalancedetailpath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/vacationsEndpoints.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_vacationsendpoints_ts",
+      "target": "constants_vacationsendpoints_leavebalanceadjustpath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/vacationsEndpoints.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_vacationsendpoints_ts",
+      "target": "constants_vacationsendpoints_leaverequestdetailpath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/vacationsEndpoints.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_vacationsendpoints_ts",
+      "target": "constants_vacationsendpoints_leaverequestapprovepath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/vacationsEndpoints.ts",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_vacationsendpoints_ts",
+      "target": "constants_vacationsendpoints_leaverequesthrapprovepath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/vacationsEndpoints.ts",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_vacationsendpoints_ts",
+      "target": "constants_vacationsendpoints_leaverequestrejectpath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/vacationsEndpoints.ts",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_vacationsendpoints_ts",
+      "target": "constants_vacationsendpoints_leaverequestcancelpath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/vacationsEndpoints.ts",
+      "source_location": "L37",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

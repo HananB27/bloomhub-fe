@@ -1,0 +1,433 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "label": "TemplateSnippetsManageDialog.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "templates_templatesnippetsmanagedialog_templatesnippetsmanagedialog",
+      "label": "TemplateSnippetsManageDialog()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L34"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_dialog_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "ui_dialog_dialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "ui_dialog_dialogcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "ui_dialog_dialogdescription",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "ui_dialog_dialogfooter",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "ui_dialog_dialogheader",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "ui_dialog_dialogtitle",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_modules_templatesnippets_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "templatesnippets_index_templatesnippetsapi",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "templatesnippets_index_usertemplatesnippetdto",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_templatesnippets_usertemplatesnippetsstorage_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "templatesnippets_usertemplatesnippetsstorage_loadlocalusersnippets",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "templatesnippets_usertemplatesnippetsstorage_savelocalusersnippets",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "templatesnippets_usertemplatesnippetsstorage_loadbuiltinsnippetoverrides",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "templatesnippets_usertemplatesnippetsstorage_savebuiltinsnippetoverrides",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "templatesnippets_usertemplatesnippetsstorage_builtinsnippetoverridemap",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_utils_notificationhelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "utils_notificationhelpers_notifyapierror",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "utils_notificationhelpers_notifysuccess",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templateeditorhelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "templates_templateeditorhelpers_isrichtexteffectivelyempty",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "templates_templateeditorhelpers_richtexttoplainpreview",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "templates_templateeditorhelpers_template_editor_snippets",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "templates_templateeditorhelpers_applybuiltinsnippetoverrides",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "templates_templateeditorhelpers_templateeditorsnippet",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_snippetrichtexteditor_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "templates_snippetrichtexteditor_snippetrichtexteditor",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesnippetsmanagedialog_tsx",
+      "target": "templates_templatesnippetsmanagedialog_templatesnippetsmanagedialog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L34",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "templates_templatesnippetsmanagedialog_templatesnippetsmanagedialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L43"
+    },
+    {
+      "caller_nid": "templates_templatesnippetsmanagedialog_templatesnippetsmanagedialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "templates_templatesnippetsmanagedialog_templatesnippetsmanagedialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "templates_templatesnippetsmanagedialog_templatesnippetsmanagedialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "templates_templatesnippetsmanagedialog_templatesnippetsmanagedialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "templates_templatesnippetsmanagedialog_templatesnippetsmanagedialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "templates_templatesnippetsmanagedialog_templatesnippetsmanagedialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "templates_templatesnippetsmanagedialog_templatesnippetsmanagedialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "templates_templatesnippetsmanagedialog_templatesnippetsmanagedialog",
+      "callee": "applyBuiltinSnippetOverrides",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "templates_templatesnippetsmanagedialog_templatesnippetsmanagedialog",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "templates_templatesnippetsmanagedialog_templatesnippetsmanagedialog",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L253"
+    },
+    {
+      "caller_nid": "templates_templatesnippetsmanagedialog_templatesnippetsmanagedialog",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L317"
+    },
+    {
+      "caller_nid": "templates_templatesnippetsmanagedialog_templatesnippetsmanagedialog",
+      "callee": "isBuiltinEditingId",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L359"
+    },
+    {
+      "caller_nid": "templates_templatesnippetsmanagedialog_templatesnippetsmanagedialog",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L380"
+    },
+    {
+      "caller_nid": "templates_templatesnippetsmanagedialog_templatesnippetsmanagedialog",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L415"
+    },
+    {
+      "caller_nid": "templates_templatesnippetsmanagedialog_templatesnippetsmanagedialog",
+      "callee": "isRichTextEffectivelyEmpty",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx",
+      "source_location": "L415"
+    }
+  ]
+}

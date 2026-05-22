@@ -1,0 +1,122 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_roleswitch_tsx",
+      "label": "RoleSwitch.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/RoleSwitch.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "atoms_roleswitch_profileviewerrole",
+      "label": "ProfileViewerRole",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/RoleSwitch.tsx",
+      "source_location": "L3"
+    },
+    {
+      "id": "atoms_roleswitch_profile_viewer_role_labels",
+      "label": "PROFILE_VIEWER_ROLE_LABELS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/RoleSwitch.tsx",
+      "source_location": "L5"
+    },
+    {
+      "id": "atoms_roleswitch_roleswitchprops",
+      "label": "RoleSwitchProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/RoleSwitch.tsx",
+      "source_location": "L11"
+    },
+    {
+      "id": "atoms_roleswitch_default_options",
+      "label": "DEFAULT_OPTIONS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/RoleSwitch.tsx",
+      "source_location": "L18"
+    },
+    {
+      "id": "atoms_roleswitch_roleswitch",
+      "label": "RoleSwitch()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/RoleSwitch.tsx",
+      "source_location": "L28"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_roleswitch_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_utils_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/RoleSwitch.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_roleswitch_tsx",
+      "target": "ui_utils_cn",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/RoleSwitch.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_roleswitch_tsx",
+      "target": "atoms_roleswitch_profileviewerrole",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/RoleSwitch.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_roleswitch_tsx",
+      "target": "atoms_roleswitch_profile_viewer_role_labels",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/RoleSwitch.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_roleswitch_tsx",
+      "target": "atoms_roleswitch_roleswitchprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/RoleSwitch.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_roleswitch_tsx",
+      "target": "atoms_roleswitch_default_options",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/RoleSwitch.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_roleswitch_tsx",
+      "target": "atoms_roleswitch_roleswitch",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/RoleSwitch.tsx",
+      "source_location": "L28",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "atoms_roleswitch_roleswitch",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/RoleSwitch.tsx",
+      "source_location": "L42"
+    }
+  ]
+}

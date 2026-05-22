@@ -1,0 +1,201 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_lib_templatesnippets_usertemplatesnippetsstorage_ts",
+      "label": "userTemplateSnippetsStorage.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "templatesnippets_usertemplatesnippetsstorage_loadlocalusersnippets",
+      "label": "loadLocalUserSnippets()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L6"
+    },
+    {
+      "id": "templatesnippets_usertemplatesnippetsstorage_savelocalusersnippets",
+      "label": "saveLocalUserSnippets()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L19"
+    },
+    {
+      "id": "templatesnippets_usertemplatesnippetsstorage_builtinsnippetoverride",
+      "label": "BuiltinSnippetOverride",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L38"
+    },
+    {
+      "id": "templatesnippets_usertemplatesnippetsstorage_builtinsnippetoverridemap",
+      "label": "BuiltinSnippetOverrideMap",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L44"
+    },
+    {
+      "id": "templatesnippets_usertemplatesnippetsstorage_loadbuiltinsnippetoverrides",
+      "label": "loadBuiltinSnippetOverrides()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L46"
+    },
+    {
+      "id": "templatesnippets_usertemplatesnippetsstorage_savebuiltinsnippetoverrides",
+      "label": "saveBuiltinSnippetOverrides()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L60"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_templatesnippets_usertemplatesnippetsstorage_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_modules_templatesnippets_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_templatesnippets_usertemplatesnippetsstorage_ts",
+      "target": "templatesnippets_index_usertemplatesnippetdto",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_templatesnippets_usertemplatesnippetsstorage_ts",
+      "target": "templatesnippets_usertemplatesnippetsstorage_loadlocalusersnippets",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_templatesnippets_usertemplatesnippetsstorage_ts",
+      "target": "templatesnippets_usertemplatesnippetsstorage_savelocalusersnippets",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_templatesnippets_usertemplatesnippetsstorage_ts",
+      "target": "templatesnippets_usertemplatesnippetsstorage_builtinsnippetoverride",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_templatesnippets_usertemplatesnippetsstorage_ts",
+      "target": "templatesnippets_usertemplatesnippetsstorage_builtinsnippetoverridemap",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L44",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_templatesnippets_usertemplatesnippetsstorage_ts",
+      "target": "templatesnippets_usertemplatesnippetsstorage_loadbuiltinsnippetoverrides",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_templatesnippets_usertemplatesnippetsstorage_ts",
+      "target": "templatesnippets_usertemplatesnippetsstorage_savebuiltinsnippetoverrides",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L60",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "templatesnippets_usertemplatesnippetsstorage_loadlocalusersnippets",
+      "callee": "getItem",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L9"
+    },
+    {
+      "caller_nid": "templatesnippets_usertemplatesnippetsstorage_loadlocalusersnippets",
+      "callee": "parse",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L11"
+    },
+    {
+      "caller_nid": "templatesnippets_usertemplatesnippetsstorage_loadlocalusersnippets",
+      "callee": "isArray",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L12"
+    },
+    {
+      "caller_nid": "templatesnippets_usertemplatesnippetsstorage_savelocalusersnippets",
+      "callee": "setItem",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L21"
+    },
+    {
+      "caller_nid": "templatesnippets_usertemplatesnippetsstorage_savelocalusersnippets",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L23"
+    },
+    {
+      "caller_nid": "templatesnippets_usertemplatesnippetsstorage_loadbuiltinsnippetoverrides",
+      "callee": "getItem",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L49"
+    },
+    {
+      "caller_nid": "templatesnippets_usertemplatesnippetsstorage_loadbuiltinsnippetoverrides",
+      "callee": "parse",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "templatesnippets_usertemplatesnippetsstorage_loadbuiltinsnippetoverrides",
+      "callee": "isArray",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "templatesnippets_usertemplatesnippetsstorage_savebuiltinsnippetoverrides",
+      "callee": "setItem",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "templatesnippets_usertemplatesnippetsstorage_savebuiltinsnippetoverrides",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts",
+      "source_location": "L67"
+    }
+  ]
+}

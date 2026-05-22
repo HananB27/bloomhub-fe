@@ -1,11 +1,20 @@
 import {
   ChevronLeft,
   ChevronRight,
+  Download,
   MoreHorizontal,
   Pencil,
+  Trash2,
 } from "lucide-react";
 import type { EmployeeProfileData } from "@/lib/api/employees";
 import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { cn } from "../ui/utils";
 import { EditModePill, EDIT_MODE_HEADER_CLASS } from "./atoms/EditModePill";
 import { formatDate } from "@/utils";
@@ -16,10 +25,13 @@ interface ProfilePageHeaderProps {
   dirty: boolean;
   saving?: boolean;
   canEdit: boolean;
+  canDelete?: boolean;
   onEnterEdit: () => void;
   onCancelEdit: () => void;
   onSave: () => void;
   onBack?: () => void;
+  onExport?: () => void;
+  onDelete?: () => void;
 }
 
 /**
@@ -33,10 +45,13 @@ export function ProfilePageHeader({
   dirty,
   saving = false,
   canEdit,
+  canDelete = canEdit,
   onEnterEdit,
   onCancelEdit,
   onSave,
   onBack,
+  onExport,
+  onDelete,
 }: ProfilePageHeaderProps) {
   const fullName = `${profile.first_name} ${profile.last_name}`;
 
@@ -110,9 +125,35 @@ export function ProfilePageHeader({
             </>
           ) : (
             <>
-              <Button variant="outline" size="icon" aria-label="More actions">
-                <MoreHorizontal size={14} />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label="More actions"
+                  >
+                    <MoreHorizontal size={14} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-52">
+                  <DropdownMenuItem
+                    onSelect={() => onExport?.()}
+                    disabled={!onExport}
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    Export employee
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onSelect={() => onDelete?.()}
+                    disabled={!canDelete || !onDelete}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Delete employee
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               {canEdit ? (
                 <Button onClick={onEnterEdit} className="gap-1.5">
                   <Pencil size={13} aria-hidden />

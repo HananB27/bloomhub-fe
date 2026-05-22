@@ -1,0 +1,2052 @@
+{
+  "/Users/bloomteq/BloomHub-fe/skills-lock.json": {
+    "mtime": 1778660383.8465767,
+    "ast_hash": "9af5d077e8f84c6680e27c8d1a58ec10",
+    "semantic_hash": "9af5d077e8f84c6680e27c8d1a58ec10"
+  },
+  "/Users/bloomteq/BloomHub-fe/vercel.json": {
+    "mtime": 1775758885.8336718,
+    "ast_hash": "525e60881dbd5fb67d58562d379e84eb",
+    "semantic_hash": "525e60881dbd5fb67d58562d379e84eb"
+  },
+  "/Users/bloomteq/BloomHub-fe/postcss.config.mjs": {
+    "mtime": 1772977008.5991693,
+    "ast_hash": "239f3ebf717465dc636818a1a619398d",
+    "semantic_hash": "239f3ebf717465dc636818a1a619398d"
+  },
+  "/Users/bloomteq/BloomHub-fe/package.json": {
+    "mtime": 1779219002.1157486,
+    "ast_hash": "ed92d7683405fc23d473ee3e854a0e9d",
+    "semantic_hash": "ed92d7683405fc23d473ee3e854a0e9d"
+  },
+  "/Users/bloomteq/BloomHub-fe/commitlint.config.mjs": {
+    "mtime": 1772977008.596431,
+    "ast_hash": "60419c0ed73ba480847714b5a7bb68aa",
+    "semantic_hash": "60419c0ed73ba480847714b5a7bb68aa"
+  },
+  "/Users/bloomteq/BloomHub-fe/tsconfig.json": {
+    "mtime": 1778243290.8018265,
+    "ast_hash": "5b1a23dec416845012f67ed1048e16b2",
+    "semantic_hash": "5b1a23dec416845012f67ed1048e16b2"
+  },
+  "/Users/bloomteq/BloomHub-fe/vitest.config.ts": {
+    "mtime": 1778417652.25696,
+    "ast_hash": "5766bb31510932c298486cccdb9d9da8",
+    "semantic_hash": "5766bb31510932c298486cccdb9d9da8"
+  },
+  "/Users/bloomteq/BloomHub-fe/eslint.config.mjs": {
+    "mtime": 1778243290.757781,
+    "ast_hash": "93f4012f8d3e535e56145ff9cb2e5f12",
+    "semantic_hash": "93f4012f8d3e535e56145ff9cb2e5f12"
+  },
+  "/Users/bloomteq/BloomHub-fe/next.config.ts": {
+    "mtime": 1772977008.5969143,
+    "ast_hash": "9b77af189a21a7a64e4bd7a426f64176",
+    "semantic_hash": "9b77af189a21a7a64e4bd7a426f64176"
+  },
+  "/Users/bloomteq/BloomHub-fe/.husky/_/pre-rebase": {
+    "mtime": 1773130652.4073215,
+    "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
+    "semantic_hash": "0b71c2e7d39daa010985d529f1320b37"
+  },
+  "/Users/bloomteq/BloomHub-fe/.husky/_/pre-applypatch": {
+    "mtime": 1773130652.4070792,
+    "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
+    "semantic_hash": "0b71c2e7d39daa010985d529f1320b37"
+  },
+  "/Users/bloomteq/BloomHub-fe/.husky/_/husky.sh": {
+    "mtime": 1773130652.4079278,
+    "ast_hash": "13871d2ab13e8423790ecb2c01c78c18",
+    "semantic_hash": "13871d2ab13e8423790ecb2c01c78c18"
+  },
+  "/Users/bloomteq/BloomHub-fe/.husky/_/pre-auto-gc": {
+    "mtime": 1773130652.4078398,
+    "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
+    "semantic_hash": "0b71c2e7d39daa010985d529f1320b37"
+  },
+  "/Users/bloomteq/BloomHub-fe/.husky/_/pre-merge-commit": {
+    "mtime": 1773130652.406638,
+    "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
+    "semantic_hash": "0b71c2e7d39daa010985d529f1320b37"
+  },
+  "/Users/bloomteq/BloomHub-fe/.husky/_/post-commit": {
+    "mtime": 1773130652.4069157,
+    "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
+    "semantic_hash": "0b71c2e7d39daa010985d529f1320b37"
+  },
+  "/Users/bloomteq/BloomHub-fe/.husky/_/applypatch-msg": {
+    "mtime": 1773130652.4070182,
+    "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
+    "semantic_hash": "0b71c2e7d39daa010985d529f1320b37"
+  },
+  "/Users/bloomteq/BloomHub-fe/.husky/_/prepare-commit-msg": {
+    "mtime": 1773130652.406706,
+    "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
+    "semantic_hash": "0b71c2e7d39daa010985d529f1320b37"
+  },
+  "/Users/bloomteq/BloomHub-fe/.husky/_/h": {
+    "mtime": 1773130652.4063642,
+    "ast_hash": "15239a01c5554e56ff745570fb583a91",
+    "semantic_hash": "15239a01c5554e56ff745570fb583a91"
+  },
+  "/Users/bloomteq/BloomHub-fe/.husky/_/post-checkout": {
+    "mtime": 1773130652.4075744,
+    "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
+    "semantic_hash": "0b71c2e7d39daa010985d529f1320b37"
+  },
+  "/Users/bloomteq/BloomHub-fe/.husky/_/post-applypatch": {
+    "mtime": 1773130652.4071853,
+    "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
+    "semantic_hash": "0b71c2e7d39daa010985d529f1320b37"
+  },
+  "/Users/bloomteq/BloomHub-fe/.husky/_/post-rewrite": {
+    "mtime": 1773130652.4075093,
+    "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
+    "semantic_hash": "0b71c2e7d39daa010985d529f1320b37"
+  },
+  "/Users/bloomteq/BloomHub-fe/.husky/_/commit-msg": {
+    "mtime": 1773130652.4068487,
+    "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
+    "semantic_hash": "0b71c2e7d39daa010985d529f1320b37"
+  },
+  "/Users/bloomteq/BloomHub-fe/.husky/_/pre-push": {
+    "mtime": 1773130652.4077008,
+    "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
+    "semantic_hash": "0b71c2e7d39daa010985d529f1320b37"
+  },
+  "/Users/bloomteq/BloomHub-fe/.husky/_/post-merge": {
+    "mtime": 1773130652.4076428,
+    "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
+    "semantic_hash": "0b71c2e7d39daa010985d529f1320b37"
+  },
+  "/Users/bloomteq/BloomHub-fe/.husky/_/pre-commit": {
+    "mtime": 1773130652.4064672,
+    "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
+    "semantic_hash": "0b71c2e7d39daa010985d529f1320b37"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts": {
+    "mtime": 1778243290.80148,
+    "ast_hash": "7f5adffb1438e18178be21285ffac257",
+    "semantic_hash": "7f5adffb1438e18178be21285ffac257"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/templateEditorHelpers.test.ts": {
+    "mtime": 1778243290.8011985,
+    "ast_hash": "c92a2762055b6e2e78c577c093ddc197",
+    "semantic_hash": "c92a2762055b6e2e78c577c093ddc197"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/app/page.test.tsx": {
+    "mtime": 1774343061.1384404,
+    "ast_hash": "5522c32d24ef63b6015f60662108af16",
+    "semantic_hash": "5522c32d24ef63b6015f60662108af16"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx": {
+    "mtime": 1778017164.5095084,
+    "ast_hash": "4e88a6ae58b85c53aacff279cd3a593c",
+    "semantic_hash": "4e88a6ae58b85c53aacff279cd3a593c"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/notifications.test.ts": {
+    "mtime": 1774123123.219855,
+    "ast_hash": "8de6ccf6d4c2a94e4dc2fca2ac52bd58",
+    "semantic_hash": "8de6ccf6d4c2a94e4dc2fca2ac52bd58"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx": {
+    "mtime": 1777582806.541627,
+    "ast_hash": "41bcf036d0d7bef1d39d770a5a9b10a1",
+    "semantic_hash": "41bcf036d0d7bef1d39d770a5a9b10a1"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/CollapsibleSidebar.test.tsx": {
+    "mtime": 1777582806.5425165,
+    "ast_hash": "6d9f3099998f08ef4855b4e195c07b3b",
+    "semantic_hash": "6d9f3099998f08ef4855b4e195c07b3b"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/documentsModuleHelpers.test.ts": {
+    "mtime": 1778489262.4752865,
+    "ast_hash": "2268ebbbc6b42285cda3e42e8c801fd7",
+    "semantic_hash": "2268ebbbc6b42285cda3e42e8c801fd7"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryForm.test.tsx": {
+    "mtime": 1778017164.5088532,
+    "ast_hash": "f76546bba44f247d86ebdba1303e3cd9",
+    "semantic_hash": "f76546bba44f247d86ebdba1303e3cd9"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/AssetsModule.test.tsx": {
+    "mtime": 1779219002.134707,
+    "ast_hash": "ba1ed7970a857f77571dd77ef5b67bc6",
+    "semantic_hash": "ba1ed7970a857f77571dd77ef5b67bc6"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/hr-modules.test.ts": {
+    "mtime": 1774123123.2196531,
+    "ast_hash": "37a95a38faffad86be1af5e7ca353bfe",
+    "semantic_hash": "37a95a38faffad86be1af5e7ca353bfe"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingFilters.test.tsx": {
+    "mtime": 1778017164.5098941,
+    "ast_hash": "8d0d0e35a5f422d217e6d3f75a992da8",
+    "semantic_hash": "8d0d0e35a5f422d217e6d3f75a992da8"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/documents/signature-components.test.tsx": {
+    "mtime": 1778660383.8614435,
+    "ast_hash": "cfcb218a59aee7b24ddb9e322c21c111",
+    "semantic_hash": "cfcb218a59aee7b24ddb9e322c21c111"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/lib/assets-api.test.ts": {
+    "mtime": 1778745938.8365583,
+    "ast_hash": "12660565bc21723afab7cd2896327161",
+    "semantic_hash": "12660565bc21723afab7cd2896327161"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/lib/assets-permissions.test.ts": {
+    "mtime": 1778745938.83715,
+    "ast_hash": "b670bd021e84b9aa4c5434c20fd54d2f",
+    "semantic_hash": "b670bd021e84b9aa4c5434c20fd54d2f"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/lib/api/employees-api.test.ts": {
+    "mtime": 1778846307.638452,
+    "ast_hash": "a1837b954f62815a09f0cd9c87556f03",
+    "semantic_hash": "a1837b954f62815a09f0cd9c87556f03"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/lib/api/resolveApiMediaUrl.test.ts": {
+    "mtime": 1778017164.5102868,
+    "ast_hash": "177bed4c22e8ad2d719830e0cd5d41eb",
+    "semantic_hash": "177bed4c22e8ad2d719830e0cd5d41eb"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/lib/api/documents-api.test.ts": {
+    "mtime": 1778660383.8619976,
+    "ast_hash": "73200f6f383660bdbb647dd7ea76b7e1",
+    "semantic_hash": "73200f6f383660bdbb647dd7ea76b7e1"
+  },
+  "/Users/bloomteq/BloomHub-fe/tests/lib/documents/documentsHelpers.test.ts": {
+    "mtime": 1777893647.7341526,
+    "ast_hash": "0bc7a6e568fe7acec842e72036b461f2",
+    "semantic_hash": "0bc7a6e568fe7acec842e72036b461f2"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-compress/scripts/benchmark.py": {
+    "mtime": 1778660383.843264,
+    "ast_hash": "b4a8fd8070777a15f1f183d7c9992dcd",
+    "semantic_hash": "b4a8fd8070777a15f1f183d7c9992dcd"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-compress/scripts/__init__.py": {
+    "mtime": 1778660383.8426805,
+    "ast_hash": "4bfea67395a7ba04f363df51355d1ef8",
+    "semantic_hash": "4bfea67395a7ba04f363df51355d1ef8"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-compress/scripts/validate.py": {
+    "mtime": 1778660383.8444717,
+    "ast_hash": "b4f283bc53e5d352fb0120827fd4fafa",
+    "semantic_hash": "b4f283bc53e5d352fb0120827fd4fafa"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-compress/scripts/cli.py": {
+    "mtime": 1778660383.8435001,
+    "ast_hash": "e52ddb86f61b5d2095fa2b25f1ae73a7",
+    "semantic_hash": "e52ddb86f61b5d2095fa2b25f1ae73a7"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-compress/scripts/compress.py": {
+    "mtime": 1778660383.8441038,
+    "ast_hash": "52630355324ce6788883c43139f992e0",
+    "semantic_hash": "52630355324ce6788883c43139f992e0"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-compress/scripts/detect.py": {
+    "mtime": 1778660383.844271,
+    "ast_hash": "b0fe8099be4fae2bade0de8253c950f1",
+    "semantic_hash": "b0fe8099be4fae2bade0de8253c950f1"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-compress/scripts/__main__.py": {
+    "mtime": 1778660383.8429496,
+    "ast_hash": "746aff14c3a098a28fe9d01d54f174a9",
+    "semantic_hash": "746aff14c3a098a28fe9d01d54f174a9"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/middleware.ts": {
+    "mtime": 1778243290.7888577,
+    "ast_hash": "0773eae2b71c7cfd65dfa25ef1ffa7e6",
+    "semantic_hash": "0773eae2b71c7cfd65dfa25ef1ffa7e6"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/types/training.ts": {
+    "mtime": 1778017164.5077784,
+    "ast_hash": "137de62828e5b1754086732943ff7e54",
+    "semantic_hash": "137de62828e5b1754086732943ff7e54"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/types/peerSession.ts": {
+    "mtime": 1778745938.835091,
+    "ast_hash": "02e62f6f4b3c53a208e9a2fb0ba3ac3e",
+    "semantic_hash": "02e62f6f4b3c53a208e9a2fb0ba3ac3e"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/types/conferenceCourseRegistration.ts": {
+    "mtime": 1778660383.860259,
+    "ast_hash": "0be58cb3d99398f03c7c2471815c1156",
+    "semantic_hash": "0be58cb3d99398f03c7c2471815c1156"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/types/vacations.ts": {
+    "mtime": 1778660383.8610032,
+    "ast_hash": "38b112d2fd40f64a7f460e57468826d7",
+    "semantic_hash": "38b112d2fd40f64a7f460e57468826d7"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/types/technology-tags.ts": {
+    "mtime": 1776877563.199393,
+    "ast_hash": "a97a927b4e6dde5a0d1b489ea439ecf3",
+    "semantic_hash": "a97a927b4e6dde5a0d1b489ea439ecf3"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/types/certificates.ts": {
+    "mtime": 1778660383.8600986,
+    "ast_hash": "d29461c3f65e330323f195a69c5a976f",
+    "semantic_hash": "d29461c3f65e330323f195a69c5a976f"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/types/jobListing.ts": {
+    "mtime": 1779219002.133504,
+    "ast_hash": "53839413959992a7e4b01a5f1bc9a57d",
+    "semantic_hash": "53839413959992a7e4b01a5f1bc9a57d"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/types/documents.ts": {
+    "mtime": 1778489262.474855,
+    "ast_hash": "71bf57b7b03834111cbee871d56df35a",
+    "semantic_hash": "71bf57b7b03834111cbee871d56df35a"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/types/mammoth.d.ts": {
+    "mtime": 1778243290.79669,
+    "ast_hash": "2412fff8367a47c5b74bc67954a8dee6",
+    "semantic_hash": "2412fff8367a47c5b74bc67954a8dee6"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/types/trainingBudget.ts": {
+    "mtime": 1779195689.4179137,
+    "ast_hash": "5587289cec2eb9d35e4439e35299de39",
+    "semantic_hash": "5587289cec2eb9d35e4439e35299de39"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/types/reviews.ts": {
+    "mtime": 1778660383.8606548,
+    "ast_hash": "686e7b10dca671878634ddeebfa3fd20",
+    "semantic_hash": "686e7b10dca671878634ddeebfa3fd20"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/app/layout.tsx": {
+    "mtime": 1775372822.1084144,
+    "ast_hash": "5b016cf40467c7d5b7516bf5b0ace335",
+    "semantic_hash": "5b016cf40467c7d5b7516bf5b0ace335"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/app/page.tsx": {
+    "mtime": 1774123123.1958299,
+    "ast_hash": "75719b14569189ee74abf1a4ceea81d9",
+    "semantic_hash": "75719b14569189ee74abf1a4ceea81d9"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/app/api/auth/[...nextauth]/route.ts": {
+    "mtime": 1778017164.4920247,
+    "ast_hash": "9d744bc873ff8cf5d40fed0a1b51661f",
+    "semantic_hash": "9d744bc873ff8cf5d40fed0a1b51661f"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/app/(auth)/layout.tsx": {
+    "mtime": 1778020650.6463954,
+    "ast_hash": "64c044e2ffc38e79561bed57b789c249",
+    "semantic_hash": "64c044e2ffc38e79561bed57b789c249"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/app/(auth)/register/page.tsx": {
+    "mtime": 1775758885.802906,
+    "ast_hash": "83a4c6ccee57f1ebc98ff5f8ac8ad4ab",
+    "semantic_hash": "83a4c6ccee57f1ebc98ff5f8ac8ad4ab"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/app/(auth)/login/page.tsx": {
+    "mtime": 1778243290.7606997,
+    "ast_hash": "6c726e582f0855021dfd4b5ebb23d48e",
+    "semantic_hash": "6c726e582f0855021dfd4b5ebb23d48e"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/profilePageHelpers.ts": {
+    "mtime": 1777384882.8645139,
+    "ast_hash": "3a82ff562663729610da3a9f9c38fbe3",
+    "semantic_hash": "3a82ff562663729610da3a9f9c38fbe3"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx": {
+    "mtime": 1778678718.293084,
+    "ast_hash": "9b6dc9ce9b238301df2c5db6edf8edc2",
+    "semantic_hash": "9b6dc9ce9b238301df2c5db6edf8edc2"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/app/employees/page.tsx": {
+    "mtime": 1775758885.8048344,
+    "ast_hash": "550345a7814f928f9916a33e63e5397e",
+    "semantic_hash": "550345a7814f928f9916a33e63e5397e"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/test/setup.ts": {
+    "mtime": 1778243290.7957146,
+    "ast_hash": "a4ac599fa542f8e152531c9a2d2ed91d",
+    "semantic_hash": "a4ac599fa542f8e152531c9a2d2ed91d"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/utils/filters.ts": {
+    "mtime": 1775758993.891207,
+    "ast_hash": "1b0da59220d229b01dbfdb49453f8cee",
+    "semantic_hash": "1b0da59220d229b01dbfdb49453f8cee"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/utils/date.ts": {
+    "mtime": 1774123123.2167177,
+    "ast_hash": "4f533383b655f5bc62516b4cb6a8ba78",
+    "semantic_hash": "4f533383b655f5bc62516b4cb6a8ba78"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/utils/api.ts": {
+    "mtime": 1775372801.6002774,
+    "ast_hash": "43a2822d151e9627aa149e2db64c3189",
+    "semantic_hash": "43a2822d151e9627aa149e2db64c3189"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/utils/format.ts": {
+    "mtime": 1774123123.2170386,
+    "ast_hash": "34cb02f9485d47ede8d6b8eb33594fad",
+    "semantic_hash": "34cb02f9485d47ede8d6b8eb33594fad"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/utils/validators.ts": {
+    "mtime": 1775758993.8912117,
+    "ast_hash": "e176fcba4e246bcdeff117e48e533b14",
+    "semantic_hash": "e176fcba4e246bcdeff117e48e533b14"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/utils/notificationHelpers.ts": {
+    "mtime": 1778243290.799931,
+    "ast_hash": "779d44346974f225640b1aece8787a07",
+    "semantic_hash": "779d44346974f225640b1aece8787a07"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/utils/index.ts": {
+    "mtime": 1778243290.7993817,
+    "ast_hash": "ea68ad9a95f14e4a94341c8c1fadd9ac",
+    "semantic_hash": "ea68ad9a95f14e4a94341c8c1fadd9ac"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/Providers.tsx": {
+    "mtime": 1774343061.1196373,
+    "ast_hash": "4e76c08ddb7d34b70ae86ce099902d90",
+    "semantic_hash": "4e76c08ddb7d34b70ae86ce099902d90"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/FeedbackModule.tsx": {
+    "mtime": 1778243290.7664626,
+    "ast_hash": "f756ed9c5a3c6b28a1c54b1b54df2766",
+    "semantic_hash": "f756ed9c5a3c6b28a1c54b1b54df2766"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/hr-modules.ts": {
+    "mtime": 1779195678.5713568,
+    "ast_hash": "39a8e5476f5cf1b26a2310d9d0088c51",
+    "semantic_hash": "39a8e5476f5cf1b26a2310d9d0088c51"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx": {
+    "mtime": 1779195678.5346715,
+    "ast_hash": "917c1e8a4c5694ee178dbd10096d4d5e",
+    "semantic_hash": "917c1e8a4c5694ee178dbd10096d4d5e"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ReviewsModule.tsx": {
+    "mtime": 1778660383.8488805,
+    "ast_hash": "880e6fe7b85689bbb991e7ae5d09efe9",
+    "semantic_hash": "880e6fe7b85689bbb991e7ae5d09efe9"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/App.tsx": {
+    "mtime": 1778846307.6144366,
+    "ast_hash": "72b3b09a972738e5ef3bff0835acc8a2",
+    "semantic_hash": "72b3b09a972738e5ef3bff0835acc8a2"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DatePicker.tsx": {
+    "mtime": 1778846307.6153307,
+    "ast_hash": "2e4f17a6b70a268ece8779419129dbee",
+    "semantic_hash": "2e4f17a6b70a268ece8779419129dbee"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/AnalyticsModule.tsx": {
+    "mtime": 1778243290.762639,
+    "ast_hash": "989c01d52f41aa0fc1a38420b2acac0d",
+    "semantic_hash": "989c01d52f41aa0fc1a38420b2acac0d"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/AIAssistant.tsx": {
+    "mtime": 1779195678.527103,
+    "ast_hash": "ac075cf511543cc613f78c6a286c5729",
+    "semantic_hash": "ac075cf511543cc613f78c6a286c5729"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/notifications.ts": {
+    "mtime": 1778660383.8536754,
+    "ast_hash": "5db64caabc2129359fd1f5b417f157f9",
+    "semantic_hash": "5db64caabc2129359fd1f5b417f157f9"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/AnnouncementsModule.tsx": {
+    "mtime": 1778243290.7632325,
+    "ast_hash": "42a8e346c747706835ebbf6d21e88bde",
+    "semantic_hash": "42a8e346c747706835ebbf6d21e88bde"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/OnboardingModule.tsx": {
+    "mtime": 1779195689.3821948,
+    "ast_hash": "1fdeb630addd6c19717a694a1b30a7cc",
+    "semantic_hash": "1fdeb630addd6c19717a694a1b30a7cc"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/MobilityModule.tsx": {
+    "mtime": 1779219002.1193385,
+    "ast_hash": "4908e22f99a9a1382a420e49341ad0a1",
+    "semantic_hash": "4908e22f99a9a1382a420e49341ad0a1"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/OrgChartModule.tsx": {
+    "mtime": 1779219912.945471,
+    "ast_hash": "8e4209917406edf65abf689954d86226",
+    "semantic_hash": "8e4209917406edf65abf689954d86226"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/AdminModule.tsx": {
+    "mtime": 1779219002.1167402,
+    "ast_hash": "95c48239b1f0371bf69ed5fe859834cb",
+    "semantic_hash": "95c48239b1f0371bf69ed5fe859834cb"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CompensationModule.tsx": {
+    "mtime": 1778243290.764586,
+    "ast_hash": "17ee69af2d82c61aafcef851f0a8bce3",
+    "semantic_hash": "17ee69af2d82c61aafcef851f0a8bce3"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DashboardView.tsx": {
+    "mtime": 1779222767.792551,
+    "ast_hash": "b825b3a73c71d12dc2aea2a84fb70cb0",
+    "semantic_hash": "b825b3a73c71d12dc2aea2a84fb70cb0"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documentsModuleHelpers.ts": {
+    "mtime": 1779195678.5644093,
+    "ast_hash": "86b4e0968888786205d13ff43b11d510",
+    "semantic_hash": "86b4e0968888786205d13ff43b11d510"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx": {
+    "mtime": 1778660383.8502855,
+    "ast_hash": "010dd202b731020becd058d5dc423239",
+    "semantic_hash": "010dd202b731020becd058d5dc423239"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/TrainingModule.tsx": {
+    "mtime": 1779195689.3838108,
+    "ast_hash": "8f9f08ea6cbdd1fcf0744123a74f1a84",
+    "semantic_hash": "8f9f08ea6cbdd1fcf0744123a74f1a84"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/FormComponents.tsx": {
+    "mtime": 1775758885.8152063,
+    "ast_hash": "f5f68deda364c2275914b69b02e2cc21",
+    "semantic_hash": "f5f68deda364c2275914b69b02e2cc21"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/QuickActionButton.tsx": {
+    "mtime": 1774123123.2027194,
+    "ast_hash": "4554eeb9d7928eba50b52f0196a3884a",
+    "semantic_hash": "4554eeb9d7928eba50b52f0196a3884a"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx": {
+    "mtime": 1777582806.5387568,
+    "ast_hash": "bdf3ece1eb01839e266147a5cab360c6",
+    "semantic_hash": "bdf3ece1eb01839e266147a5cab360c6"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/TimeTrackingModule.tsx": {
+    "mtime": 1779219002.1202803,
+    "ast_hash": "a1b8a41840293d04e767160c21d1803e",
+    "semantic_hash": "a1b8a41840293d04e767160c21d1803e"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ProfilesModule.tsx": {
+    "mtime": 1778243290.7685647,
+    "ast_hash": "6ffaab990f4802a902fdd24f584d093b",
+    "semantic_hash": "6ffaab990f4802a902fdd24f584d093b"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/AssetsModule.tsx": {
+    "mtime": 1779219002.1183896,
+    "ast_hash": "f0653880524038f58adcccbbb7d5e65c",
+    "semantic_hash": "f0653880524038f58adcccbbb7d5e65c"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/aspect-ratio.tsx": {
+    "mtime": 1774123123.2058907,
+    "ast_hash": "2c1c30af12401d88f8df52c3c235ed67",
+    "semantic_hash": "2c1c30af12401d88f8df52c3c235ed67"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/alert-dialog.tsx": {
+    "mtime": 1778243290.775803,
+    "ast_hash": "6325aba8b2da7e60fd7fb6dfd86bff32",
+    "semantic_hash": "6325aba8b2da7e60fd7fb6dfd86bff32"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/pagination.tsx": {
+    "mtime": 1774123123.211021,
+    "ast_hash": "acadf1335b4690ef0ac62fa77b36c6e8",
+    "semantic_hash": "acadf1335b4690ef0ac62fa77b36c6e8"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/tabs.tsx": {
+    "mtime": 1774123123.2145777,
+    "ast_hash": "64214ca4214423b8bd0d99489742083e",
+    "semantic_hash": "64214ca4214423b8bd0d99489742083e"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/card.tsx": {
+    "mtime": 1774123123.207124,
+    "ast_hash": "1b28ae8a623bd6c66fd09d9c3c4598af",
+    "semantic_hash": "1b28ae8a623bd6c66fd09d9c3c4598af"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/slider.tsx": {
+    "mtime": 1774123123.213479,
+    "ast_hash": "1299d8400f8b2898b7959abd5b9b443a",
+    "semantic_hash": "1299d8400f8b2898b7959abd5b9b443a"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/popover.tsx": {
+    "mtime": 1774123123.21117,
+    "ast_hash": "ee89bea29681532bffc90d78bc57c726",
+    "semantic_hash": "ee89bea29681532bffc90d78bc57c726"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/progress.tsx": {
+    "mtime": 1774123123.211323,
+    "ast_hash": "f443b0f6f0e59d6b1a52c24721e6e224",
+    "semantic_hash": "f443b0f6f0e59d6b1a52c24721e6e224"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/input-otp.tsx": {
+    "mtime": 1774123123.2099423,
+    "ast_hash": "0d7ff8337ff3f6d4c4a97df6c5178cab",
+    "semantic_hash": "0d7ff8337ff3f6d4c4a97df6c5178cab"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/chart.tsx": {
+    "mtime": 1774123123.2076209,
+    "ast_hash": "cf3f9e5825ba7b13ee10b73b795297ac",
+    "semantic_hash": "cf3f9e5825ba7b13ee10b73b795297ac"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/hover-card.tsx": {
+    "mtime": 1774123123.2097855,
+    "ast_hash": "d044d61789a7d53ede97046271846341",
+    "semantic_hash": "d044d61789a7d53ede97046271846341"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/sheet.tsx": {
+    "mtime": 1774123123.212551,
+    "ast_hash": "87be1eb792eef6b1f6b5c744b3628ec5",
+    "semantic_hash": "87be1eb792eef6b1f6b5c744b3628ec5"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/scroll-area.tsx": {
+    "mtime": 1774123123.2118826,
+    "ast_hash": "39d895aa035d274bffb2e61d81dee2c3",
+    "semantic_hash": "39d895aa035d274bffb2e61d81dee2c3"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/resizable.tsx": {
+    "mtime": 1774123123.2117083,
+    "ast_hash": "dd0e5a9b813ecf57f493547b39a46fac",
+    "semantic_hash": "dd0e5a9b813ecf57f493547b39a46fac"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/label.tsx": {
+    "mtime": 1774123123.2104368,
+    "ast_hash": "1b414a4920a58f4f6fdd70c4ef09b66c",
+    "semantic_hash": "1b414a4920a58f4f6fdd70c4ef09b66c"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/sonner.tsx": {
+    "mtime": 1778243290.77933,
+    "ast_hash": "ace3a6465858e1f9a441724008f2d921",
+    "semantic_hash": "ace3a6465858e1f9a441724008f2d921"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/utils.ts": {
+    "mtime": 1774123123.2163455,
+    "ast_hash": "d9837f38cc05303254571985e3164050",
+    "semantic_hash": "d9837f38cc05303254571985e3164050"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/navigation-menu.tsx": {
+    "mtime": 1774123123.210854,
+    "ast_hash": "5962f3aacfdc11103dfb0aa93799414a",
+    "semantic_hash": "5962f3aacfdc11103dfb0aa93799414a"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/use-mobile.ts": {
+    "mtime": 1774123123.2159998,
+    "ast_hash": "acd09a1addc34ebdbb2994bb21e94da6",
+    "semantic_hash": "acd09a1addc34ebdbb2994bb21e94da6"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/accordion.tsx": {
+    "mtime": 1774123123.2053428,
+    "ast_hash": "3c8ab0c96b6589f48e98e76a2912e990",
+    "semantic_hash": "3c8ab0c96b6589f48e98e76a2912e990"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/drawer.tsx": {
+    "mtime": 1774123123.2092042,
+    "ast_hash": "92c2532842879f281df5e8e7bf0c0fbe",
+    "semantic_hash": "92c2532842879f281df5e8e7bf0c0fbe"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/tooltip.tsx": {
+    "mtime": 1774123123.2155943,
+    "ast_hash": "ce818768e154e448ad737c8c516940e8",
+    "semantic_hash": "ce818768e154e448ad737c8c516940e8"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/alert.tsx": {
+    "mtime": 1774123123.2056584,
+    "ast_hash": "b7ad9f6cc2edb5191988f9328364dd9d",
+    "semantic_hash": "b7ad9f6cc2edb5191988f9328364dd9d"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/switch.tsx": {
+    "mtime": 1774123123.2140844,
+    "ast_hash": "210407bacab3b884813458b15d79b503",
+    "semantic_hash": "210407bacab3b884813458b15d79b503"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/calendar.tsx": {
+    "mtime": 1778243290.776243,
+    "ast_hash": "93d426e5a7c84f30299fa2ae116099ad",
+    "semantic_hash": "93d426e5a7c84f30299fa2ae116099ad"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/breadcrumb.tsx": {
+    "mtime": 1774123123.2064464,
+    "ast_hash": "42d9c7ff682c0e3a05accf30921e95d6",
+    "semantic_hash": "42d9c7ff682c0e3a05accf30921e95d6"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/radio-group.tsx": {
+    "mtime": 1774123123.2115083,
+    "ast_hash": "e8200050dee3386bf2b9a8e92a43ee63",
+    "semantic_hash": "e8200050dee3386bf2b9a8e92a43ee63"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/command.tsx": {
+    "mtime": 1778243290.7768703,
+    "ast_hash": "3faa3df355695a9bb211cb7f232c3b8d",
+    "semantic_hash": "3faa3df355695a9bb211cb7f232c3b8d"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/toggle-group.tsx": {
+    "mtime": 1774123123.215086,
+    "ast_hash": "88bb413f4a5f43195bcb01d49761d028",
+    "semantic_hash": "88bb413f4a5f43195bcb01d49761d028"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/avatar.tsx": {
+    "mtime": 1774123123.206058,
+    "ast_hash": "667e95d55321b271cdeae21dfe8094b3",
+    "semantic_hash": "667e95d55321b271cdeae21dfe8094b3"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/menubar.tsx": {
+    "mtime": 1774123123.210663,
+    "ast_hash": "2164c92a77a48c22f25c3fde8a07a232",
+    "semantic_hash": "2164c92a77a48c22f25c3fde8a07a232"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/editable-form.tsx": {
+    "mtime": 1775758885.8229923,
+    "ast_hash": "99217237f7ff80e09381d3dad707a480",
+    "semantic_hash": "99217237f7ff80e09381d3dad707a480"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/dialog.tsx": {
+    "mtime": 1778243290.77749,
+    "ast_hash": "a6654e32b01e915f1cf298613d29095a",
+    "semantic_hash": "a6654e32b01e915f1cf298613d29095a"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/badge.tsx": {
+    "mtime": 1774344252.6767917,
+    "ast_hash": "dce7387b7e0207cf0e725412da743f88",
+    "semantic_hash": "dce7387b7e0207cf0e725412da743f88"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/sidebar.tsx": {
+    "mtime": 1774123123.2129302,
+    "ast_hash": "3dffcc6ba628a9dc3575d329f4df8f78",
+    "semantic_hash": "3dffcc6ba628a9dc3575d329f4df8f78"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/table.tsx": {
+    "mtime": 1774123123.2143362,
+    "ast_hash": "0b1878bd4754a21bce32704223483888",
+    "semantic_hash": "0b1878bd4754a21bce32704223483888"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/separator.tsx": {
+    "mtime": 1774123123.212343,
+    "ast_hash": "c313bc86f52c17c78ce535fcb6d2b797",
+    "semantic_hash": "c313bc86f52c17c78ce535fcb6d2b797"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/button.tsx": {
+    "mtime": 1774123123.2066977,
+    "ast_hash": "57a7cf542ca1fb36af129ce2221edc79",
+    "semantic_hash": "57a7cf542ca1fb36af129ce2221edc79"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/toggle.tsx": {
+    "mtime": 1774123123.2153752,
+    "ast_hash": "ce49787331834f2cdec6c22ceecc2654",
+    "semantic_hash": "ce49787331834f2cdec6c22ceecc2654"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/checkbox.tsx": {
+    "mtime": 1774123123.2077804,
+    "ast_hash": "8e19e4617563fa7bcbcfe101182368ed",
+    "semantic_hash": "8e19e4617563fa7bcbcfe101182368ed"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/collapsible.tsx": {
+    "mtime": 1774123123.2080626,
+    "ast_hash": "fb83308ef990f33e60b56b22c6adb007",
+    "semantic_hash": "fb83308ef990f33e60b56b22c6adb007"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/dropdown-menu.tsx": {
+    "mtime": 1774123123.209466,
+    "ast_hash": "a3f54c82a6ecb132a1be7f989900fcae",
+    "semantic_hash": "a3f54c82a6ecb132a1be7f989900fcae"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/select.tsx": {
+    "mtime": 1778243290.7789862,
+    "ast_hash": "69731b213f48e7a3e530c541021c100c",
+    "semantic_hash": "69731b213f48e7a3e530c541021c100c"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/textarea.tsx": {
+    "mtime": 1774123123.2148137,
+    "ast_hash": "aea31a9e927917db27b675e81b4470b1",
+    "semantic_hash": "aea31a9e927917db27b675e81b4470b1"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/input.tsx": {
+    "mtime": 1778243290.7784293,
+    "ast_hash": "56cad6396818abf82b6df01bf67b2ff1",
+    "semantic_hash": "56cad6396818abf82b6df01bf67b2ff1"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/skeleton.tsx": {
+    "mtime": 1774123123.2132244,
+    "ast_hash": "a71aca7b1a33fbf0e5ecd93015c7804f",
+    "semantic_hash": "a71aca7b1a33fbf0e5ecd93015c7804f"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/context-menu.tsx": {
+    "mtime": 1774123123.2084904,
+    "ast_hash": "b0789dcf2ea674ca5d0f849e77de48b4",
+    "semantic_hash": "b0789dcf2ea674ca5d0f849e77de48b4"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/form.tsx": {
+    "mtime": 1774123123.2096248,
+    "ast_hash": "f073088ba6023b1996fdc696d6481993",
+    "semantic_hash": "f073088ba6023b1996fdc696d6481993"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/ui/carousel.tsx": {
+    "mtime": 1774123123.2073255,
+    "ast_hash": "6cdc05fe7926e0f9d4a5c03507acbfd8",
+    "semantic_hash": "6cdc05fe7926e0f9d4a5c03507acbfd8"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/CertificateList.tsx": {
+    "mtime": 1778660383.85563,
+    "ast_hash": "644ee5c49fbd31ec35c5b4c343b744b8",
+    "semantic_hash": "644ee5c49fbd31ec35c5b4c343b744b8"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/EmployeeBudgetCard.tsx": {
+    "mtime": 1779195689.4113343,
+    "ast_hash": "89b9e492275ae690ad43417e48f1710b",
+    "semantic_hash": "89b9e492275ae690ad43417e48f1710b"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/CertificatesSection.tsx": {
+    "mtime": 1778660383.8559568,
+    "ast_hash": "70c1e7783a63308a41b6b1e084683df5",
+    "semantic_hash": "70c1e7783a63308a41b6b1e084683df5"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx": {
+    "mtime": 1778660383.856501,
+    "ast_hash": "d2b3bcb93a39b3bc7f9abf44a61538c3",
+    "semantic_hash": "d2b3bcb93a39b3bc7f9abf44a61538c3"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/TrainingBudgetList.tsx": {
+    "mtime": 1779195689.412417,
+    "ast_hash": "ce5d93bfe0d6d8ae3f85e12a2ad752c3",
+    "semantic_hash": "ce5d93bfe0d6d8ae3f85e12a2ad752c3"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/TrainingEntryList.tsx": {
+    "mtime": 1778017164.5024695,
+    "ast_hash": "10f092b75a374c0d77297dd96f3f454d",
+    "semantic_hash": "10f092b75a374c0d77297dd96f3f454d"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationForm.tsx": {
+    "mtime": 1778660383.8561437,
+    "ast_hash": "bcb045d096fa0160805b2ac13ff4e6ae",
+    "semantic_hash": "bcb045d096fa0160805b2ac13ff4e6ae"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/TrainingFilters.tsx": {
+    "mtime": 1778017164.5028844,
+    "ast_hash": "45d5ef7990e4c06b24beec091dd00890",
+    "semantic_hash": "45d5ef7990e4c06b24beec091dd00890"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/CertificateUploadForm.tsx": {
+    "mtime": 1778660383.8558018,
+    "ast_hash": "101e16530ae7d564f885bca47617c7e5",
+    "semantic_hash": "101e16530ae7d564f885bca47617c7e5"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionForm.tsx": {
+    "mtime": 1778745938.8324275,
+    "ast_hash": "291fb9e87ce6914e2402cc3a809870bf",
+    "semantic_hash": "291fb9e87ce6914e2402cc3a809870bf"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/TrainingRecentSection.tsx": {
+    "mtime": 1777893647.7259653,
+    "ast_hash": "63a0dbd24effe935f0a256cfd671998e",
+    "semantic_hash": "63a0dbd24effe935f0a256cfd671998e"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts": {
+    "mtime": 1779195689.4165044,
+    "ast_hash": "f20eec41bd26f0799f55ff0a8853f233",
+    "semantic_hash": "f20eec41bd26f0799f55ff0a8853f233"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/TrainingEntryForm.tsx": {
+    "mtime": 1779195689.4135292,
+    "ast_hash": "4989dd31c194d529cade88503e01229a",
+    "semantic_hash": "4989dd31c194d529cade88503e01229a"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/index.ts": {
+    "mtime": 1779195689.4154055,
+    "ast_hash": "f541a413cfc7578b0a72844ff0c52e4c",
+    "semantic_hash": "f541a413cfc7578b0a72844ff0c52e4c"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx": {
+    "mtime": 1778745938.8326488,
+    "ast_hash": "8f9e859dab617bed83b527ca1a904b16",
+    "semantic_hash": "8f9e859dab617bed83b527ca1a904b16"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/TrainingBudgetSection.tsx": {
+    "mtime": 1779195689.4130554,
+    "ast_hash": "eda272fa6b2de55d7260791f01dcdbce",
+    "semantic_hash": "eda272fa6b2de55d7260791f01dcdbce"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationList.tsx": {
+    "mtime": 1778660383.856317,
+    "ast_hash": "095c0ba7c32f5df96f3f91ff807d9bb6",
+    "semantic_hash": "095c0ba7c32f5df96f3f91ff807d9bb6"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionSection.tsx": {
+    "mtime": 1778745938.8328848,
+    "ast_hash": "3ce5cdf4a8b7836cd451e7ef269d6ce2",
+    "semantic_hash": "3ce5cdf4a8b7836cd451e7ef269d6ce2"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/TrainingBudgetForm.tsx": {
+    "mtime": 1779195689.4120882,
+    "ast_hash": "b95d6449c9fc05165680259239b77a30",
+    "semantic_hash": "b95d6449c9fc05165680259239b77a30"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsListPage.tsx": {
+    "mtime": 1779195678.5968306,
+    "ast_hash": "2885945fc67e29535a03e576afab0777",
+    "semantic_hash": "2885945fc67e29535a03e576afab0777"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx": {
+    "mtime": 1779226832.4285464,
+    "ast_hash": "69b6f066f461c7928c19e3bb06c1b9ad",
+    "semantic_hash": "69b6f066f461c7928c19e3bb06c1b9ad"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectStageTrack.tsx": {
+    "mtime": 1779195678.5845027,
+    "ast_hash": "4adcb49dd651e98dd5fe54beef3f4f10",
+    "semantic_hash": "4adcb49dd651e98dd5fe54beef3f4f10"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectDetailView.tsx": {
+    "mtime": 1779219002.121735,
+    "ast_hash": "be934fbe820270976e8ae7b98f9f35af",
+    "semantic_hash": "be934fbe820270976e8ae7b98f9f35af"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/useProjectsListView.ts": {
+    "mtime": 1779223475.777919,
+    "ast_hash": "24d6a87689c7a1efd481259f4be21da7",
+    "semantic_hash": "24d6a87689c7a1efd481259f4be21da7"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectCard.tsx": {
+    "mtime": 1779219002.1210678,
+    "ast_hash": "a20ca5b58ecea94e1ee86b488a38bca4",
+    "semantic_hash": "a20ca5b58ecea94e1ee86b488a38bca4"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectRail.tsx": {
+    "mtime": 1779195678.583884,
+    "ast_hash": "fe2281fe97207e2dccf8aff79d80ba09",
+    "semantic_hash": "fe2281fe97207e2dccf8aff79d80ba09"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/types.ts": {
+    "mtime": 1779219002.1302269,
+    "ast_hash": "1841b429c23bd5d154c4a5953d818f93",
+    "semantic_hash": "1841b429c23bd5d154c4a5953d818f93"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts": {
+    "mtime": 1779227422.061334,
+    "ast_hash": "9ae8f1619eecdb1c420eb4f22ad56c32",
+    "semantic_hash": "9ae8f1619eecdb1c420eb4f22ad56c32"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsListGrid.tsx": {
+    "mtime": 1779195678.5889726,
+    "ast_hash": "384c7ab0439b69b317e89155854fe681",
+    "semantic_hash": "384c7ab0439b69b317e89155854fe681"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsListHeader.tsx": {
+    "mtime": 1779195678.5929127,
+    "ast_hash": "8832df00d668c1b017cf8a6c6f5bb0d6",
+    "semantic_hash": "8832df00d668c1b017cf8a6c6f5bb0d6"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectDetailHeader.tsx": {
+    "mtime": 1779195678.5754209,
+    "ast_hash": "685f072f84daaf79972dc847f04bce1a",
+    "semantic_hash": "685f072f84daaf79972dc847f04bce1a"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsListTable.tsx": {
+    "mtime": 1779195678.5979993,
+    "ast_hash": "0e829de87752ae87d56c255eb64e8d78",
+    "semantic_hash": "0e829de87752ae87d56c255eb64e8d78"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/index.ts": {
+    "mtime": 1779195678.6538699,
+    "ast_hash": "568555e3a2b650f9b4530b5411fd732a",
+    "semantic_hash": "568555e3a2b650f9b4530b5411fd732a"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsListToolbar.tsx": {
+    "mtime": 1779219002.1224308,
+    "ast_hash": "6c2f09c6756219fc5f5c6f0f28a9aa0a",
+    "semantic_hash": "6c2f09c6756219fc5f5c6f0f28a9aa0a"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsData.ts": {
+    "mtime": 1779195678.6543388,
+    "ast_hash": "bdf19de2cd01607042b0b21a939c3fd5",
+    "semantic_hash": "bdf19de2cd01607042b0b21a939c3fd5"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/sections/ProjectActivitySection.tsx": {
+    "mtime": 1779219002.128236,
+    "ast_hash": "ba55c3e860790053b680547bbfa0e3a0",
+    "semantic_hash": "ba55c3e860790053b680547bbfa0e3a0"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/sections/ProjectDocumentsSection.tsx": {
+    "mtime": 1779219002.128673,
+    "ast_hash": "848d228b1b968abc5d7b3ce500a13dcd",
+    "semantic_hash": "848d228b1b968abc5d7b3ce500a13dcd"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/sections/ProjectMembersSection.tsx": {
+    "mtime": 1779219002.1291587,
+    "ast_hash": "913e59ff67e88cad8b7304ca47277bd2",
+    "semantic_hash": "913e59ff67e88cad8b7304ca47277bd2"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/sections/ProjectOverviewSection.tsx": {
+    "mtime": 1779219002.1297114,
+    "ast_hash": "d98c135e87392ee43dbffcd1fa6d4501",
+    "semantic_hash": "d98c135e87392ee43dbffcd1fa6d4501"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/sections/index.ts": {
+    "mtime": 1779195678.666397,
+    "ast_hash": "16d22e190730fa5af9f40fcec6aeae33",
+    "semantic_hash": "16d22e190730fa5af9f40fcec6aeae33"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/MemberStack.tsx": {
+    "mtime": 1779195678.613869,
+    "ast_hash": "e8077bf2aea5430eec73a44aefc2a513",
+    "semantic_hash": "e8077bf2aea5430eec73a44aefc2a513"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StageChip.tsx": {
+    "mtime": 1779195678.62781,
+    "ast_hash": "be3e3d58a8e0071790dbbaf89f67d0d1",
+    "semantic_hash": "be3e3d58a8e0071790dbbaf89f67d0d1"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/ProjectActionMenu.tsx": {
+    "mtime": 1779195678.6187701,
+    "ast_hash": "3189d11acaa9f4da18628ee38986266b",
+    "semantic_hash": "3189d11acaa9f4da18628ee38986266b"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/TechBadge.tsx": {
+    "mtime": 1779195678.632556,
+    "ast_hash": "dae71b74dfe66d1c4465c72386d0fb4a",
+    "semantic_hash": "dae71b74dfe66d1c4465c72386d0fb4a"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/MemberAvatar.tsx": {
+    "mtime": 1779195678.6093388,
+    "ast_hash": "1b64ba2781be4c266f6a48eeb14a7e62",
+    "semantic_hash": "1b64ba2781be4c266f6a48eeb14a7e62"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StatusPill.tsx": {
+    "mtime": 1779195678.6316113,
+    "ast_hash": "8080603289e7bb5b41b4454a3ba0e111",
+    "semantic_hash": "8080603289e7bb5b41b4454a3ba0e111"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/ProgressBar.tsx": {
+    "mtime": 1779195678.614644,
+    "ast_hash": "756cab8228e40de2b71fe1a997c9fdc7",
+    "semantic_hash": "756cab8228e40de2b71fe1a997c9fdc7"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/ProjectIcon.tsx": {
+    "mtime": 1779195678.623543,
+    "ast_hash": "0d5212d2e7c33269c3ec22e7023de908",
+    "semantic_hash": "0d5212d2e7c33269c3ec22e7023de908"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/SkeletonProjectCard.tsx": {
+    "mtime": 1779195678.626757,
+    "ast_hash": "22798b125b09b161a433dccd94e62e82",
+    "semantic_hash": "22798b125b09b161a433dccd94e62e82"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/index.ts": {
+    "mtime": 1779195678.636576,
+    "ast_hash": "e61a84b681d72bce80646d0f1ed1672f",
+    "semantic_hash": "e61a84b681d72bce80646d0f1ed1672f"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/techCatalog.ts": {
+    "mtime": 1779195678.6397653,
+    "ast_hash": "5c853d0cbaca2cdee39a6c3c90a92e69",
+    "semantic_hash": "5c853d0cbaca2cdee39a6c3c90a92e69"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/EmptyState.tsx": {
+    "mtime": 1779195678.6062708,
+    "ast_hash": "096b7d385b49856a32faf7b0c23552e3",
+    "semantic_hash": "096b7d385b49856a32faf7b0c23552e3"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx": {
+    "mtime": 1779195678.648931,
+    "ast_hash": "6e4b736aacefe86a111e1082fe9b5215",
+    "semantic_hash": "6e4b736aacefe86a111e1082fe9b5215"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EditProjectDialog.tsx": {
+    "mtime": 1779195678.6486669,
+    "ast_hash": "265fa2ac6f6bfc049fd0c9b16e2a044c",
+    "semantic_hash": "265fa2ac6f6bfc049fd0c9b16e2a044c"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ProjectDocumentUploadDialog.tsx": {
+    "mtime": 1779195678.6491885,
+    "ast_hash": "e2507222b686f936865fdf3ab2f69ab8",
+    "semantic_hash": "e2507222b686f936865fdf3ab2f69ab8"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EditAssignmentDialog.tsx": {
+    "mtime": 1779219002.1262612,
+    "ast_hash": "68ad0fef15f97db367085d194d736720",
+    "semantic_hash": "68ad0fef15f97db367085d194d736720"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx": {
+    "mtime": 1779219002.1266415,
+    "ast_hash": "89268322a001b5d5e01f5e08e9a088da",
+    "semantic_hash": "89268322a001b5d5e01f5e08e9a088da"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/AddMemberDialog.tsx": {
+    "mtime": 1779219002.1244888,
+    "ast_hash": "9e26577d639ca8acba67482925b363ce",
+    "semantic_hash": "9e26577d639ca8acba67482925b363ce"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/StatusEditorDialog.tsx": {
+    "mtime": 1779195678.6494179,
+    "ast_hash": "df3354d3698e5361b5cbc4d504e99594",
+    "semantic_hash": "df3354d3698e5361b5cbc4d504e99594"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/index.ts": {
+    "mtime": 1779219002.127102,
+    "ast_hash": "e74dc7e1299ff616d885ba840c743124",
+    "semantic_hash": "e74dc7e1299ff616d885ba840c743124"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ConfirmActionDialog.tsx": {
+    "mtime": 1779195678.6440423,
+    "ast_hash": "6dc86b4ba1edda1caab5f75baf0b0f0a",
+    "semantic_hash": "6dc86b4ba1edda1caab5f75baf0b0f0a"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx": {
+    "mtime": 1779219002.125809,
+    "ast_hash": "80f31899f7e65db99f1653fbcf117443",
+    "semantic_hash": "80f31899f7e65db99f1653fbcf117443"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/ProfileTechnologySection.tsx": {
+    "mtime": 1778846307.6215937,
+    "ast_hash": "0345bd5b313e058de096508813ad2abe",
+    "semantic_hash": "0345bd5b313e058de096508813ad2abe"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/useProfileSectionNav.ts": {
+    "mtime": 1778846307.6354434,
+    "ast_hash": "a6f334c7f27c79c6040f767d1142a9c4",
+    "semantic_hash": "a6f334c7f27c79c6040f767d1142a9c4"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/ProfileHistorySection.tsx": {
+    "mtime": 1778846307.6201093,
+    "ast_hash": "4f3b9b7164e2ae6d2e7c7fe1d5d9de7b",
+    "semantic_hash": "4f3b9b7164e2ae6d2e7c7fe1d5d9de7b"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/EmployeesListGrid.tsx": {
+    "mtime": 1778846307.6165824,
+    "ast_hash": "5f5a9fac082aa23da177c8d62d92c083",
+    "semantic_hash": "5f5a9fac082aa23da177c8d62d92c083"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/ExportEmployeesDialog.tsx": {
+    "mtime": 1778846307.6186428,
+    "ast_hash": "576e70f94e05cba94378d3ea8823bcaf",
+    "semantic_hash": "576e70f94e05cba94378d3ea8823bcaf"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/useEmployeesListView.ts": {
+    "mtime": 1778846307.635128,
+    "ast_hash": "31d354359f58c27c7a95422d145d9532",
+    "semantic_hash": "31d354359f58c27c7a95422d145d9532"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/ProfileEmergencyContactSection.tsx": {
+    "mtime": 1778846307.619715,
+    "ast_hash": "31e6212b45ae6eec34d185f6220b7f90",
+    "semantic_hash": "31e6212b45ae6eec34d185f6220b7f90"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx": {
+    "mtime": 1778846307.6161835,
+    "ast_hash": "9f67ad9739aa61e26a0368a4210d0e1e",
+    "semantic_hash": "9f67ad9739aa61e26a0368a4210d0e1e"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/ProfilePageHeader.tsx": {
+    "mtime": 1779390555.28866,
+    "ast_hash": "4be7e9422c583b07fcf8dbb3d3a3834e",
+    "semantic_hash": "4be7e9422c583b07fcf8dbb3d3a3834e"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/CvPreviewDialog.tsx": {
+    "mtime": 1777384882.8661256,
+    "ast_hash": "4164592342e4705b8fc53fd746124b3d",
+    "semantic_hash": "4164592342e4705b8fc53fd746124b3d"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/EmployeesTableSection.tsx": {
+    "mtime": 1777384882.8665679,
+    "ast_hash": "f52e90787818e353563ce58a3ac9ecd5",
+    "semantic_hash": "f52e90787818e353563ce58a3ac9ecd5"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/ProfileDialogSaveControls.tsx": {
+    "mtime": 1777384882.867346,
+    "ast_hash": "20e532bdace1b3649869716063f88b38",
+    "semantic_hash": "20e532bdace1b3649869716063f88b38"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/tech-icons.tsx": {
+    "mtime": 1776877563.1946523,
+    "ast_hash": "82257066268d24d9a951d2f1137041b4",
+    "semantic_hash": "82257066268d24d9a951d2f1137041b4"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/EmployeesListTable.tsx": {
+    "mtime": 1778846307.6177502,
+    "ast_hash": "14562f42740555d88cb1f33393f9bb28",
+    "semantic_hash": "14562f42740555d88cb1f33393f9bb28"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/ProfileRail.tsx": {
+    "mtime": 1778846307.620955,
+    "ast_hash": "4e88e4183ef8343bdc6daeca35ad1782",
+    "semantic_hash": "4e88e4183ef8343bdc6daeca35ad1782"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/profilesModuleHelpers.ts": {
+    "mtime": 1778678718.2935915,
+    "ast_hash": "c596f50b88dabc551c3c2bc04e59861e",
+    "semantic_hash": "c596f50b88dabc551c3c2bc04e59861e"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/useAvatarsReady.ts": {
+    "mtime": 1778846307.6340709,
+    "ast_hash": "843f13358bcc5f9271e8c4c0ced0df88",
+    "semantic_hash": "843f13358bcc5f9271e8c4c0ced0df88"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts": {
+    "mtime": 1778846307.6307147,
+    "ast_hash": "49803bc7faf7f0a1ab1299d96c7073b0",
+    "semantic_hash": "49803bc7faf7f0a1ab1299d96c7073b0"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/ProfileCvSection.tsx": {
+    "mtime": 1778846307.618999,
+    "ast_hash": "7374e43be99ce8be02b8a93aa0a728a8",
+    "semantic_hash": "7374e43be99ce8be02b8a93aa0a728a8"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/ProfileDetailShell.tsx": {
+    "mtime": 1779390572.8657386,
+    "ast_hash": "c6027029f5dc188020c54bb83990fd40",
+    "semantic_hash": "c6027029f5dc188020c54bb83990fd40"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/CvDeleteDialog.tsx": {
+    "mtime": 1777384882.865661,
+    "ast_hash": "f08ba6347f1f09512713b2d3abb53520",
+    "semantic_hash": "f08ba6347f1f09512713b2d3abb53520"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/EmployeesListPage.tsx": {
+    "mtime": 1778846307.6173737,
+    "ast_hash": "9db11013e2b5c0f88fc4e64350e949d1",
+    "semantic_hash": "9db11013e2b5c0f88fc4e64350e949d1"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts": {
+    "mtime": 1778846307.6312122,
+    "ast_hash": "89f7009324e9bc7abbceb26e3a23f794",
+    "semantic_hash": "89f7009324e9bc7abbceb26e3a23f794"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/index.ts": {
+    "mtime": 1776877563.1939077,
+    "ast_hash": "a401d2f1799e9b18926c6a7a4f11b667",
+    "semantic_hash": "a401d2f1799e9b18926c6a7a4f11b667"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/ProfilesDetailView.tsx": {
+    "mtime": 1779390615.6339839,
+    "ast_hash": "9df2ac7b0e2394250157a2d3bab1609a",
+    "semantic_hash": "9df2ac7b0e2394250157a2d3bab1609a"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/profilesModuleLoaders.ts": {
+    "mtime": 1776977798.478353,
+    "ast_hash": "7c9fc6315dac16d91bde966657e8049f",
+    "semantic_hash": "7c9fc6315dac16d91bde966657e8049f"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/EmployeesListToolbar.tsx": {
+    "mtime": 1778846307.6181836,
+    "ast_hash": "9e148c2639599dbe9693ee46f7681142",
+    "semantic_hash": "9e148c2639599dbe9693ee46f7681142"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/EmployeesListHeader.tsx": {
+    "mtime": 1778846307.6168268,
+    "ast_hash": "07ae25e8ee52c8eedc0877ba78c62108",
+    "semantic_hash": "07ae25e8ee52c8eedc0877ba78c62108"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/TechnologyTagInput.tsx": {
+    "mtime": 1776877563.193465,
+    "ast_hash": "611f619678e0d6ef53cfd9b10ae40824",
+    "semantic_hash": "611f619678e0d6ef53cfd9b10ae40824"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/ProfilesModule.tsx": {
+    "mtime": 1779390891.3570828,
+    "ast_hash": "3e35d19837092cd79ad0a54b66a3de9c",
+    "semantic_hash": "3e35d19837092cd79ad0a54b66a3de9c"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileCareerSection.tsx": {
+    "mtime": 1778846307.6316211,
+    "ast_hash": "bb9a0cc33c82c848573ee738743c7087",
+    "semantic_hash": "bb9a0cc33c82c848573ee738743c7087"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfilePersonalSection.tsx": {
+    "mtime": 1778846307.6325736,
+    "ast_hash": "eb6ba70b5b02ec1fa8c98f42e9edf9cc",
+    "semantic_hash": "eb6ba70b5b02ec1fa8c98f42e9edf9cc"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx": {
+    "mtime": 1778846307.6322253,
+    "ast_hash": "ab993b08693b71450a748514997db6f8",
+    "semantic_hash": "ab993b08693b71450a748514997db6f8"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/index.ts": {
+    "mtime": 1778846307.63349,
+    "ast_hash": "75c1f618eb46875d3de87c6219f132d0",
+    "semantic_hash": "75c1f618eb46875d3de87c6219f132d0"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileCompensationSection.tsx": {
+    "mtime": 1778846307.6318328,
+    "ast_hash": "02d2ef2cc16c659bbe89a2bf330a57e6",
+    "semantic_hash": "02d2ef2cc16c659bbe89a2bf330a57e6"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileProjectsSection.tsx": {
+    "mtime": 1778846307.6327786,
+    "ast_hash": "79b1fc760a20edff223866f64eb30b28",
+    "semantic_hash": "79b1fc760a20edff223866f64eb30b28"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/EmployeeAvatar.tsx": {
+    "mtime": 1778846307.624651,
+    "ast_hash": "9e6948cd137b4ab013263e0804219124",
+    "semantic_hash": "9e6948cd137b4ab013263e0804219124"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/Pagination.tsx": {
+    "mtime": 1778846307.6263967,
+    "ast_hash": "942a2aac4b44a33fb8f4bb289b2f45a9",
+    "semantic_hash": "942a2aac4b44a33fb8f4bb289b2f45a9"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/Field.tsx": {
+    "mtime": 1778846307.6253316,
+    "ast_hash": "5920820337d743fef85f023b206d8ce3",
+    "semantic_hash": "5920820337d743fef85f023b206d8ce3"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/SortToggle.tsx": {
+    "mtime": 1778846307.6288898,
+    "ast_hash": "8e50af3d79cdb9c7ae39287427638e12",
+    "semantic_hash": "8e50af3d79cdb9c7ae39287427638e12"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/RestrictedBlock.tsx": {
+    "mtime": 1778846307.6270308,
+    "ast_hash": "6947d36403b99343b597a7d2a3d7b050",
+    "semantic_hash": "6947d36403b99343b597a7d2a3d7b050"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/StatusPill.tsx": {
+    "mtime": 1778846307.629378,
+    "ast_hash": "27c856f8fa79e8d236e3dedca6cbd0a7",
+    "semantic_hash": "27c856f8fa79e8d236e3dedca6cbd0a7"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/Chip.tsx": {
+    "mtime": 1778846307.6234753,
+    "ast_hash": "c417d081c6536e1ff9f31701a8ee97d5",
+    "semantic_hash": "c417d081c6536e1ff9f31701a8ee97d5"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/SkeletonCard.tsx": {
+    "mtime": 1778846307.6285977,
+    "ast_hash": "d1074ada727a5c528176718ab26eb779",
+    "semantic_hash": "d1074ada727a5c528176718ab26eb779"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/ProfileSection.tsx": {
+    "mtime": 1778846307.6266508,
+    "ast_hash": "8c4e4e7111e6f2217e8c9d83c5cc1e80",
+    "semantic_hash": "8c4e4e7111e6f2217e8c9d83c5cc1e80"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/ViewToggle.tsx": {
+    "mtime": 1778846307.6296268,
+    "ast_hash": "badf5a92a04357c1185d3fc6c92126d1",
+    "semantic_hash": "badf5a92a04357c1185d3fc6c92126d1"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/CountBadge.tsx": {
+    "mtime": 1778846307.6239042,
+    "ast_hash": "c376dcd0a5e516a052b6951fc9da85ab",
+    "semantic_hash": "c376dcd0a5e516a052b6951fc9da85ab"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/FieldInput.tsx": {
+    "mtime": 1778846307.625753,
+    "ast_hash": "d96180fa75d86b109a468a3e92719280",
+    "semantic_hash": "d96180fa75d86b109a468a3e92719280"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/RoleSwitch.tsx": {
+    "mtime": 1778846307.627284,
+    "ast_hash": "3b1f66a4194e8648cc3a2a893f7263e0",
+    "semantic_hash": "3b1f66a4194e8648cc3a2a893f7263e0"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/Segmented.tsx": {
+    "mtime": 1778846307.6281207,
+    "ast_hash": "53362adb66e66085eb1aaa974d16c8a9",
+    "semantic_hash": "53362adb66e66085eb1aaa974d16c8a9"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/index.ts": {
+    "mtime": 1778846307.6301942,
+    "ast_hash": "3a4d43e4b33f77c887a6f519ae5d5dfa",
+    "semantic_hash": "3a4d43e4b33f77c887a6f519ae5d5dfa"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/EmptyState.tsx": {
+    "mtime": 1778846307.6248815,
+    "ast_hash": "d3785da214f2cf9971f97df9d335cc72",
+    "semantic_hash": "d3785da214f2cf9971f97df9d335cc72"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/SaveFooter.tsx": {
+    "mtime": 1778846307.6277514,
+    "ast_hash": "4677c1411990581096106446c8001d89",
+    "semantic_hash": "4677c1411990581096106446c8001d89"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/EditModePill.tsx": {
+    "mtime": 1778846307.6242652,
+    "ast_hash": "1d8841cd5aad67ded8e2dfed8adf1965",
+    "semantic_hash": "1d8841cd5aad67ded8e2dfed8adf1965"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/atoms/FilterChip.tsx": {
+    "mtime": 1778846307.6260483,
+    "ast_hash": "fea9a25ecbbecaec75bfd2b82696e114",
+    "semantic_hash": "fea9a25ecbbecaec75bfd2b82696e114"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartToolbar.tsx": {
+    "mtime": 1779227011.2205284,
+    "ast_hash": "8a573282b18b6ececc8c40465ced1570",
+    "semantic_hash": "8a573282b18b6ececc8c40465ced1570"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx": {
+    "mtime": 1779392680.2635531,
+    "ast_hash": "d81abadf432b30100d1d297ba233e96f",
+    "semantic_hash": "d81abadf432b30100d1d297ba233e96f"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartNode.tsx": {
+    "mtime": 1779220132.8910303,
+    "ast_hash": "30f46b1c26dd04872387116daf4f2aee",
+    "semantic_hash": "30f46b1c26dd04872387116daf4f2aee"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartModule.tsx": {
+    "mtime": 1779436781.135889,
+    "ast_hash": "7e435c4b98a3119ab6953ab1072d2803",
+    "semantic_hash": "7e435c4b98a3119ab6953ab1072d2803"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts": {
+    "mtime": 1779219575.3018794,
+    "ast_hash": "a5ac96bb3551789bddd4be0949a0e1db",
+    "semantic_hash": "a5ac96bb3551789bddd4be0949a0e1db"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartSidebar.tsx": {
+    "mtime": 1779220232.283026,
+    "ast_hash": "aaafe642faeb2f2900ae4fc77c037cd8",
+    "semantic_hash": "aaafe642faeb2f2900ae4fc77c037cd8"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartEmployeeSheet.tsx": {
+    "mtime": 1779227918.5699973,
+    "ast_hash": "c771fa82a47ba10ef031098e7e209972",
+    "semantic_hash": "c771fa82a47ba10ef031098e7e209972"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/index.ts": {
+    "mtime": 1779219911.8954298,
+    "ast_hash": "42f095cc9123a761f6597ff593b8a4a1",
+    "semantic_hash": "42f095cc9123a761f6597ff593b8a4a1"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/orgChartUtils.ts": {
+    "mtime": 1779392451.8475397,
+    "ast_hash": "53f3fe08b281d01372994dd3a66e84c4",
+    "semantic_hash": "53f3fe08b281d01372994dd3a66e84c4"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts": {
+    "mtime": 1779223427.1225257,
+    "ast_hash": "da7b4da011a095906c9b702322837c59",
+    "semantic_hash": "da7b4da011a095906c9b702322837c59"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/useOrgChartData.ts": {
+    "mtime": 1779227062.7693086,
+    "ast_hash": "b2c109ff2ade206eaa86944a5ec91d3f",
+    "semantic_hash": "b2c109ff2ade206eaa86944a5ec91d3f"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/mockData.ts": {
+    "mtime": 1779219626.8929663,
+    "ast_hash": "22ecb61fccd3bd57fa3f58f713868efd",
+    "semantic_hash": "22ecb61fccd3bd57fa3f58f713868efd"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/common/dialogs.tsx": {
+    "mtime": 1775758994.1979146,
+    "ast_hash": "aaf88426e26bcb28a989db51ebf21f7a",
+    "semantic_hash": "aaf88426e26bcb28a989db51ebf21f7a"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/figma/ImageWithFallback.tsx": {
+    "mtime": 1778243290.7697191,
+    "ast_hash": "28e3aa5cdcd4cdf75814f968c2d9b073",
+    "semantic_hash": "28e3aa5cdcd4cdf75814f968c2d9b073"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx": {
+    "mtime": 1777893647.7170503,
+    "ast_hash": "de07c821e809c3c2e3b9923cd67a88a0",
+    "semantic_hash": "de07c821e809c3c2e3b9923cd67a88a0"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatePicker.tsx": {
+    "mtime": 1778745938.832131,
+    "ast_hash": "b684ecdc89df721dc0a49f7b2038b5e2",
+    "semantic_hash": "b684ecdc89df721dc0a49f7b2038b5e2"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/SnippetRichTextEditor.tsx": {
+    "mtime": 1778243290.7707365,
+    "ast_hash": "598faedb6d92b777b56af8a40ce6ad0c",
+    "semantic_hash": "598faedb6d92b777b56af8a40ce6ad0c"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/templateEditorHelpers.ts": {
+    "mtime": 1778489262.4704533,
+    "ast_hash": "c0187400a700b3f5b242e607cffcc478",
+    "semantic_hash": "c0187400a700b3f5b242e607cffcc478"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx": {
+    "mtime": 1778489262.469886,
+    "ast_hash": "91342db28a01249542d7dd452ee7dae1",
+    "semantic_hash": "91342db28a01249542d7dd452ee7dae1"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateSnippetsManageDialog.tsx": {
+    "mtime": 1778243290.7726827,
+    "ast_hash": "0528d707f227f79d9bce7a958857fbe1",
+    "semantic_hash": "0528d707f227f79d9bce7a958857fbe1"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplateBuilder.tsx": {
+    "mtime": 1778489262.466794,
+    "ast_hash": "0c11e56b987173da46da2b9aff026e03",
+    "semantic_hash": "0c11e56b987173da46da2b9aff026e03"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx": {
+    "mtime": 1778489262.4648426,
+    "ast_hash": "cfcce4a52c09def2427e79fd65fb5069",
+    "semantic_hash": "cfcce4a52c09def2427e79fd65fb5069"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx": {
+    "mtime": 1778660383.8517547,
+    "ast_hash": "b87c9ffa6203b86fb390c70eeceb0fed",
+    "semantic_hash": "b87c9ffa6203b86fb390c70eeceb0fed"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentSignaturePanel.tsx": {
+    "mtime": 1778660383.851261,
+    "ast_hash": "b52d31b01b3a94c9bc980ab55b6caeea",
+    "semantic_hash": "b52d31b01b3a94c9bc980ab55b6caeea"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentStats.tsx": {
+    "mtime": 1778660383.8514652,
+    "ast_hash": "9950e5e3b18fcfe778f7ce1b3a8a00ca",
+    "semantic_hash": "9950e5e3b18fcfe778f7ce1b3a8a00ca"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/SignatureActionButton.tsx": {
+    "mtime": 1778660383.8522217,
+    "ast_hash": "dbfdb5503e85e3c772ab994fac67a0f7",
+    "semantic_hash": "dbfdb5503e85e3c772ab994fac67a0f7"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityBadge.tsx": {
+    "mtime": 1779195678.5601737,
+    "ast_hash": "f56ade959b3b535cb367fefdc63fa650",
+    "semantic_hash": "f56ade959b3b535cb367fefdc63fa650"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityCustomRoleRow.tsx": {
+    "mtime": 1778489262.464262,
+    "ast_hash": "86ab1ba700846c969fee5b0b761a4560",
+    "semantic_hash": "86ab1ba700846c969fee5b0b761a4560"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx": {
+    "mtime": 1778489262.463223,
+    "ast_hash": "4f93888b95daa208e56af55e6fa21101",
+    "semantic_hash": "4f93888b95daa208e56af55e6fa21101"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx": {
+    "mtime": 1778660383.850629,
+    "ast_hash": "7991781a6de40ef36cafef8479e01ae4",
+    "semantic_hash": "7991781a6de40ef36cafef8479e01ae4"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/documentDisplay.tsx": {
+    "mtime": 1778660383.8534453,
+    "ast_hash": "1208d2c2bc087175e4798213d270a2ce",
+    "semantic_hash": "1208d2c2bc087175e4798213d270a2ce"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx": {
+    "mtime": 1778489262.462744,
+    "ast_hash": "5e4cac230ec18d34e8012bc6103ea678",
+    "semantic_hash": "5e4cac230ec18d34e8012bc6103ea678"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/SignatureDialog.tsx": {
+    "mtime": 1778660383.8524575,
+    "ast_hash": "9033e7601ceac6582f79f9f4bea2715f",
+    "semantic_hash": "9033e7601ceac6582f79f9f4bea2715f"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/SignatureStatusBadge.tsx": {
+    "mtime": 1778660383.8530974,
+    "ast_hash": "2e12fd96cbde557db07cd3b2294f4368",
+    "semantic_hash": "2e12fd96cbde557db07cd3b2294f4368"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentsTableRow.tsx": {
+    "mtime": 1779195678.556317,
+    "ast_hash": "3c3a8859c4c4e6d54d8a884a6600f8d6",
+    "semantic_hash": "3c3a8859c4c4e6d54d8a884a6600f8d6"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentDrawer.tsx": {
+    "mtime": 1779195678.5554059,
+    "ast_hash": "dc1f0934d566e5529a8380464734b130",
+    "semantic_hash": "dc1f0934d566e5529a8380464734b130"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/SignatureRequestDialog.tsx": {
+    "mtime": 1778660383.852778,
+    "ast_hash": "c4d7d6ebdfaa5bb87d7a29a91488b5f6",
+    "semantic_hash": "c4d7d6ebdfaa5bb87d7a29a91488b5f6"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewsHeader.tsx": {
+    "mtime": 1778660383.8544242,
+    "ast_hash": "310af5197388d6e2fee7fcca484156fd",
+    "semantic_hash": "310af5197388d6e2fee7fcca484156fd"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ScheduleReviewDialog.tsx": {
+    "mtime": 1778660383.8549023,
+    "ast_hash": "e72e69de4213d903b918490b1dbe0f54",
+    "semantic_hash": "e72e69de4213d903b918490b1dbe0f54"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/RatingChip.tsx": {
+    "mtime": 1778660383.854006,
+    "ast_hash": "a6a7a1e7dbd05e4c0e6f937695221e6a",
+    "semantic_hash": "a6a7a1e7dbd05e4c0e6f937695221e6a"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/reviewsModuleHelpers.ts": {
+    "mtime": 1778660383.8554254,
+    "ast_hash": "21c32d3f3432a0da90f64086b75cb768",
+    "semantic_hash": "21c32d3f3432a0da90f64086b75cb768"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewsToolbar.tsx": {
+    "mtime": 1778660383.854734,
+    "ast_hash": "068fc7c0b3cd94ffc2b82dca446e0c68",
+    "semantic_hash": "068fc7c0b3cd94ffc2b82dca446e0c68"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewsList.tsx": {
+    "mtime": 1778660383.854588,
+    "ast_hash": "654a3fa1a70c20f4803a8a72aed1cbf2",
+    "semantic_hash": "654a3fa1a70c20f4803a8a72aed1cbf2"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/StatusPill.tsx": {
+    "mtime": 1778660383.855065,
+    "ast_hash": "2948b8741a105d30618df2f7c75ba74d",
+    "semantic_hash": "2948b8741a105d30618df2f7c75ba74d"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx": {
+    "mtime": 1778660383.854275,
+    "ast_hash": "2b5a7d3ef94ba97dedf86fd920fdfa3c",
+    "semantic_hash": "2b5a7d3ef94ba97dedf86fd920fdfa3c"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/PersonAvatar.tsx": {
+    "mtime": 1778660383.8538628,
+    "ast_hash": "52753489155e16f73a57c7d04facf065",
+    "semantic_hash": "52753489155e16f73a57c7d04facf065"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/index.ts": {
+    "mtime": 1778660383.8552313,
+    "ast_hash": "6b812b60e46d6a97709cc65764f293b9",
+    "semantic_hash": "6b812b60e46d6a97709cc65764f293b9"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx": {
+    "mtime": 1779195678.7054782,
+    "ast_hash": "de8a830b8b44956a80bf25f664c1bd83",
+    "semantic_hash": "de8a830b8b44956a80bf25f664c1bd83"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/hooks/useAdminAccess.ts": {
+    "mtime": 1775758885.8240705,
+    "ast_hash": "b9a0978e10395e85c646336bd6803b35",
+    "semantic_hash": "b9a0978e10395e85c646336bd6803b35"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/config.ts": {
+    "mtime": 1779219002.1329556,
+    "ast_hash": "bb03c16e755f4e8e4357fe026785d6e3",
+    "semantic_hash": "bb03c16e755f4e8e4357fe026785d6e3"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/profileHistory/helpers.ts": {
+    "mtime": 1777384882.8714244,
+    "ast_hash": "49777f12d2bd11e6ef447feb658f2827",
+    "semantic_hash": "49777f12d2bd11e6ef447feb658f2827"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts": {
+    "mtime": 1779219002.133295,
+    "ast_hash": "017500b4637e6ae9fa880f7cd551f23a",
+    "semantic_hash": "017500b4637e6ae9fa880f7cd551f23a"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts": {
+    "mtime": 1778745938.834898,
+    "ast_hash": "9b2f59497ee19fc51c64818f0f8e96d6",
+    "semantic_hash": "9b2f59497ee19fc51c64818f0f8e96d6"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/managers.ts": {
+    "mtime": 1775758885.8277884,
+    "ast_hash": "1459086e02ea4a36eb0ebb3240fc0af5",
+    "semantic_hash": "1459086e02ea4a36eb0ebb3240fc0af5"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts": {
+    "mtime": 1778660383.8572419,
+    "ast_hash": "ee7775a0e7e99587b8aba08b0d83a704",
+    "semantic_hash": "ee7775a0e7e99587b8aba08b0d83a704"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/departments.ts": {
+    "mtime": 1775758885.8251178,
+    "ast_hash": "86b07c0819f2d8ecdeb5fa390a9c0c41",
+    "semantic_hash": "86b07c0819f2d8ecdeb5fa390a9c0c41"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/peerSessions.ts": {
+    "mtime": 1778745938.8342855,
+    "ast_hash": "1382378ff12723a851c2ec7516173f8b",
+    "semantic_hash": "1382378ff12723a851c2ec7516173f8b"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/training.ts": {
+    "mtime": 1779195689.4175677,
+    "ast_hash": "456caa515c1688fdf0e2e4388c05c4e5",
+    "semantic_hash": "456caa515c1688fdf0e2e4388c05c4e5"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/helpers.ts": {
+    "mtime": 1776877563.1957839,
+    "ast_hash": "1d3eebe0368dc9aec5ebd780150ced27",
+    "semantic_hash": "1d3eebe0368dc9aec5ebd780150ced27"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts": {
+    "mtime": 1778846307.6359806,
+    "ast_hash": "d5e068b80928076e7db266775c93fd04",
+    "semantic_hash": "d5e068b80928076e7db266775c93fd04"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/permissions.ts": {
+    "mtime": 1776970109.5012689,
+    "ast_hash": "a339c764cec6dbc9965e97db78dd5614",
+    "semantic_hash": "a339c764cec6dbc9965e97db78dd5614"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/refresh.ts": {
+    "mtime": 1776877563.19921,
+    "ast_hash": "9acd19ea6a7e34e4f8dabc3c3a3cc306",
+    "semantic_hash": "9acd19ea6a7e34e4f8dabc3c3a3cc306"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts": {
+    "mtime": 1778660383.8599472,
+    "ast_hash": "a3768518f03feb7fd3db727db82a98b2",
+    "semantic_hash": "a3768518f03feb7fd3db727db82a98b2"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/assets.ts": {
+    "mtime": 1779219002.1312375,
+    "ast_hash": "83a58a878c295edd37747bed6402a8ff",
+    "semantic_hash": "83a58a878c295edd37747bed6402a8ff"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/onboarding.ts": {
+    "mtime": 1778417652.2552505,
+    "ast_hash": "fb91c522afb6048f6c6ffc8fd8e6d074",
+    "semantic_hash": "fb91c522afb6048f6c6ffc8fd8e6d074"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/cpf-levels.ts": {
+    "mtime": 1775758885.8248694,
+    "ast_hash": "a390180e306d0788a57c43d7d90bf652",
+    "semantic_hash": "a390180e306d0788a57c43d7d90bf652"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/reviews.ts": {
+    "mtime": 1778660383.8595104,
+    "ast_hash": "771bf96f650a7ba4a8759308eae73f1f",
+    "semantic_hash": "771bf96f650a7ba4a8759308eae73f1f"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts": {
+    "mtime": 1778243290.7801936,
+    "ast_hash": "faa736a55340ecbc1f83f7ada5e0a3e6",
+    "semantic_hash": "faa736a55340ecbc1f83f7ada5e0a3e6"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/vacationsEndpoints.ts": {
+    "mtime": 1778417652.2541306,
+    "ast_hash": "aa8376f2d39ffda159141e65b611708b",
+    "semantic_hash": "aa8376f2d39ffda159141e65b611708b"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/hrEmployeeProfilesEndpoints.ts": {
+    "mtime": 1776970109.496971,
+    "ast_hash": "d95228bc20e6164b97577acb0c287f7d",
+    "semantic_hash": "d95228bc20e6164b97577acb0c287f7d"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/notificationsEndpoints.ts": {
+    "mtime": 1778660383.8580122,
+    "ast_hash": "9d6856cd622d34d2c3b43d8f4373b89b",
+    "semantic_hash": "9d6856cd622d34d2c3b43d8f4373b89b"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/certificatesEndpoints.ts": {
+    "mtime": 1778660383.8573883,
+    "ast_hash": "499233d7cbed5fb5b9c8fb61dd10c847",
+    "semantic_hash": "499233d7cbed5fb5b9c8fb61dd10c847"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts": {
+    "mtime": 1778660383.8577468,
+    "ast_hash": "643bb7c05d469761db85539cfac05921",
+    "semantic_hash": "643bb7c05d469761db85539cfac05921"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/trainingBudgetsEndpoints.ts": {
+    "mtime": 1779195689.4168375,
+    "ast_hash": "9425967074979adfbb60c6b1100048a6",
+    "semantic_hash": "9425967074979adfbb60c6b1100048a6"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/templateSnippetsEndpoints.ts": {
+    "mtime": 1778243290.7804804,
+    "ast_hash": "79623c0e3d6c5197766b9fdff4cfa269",
+    "semantic_hash": "79623c0e3d6c5197766b9fdff4cfa269"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/templatesEndpoints.ts": {
+    "mtime": 1778489262.4713998,
+    "ast_hash": "aa34a71adab2320ebc579772421e9eda",
+    "semantic_hash": "aa34a71adab2320ebc579772421e9eda"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/training-budgets/index.ts": {
+    "mtime": 1779195689.417114,
+    "ast_hash": "ef7731de40bbf58c208d9e59bc77dd49",
+    "semantic_hash": "ef7731de40bbf58c208d9e59bc77dd49"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts": {
+    "mtime": 1779219002.1319711,
+    "ast_hash": "caf1ec4df65f456d5780d64b412d741f",
+    "semantic_hash": "caf1ec4df65f456d5780d64b412d741f"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/managers/index.ts": {
+    "mtime": 1776877563.198271,
+    "ast_hash": "9d177893f637f560308f1eaf0062fa3a",
+    "semantic_hash": "9d177893f637f560308f1eaf0062fa3a"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/departments/index.ts": {
+    "mtime": 1776877563.1971467,
+    "ast_hash": "0ed2d8b98e1998921c5907eae8949025",
+    "semantic_hash": "0ed2d8b98e1998921c5907eae8949025"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/jobListings/index.ts": {
+    "mtime": 1779219002.131535,
+    "ast_hash": "3cb4837e354469eca8836a5df7b62e97",
+    "semantic_hash": "3cb4837e354469eca8836a5df7b62e97"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/certificates/index.ts": {
+    "mtime": 1778660383.858259,
+    "ast_hash": "95ae32a3c290a857de07550d39645371",
+    "semantic_hash": "95ae32a3c290a857de07550d39645371"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/technology-tags/index.ts": {
+    "mtime": 1776877563.1986845,
+    "ast_hash": "ec6a0b6494eb3798b04e46b3353e7afc",
+    "semantic_hash": "ec6a0b6494eb3798b04e46b3353e7afc"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/cpf-levels/index.ts": {
+    "mtime": 1776877563.1967618,
+    "ast_hash": "a917a490bde7802ba95f2777d5d81a2c",
+    "semantic_hash": "a917a490bde7802ba95f2777d5d81a2c"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/employee-cvs/index.ts": {
+    "mtime": 1776970109.4985223,
+    "ast_hash": "91bd66b05059ca9288f39b1a9b15de24",
+    "semantic_hash": "91bd66b05059ca9288f39b1a9b15de24"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/templates/index.ts": {
+    "mtime": 1778678718.2927854,
+    "ast_hash": "0c1b31eaaa6f14cc593a423972ab9999",
+    "semantic_hash": "0c1b31eaaa6f14cc593a423972ab9999"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/templateSnippets/index.ts": {
+    "mtime": 1778243290.781301,
+    "ast_hash": "b351e7206f0c2d157c52556dd1079fcf",
+    "semantic_hash": "b351e7206f0c2d157c52556dd1079fcf"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/documents/index.ts": {
+    "mtime": 1779195678.714657,
+    "ast_hash": "8ae860ec1b98a8b0738772c17a59280f",
+    "semantic_hash": "8ae860ec1b98a8b0738772c17a59280f"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/notifications/index.ts": {
+    "mtime": 1778660383.8588798,
+    "ast_hash": "7c4683a51fc8e1931e4d98eda05c9c97",
+    "semantic_hash": "7c4683a51fc8e1931e4d98eda05c9c97"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/employees/hrProfileBundles.ts": {
+    "mtime": 1776970109.4994476,
+    "ast_hash": "599c5bfa31ebd2f5fcf85857f7619d7d",
+    "semantic_hash": "599c5bfa31ebd2f5fcf85857f7619d7d"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/employees/index.ts": {
+    "mtime": 1778846307.6364665,
+    "ast_hash": "f96bd965ce324d99ec8b266a7afe6827",
+    "semantic_hash": "f96bd965ce324d99ec8b266a7afe6827"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/helpers/resolveApiMediaUrl.ts": {
+    "mtime": 1778017164.503294,
+    "ast_hash": "b029f31ce146fe995fe434283b9cff25",
+    "semantic_hash": "b029f31ce146fe995fe434283b9cff25"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/helpers/transformers.ts": {
+    "mtime": 1778417652.2544572,
+    "ast_hash": "be1208d8696479e190649ea2b6ba683a",
+    "semantic_hash": "be1208d8696479e190649ea2b6ba683a"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/helpers/index.ts": {
+    "mtime": 1775758885.8268497,
+    "ast_hash": "4a8d9bc62f30c1a3d62da5776a0ce7ec",
+    "semantic_hash": "4a8d9bc62f30c1a3d62da5776a0ce7ec"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/helpers/httpClient.ts": {
+    "mtime": 1776970109.4974084,
+    "ast_hash": "e8b0b420acfdeb237e90160936b36387",
+    "semantic_hash": "e8b0b420acfdeb237e90160936b36387"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/templates/templatesHelpers.ts": {
+    "mtime": 1778489262.4745092,
+    "ast_hash": "76d9a836817d4bf32a62c55aecc06cc5",
+    "semantic_hash": "76d9a836817d4bf32a62c55aecc06cc5"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/templateSnippets/userTemplateSnippetsStorage.ts": {
+    "mtime": 1778243290.7835686,
+    "ast_hash": "0d42cdd4409b22c5802ba69fe54cb51e",
+    "semantic_hash": "0d42cdd4409b22c5802ba69fe54cb51e"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityHelpers.ts": {
+    "mtime": 1778489262.4731092,
+    "ast_hash": "86e30185e6aacb7bd4be1b486ebd4cb7",
+    "semantic_hash": "86e30185e6aacb7bd4be1b486ebd4cb7"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentsHelpers.ts": {
+    "mtime": 1779195678.7238114,
+    "ast_hash": "1cee9d679a15b6f1c81251585a57e763",
+    "semantic_hash": "1cee9d679a15b6f1c81251585a57e763"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts": {
+    "mtime": 1778489262.4735668,
+    "ast_hash": "703268b62c3ee5015b79c00d31c02685",
+    "semantic_hash": "703268b62c3ee5015b79c00d31c02685"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts": {
+    "mtime": 1779195678.724237,
+    "ast_hash": "2caa424b4327179e115243aa7f11e595",
+    "semantic_hash": "2caa424b4327179e115243aa7f11e595"
+  },
+  "/Users/bloomteq/BloomHub-fe/README.md": {
+    "mtime": 1777893647.7107594,
+    "ast_hash": "050f9c8e80a538e9cff42b52e9b8753d",
+    "semantic_hash": "050f9c8e80a538e9cff42b52e9b8753d"
+  },
+  "/Users/bloomteq/BloomHub-fe/.cursor/AGENTS.md": {
+    "mtime": 1777384882.8603494,
+    "ast_hash": "4989cbab2ef792622f9305dbb572117b",
+    "semantic_hash": "4989cbab2ef792622f9305dbb572117b"
+  },
+  "/Users/bloomteq/BloomHub-fe/.cursor/skills/bloomhub-fe-quality/SKILL.md": {
+    "mtime": 1777384882.8635616,
+    "ast_hash": "6e71cfb2a28d6b485ce1c22b99c5f657",
+    "semantic_hash": "6e71cfb2a28d6b485ce1c22b99c5f657"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-help/README.md": {
+    "mtime": 1778660383.8446958,
+    "ast_hash": "9c9cf8de78df2a8831c57d6bc88d942b",
+    "semantic_hash": "9c9cf8de78df2a8831c57d6bc88d942b"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-help/SKILL.md": {
+    "mtime": 1778660383.8448892,
+    "ast_hash": "de2164494967c04d2511db16262cbbc9",
+    "semantic_hash": "de2164494967c04d2511db16262cbbc9"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-review/README.md": {
+    "mtime": 1778660383.8451204,
+    "ast_hash": "a15d85cb60954419a3d3cd33ab040e58",
+    "semantic_hash": "a15d85cb60954419a3d3cd33ab040e58"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-review/SKILL.md": {
+    "mtime": 1778660383.8452797,
+    "ast_hash": "ff4e0b86c3bdb9433ae499f40d6b70ee",
+    "semantic_hash": "ff4e0b86c3bdb9433ae499f40d6b70ee"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-compress/README.md": {
+    "mtime": 1778660383.8418083,
+    "ast_hash": "9261979e0a2e5b360f18145bd1910e2a",
+    "semantic_hash": "9261979e0a2e5b360f18145bd1910e2a"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-compress/SKILL.md": {
+    "mtime": 1778660383.842353,
+    "ast_hash": "b87deaceca48dce7e66898904071c4b2",
+    "semantic_hash": "b87deaceca48dce7e66898904071c4b2"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-compress/SECURITY.md": {
+    "mtime": 1778660383.84216,
+    "ast_hash": "ab7d04be07bb9b8e851fb2758040432b",
+    "semantic_hash": "ab7d04be07bb9b8e851fb2758040432b"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/cavecrew/README.md": {
+    "mtime": 1778660383.8400242,
+    "ast_hash": "ffb152a21c7b9f2ad6609efcff636198",
+    "semantic_hash": "ffb152a21c7b9f2ad6609efcff636198"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/cavecrew/SKILL.md": {
+    "mtime": 1778660383.8403683,
+    "ast_hash": "d6066c411de3424e02222b60ccc8718f",
+    "semantic_hash": "d6066c411de3424e02222b60ccc8718f"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-stats/README.md": {
+    "mtime": 1778660383.8454869,
+    "ast_hash": "ad1001beaabf7ab16a0113b2efc8b720",
+    "semantic_hash": "ad1001beaabf7ab16a0113b2efc8b720"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-stats/SKILL.md": {
+    "mtime": 1778660383.8458865,
+    "ast_hash": "5c195635a9349369df34699f8d3b3445",
+    "semantic_hash": "5c195635a9349369df34699f8d3b3445"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman/README.md": {
+    "mtime": 1778660383.8461099,
+    "ast_hash": "d4aab2b28a4712b383b6e7e23303af00",
+    "semantic_hash": "d4aab2b28a4712b383b6e7e23303af00"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman/SKILL.md": {
+    "mtime": 1778660383.8464081,
+    "ast_hash": "78957f626d084af5bf7833dfb26b5114",
+    "semantic_hash": "78957f626d084af5bf7833dfb26b5114"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-commit/README.md": {
+    "mtime": 1778660383.8410356,
+    "ast_hash": "fe9d80e3d2250a56c2ed75658143014f",
+    "semantic_hash": "fe9d80e3d2250a56c2ed75658143014f"
+  },
+  "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-commit/SKILL.md": {
+    "mtime": 1778660383.841362,
+    "ast_hash": "91711f9ae17a0bf7c2ec6e5065f30050",
+    "semantic_hash": "91711f9ae17a0bf7c2ec6e5065f30050"
+  },
+  "/Users/bloomteq/BloomHub-fe/docs/BUTTON_CATEGORIES.md": {
+    "mtime": 1774123123.1923194,
+    "ast_hash": "ffea43b30cb4d50d58c08b80c47de94c",
+    "semantic_hash": "ffea43b30cb4d50d58c08b80c47de94c"
+  },
+  "/Users/bloomteq/BloomHub-fe/.github/copilot-instructions.md": {
+    "mtime": 1776970109.4883041,
+    "ast_hash": "6f7d585becd089d3e7fd57f7c25626c2",
+    "semantic_hash": "6f7d585becd089d3e7fd57f7c25626c2"
+  },
+  "/Users/bloomteq/BloomHub-fe/.github/workflows/gitstream.yml": {
+    "mtime": 1772977008.5946882,
+    "ast_hash": "876820226659d6f1d66ea97f8cac45a9",
+    "semantic_hash": "876820226659d6f1d66ea97f8cac45a9"
+  },
+  "/Users/bloomteq/BloomHub-fe/.github/workflows/deploy-production.yml": {
+    "mtime": 1778846307.604987,
+    "ast_hash": "c89af2b19888b2769ee45d80f026aa51",
+    "semantic_hash": "c89af2b19888b2769ee45d80f026aa51"
+  },
+  "/Users/bloomteq/BloomHub-fe/.github/workflows/vercel-deploy-dev.yml": {
+    "mtime": 1778841824.2278247,
+    "ast_hash": "0418e8f1fdc7c0737a6806e849523ce6",
+    "semantic_hash": "0418e8f1fdc7c0737a6806e849523ce6"
+  },
+  "/Users/bloomteq/BloomHub-fe/.github/workflows/manual-vercel-deploy.yml": {
+    "mtime": 1778243290.75721,
+    "ast_hash": "20aa8e6646844bbdbd40a4a85e97008f",
+    "semantic_hash": "20aa8e6646844bbdbd40a4a85e97008f"
+  },
+  "/Users/bloomteq/BloomHub-fe/.github/workflows/ci.yml": {
+    "mtime": 1776970109.4885294,
+    "ast_hash": "21fe7245a5fe51c94869ef3b94e45e47",
+    "semantic_hash": "21fe7245a5fe51c94869ef3b94e45e47"
+  },
+  "/Users/bloomteq/BloomHub-fe/.github/skills/code-quality-enforcement/SKILL.md": {
+    "mtime": 1775758993.5885446,
+    "ast_hash": "e22d9dee5c5e2dee92a6b1096d7318c2",
+    "semantic_hash": "e22d9dee5c5e2dee92a6b1096d7318c2"
+  },
+  "/Users/bloomteq/BloomHub-fe/.github/skills/create-utility/SKILL.md": {
+    "mtime": 1775758885.7944272,
+    "ast_hash": "abba2b2dd7720ea8e917d7ba05b37907",
+    "semantic_hash": "abba2b2dd7720ea8e917d7ba05b37907"
+  },
+  "/Users/bloomteq/BloomHub-fe/.github/skills/fix-lint-warnings/SKILL.md": {
+    "mtime": 1775758993.5941424,
+    "ast_hash": "eeab566c1657f0fbb40d92664ec8adf5",
+    "semantic_hash": "eeab566c1657f0fbb40d92664ec8adf5"
+  },
+  "/Users/bloomteq/BloomHub-fe/.github/skills/debug-ci/SKILL.md": {
+    "mtime": 1775758885.7948697,
+    "ast_hash": "564ac8be697fe5cd4e939818b51aee15",
+    "semantic_hash": "564ac8be697fe5cd4e939818b51aee15"
+  },
+  "/Users/bloomteq/BloomHub-fe/.github/skills/refactor-module/SKILL.md": {
+    "mtime": 1775758993.5941348,
+    "ast_hash": "66184277e3163e766fe8f0a6e8b10c6f",
+    "semantic_hash": "66184277e3163e766fe8f0a6e8b10c6f"
+  },
+  "/Users/bloomteq/BloomHub-fe/src/lib/api/helpers/README.md": {
+    "mtime": 1775758885.8262308,
+    "ast_hash": "b1b7b8ba4774678d26f90488d796862d",
+    "semantic_hash": "b1b7b8ba4774678d26f90488d796862d"
+  },
+  "/Users/bloomteq/BloomHub-fe/public/file.svg": {
+    "mtime": 1772977008.59945,
+    "ast_hash": "d09f95206c3fa0bb9bd9fefabfd0ea71",
+    "semantic_hash": "d09f95206c3fa0bb9bd9fefabfd0ea71"
+  },
+  "/Users/bloomteq/BloomHub-fe/public/bloomteq.jpg": {
+    "mtime": 1777582806.536202,
+    "ast_hash": "d5714a0803aecfd8470ebfa6b3343abd",
+    "semantic_hash": "d5714a0803aecfd8470ebfa6b3343abd"
+  },
+  "/Users/bloomteq/BloomHub-fe/public/vercel.svg": {
+    "mtime": 1772977008.600139,
+    "ast_hash": "c0af2f507b369b085b35ef4bbe3bcf1e",
+    "semantic_hash": "c0af2f507b369b085b35ef4bbe3bcf1e"
+  },
+  "/Users/bloomteq/BloomHub-fe/public/next.svg": {
+    "mtime": 1772977008.599911,
+    "ast_hash": "8e061864f388b47f33a1c3780831193e",
+    "semantic_hash": "8e061864f388b47f33a1c3780831193e"
+  },
+  "/Users/bloomteq/BloomHub-fe/public/globe.svg": {
+    "mtime": 1772977008.5996895,
+    "ast_hash": "2aaafa6a49b6563925fe440891e32717",
+    "semantic_hash": "2aaafa6a49b6563925fe440891e32717"
+  },
+  "/Users/bloomteq/BloomHub-fe/public/window.svg": {
+    "mtime": 1772977008.600373,
+    "ast_hash": "a2760511c65806022ad20adf74370ff3",
+    "semantic_hash": "a2760511c65806022ad20adf74370ff3"
+  }
+}

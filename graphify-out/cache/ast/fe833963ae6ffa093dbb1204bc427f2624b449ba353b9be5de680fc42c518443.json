@@ -1,0 +1,758 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "label": "AddEmployeeDialog.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "employee_profiles_addemployeedialog_addemployeedialogprops",
+      "label": "AddEmployeeDialogProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L34"
+    },
+    {
+      "id": "employee_profiles_addemployeedialog_avatar_colors",
+      "label": "AVATAR_COLORS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L48"
+    },
+    {
+      "id": "employee_profiles_addemployeedialog_employeeprojectoption",
+      "label": "EmployeeProjectOption",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L53"
+    },
+    {
+      "id": "employee_profiles_addemployeedialog_onboardingtemplateoption",
+      "label": "OnboardingTemplateOption",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L59"
+    },
+    {
+      "id": "employee_profiles_addemployeedialog_formstate",
+      "label": "FormState",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L70"
+    },
+    {
+      "id": "employee_profiles_addemployeedialog_initial_form",
+      "label": "INITIAL_FORM",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L91"
+    },
+    {
+      "id": "employee_profiles_addemployeedialog_addemployeedialog",
+      "label": "AddEmployeeDialog()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L112"
+    },
+    {
+      "id": "employee_profiles_addemployeedialog_stepper",
+      "label": "Stepper()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L448"
+    },
+    {
+      "id": "employee_profiles_addemployeedialog_stepprops",
+      "label": "StepProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L505"
+    },
+    {
+      "id": "employee_profiles_addemployeedialog_personalstep",
+      "label": "PersonalStep()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L510"
+    },
+    {
+      "id": "employee_profiles_addemployeedialog_jobstep",
+      "label": "JobStep()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L613"
+    },
+    {
+      "id": "employee_profiles_addemployeedialog_reviewstep",
+      "label": "ReviewStep()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L780"
+    },
+    {
+      "id": "employee_profiles_addemployeedialog_field",
+      "label": "Field()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L859"
+    },
+    {
+      "id": "employee_profiles_addemployeedialog_customselect",
+      "label": "CustomSelect()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L887"
+    },
+    {
+      "id": "employee_profiles_addemployeedialog_checkrow",
+      "label": "CheckRow()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L925"
+    },
+    {
+      "id": "employee_profiles_addemployeedialog_labelize",
+      "label": "labelize()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L950"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_employees_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "api_employees_createemployeepayload",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "api_employees_employeeprofiledata",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_managers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "api_managers_manager",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_button_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "ui_button_button",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_checkbox_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "ui_checkbox_checkbox",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_datepicker_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "hr_dashboard_datepicker_datepicker",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_dialog_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "ui_dialog_dialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "ui_dialog_dialogcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "ui_dialog_dialogdescription",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "ui_dialog_dialogtitle",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_select_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "ui_select_select",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "ui_select_selectcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "ui_select_selectitem",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "ui_select_selecttrigger",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "ui_select_selectvalue",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_utils_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "ui_utils_cn",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "employee_profiles_addemployeedialog_addemployeedialogprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "employee_profiles_addemployeedialog_avatar_colors",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "employee_profiles_addemployeedialog_employeeprojectoption",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L53",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "employee_profiles_addemployeedialog_onboardingtemplateoption",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "employee_profiles_addemployeedialog_formstate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L70",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "employee_profiles_addemployeedialog_initial_form",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "employee_profiles_addemployeedialog_addemployeedialog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L112",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "employee_profiles_addemployeedialog_stepper",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L448",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "employee_profiles_addemployeedialog_stepprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L505",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "employee_profiles_addemployeedialog_personalstep",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L510",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "employee_profiles_addemployeedialog_jobstep",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L613",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "employee_profiles_addemployeedialog_reviewstep",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L780",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "employee_profiles_addemployeedialog_field",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L859",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "employee_profiles_addemployeedialog_customselect",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L887",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "employee_profiles_addemployeedialog_checkrow",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L925",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_addemployeedialog_tsx",
+      "target": "employee_profiles_addemployeedialog_labelize",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L950",
+      "weight": 1.0
+    },
+    {
+      "source": "employee_profiles_addemployeedialog_reviewstep",
+      "target": "employee_profiles_addemployeedialog_labelize",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L804",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L129"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L130"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L132"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L138"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "find",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L144"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "find",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "find",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L153"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L156"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L172"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L173"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L177"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L177"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L177"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_addemployeedialog",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L232"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_stepper",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L458"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_personalstep",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L581"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_jobstep",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L643"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_jobstep",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L668"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_jobstep",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L687"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_jobstep",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L723"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_jobstep",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L768"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_reviewstep",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L828"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_field",
+      "callee": "cn",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L873"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_labelize",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L951"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_labelize",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L951"
+    },
+    {
+      "caller_nid": "employee_profiles_addemployeedialog_labelize",
+      "callee": "split",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx",
+      "source_location": "L951"
+    }
+  ]
+}

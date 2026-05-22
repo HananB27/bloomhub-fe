@@ -1,0 +1,62 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_lib_api_constants_trainingbudgetsendpoints_ts",
+      "label": "trainingBudgetsEndpoints.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/trainingBudgetsEndpoints.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "constants_trainingbudgetsendpoints_training_budgets_api_base_path",
+      "label": "TRAINING_BUDGETS_API_BASE_PATH",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/trainingBudgetsEndpoints.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "constants_trainingbudgetsendpoints_training_budgets_me_path",
+      "label": "TRAINING_BUDGETS_ME_PATH",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/trainingBudgetsEndpoints.ts",
+      "source_location": "L2"
+    },
+    {
+      "id": "constants_trainingbudgetsendpoints_trainingbudgetdetailpath",
+      "label": "trainingBudgetDetailPath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/trainingBudgetsEndpoints.ts",
+      "source_location": "L4"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_trainingbudgetsendpoints_ts",
+      "target": "constants_trainingbudgetsendpoints_training_budgets_api_base_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/trainingBudgetsEndpoints.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_trainingbudgetsendpoints_ts",
+      "target": "constants_trainingbudgetsendpoints_training_budgets_me_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/trainingBudgetsEndpoints.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_trainingbudgetsendpoints_ts",
+      "target": "constants_trainingbudgetsendpoints_trainingbudgetdetailpath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/trainingBudgetsEndpoints.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

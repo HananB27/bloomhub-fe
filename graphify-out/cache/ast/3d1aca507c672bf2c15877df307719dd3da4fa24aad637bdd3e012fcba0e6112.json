@@ -1,0 +1,162 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sectionpermissions_ts",
+      "label": "sectionPermissions.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "employee_profiles_sectionpermissions_fieldvisibility",
+      "label": "FieldVisibility",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L9"
+    },
+    {
+      "id": "employee_profiles_sectionpermissions_profilefieldaccess",
+      "label": "ProfileFieldAccess",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L11"
+    },
+    {
+      "id": "employee_profiles_sectionpermissions_profilevieweraccess",
+      "label": "ProfileViewerAccess",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L16"
+    },
+    {
+      "id": "employee_profiles_sectionpermissions_hr_full_access",
+      "label": "HR_FULL_ACCESS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L24"
+    },
+    {
+      "id": "employee_profiles_sectionpermissions_manager_access",
+      "label": "MANAGER_ACCESS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L32"
+    },
+    {
+      "id": "employee_profiles_sectionpermissions_employee_access",
+      "label": "EMPLOYEE_ACCESS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L40"
+    },
+    {
+      "id": "employee_profiles_sectionpermissions_access_map",
+      "label": "ACCESS_MAP",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L48"
+    },
+    {
+      "id": "employee_profiles_sectionpermissions_getvieweraccess",
+      "label": "getViewerAccess()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L55"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sectionpermissions_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_roleswitch_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sectionpermissions_ts",
+      "target": "atoms_roleswitch_profileviewerrole",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sectionpermissions_ts",
+      "target": "employee_profiles_sectionpermissions_fieldvisibility",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sectionpermissions_ts",
+      "target": "employee_profiles_sectionpermissions_profilefieldaccess",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sectionpermissions_ts",
+      "target": "employee_profiles_sectionpermissions_profilevieweraccess",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sectionpermissions_ts",
+      "target": "employee_profiles_sectionpermissions_hr_full_access",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sectionpermissions_ts",
+      "target": "employee_profiles_sectionpermissions_manager_access",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sectionpermissions_ts",
+      "target": "employee_profiles_sectionpermissions_employee_access",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sectionpermissions_ts",
+      "target": "employee_profiles_sectionpermissions_access_map",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sectionpermissions_ts",
+      "target": "employee_profiles_sectionpermissions_getvieweraccess",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
+      "source_location": "L55",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

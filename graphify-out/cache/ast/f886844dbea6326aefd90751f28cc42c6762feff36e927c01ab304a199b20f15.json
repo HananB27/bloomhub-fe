@@ -1,0 +1,914 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "label": "projectsHelpers.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "projects_projectshelpers_fmtdate",
+      "label": "fmtDate()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L18"
+    },
+    {
+      "id": "projects_projectshelpers_fmtrelative",
+      "label": "fmtRelative()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L28"
+    },
+    {
+      "id": "projects_projectshelpers_filterandsortprojects",
+      "label": "filterAndSortProjects()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L43"
+    },
+    {
+      "id": "projects_projectshelpers_uniqueclients",
+      "label": "uniqueClients()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L82"
+    },
+    {
+      "id": "projects_projectshelpers_activefiltercount",
+      "label": "activeFilterCount()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L88"
+    },
+    {
+      "id": "projects_projectshelpers_api_to_ui_status",
+      "label": "API_TO_UI_STATUS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L99"
+    },
+    {
+      "id": "projects_projectshelpers_ui_to_api_status",
+      "label": "UI_TO_API_STATUS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L108"
+    },
+    {
+      "id": "projects_projectshelpers_palette",
+      "label": "PALETTE",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L115"
+    },
+    {
+      "id": "projects_projectshelpers_colorforid",
+      "label": "colorForId()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L117"
+    },
+    {
+      "id": "projects_projectshelpers_derivecode",
+      "label": "deriveCode()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L121"
+    },
+    {
+      "id": "projects_projectshelpers_apiassignmenttomember",
+      "label": "apiAssignmentToMember()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L131"
+    },
+    {
+      "id": "projects_projectshelpers_apiprojecttoui",
+      "label": "apiProjectToUi()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L161"
+    },
+    {
+      "id": "projects_projectshelpers_projectcreateinput",
+      "label": "ProjectCreateInput",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L203"
+    },
+    {
+      "id": "projects_projectshelpers_uitocreateprojectpayload",
+      "label": "uiToCreateProjectPayload()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L217"
+    },
+    {
+      "id": "projects_projectshelpers_uistatustoapi",
+      "label": "uiStatusToApi()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L235"
+    },
+    {
+      "id": "projects_projectshelpers_getcurrentactorname",
+      "label": "getCurrentActorName()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L239"
+    },
+    {
+      "id": "projects_projectshelpers_todaystart",
+      "label": "toDayStart()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L251"
+    },
+    {
+      "id": "projects_projectshelpers_isassignmentactive",
+      "label": "isAssignmentActive()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L257"
+    },
+    {
+      "id": "projects_projectshelpers_assignmentstatus",
+      "label": "assignmentStatus()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L267"
+    },
+    {
+      "id": "projects_projectshelpers_assignmentforminput",
+      "label": "AssignmentFormInput",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L274"
+    },
+    {
+      "id": "projects_projectshelpers_assignmenterrors",
+      "label": "AssignmentErrors",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L280"
+    },
+    {
+      "id": "projects_projectshelpers_validateassignment",
+      "label": "validateAssignment()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L284"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_tokens_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "api_tokens_getstoreduser",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_index_project",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_index_projectassignment",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_index_projectstatus",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_index_createprojectpayload",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_types_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_types_assignmentstatus",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_types_avatarcolor",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_types_memberrole",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_types_project",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_types_projectmember",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_types_projectslistfilters",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_types_projectstatus",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_fmtdate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_fmtrelative",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_filterandsortprojects",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_uniqueclients",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L82",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_activefiltercount",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L88",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_api_to_ui_status",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L99",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_ui_to_api_status",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L108",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_palette",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L115",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_colorforid",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L117",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_derivecode",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L121",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_apiassignmenttomember",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L131",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_apiprojecttoui",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L161",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_projectcreateinput",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L203",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_uitocreateprojectpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L217",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_uistatustoapi",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L235",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_getcurrentactorname",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L239",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_todaystart",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L251",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_isassignmentactive",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L257",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_assignmentstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L267",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_assignmentforminput",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L274",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_assignmenterrors",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L280",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "target": "projects_projectshelpers_validateassignment",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L284",
+      "weight": 1.0
+    },
+    {
+      "source": "projects_projectshelpers_apiassignmenttomember",
+      "target": "projects_projectshelpers_colorforid",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L150",
+      "weight": 1.0
+    },
+    {
+      "source": "projects_projectshelpers_apiprojecttoui",
+      "target": "projects_projectshelpers_derivecode",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L171",
+      "weight": 1.0
+    },
+    {
+      "source": "projects_projectshelpers_isassignmentactive",
+      "target": "projects_projectshelpers_todaystart",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L264",
+      "weight": 1.0
+    },
+    {
+      "source": "projects_projectshelpers_assignmentstatus",
+      "target": "projects_projectshelpers_isassignmentactive",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L271",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "projects_projectshelpers_fmtdate",
+      "callee": "toLocaleDateString",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L21"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_fmtrelative",
+      "callee": "getTime",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_fmtrelative",
+      "callee": "getTime",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_fmtrelative",
+      "callee": "floor",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_fmtrelative",
+      "callee": "floor",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L36"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_fmtrelative",
+      "callee": "floor",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_fmtrelative",
+      "callee": "floor",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_fmtrelative",
+      "callee": "floor",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_fmtrelative",
+      "callee": "floor",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_filterandsortprojects",
+      "callee": "toLowerCase",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_filterandsortprojects",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_filterandsortprojects",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L62"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_filterandsortprojects",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L64"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_filterandsortprojects",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_filterandsortprojects",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L71"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_filterandsortprojects",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_filterandsortprojects",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_uniqueclients",
+      "callee": "from",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L83"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_uniqueclients",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_uniqueclients",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_colorforid",
+      "callee": "abs",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L118"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_derivecode",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_derivecode",
+      "callee": "split",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_derivecode",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_derivecode",
+      "callee": "toUpperCase",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_derivecode",
+      "callee": "slice",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_derivecode",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_derivecode",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_derivecode",
+      "callee": "slice",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_apiassignmenttomember",
+      "callee": "includes",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L135"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_apiassignmenttomember",
+      "callee": "toLowerCase",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L135"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_apiassignmenttomember",
+      "callee": "max",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L143"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_apiassignmenttomember",
+      "callee": "max",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L144"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_apiassignmenttomember",
+      "callee": "floor",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L144"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_apiprojecttoui",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L162"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_apiprojecttoui",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L162"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_apiprojecttoui",
+      "callee": "split",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L162"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_apiprojecttoui",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L166"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_apiprojecttoui",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L168"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_getcurrentactorname",
+      "callee": "getStoredUser",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L240"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_getcurrentactorname",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L244"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_todaystart",
+      "callee": "setHours",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L253"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_todaystart",
+      "callee": "getTime",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L254"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_isassignmentactive",
+      "callee": "setHours",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L263"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_isassignmentactive",
+      "callee": "getTime",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L264"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_validateassignment",
+      "callee": "isFinite",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L295"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_validateassignment",
+      "callee": "isNaN",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L304"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_validateassignment",
+      "callee": "getTime",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L304"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_validateassignment",
+      "callee": "isNaN",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L309"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_validateassignment",
+      "callee": "getTime",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L309"
+    },
+    {
+      "caller_nid": "projects_projectshelpers_validateassignment",
+      "callee": "find",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/projectsHelpers.ts",
+      "source_location": "L316"
+    }
+  ]
+}

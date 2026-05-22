@@ -1,0 +1,17 @@
+{
+  "nodes": [
+    {
+      "id": "github_debug_ci_skill",
+      "label": "debug-ci SKILL",
+      "file_type": "document",
+      "source_file": "/Users/bloomteq/BloomHub-fe/.github/skills/debug-ci/SKILL.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

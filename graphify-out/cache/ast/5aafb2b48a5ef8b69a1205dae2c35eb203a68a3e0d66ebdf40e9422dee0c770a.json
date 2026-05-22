@@ -1,0 +1,30 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_types_technology_tags_ts",
+      "label": "technology-tags.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/technology-tags.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "types_technology_tags_technologytag",
+      "label": "TechnologyTag",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/technology-tags.ts",
+      "source_location": "L1"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_technology_tags_ts",
+      "target": "types_technology_tags_technologytag",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/technology-tags.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

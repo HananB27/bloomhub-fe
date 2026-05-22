@@ -1,0 +1,486 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_lib_projects_adminsettings_ts",
+      "label": "adminSettings.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "projects_adminsettings_projectadmindefaults",
+      "label": "ProjectAdminDefaults",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L6"
+    },
+    {
+      "id": "projects_adminsettings_fallback_clients",
+      "label": "FALLBACK_CLIENTS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L13"
+    },
+    {
+      "id": "projects_adminsettings_fallback_defaults",
+      "label": "FALLBACK_DEFAULTS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L21"
+    },
+    {
+      "id": "projects_adminsettings_saferead",
+      "label": "safeRead()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L28"
+    },
+    {
+      "id": "projects_adminsettings_safewrite",
+      "label": "safeWrite()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L38"
+    },
+    {
+      "id": "projects_adminsettings_getprojectclients",
+      "label": "getProjectClients()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L48"
+    },
+    {
+      "id": "projects_adminsettings_setprojectclients",
+      "label": "setProjectClients()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L56"
+    },
+    {
+      "id": "projects_adminsettings_addprojectclient",
+      "label": "addProjectClient()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L63"
+    },
+    {
+      "id": "projects_adminsettings_removeprojectclient",
+      "label": "removeProjectClient()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L71"
+    },
+    {
+      "id": "projects_adminsettings_renameprojectclient",
+      "label": "renameProjectClient()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L77"
+    },
+    {
+      "id": "projects_adminsettings_getprojectdefaults",
+      "label": "getProjectDefaults()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L88"
+    },
+    {
+      "id": "projects_adminsettings_setprojectdefaults",
+      "label": "setProjectDefaults()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L97"
+    },
+    {
+      "id": "projects_adminsettings_onprojectadminsettingschange",
+      "label": "onProjectAdminSettingsChange()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L101"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_projects_adminsettings_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_projects_adminsettings_ts",
+      "target": "projects_index_projectstatus",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_projects_adminsettings_ts",
+      "target": "projects_index_projecttype",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_projects_adminsettings_ts",
+      "target": "projects_adminsettings_projectadmindefaults",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_projects_adminsettings_ts",
+      "target": "projects_adminsettings_fallback_clients",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_projects_adminsettings_ts",
+      "target": "projects_adminsettings_fallback_defaults",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_projects_adminsettings_ts",
+      "target": "projects_adminsettings_saferead",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_projects_adminsettings_ts",
+      "target": "projects_adminsettings_safewrite",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_projects_adminsettings_ts",
+      "target": "projects_adminsettings_getprojectclients",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_projects_adminsettings_ts",
+      "target": "projects_adminsettings_setprojectclients",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_projects_adminsettings_ts",
+      "target": "projects_adminsettings_addprojectclient",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_projects_adminsettings_ts",
+      "target": "projects_adminsettings_removeprojectclient",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L71",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_projects_adminsettings_ts",
+      "target": "projects_adminsettings_renameprojectclient",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L77",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_projects_adminsettings_ts",
+      "target": "projects_adminsettings_getprojectdefaults",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L88",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_projects_adminsettings_ts",
+      "target": "projects_adminsettings_setprojectdefaults",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L97",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_projects_adminsettings_ts",
+      "target": "projects_adminsettings_onprojectadminsettingschange",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L101",
+      "weight": 1.0
+    },
+    {
+      "source": "projects_adminsettings_getprojectclients",
+      "target": "projects_adminsettings_saferead",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "projects_adminsettings_setprojectclients",
+      "target": "projects_adminsettings_safewrite",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "projects_adminsettings_addprojectclient",
+      "target": "projects_adminsettings_getprojectclients",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L65",
+      "weight": 1.0
+    },
+    {
+      "source": "projects_adminsettings_addprojectclient",
+      "target": "projects_adminsettings_setprojectclients",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "projects_adminsettings_removeprojectclient",
+      "target": "projects_adminsettings_getprojectclients",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L72",
+      "weight": 1.0
+    },
+    {
+      "source": "projects_adminsettings_removeprojectclient",
+      "target": "projects_adminsettings_setprojectclients",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L73",
+      "weight": 1.0
+    },
+    {
+      "source": "projects_adminsettings_renameprojectclient",
+      "target": "projects_adminsettings_getprojectclients",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L82",
+      "weight": 1.0
+    },
+    {
+      "source": "projects_adminsettings_renameprojectclient",
+      "target": "projects_adminsettings_setprojectclients",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L84",
+      "weight": 1.0
+    },
+    {
+      "source": "projects_adminsettings_getprojectdefaults",
+      "target": "projects_adminsettings_saferead",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "projects_adminsettings_setprojectdefaults",
+      "target": "projects_adminsettings_safewrite",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L98",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "projects_adminsettings_saferead",
+      "callee": "getItem",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "projects_adminsettings_saferead",
+      "callee": "parse",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "projects_adminsettings_safewrite",
+      "callee": "setItem",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "projects_adminsettings_safewrite",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "projects_adminsettings_safewrite",
+      "callee": "dispatchEvent",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "projects_adminsettings_getprojectclients",
+      "callee": "isArray",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "projects_adminsettings_getprojectclients",
+      "callee": "every",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "projects_adminsettings_setprojectclients",
+      "callee": "from",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "projects_adminsettings_setprojectclients",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "projects_adminsettings_setprojectclients",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "projects_adminsettings_addprojectclient",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L64"
+    },
+    {
+      "caller_nid": "projects_adminsettings_addprojectclient",
+      "callee": "from",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L64"
+    },
+    {
+      "caller_nid": "projects_adminsettings_addprojectclient",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "projects_adminsettings_removeprojectclient",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "projects_adminsettings_renameprojectclient",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "projects_adminsettings_renameprojectclient",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L83"
+    },
+    {
+      "caller_nid": "projects_adminsettings_renameprojectclient",
+      "callee": "from",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "projects_adminsettings_onprojectadminsettingschange",
+      "callee": "addEventListener",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "projects_adminsettings_onprojectadminsettingschange",
+      "callee": "addEventListener",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/projects/adminSettings.ts",
+      "source_location": "L104"
+    }
+  ]
+}

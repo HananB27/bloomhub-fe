@@ -1,0 +1,138 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_hooks_useadminaccess_ts",
+      "label": "useAdminAccess.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/hooks/useAdminAccess.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "hooks_useadminaccess_adminaccessresult",
+      "label": "AdminAccessResult",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/hooks/useAdminAccess.ts",
+      "source_location": "L7"
+    },
+    {
+      "id": "hooks_useadminaccess_extendedsession",
+      "label": "ExtendedSession",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/hooks/useAdminAccess.ts",
+      "source_location": "L14"
+    },
+    {
+      "id": "hooks_useadminaccess_useadminaccess",
+      "label": "useAdminAccess()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/hooks/useAdminAccess.ts",
+      "source_location": "L27"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_hooks_useadminaccess_ts",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/hooks/useAdminAccess.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_hooks_useadminaccess_ts",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/hooks/useAdminAccess.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_hooks_useadminaccess_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_config_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/hooks/useAdminAccess.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_hooks_useadminaccess_ts",
+      "target": "lib_config_api_base_url",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/hooks/useAdminAccess.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_hooks_useadminaccess_ts",
+      "target": "hooks_useadminaccess_adminaccessresult",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/hooks/useAdminAccess.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_hooks_useadminaccess_ts",
+      "target": "hooks_useadminaccess_extendedsession",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/hooks/useAdminAccess.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_hooks_useadminaccess_ts",
+      "target": "hooks_useadminaccess_useadminaccess",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/hooks/useAdminAccess.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "hooks_useadminaccess_useadminaccess",
+      "callee": "useSession",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/hooks/useAdminAccess.ts",
+      "source_location": "L28"
+    },
+    {
+      "caller_nid": "hooks_useadminaccess_useadminaccess",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/hooks/useAdminAccess.ts",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "hooks_useadminaccess_useadminaccess",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/hooks/useAdminAccess.ts",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "hooks_useadminaccess_useadminaccess",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/hooks/useAdminAccess.ts",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "hooks_useadminaccess_useadminaccess",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/hooks/useAdminAccess.ts",
+      "source_location": "L33"
+    }
+  ]
+}
