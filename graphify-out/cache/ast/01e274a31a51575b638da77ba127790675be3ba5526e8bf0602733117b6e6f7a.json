@@ -1,0 +1,229 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_trainingentrylist_test_tsx",
+      "label": "TrainingEntryList.test.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "hr_dashboard_trainingentrylist_test_mockonedit",
+      "label": "mockOnEdit",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L7"
+    },
+    {
+      "id": "hr_dashboard_trainingentrylist_test_mockondelete",
+      "label": "mockOnDelete",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L8"
+    },
+    {
+      "id": "hr_dashboard_trainingentrylist_test_mockentries",
+      "label": "mockEntries",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L10"
+    },
+    {
+      "id": "hr_dashboard_trainingentrylist_test_editbuttons",
+      "label": "editButtons",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L96"
+    },
+    {
+      "id": "hr_dashboard_trainingentrylist_test_deletebuttons",
+      "label": "deleteButtons",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L115"
+    },
+    {
+      "id": "hr_dashboard_trainingentrylist_test_isdeleting",
+      "label": "isDeleting",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L175"
+    },
+    {
+      "id": "hr_dashboard_trainingentrylist_test_headers",
+      "label": "headers",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L206"
+    },
+    {
+      "id": "hr_dashboard_trainingentrylist_test_headertexts",
+      "label": "headerTexts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L207"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_trainingentrylist_test_tsx",
+      "target": "vitest",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_trainingentrylist_test_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_trainingentrylist_test_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_trainingentrylist_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_trainingentrylist_test_tsx",
+      "target": "training_trainingentrylist_trainingentrylist",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_trainingentrylist_test_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_types_training_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_trainingentrylist_test_tsx",
+      "target": "types_training_trainingentry",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_trainingentrylist_test_tsx",
+      "target": "hr_dashboard_trainingentrylist_test_mockonedit",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_trainingentrylist_test_tsx",
+      "target": "hr_dashboard_trainingentrylist_test_mockondelete",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_trainingentrylist_test_tsx",
+      "target": "hr_dashboard_trainingentrylist_test_mockentries",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_trainingentrylist_test_tsx",
+      "target": "hr_dashboard_trainingentrylist_test_editbuttons",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L96",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_trainingentrylist_test_tsx",
+      "target": "hr_dashboard_trainingentrylist_test_deletebuttons",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L115",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_trainingentrylist_test_tsx",
+      "target": "hr_dashboard_trainingentrylist_test_editbuttons",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L134",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_trainingentrylist_test_tsx",
+      "target": "hr_dashboard_trainingentrylist_test_deletebuttons",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L135",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_trainingentrylist_test_tsx",
+      "target": "hr_dashboard_trainingentrylist_test_isdeleting",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L175",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_trainingentrylist_test_tsx",
+      "target": "hr_dashboard_trainingentrylist_test_deletebuttons",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L188",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_trainingentrylist_test_tsx",
+      "target": "hr_dashboard_trainingentrylist_test_headers",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L206",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_trainingentrylist_test_tsx",
+      "target": "hr_dashboard_trainingentrylist_test_headertexts",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/TrainingEntryList.test.tsx",
+      "source_location": "L207",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

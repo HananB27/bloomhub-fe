@@ -1,0 +1,629 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "label": "conferenceCourseRegistrations.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "api_conferencecourseregistrations_api_base_url",
+      "label": "API_BASE_URL",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L10"
+    },
+    {
+      "id": "api_conferencecourseregistrations_apiregistration",
+      "label": "ApiRegistration",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L13"
+    },
+    {
+      "id": "api_conferencecourseregistrations_transformregistration",
+      "label": "transformRegistration()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L26"
+    },
+    {
+      "id": "api_conferencecourseregistrations_buildfilterquery",
+      "label": "buildFilterQuery()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L43"
+    },
+    {
+      "id": "api_conferencecourseregistrations_authheaders",
+      "label": "authHeaders()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L56"
+    },
+    {
+      "id": "api_conferencecourseregistrations_extracterrormessage",
+      "label": "extractErrorMessage()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L64"
+    },
+    {
+      "id": "api_conferencecourseregistrations_fetchconferencecourseregistrations",
+      "label": "fetchConferenceCourseRegistrations()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L83"
+    },
+    {
+      "id": "api_conferencecourseregistrations_fetchconferencecourseregistration",
+      "label": "fetchConferenceCourseRegistration()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L103"
+    },
+    {
+      "id": "api_conferencecourseregistrations_buildpayload",
+      "label": "buildPayload()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L120"
+    },
+    {
+      "id": "api_conferencecourseregistrations_createconferencecourseregistration",
+      "label": "createConferenceCourseRegistration()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L140"
+    },
+    {
+      "id": "api_conferencecourseregistrations_updateconferencecourseregistration",
+      "label": "updateConferenceCourseRegistration()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L158"
+    },
+    {
+      "id": "api_conferencecourseregistrations_deleteconferencecourseregistration",
+      "label": "deleteConferenceCourseRegistration()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L177"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_config_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "lib_config_getapibaseurl",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_types_conferencecourseregistration_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "types_conferencecourseregistration_conferencecourseregistration",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "types_conferencecourseregistration_conferencecourseregistrationfilters",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "types_conferencecourseregistration_conferencecourseregistrationstatus",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "types_conferencecourseregistration_createconferencecourseregistrationpayload",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "types_conferencecourseregistration_updateconferencecourseregistrationpayload",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "api_conferencecourseregistrations_api_base_url",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "api_conferencecourseregistrations_apiregistration",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "api_conferencecourseregistrations_transformregistration",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "api_conferencecourseregistrations_buildfilterquery",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "api_conferencecourseregistrations_authheaders",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "api_conferencecourseregistrations_extracterrormessage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L64",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "api_conferencecourseregistrations_fetchconferencecourseregistrations",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "api_conferencecourseregistrations_fetchconferencecourseregistration",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "api_conferencecourseregistrations_buildpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L120",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "api_conferencecourseregistrations_createconferencecourseregistration",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L140",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "api_conferencecourseregistrations_updateconferencecourseregistration",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L158",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "target": "api_conferencecourseregistrations_deleteconferencecourseregistration",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L177",
+      "weight": 1.0
+    },
+    {
+      "source": "api_conferencecourseregistrations_fetchconferencecourseregistrations",
+      "target": "api_conferencecourseregistrations_buildfilterquery",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L87",
+      "weight": 1.0
+    },
+    {
+      "source": "api_conferencecourseregistrations_fetchconferencecourseregistrations",
+      "target": "api_conferencecourseregistrations_authheaders",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "api_conferencecourseregistrations_fetchconferencecourseregistrations",
+      "target": "api_conferencecourseregistrations_extracterrormessage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L95",
+      "weight": 1.0
+    },
+    {
+      "source": "api_conferencecourseregistrations_fetchconferencecourseregistration",
+      "target": "api_conferencecourseregistrations_authheaders",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L109",
+      "weight": 1.0
+    },
+    {
+      "source": "api_conferencecourseregistrations_fetchconferencecourseregistration",
+      "target": "api_conferencecourseregistrations_extracterrormessage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L113",
+      "weight": 1.0
+    },
+    {
+      "source": "api_conferencecourseregistrations_fetchconferencecourseregistration",
+      "target": "api_conferencecourseregistrations_transformregistration",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L117",
+      "weight": 1.0
+    },
+    {
+      "source": "api_conferencecourseregistrations_createconferencecourseregistration",
+      "target": "api_conferencecourseregistrations_authheaders",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L146",
+      "weight": 1.0
+    },
+    {
+      "source": "api_conferencecourseregistrations_createconferencecourseregistration",
+      "target": "api_conferencecourseregistrations_buildpayload",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L147",
+      "weight": 1.0
+    },
+    {
+      "source": "api_conferencecourseregistrations_createconferencecourseregistration",
+      "target": "api_conferencecourseregistrations_extracterrormessage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L151",
+      "weight": 1.0
+    },
+    {
+      "source": "api_conferencecourseregistrations_createconferencecourseregistration",
+      "target": "api_conferencecourseregistrations_transformregistration",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L155",
+      "weight": 1.0
+    },
+    {
+      "source": "api_conferencecourseregistrations_updateconferencecourseregistration",
+      "target": "api_conferencecourseregistrations_authheaders",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L165",
+      "weight": 1.0
+    },
+    {
+      "source": "api_conferencecourseregistrations_updateconferencecourseregistration",
+      "target": "api_conferencecourseregistrations_buildpayload",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L166",
+      "weight": 1.0
+    },
+    {
+      "source": "api_conferencecourseregistrations_updateconferencecourseregistration",
+      "target": "api_conferencecourseregistrations_extracterrormessage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L170",
+      "weight": 1.0
+    },
+    {
+      "source": "api_conferencecourseregistrations_updateconferencecourseregistration",
+      "target": "api_conferencecourseregistrations_transformregistration",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L174",
+      "weight": 1.0
+    },
+    {
+      "source": "api_conferencecourseregistrations_deleteconferencecourseregistration",
+      "target": "api_conferencecourseregistrations_authheaders",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L183",
+      "weight": 1.0
+    },
+    {
+      "source": "api_conferencecourseregistrations_deleteconferencecourseregistration",
+      "target": "api_conferencecourseregistrations_extracterrormessage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L187",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "api_conferencecourseregistrations_buildfilterquery",
+      "callee": "append",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_buildfilterquery",
+      "callee": "append",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_buildfilterquery",
+      "callee": "toString",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_buildfilterquery",
+      "callee": "append",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_buildfilterquery",
+      "callee": "toString",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_buildfilterquery",
+      "callee": "append",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_buildfilterquery",
+      "callee": "append",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_buildfilterquery",
+      "callee": "toString",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_extracterrormessage",
+      "callee": "catch",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L73"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_extracterrormessage",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L73"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_extracterrormessage",
+      "callee": "isArray",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_extracterrormessage",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_extracterrormessage",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_fetchconferencecourseregistrations",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L89"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_fetchconferencecourseregistrations",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_fetchconferencecourseregistrations",
+      "callee": "isArray",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_fetchconferencecourseregistrations",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_fetchconferencecourseregistration",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L107"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_fetchconferencecourseregistration",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_createconferencecourseregistration",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L144"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_createconferencecourseregistration",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_createconferencecourseregistration",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_updateconferencecourseregistration",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L163"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_updateconferencecourseregistration",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L166"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_updateconferencecourseregistration",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L173"
+    },
+    {
+      "caller_nid": "api_conferencecourseregistrations_deleteconferencecourseregistration",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/conferenceCourseRegistrations.ts",
+      "source_location": "L181"
+    }
+  ]
+}

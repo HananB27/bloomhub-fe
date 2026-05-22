@@ -1,0 +1,17 @@
+{
+  "nodes": [
+    {
+      "id": "workflows_manual_vercel_deploy",
+      "label": "manual-vercel-deploy workflow",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/.github/workflows/manual-vercel-deploy.yml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

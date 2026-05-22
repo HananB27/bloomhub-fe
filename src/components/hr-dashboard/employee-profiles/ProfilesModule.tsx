@@ -7,6 +7,12 @@ import {
   useRef,
   type ChangeEvent,
 } from "react";
+import {
+  consumeOpenEmployeeRequest,
+  requestOpenProject,
+} from "../orgchart/crossModuleNav";
+import { DEFAULT_EMPLOYEES_LIST_FILTERS } from "./employeesListHelpers";
+import { invalidateOrgChartCache } from "../orgchart/useOrgChartData";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -533,7 +539,13 @@ function _profileHistoryValueText(field: string, value: unknown): string {
   return String(value);
 }
 
-export default function ProfilesModule() {
+interface ProfilesModuleProps {
+  onNavigate?: (moduleId: string) => void;
+}
+
+export default function ProfilesModule({
+  onNavigate,
+}: ProfilesModuleProps = {}) {
   const [employees, setEmployees] = useState<EmployeeProfileData[]>([]);
   const [selectedEmployee, setSelectedEmployee] =
     useState<EmployeeProfileData | null>(null);
@@ -573,6 +585,9 @@ export default function ProfilesModule() {
   const [cvPendingDelete, setCvPendingDelete] =
     useState<EmployeeCVVersion | null>(null);
   const [isDeletingCV, setIsDeletingCV] = useState(false);
+  const [deleteConfirmEmployee, setDeleteConfirmEmployee] =
+    useState<EmployeeProfileData | null>(null);
+  const [isDeletingEmployee, setIsDeletingEmployee] = useState(false);
   const cvFileInputRef = useRef<HTMLInputElement | null>(null);
   const [cvAddMode, setCvAddMode] = useState<"file" | "link">("file");
   const [cvLinkDraft, setCvLinkDraft] = useState("");
@@ -677,6 +692,24 @@ export default function ProfilesModule() {
       stale = true;
     };
   }, []);
+
+  // Cross-module request: org chart asked us to open a specific employee.
+  // Fires once after employees load.
+  const orgChartHandoffConsumedRef = useRef(false);
+  useEffect(() => {
+    if (orgChartHandoffConsumedRef.current) return;
+    if (employees.length === 0) return;
+    const id = consumeOpenEmployeeRequest();
+    if (id == null) {
+      orgChartHandoffConsumedRef.current = true;
+      return;
+    }
+    const match = employees.find((e) => e.id === id);
+    orgChartHandoffConsumedRef.current = true;
+    if (match) void openEmployeeDialog(match, "view");
+    // openEmployeeDialog is stable enough for this one-shot trigger
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [employees]);
 
   useEffect(() => {
     if (!addEmployeeOpen) return;
@@ -1009,6 +1042,33 @@ export default function ProfilesModule() {
     }
   };
 
+  const confirmDeleteEmployee = async () => {
+    if (!deleteConfirmEmployee) return;
+    const target = deleteConfirmEmployee;
+    try {
+      setIsDeletingEmployee(true);
+      await employeeApi.deleteEmployee(target.id);
+      setEmployees((arr) => arr.filter((e) => e.id !== target.id));
+      // Org-chart module reads cached snapshot — bust it so the deleted
+      // employee disappears from the chart on next view.
+      invalidateOrgChartCache();
+      toast.success(`Deleted ${target.first_name} ${target.last_name}`.trim(), {
+        position: "bottom-right",
+      });
+      setDeleteConfirmEmployee(null);
+      setSelectedEmployee(null);
+      setEditMode(false);
+      setEditBaseline(null);
+      setViewMode("list");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to delete employee";
+      toast.error(message, { position: "bottom-right" });
+    } finally {
+      setIsDeletingEmployee(false);
+    }
+  };
+
   const handleSaveEmployee = async () => {
     if (!selectedEmployee) return;
 
@@ -1226,6 +1286,20 @@ export default function ProfilesModule() {
             setEditBaseline(null);
           }}
           onSave={handleSaveEmployee}
+          canDelete={canEditAll}
+          onExport={() => {
+            handleOpenExport({
+              filteredEmployees: [selectedEmployee],
+              search: "",
+              filters: DEFAULT_EMPLOYEES_LIST_FILTERS,
+              activeFilterCount: 0,
+            });
+          }}
+          onDelete={() => setDeleteConfirmEmployee(selectedEmployee)}
+          onOpenProject={(projectId) => {
+            requestOpenProject(projectId);
+            onNavigate?.("projects");
+          }}
         />
       ) : (
         <EmployeesListPage
@@ -1353,6 +1427,45 @@ export default function ProfilesModule() {
                 </>
               ) : (
                 "Delete"
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog
+        open={!!deleteConfirmEmployee}
+        onOpenChange={(open) => {
+          if (!open) setDeleteConfirmEmployee(null);
+        }}
+      >
+        <AlertDialogContent className="sm:max-w-md border-zinc-200 bg-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-lg font-semibold text-zinc-900">
+              Delete employee?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-zinc-600">
+              {deleteConfirmEmployee
+                ? `This will permanently delete ${deleteConfirmEmployee.first_name} ${deleteConfirmEmployee.last_name} and all linked data (assignments, CVs, history). This action cannot be undone.`
+                : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 sm:gap-2">
+            <AlertDialogCancel disabled={isDeletingEmployee} type="button">
+              Cancel
+            </AlertDialogCancel>
+            <Button
+              type="button"
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={confirmDeleteEmployee}
+              disabled={isDeletingEmployee}
+            >
+              {isDeletingEmployee ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete employee"
               )}
             </Button>
           </AlertDialogFooter>

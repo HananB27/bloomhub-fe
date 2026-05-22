@@ -1,0 +1,199 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_collapsiblesidebar_tsx",
+      "label": "CollapsibleSidebar.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "hr_dashboard_collapsiblesidebar_navitem",
+      "label": "NavItem",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L14"
+    },
+    {
+      "id": "hr_dashboard_collapsiblesidebar_collapsiblesidebarprops",
+      "label": "CollapsibleSidebarProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L20"
+    },
+    {
+      "id": "hr_dashboard_collapsiblesidebar_collapsiblesidebar",
+      "label": "CollapsibleSidebar()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L29"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_collapsiblesidebar_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_collapsiblesidebar_tsx",
+      "target": "react_dom",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_collapsiblesidebar_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_collapsiblesidebar_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_collapsiblesidebar_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_button_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_collapsiblesidebar_tsx",
+      "target": "ui_button_button",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_collapsiblesidebar_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_hr_modules_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_collapsiblesidebar_tsx",
+      "target": "hr_dashboard_hr_modules_hrmoduleid",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_collapsiblesidebar_tsx",
+      "target": "hr_dashboard_collapsiblesidebar_navitem",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_collapsiblesidebar_tsx",
+      "target": "hr_dashboard_collapsiblesidebar_collapsiblesidebarprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_collapsiblesidebar_tsx",
+      "target": "hr_dashboard_collapsiblesidebar_collapsiblesidebar",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L29",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "hr_dashboard_collapsiblesidebar_collapsiblesidebar",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "hr_dashboard_collapsiblesidebar_collapsiblesidebar",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "hr_dashboard_collapsiblesidebar_collapsiblesidebar",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "hr_dashboard_collapsiblesidebar_collapsiblesidebar",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L49"
+    },
+    {
+      "caller_nid": "hr_dashboard_collapsiblesidebar_collapsiblesidebar",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "hr_dashboard_collapsiblesidebar_collapsiblesidebar",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L133"
+    },
+    {
+      "caller_nid": "hr_dashboard_collapsiblesidebar_collapsiblesidebar",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L181"
+    },
+    {
+      "caller_nid": "hr_dashboard_collapsiblesidebar_collapsiblesidebar",
+      "callee": "createPortal",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx",
+      "source_location": "L239"
+    }
+  ]
+}

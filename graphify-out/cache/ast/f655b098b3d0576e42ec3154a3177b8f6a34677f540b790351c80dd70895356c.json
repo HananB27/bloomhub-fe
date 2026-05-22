@@ -1,0 +1,1193 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "label": "DocumentsModule.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "hr_dashboard_documentsmodule_sortkey",
+      "label": "SortKey",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L74"
+    },
+    {
+      "id": "hr_dashboard_documentsmodule_documentsmodule",
+      "label": "DocumentsModule()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L78"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_documents_documentshelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_documentshelpers_documentcategory",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_documentshelpers_signaturestatus",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_documentshelpers_document_categories",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_documentshelpers_all_categories_filter",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_documentshelpers_expiry_filter_expiring_soon",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_documentshelpers_expiry_filter_expired",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_documentshelpers_documentslistsource",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_documentshelpers_ishrdocumentuser",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_documentshelpers_filterdocumentsbyaccess",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_documentshelpers_getdocumentuserrole",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_documentshelpers_sessionuserroleflags",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_editvisibilitydialog_editvisibilitydialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentattentionstrips_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_documentattentionstrips_documentattentionstrips",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentdrawer_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_documentdrawer_documentdrawer",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentstats_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_documentstats_documentstats",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_documentuploadmodal_documentuploadmodal",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentstablerow_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_documentstablerow_documentstablerow",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_signaturedialog_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_signaturedialog_signaturedialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_signaturerequestdialog_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_signaturerequestdialog_signaturerequestdialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodulehelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "hr_dashboard_documentsmodulehelpers_documentstablerowmodel",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "hr_dashboard_documentsmodulehelpers_filterandsorttablerows",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "hr_dashboard_documentsmodulehelpers_buildmergedtablerows",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "hr_dashboard_documentsmodulehelpers_builduploadtablerow",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "hr_dashboard_documentsmodulehelpers_tablerowkey",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "hr_dashboard_documentsmodulehelpers_uploaddocumentidsfromrowkeys",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "hr_dashboard_documentsmodulehelpers_downloadgenerateddocumenthtmlfile",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "hr_dashboard_documentsmodulehelpers_documentbulkusermessage",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_modules_documents_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L47",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_index_documentsapi",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L47",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "documents_index_employeedocument",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L47",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_utils_notificationhelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "utils_notificationhelpers_notifyapierror",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "utils_notificationhelpers_notifysuccess",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "utils_notificationhelpers_withnotification",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "utils_notificationhelpers_notificationmessages",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "utils_notificationhelpers_notifyquickfeedback",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatebuilder_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "templates_templatebuilder_templatebuilder",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "templates_templatesmanagement_templatesmanagement",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatepicker_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "templates_templatepicker_templatepicker",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "templates_templatepicker_fieldfillmodal",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_modules_templates_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "templates_index_templatesapi",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "templates_index_generateddocument",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_templates_templateshelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L65",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "templates_templateshelpers_documenttemplate",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L65",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_select_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "ui_select_select",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "ui_select_selectcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "ui_select_selectitem",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "ui_select_selecttrigger",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "ui_select_selectvalue",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "hr_dashboard_documentsmodule_sortkey",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L74",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documentsmodule_tsx",
+      "target": "hr_dashboard_documentsmodule_documentsmodule",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L78",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useSession",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L79"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "toLowerCase",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "isHrDocumentUser",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L101"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L105"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L107"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L117"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L118"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L119"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L123"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L129"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L130"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L135"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L167"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L194"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L203"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L226"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L230"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L249"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L263"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L286"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L302"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L314"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L330"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L353"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L366"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L372"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L378"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L399"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L405"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L411"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L417"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L423"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L429"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L447"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L471"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L495"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L519"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L541"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L565"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L570"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L582"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L614"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L619"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L624"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "replace",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L625"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L855"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L878"
+    },
+    {
+      "caller_nid": "hr_dashboard_documentsmodule_documentsmodule",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/DocumentsModule.tsx",
+      "source_location": "L1019"
+    }
+  ]
+}

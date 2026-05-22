@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { consumeProjectsSearchRequest } from "../orgchart/crossModuleNav";
 import { filterAndSortProjects, uniqueClients } from "./projectsHelpers";
 import type { Project, ProjectsListFilters, ProjectsListView } from "./types";
 
@@ -12,7 +13,9 @@ const DEFAULT_FILTERS: ProjectsListFilters = {
 
 export function useProjectsListView(projects: Project[]) {
   const [view, setView] = useState<ProjectsListView>("grid");
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(
+    () => consumeProjectsSearchRequest() ?? ""
+  );
   const [filters, setFilters] = useState<ProjectsListFilters>(DEFAULT_FILTERS);
 
   const setFilter = <K extends keyof ProjectsListFilters>(

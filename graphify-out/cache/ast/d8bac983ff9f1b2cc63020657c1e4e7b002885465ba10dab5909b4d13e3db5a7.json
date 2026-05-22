@@ -1,0 +1,202 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_tests_templateshelpers_test_ts",
+      "label": "templatesHelpers.test.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_templateshelpers_test_merged",
+      "label": "merged",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L35"
+    },
+    {
+      "id": "tests_templateshelpers_test_existing",
+      "label": "existing",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L45"
+    },
+    {
+      "id": "tests_templateshelpers_test_field",
+      "label": "field",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L66"
+    },
+    {
+      "id": "tests_templateshelpers_test_fields",
+      "label": "fields",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L77"
+    },
+    {
+      "id": "tests_templateshelpers_test_ph",
+      "label": "ph",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L88"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_templateshelpers_test_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_templateshelpers_test_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_templates_templateshelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_templateshelpers_test_ts",
+      "target": "templates_templateshelpers_mergetemplatefieldsfromplaceholders",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_templateshelpers_test_ts",
+      "target": "templates_templateshelpers_templatefieldtype",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_templateshelpers_test_ts",
+      "target": "templates_templateshelpers_displaylabelforplaceholder",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_templateshelpers_test_ts",
+      "target": "templates_templateshelpers_extractplaceholders",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_templateshelpers_test_ts",
+      "target": "templates_templateshelpers_generatefieldid",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_templateshelpers_test_ts",
+      "target": "templates_templateshelpers_labeltokey",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_templateshelpers_test_ts",
+      "target": "templates_templateshelpers_templatefield",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_templateshelpers_test_ts",
+      "target": "tests_templateshelpers_test_merged",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_templateshelpers_test_ts",
+      "target": "tests_templateshelpers_test_existing",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_templateshelpers_test_ts",
+      "target": "tests_templateshelpers_test_merged",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_templateshelpers_test_ts",
+      "target": "tests_templateshelpers_test_field",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_templateshelpers_test_ts",
+      "target": "tests_templateshelpers_test_fields",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L77",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_templateshelpers_test_ts",
+      "target": "tests_templateshelpers_test_merged",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L78",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_templateshelpers_test_ts",
+      "target": "tests_templateshelpers_test_ph",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/templatesHelpers.test.ts",
+      "source_location": "L88",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

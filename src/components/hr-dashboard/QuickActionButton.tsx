@@ -25,6 +25,13 @@ export function QuickActionButton({
       disabled={disabled}
       onClick={onClick}
       className="w-full justify-start gap-2"
+      // Inline style guarantees override regardless of variant CSS / Tailwind
+      // merge ordering. `currentColor` propagates to the lucide icon stroke.
+      style={
+        variant !== "primary"
+          ? { color: "#111827" } // gray-900
+          : undefined
+      }
     >
       <Icon className="h-4 w-4" />
       {label}
