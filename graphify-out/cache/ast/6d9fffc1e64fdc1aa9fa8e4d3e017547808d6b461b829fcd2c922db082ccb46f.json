@@ -1,0 +1,224 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_peersessionlist_tsx",
+      "label": "PeerSessionList.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "training_peersessionlist_peersessionlistprops",
+      "label": "PeerSessionListProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L9"
+    },
+    {
+      "id": "training_peersessionlist_avatar_colors",
+      "label": "AVATAR_COLORS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L19"
+    },
+    {
+      "id": "training_peersessionlist_getavatarcolor",
+      "label": "getAvatarColor()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L27"
+    },
+    {
+      "id": "training_peersessionlist_getinitials",
+      "label": "getInitials()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L31"
+    },
+    {
+      "id": "training_peersessionlist_peersessionlist",
+      "label": "PeerSessionList()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L42"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_peersessionlist_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_peersessionlist_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_peersessionlist_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_button_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_peersessionlist_tsx",
+      "target": "ui_button_button",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_peersessionlist_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_utils_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_peersessionlist_tsx",
+      "target": "utils_index_formatdate",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_peersessionlist_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_types_peersession_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_peersessionlist_tsx",
+      "target": "types_peersession_peersession",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_peersessionlist_tsx",
+      "target": "training_peersessionlist_peersessionlistprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_peersessionlist_tsx",
+      "target": "training_peersessionlist_avatar_colors",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_peersessionlist_tsx",
+      "target": "training_peersessionlist_getavatarcolor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_peersessionlist_tsx",
+      "target": "training_peersessionlist_getinitials",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_peersessionlist_tsx",
+      "target": "training_peersessionlist_peersessionlist",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L42",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "training_peersessionlist_getavatarcolor",
+      "callee": "charCodeAt",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L28"
+    },
+    {
+      "caller_nid": "training_peersessionlist_getinitials",
+      "callee": "toUpperCase",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "training_peersessionlist_getinitials",
+      "callee": "slice",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "training_peersessionlist_getinitials",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "training_peersessionlist_getinitials",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "training_peersessionlist_getinitials",
+      "callee": "split",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "training_peersessionlist_peersessionlist",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx",
+      "source_location": "L91"
+    }
+  ]
+}

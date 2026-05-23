@@ -1,0 +1,147 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentattentionstrips_tsx",
+      "label": "DocumentAttentionStrips.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "documents_documentattentionstrips_documentattentionstrips",
+      "label": "DocumentAttentionStrips()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx",
+      "source_location": "L10"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentattentionstrips_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentattentionstrips_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_modules_documents_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentattentionstrips_tsx",
+      "target": "documents_index_employeedocument",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentattentionstrips_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_documents_documentshelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentattentionstrips_tsx",
+      "target": "documents_documentshelpers_signaturestatus",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentattentionstrips_tsx",
+      "target": "documents_documentshelpers_documentexpirybucket",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentattentionstrips_tsx",
+      "target": "documents_documentattentionstrips_documentattentionstrips",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "documents_documentattentionstrips_documentattentionstrips",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx",
+      "source_location": "L17"
+    },
+    {
+      "caller_nid": "documents_documentattentionstrips_documentattentionstrips",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx",
+      "source_location": "L20"
+    },
+    {
+      "caller_nid": "documents_documentattentionstrips_documentattentionstrips",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "documents_documentattentionstrips_documentattentionstrips",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "documents_documentattentionstrips_documentattentionstrips",
+      "callee": "slice",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "documents_documentattentionstrips_documentattentionstrips",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "documents_documentattentionstrips_documentattentionstrips",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "documents_documentattentionstrips_documentattentionstrips",
+      "callee": "slice",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx",
+      "source_location": "L72"
+    }
+  ]
+}

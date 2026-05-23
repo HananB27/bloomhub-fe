@@ -1,0 +1,1030 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "label": "ReviewDetailDrawer.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_drawertab",
+      "label": "DrawerTab",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L51"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_newactiondraft",
+      "label": "NewActionDraft",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L53"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_outcomedraft",
+      "label": "OutcomeDraft",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L60"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_reviewdetaildrawerprops",
+      "label": "ReviewDetailDrawerProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L67"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_drawer_tabs",
+      "label": "DRAWER_TABS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L89"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_status_options",
+      "label": "STATUS_OPTIONS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L96"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_reviewdetaildrawer",
+      "label": "ReviewDetailDrawer()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L103"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_drawerheaderprops",
+      "label": "DrawerHeaderProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L212"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_drawerheader",
+      "label": "DrawerHeader()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L217"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_summarystat",
+      "label": "SummaryStat()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L279"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_dueline",
+      "label": "DueLine()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L296"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_drawerfooterprops",
+      "label": "DrawerFooterProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L303"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_drawerfooter",
+      "label": "DrawerFooter()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L308"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_agendapanelprops",
+      "label": "AgendaPanelProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L332"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_agendapanel",
+      "label": "AgendaPanel()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L338"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_sectiontitle",
+      "label": "SectionTitle()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L446"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_notespanelprops",
+      "label": "NotesPanelProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L454"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_notespanel",
+      "label": "NotesPanel()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L460"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_actionspanelprops",
+      "label": "ActionsPanelProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L560"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_action_status_options",
+      "label": "ACTION_STATUS_OPTIONS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L568"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_actionspanel",
+      "label": "ActionsPanel()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L575"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_attachmentspanelprops",
+      "label": "AttachmentsPanelProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L738"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_isimageattachment",
+      "label": "isImageAttachment()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L744"
+    },
+    {
+      "id": "reviews_reviewdetaildrawer_attachmentspanel",
+      "label": "AttachmentsPanel()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L756"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_sheet_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "ui_sheet_sheet",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "ui_sheet_sheetcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "ui_sheet_sheettitle",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_datepicker_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "hr_dashboard_datepicker_datepicker",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_button_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "ui_button_button",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_textarea_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "ui_textarea_textarea",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_input_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "ui_input_input",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_label_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "ui_label_label",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_select_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "ui_select_select",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "ui_select_selectcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "ui_select_selectitem",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "ui_select_selecttrigger",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "ui_select_selectvalue",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_utils_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "utils_index_formatdate",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_types_reviews_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "types_reviews_actionpointstatus",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "types_reviews_notevisibility",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "types_reviews_performancereview",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "types_reviews_performancereviewactionpoint",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "types_reviews_performancereviewattachment",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "types_reviews_performancereviewnote",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "types_reviews_reviewstatus",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_types_reviews_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "types_reviews_action_point_status_labels",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "types_reviews_rating_labels",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "types_reviews_rating_scale",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "types_reviews_review_status_labels",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "types_reviews_review_type_labels",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_reviews_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "api_reviews_userprofile",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_personavatar_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L47",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_personavatar_personavatar",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L47",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_statuspill_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_statuspill_statuspill",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewsmodulehelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewsmodulehelpers_duelabel",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewsmodulehelpers_daysuntil",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_drawertab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_newactiondraft",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L53",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_outcomedraft",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_reviewdetaildrawerprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_drawer_tabs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_status_options",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L96",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_reviewdetaildrawer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_drawerheaderprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L212",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_drawerheader",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L217",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_summarystat",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L279",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_dueline",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L296",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_drawerfooterprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L303",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_drawerfooter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L308",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_agendapanelprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L332",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_agendapanel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L338",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_sectiontitle",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L446",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_notespanelprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L454",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_notespanel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L460",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_actionspanelprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L560",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_action_status_options",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L568",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_actionspanel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L575",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_attachmentspanelprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L738",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_isimageattachment",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L744",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_reviews_reviewdetaildrawer_tsx",
+      "target": "reviews_reviewdetaildrawer_attachmentspanel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L756",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_reviewdetaildrawer",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_reviewdetaildrawer",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_reviewdetaildrawer",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L146"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_drawerheader",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L230"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_drawerheader",
+      "callee": "formatDate",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L255"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_dueline",
+      "callee": "daysUntil",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L297"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_dueline",
+      "callee": "dueLabel",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L300"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_agendapanel",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L357"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_notespanel",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L461"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_notespanel",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L462"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_notespanel",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L499"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_notespanel",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L516"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_actionspanel",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L582"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_actionspanel",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L624"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_actionspanel",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L643"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_actionspanel",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L662"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_isimageattachment",
+      "callee": "toLowerCase",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L746"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_isimageattachment",
+      "callee": "endsWith",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L748"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_isimageattachment",
+      "callee": "endsWith",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L749"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_isimageattachment",
+      "callee": "endsWith",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L750"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_isimageattachment",
+      "callee": "endsWith",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L751"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_isimageattachment",
+      "callee": "endsWith",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L752"
+    },
+    {
+      "caller_nid": "reviews_reviewdetaildrawer_attachmentspanel",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/reviews/ReviewDetailDrawer.tsx",
+      "source_location": "L799"
+    }
+  ]
+}

@@ -55,6 +55,10 @@ interface ProfilesDetailViewProps {
   profileHistoryError: string | null;
   profileHistory: EmployeeProfileChangeHistoryItem[];
   onBack: () => void;
+  onExport?: () => void;
+  onDelete?: () => void;
+  canDelete?: boolean;
+  onOpenProject?: (projectId: number) => void;
 }
 
 /**
@@ -108,6 +112,10 @@ export function ProfilesDetailView({
   profileHistoryError,
   profileHistory,
   onBack,
+  onExport,
+  onDelete,
+  canDelete,
+  onOpenProject,
 }: ProfilesDetailViewProps) {
   const viewerRole = resolveViewerRole(canEditAll, currentUserId, profile.id);
   const access = getViewerAccess(viewerRole);
@@ -145,10 +153,13 @@ export function ProfilesDetailView({
       dirty={dirty}
       saving={isSaving}
       canEdit={canEdit}
+      canDelete={canDelete ?? canEditAll}
       onEnterEdit={onEnterEdit}
       onCancelEdit={onCancelEdit}
       onSave={onSave}
       onBack={onBack}
+      onExport={onExport}
+      onDelete={onDelete}
     >
       <ProfilePersonalSection
         profile={profile}
@@ -177,7 +188,7 @@ export function ProfilesDetailView({
         currentUserId={currentUserId}
         onEmployeeChange={onEmployeeChange}
       />
-      <ProfileProjectsSection profile={profile} />
+      <ProfileProjectsSection profile={profile} onOpenProject={onOpenProject} />
       <ProfileCvSection
         editMode={editMode}
         canUploadCV={canUploadCV}

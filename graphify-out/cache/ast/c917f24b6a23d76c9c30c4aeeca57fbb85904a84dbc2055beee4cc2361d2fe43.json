@@ -1,0 +1,146 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_lib_api_modules_templatesnippets_index_ts",
+      "label": "index.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/templateSnippets/index.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "templatesnippets_index_usertemplatesnippetdto",
+      "label": "UserTemplateSnippetDto",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/templateSnippets/index.ts",
+      "source_location": "L8"
+    },
+    {
+      "id": "templatesnippets_index_templatesnippetsapi",
+      "label": "templateSnippetsApi",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/templateSnippets/index.ts",
+      "source_location": "L17"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_templatesnippets_index_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_config_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/templateSnippets/index.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_templatesnippets_index_ts",
+      "target": "lib_config_api_base_url",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/templateSnippets/index.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_templatesnippets_index_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_helpers_httpclient_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/templateSnippets/index.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_templatesnippets_index_ts",
+      "target": "helpers_httpclient_del",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/templateSnippets/index.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_templatesnippets_index_ts",
+      "target": "helpers_httpclient_get",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/templateSnippets/index.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_templatesnippets_index_ts",
+      "target": "helpers_httpclient_patch",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/templateSnippets/index.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_templatesnippets_index_ts",
+      "target": "helpers_httpclient_post",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/templateSnippets/index.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_templatesnippets_index_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_constants_templatesnippetsendpoints_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/templateSnippets/index.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_templatesnippets_index_ts",
+      "target": "constants_templatesnippetsendpoints_user_template_snippets_api_path",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/templateSnippets/index.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_templatesnippets_index_ts",
+      "target": "constants_templatesnippetsendpoints_usertemplatesnippetpath",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/templateSnippets/index.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_templatesnippets_index_ts",
+      "target": "templatesnippets_index_usertemplatesnippetdto",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/templateSnippets/index.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_templatesnippets_index_ts",
+      "target": "templatesnippets_index_templatesnippetsapi",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/templateSnippets/index.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

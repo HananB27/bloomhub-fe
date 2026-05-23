@@ -1,0 +1,383 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_employeeslisthelpers_ts",
+      "label": "employeesListHelpers.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "employee_profiles_employeeslisthelpers_employeeslistsort",
+      "label": "EmployeesListSort",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L4"
+    },
+    {
+      "id": "employee_profiles_employeeslisthelpers_employees_list_sort_labels",
+      "label": "EMPLOYEES_LIST_SORT_LABELS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L11"
+    },
+    {
+      "id": "employee_profiles_employeeslisthelpers_employees_list_sort_options",
+      "label": "EMPLOYEES_LIST_SORT_OPTIONS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L19"
+    },
+    {
+      "id": "employee_profiles_employeeslisthelpers_employeeslistfilters",
+      "label": "EmployeesListFilters",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L29"
+    },
+    {
+      "id": "employee_profiles_employeeslisthelpers_default_employees_list_filters",
+      "label": "DEFAULT_EMPLOYEES_LIST_FILTERS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L35"
+    },
+    {
+      "id": "employee_profiles_employeeslisthelpers_deriveemployeestatus",
+      "label": "deriveEmployeeStatus()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L42"
+    },
+    {
+      "id": "employee_profiles_employeeslisthelpers_matchesemployeesearch",
+      "label": "matchesEmployeeSearch()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L53"
+    },
+    {
+      "id": "employee_profiles_employeeslisthelpers_applyemployeeslistpipeline",
+      "label": "applyEmployeesListPipeline()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L74"
+    },
+    {
+      "id": "employee_profiles_employeeslisthelpers_lastfirstkey",
+      "label": "lastFirstKey()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L89"
+    },
+    {
+      "id": "employee_profiles_employeeslisthelpers_sortemployees",
+      "label": "sortEmployees()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L93"
+    },
+    {
+      "id": "employee_profiles_employeeslisthelpers_uniquedepartments",
+      "label": "uniqueDepartments()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L119"
+    },
+    {
+      "id": "employee_profiles_employeeslisthelpers_paginate",
+      "label": "paginate()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L128"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_employeeslisthelpers_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_employees_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_employeeslisthelpers_ts",
+      "target": "api_employees_employeeprofiledata",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_employeeslisthelpers_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_statuspill_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_employeeslisthelpers_ts",
+      "target": "atoms_statuspill_employeestatuskey",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_employeeslisthelpers_ts",
+      "target": "employee_profiles_employeeslisthelpers_employeeslistsort",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_employeeslisthelpers_ts",
+      "target": "employee_profiles_employeeslisthelpers_employees_list_sort_labels",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_employeeslisthelpers_ts",
+      "target": "employee_profiles_employeeslisthelpers_employees_list_sort_options",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_employeeslisthelpers_ts",
+      "target": "employee_profiles_employeeslisthelpers_employeeslistfilters",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_employeeslisthelpers_ts",
+      "target": "employee_profiles_employeeslisthelpers_default_employees_list_filters",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_employeeslisthelpers_ts",
+      "target": "employee_profiles_employeeslisthelpers_deriveemployeestatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_employeeslisthelpers_ts",
+      "target": "employee_profiles_employeeslisthelpers_matchesemployeesearch",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L53",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_employeeslisthelpers_ts",
+      "target": "employee_profiles_employeeslisthelpers_applyemployeeslistpipeline",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L74",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_employeeslisthelpers_ts",
+      "target": "employee_profiles_employeeslisthelpers_lastfirstkey",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_employeeslisthelpers_ts",
+      "target": "employee_profiles_employeeslisthelpers_sortemployees",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_employeeslisthelpers_ts",
+      "target": "employee_profiles_employeeslisthelpers_uniquedepartments",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L119",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_employeeslisthelpers_ts",
+      "target": "employee_profiles_employeeslisthelpers_paginate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L128",
+      "weight": 1.0
+    },
+    {
+      "source": "employee_profiles_employeeslisthelpers_applyemployeeslistpipeline",
+      "target": "employee_profiles_employeeslisthelpers_sortemployees",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L86",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "employee_profiles_employeeslisthelpers_deriveemployeestatus",
+      "callee": "toLowerCase",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L46"
+    },
+    {
+      "caller_nid": "employee_profiles_employeeslisthelpers_matchesemployeesearch",
+      "callee": "toLowerCase",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "employee_profiles_employeeslisthelpers_matchesemployeesearch",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "employee_profiles_employeeslisthelpers_matchesemployeesearch",
+      "callee": "toLowerCase",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "employee_profiles_employeeslisthelpers_matchesemployeesearch",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "employee_profiles_employeeslisthelpers_matchesemployeesearch",
+      "callee": "includes",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "employee_profiles_employeeslisthelpers_applyemployeeslistpipeline",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L79"
+    },
+    {
+      "caller_nid": "employee_profiles_employeeslisthelpers_applyemployeeslistpipeline",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "employee_profiles_employeeslisthelpers_applyemployeeslistpipeline",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "employee_profiles_employeeslisthelpers_lastfirstkey",
+      "callee": "toLowerCase",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "employee_profiles_employeeslisthelpers_sortemployees",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "employee_profiles_employeeslisthelpers_sortemployees",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "employee_profiles_employeeslisthelpers_sortemployees",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "employee_profiles_employeeslisthelpers_sortemployees",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "employee_profiles_employeeslisthelpers_sortemployees",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "employee_profiles_employeeslisthelpers_uniquedepartments",
+      "callee": "forEach",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L121"
+    },
+    {
+      "caller_nid": "employee_profiles_employeeslisthelpers_uniquedepartments",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "employee_profiles_employeeslisthelpers_paginate",
+      "callee": "slice",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/employeesListHelpers.ts",
+      "source_location": "L129"
+    }
+  ]
+}

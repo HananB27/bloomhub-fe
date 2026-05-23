@@ -1,0 +1,17 @@
+{
+  "nodes": [
+    {
+      "id": "cursor_bloomhub_fe_quality_skill",
+      "label": "bloomhub-fe-quality SKILL",
+      "file_type": "document",
+      "source_file": "/Users/bloomteq/BloomHub-fe/.cursor/skills/bloomhub-fe-quality/SKILL.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

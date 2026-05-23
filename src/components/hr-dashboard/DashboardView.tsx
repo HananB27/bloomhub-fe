@@ -394,7 +394,7 @@ export function DashboardView({
     case "vacations":
       return <VacationsModule addNotification={addNotification} />;
     case "profiles":
-      return <ProfilesModule />;
+      return <ProfilesModule onNavigate={onNavigate} />;
     case "projects":
       return <ProjectsModule onNavigate={onNavigate} />;
     case "reviews":
@@ -416,7 +416,7 @@ export function DashboardView({
     case "assets":
       return <AssetsModule />;
     case "orgchart":
-      return <OrgChartModule />;
+      return <OrgChartModule onNavigate={onNavigate} />;
     case "analytics":
       return <AnalyticsModule />;
     case "announcements":

@@ -1,0 +1,28 @@
+{
+  "nodes": [
+    {
+      "id": "caveman_compress_main",
+      "label": "caveman-compress __main__.py",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-compress/scripts/__main__.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "caveman_compress_main",
+      "target": "caveman_compress_cli",
+      "relation": "invokes",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-compress/scripts/__main__.py",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

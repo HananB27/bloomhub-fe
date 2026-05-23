@@ -14,10 +14,13 @@ interface ProfileDetailShellProps {
   dirty: boolean;
   saving?: boolean;
   canEdit: boolean;
+  canDelete?: boolean;
   onEnterEdit: () => void;
   onCancelEdit: () => void;
   onSave: () => void;
   onBack?: () => void;
+  onExport?: () => void;
+  onDelete?: () => void;
   children: ReactNode;
 }
 
@@ -33,10 +36,13 @@ export function ProfileDetailShell({
   dirty,
   saving,
   canEdit,
+  canDelete,
   onEnterEdit,
   onCancelEdit,
   onSave,
   onBack,
+  onExport,
+  onDelete,
   children,
 }: ProfileDetailShellProps) {
   const { activeId, jumpTo } = useProfileSectionNav(sections);
@@ -57,10 +63,13 @@ export function ProfileDetailShell({
               dirty={dirty}
               saving={saving}
               canEdit={canEdit}
+              canDelete={canDelete}
               onEnterEdit={onEnterEdit}
               onCancelEdit={onCancelEdit}
               onSave={onSave}
               onBack={onBack}
+              onExport={onExport}
+              onDelete={onDelete}
             />
             <div className="flex flex-col gap-3.5 pt-1">{children}</div>
           </main>

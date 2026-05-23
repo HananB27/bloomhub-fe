@@ -1,0 +1,81 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_skeletonprojectcard_tsx",
+      "label": "SkeletonProjectCard.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/SkeletonProjectCard.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "atoms_skeletonprojectcard_skeletonprojectcard",
+      "label": "SkeletonProjectCard()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/SkeletonProjectCard.tsx",
+      "source_location": "L3"
+    },
+    {
+      "id": "atoms_skeletonprojectcard_skeletonprojectgrid",
+      "label": "SkeletonProjectGrid()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/SkeletonProjectCard.tsx",
+      "source_location": "L21"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_skeletonprojectcard_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_skeleton_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/SkeletonProjectCard.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_skeletonprojectcard_tsx",
+      "target": "ui_skeleton_skeleton",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/SkeletonProjectCard.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_skeletonprojectcard_tsx",
+      "target": "atoms_skeletonprojectcard_skeletonprojectcard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/SkeletonProjectCard.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_skeletonprojectcard_tsx",
+      "target": "atoms_skeletonprojectcard_skeletonprojectgrid",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/SkeletonProjectCard.tsx",
+      "source_location": "L21",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "atoms_skeletonprojectcard_skeletonprojectgrid",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/SkeletonProjectCard.tsx",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "atoms_skeletonprojectcard_skeletonprojectgrid",
+      "callee": "from",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/SkeletonProjectCard.tsx",
+      "source_location": "L27"
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_types_ts",
+      "label": "types.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "orgchart_types_orgstatus",
+      "label": "OrgStatus",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "orgchart_types_orgemployee",
+      "label": "OrgEmployee",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L3"
+    },
+    {
+      "id": "orgchart_types_orgdepartment",
+      "label": "OrgDepartment",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L18"
+    },
+    {
+      "id": "orgchart_types_orgproject",
+      "label": "OrgProject",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L26"
+    },
+    {
+      "id": "orgchart_types_layoutdirection",
+      "label": "LayoutDirection",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L33"
+    },
+    {
+      "id": "orgchart_types_orgfilters",
+      "label": "OrgFilters",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L35"
+    },
+    {
+      "id": "orgchart_types_orgrecentupdate",
+      "label": "OrgRecentUpdate",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L41"
+    },
+    {
+      "id": "orgchart_types_layoutnode",
+      "label": "LayoutNode",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L48"
+    },
+    {
+      "id": "orgchart_types_layoutedge",
+      "label": "LayoutEdge",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L58"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_types_ts",
+      "target": "orgchart_types_orgstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_types_ts",
+      "target": "orgchart_types_orgemployee",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_types_ts",
+      "target": "orgchart_types_orgdepartment",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_types_ts",
+      "target": "orgchart_types_orgproject",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_types_ts",
+      "target": "orgchart_types_layoutdirection",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_types_ts",
+      "target": "orgchart_types_orgfilters",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_types_ts",
+      "target": "orgchart_types_orgrecentupdate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_types_ts",
+      "target": "orgchart_types_layoutnode",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_types_ts",
+      "target": "orgchart_types_layoutedge",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/types.ts",
+      "source_location": "L58",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

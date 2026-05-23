@@ -1,0 +1,248 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_lib_api_auth_ts",
+      "label": "auth.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "api_auth_logincredentials",
+      "label": "LoginCredentials",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L3"
+    },
+    {
+      "id": "api_auth_registrationpayload",
+      "label": "RegistrationPayload",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L10"
+    },
+    {
+      "id": "api_auth_loginwithemail",
+      "label": "loginWithEmail()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L20"
+    },
+    {
+      "id": "api_auth_registeruser",
+      "label": "registerUser()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L37"
+    },
+    {
+      "id": "api_auth_logoutuser",
+      "label": "logoutUser()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L70"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_auth_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_config_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_auth_ts",
+      "target": "lib_config_api_base_url",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_auth_ts",
+      "target": "api_auth_logincredentials",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_auth_ts",
+      "target": "api_auth_registrationpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_auth_ts",
+      "target": "api_auth_loginwithemail",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_auth_ts",
+      "target": "api_auth_registeruser",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_auth_ts",
+      "target": "api_auth_logoutuser",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L70",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "api_auth_loginwithemail",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L21"
+    },
+    {
+      "caller_nid": "api_auth_loginwithemail",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "api_auth_loginwithemail",
+      "callee": "catch",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "api_auth_loginwithemail",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "api_auth_loginwithemail",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "api_auth_registeruser",
+      "callee": "append",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "api_auth_registeruser",
+      "callee": "append",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "api_auth_registeruser",
+      "callee": "append",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "api_auth_registeruser",
+      "callee": "append",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "api_auth_registeruser",
+      "callee": "append",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "api_auth_registeruser",
+      "callee": "append",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "api_auth_registeruser",
+      "callee": "append",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "api_auth_registeruser",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "api_auth_registeruser",
+      "callee": "catch",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "api_auth_registeruser",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "api_auth_registeruser",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "api_auth_logoutuser",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "api_auth_logoutuser",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "api_auth_logoutuser",
+      "callee": "error",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/auth.ts",
+      "source_location": "L80"
+    }
+  ]
+}

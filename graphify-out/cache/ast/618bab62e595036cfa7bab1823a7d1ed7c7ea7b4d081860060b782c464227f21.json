@@ -1,0 +1,110 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_types_trainingbudget_ts",
+      "label": "trainingBudget.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/trainingBudget.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "types_trainingbudget_trainingbudget",
+      "label": "TrainingBudget",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/trainingBudget.ts",
+      "source_location": "L8"
+    },
+    {
+      "id": "types_trainingbudget_createtrainingbudgetpayload",
+      "label": "CreateTrainingBudgetPayload",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/trainingBudget.ts",
+      "source_location": "L24"
+    },
+    {
+      "id": "types_trainingbudget_updatetrainingbudgetpayload",
+      "label": "UpdateTrainingBudgetPayload",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/trainingBudget.ts",
+      "source_location": "L30"
+    },
+    {
+      "id": "types_trainingbudget_trainingbudgetfilters",
+      "label": "TrainingBudgetFilters",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/trainingBudget.ts",
+      "source_location": "L35"
+    },
+    {
+      "id": "types_trainingbudget_trainingbudgetwarninglevel",
+      "label": "TrainingBudgetWarningLevel",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/trainingBudget.ts",
+      "source_location": "L46"
+    },
+    {
+      "id": "types_trainingbudget_trainingbudgetwarning",
+      "label": "TrainingBudgetWarning",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/trainingBudget.ts",
+      "source_location": "L48"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_trainingbudget_ts",
+      "target": "types_trainingbudget_trainingbudget",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/trainingBudget.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_trainingbudget_ts",
+      "target": "types_trainingbudget_createtrainingbudgetpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/trainingBudget.ts",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_trainingbudget_ts",
+      "target": "types_trainingbudget_updatetrainingbudgetpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/trainingBudget.ts",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_trainingbudget_ts",
+      "target": "types_trainingbudget_trainingbudgetfilters",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/trainingBudget.ts",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_trainingbudget_ts",
+      "target": "types_trainingbudget_trainingbudgetwarninglevel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/trainingBudget.ts",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_trainingbudget_ts",
+      "target": "types_trainingbudget_trainingbudgetwarning",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/trainingBudget.ts",
+      "source_location": "L48",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

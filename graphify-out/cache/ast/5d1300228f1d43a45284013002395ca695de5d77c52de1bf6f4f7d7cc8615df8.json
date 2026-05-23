@@ -1,0 +1,639 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "label": "OrgChartCanvas.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "orgchart_orgchartcanvas_nodeactionitem",
+      "label": "NodeActionItem",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L52"
+    },
+    {
+      "id": "orgchart_orgchartcanvas_orgcanvasapi",
+      "label": "OrgCanvasApi",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L73"
+    },
+    {
+      "id": "orgchart_orgchartcanvas_props",
+      "label": "Props",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L80"
+    },
+    {
+      "id": "orgchart_orgchartcanvas_view",
+      "label": "View",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L99"
+    },
+    {
+      "id": "orgchart_orgchartcanvas_orgchartcanvas",
+      "label": "OrgChartCanvas()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L105"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartutils_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_orgchartutils_node_w_compact",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_orgchartutils_applyfilters",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_orgchartutils_buildedges",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_orgchartutils_buildtree",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_orgchartutils_deptof",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_orgchartutils_edgepath",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_orgchartutils_nodeports",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_orgchartutils_tidylayout",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartnode_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_orgchartnode_orgchartnode",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_context_menu_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "ui_context_menu_contextmenu",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "ui_context_menu_contextmenucontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "ui_context_menu_contextmenuitem",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "ui_context_menu_contextmenuseparator",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "ui_context_menu_contextmenutrigger",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_dropdown_menu_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "ui_dropdown_menu_dropdownmenu",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "ui_dropdown_menu_dropdownmenucontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "ui_dropdown_menu_dropdownmenuitem",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "ui_dropdown_menu_dropdownmenuseparator",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "ui_dropdown_menu_dropdownmenutrigger",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_orgchartcanvas_nodeactionitem",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_types_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_types_layoutdirection",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_types_layoutnode",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_types_orgdepartment",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_types_orgemployee",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_types_orgfilters",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_types_orgproject",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_orgchartcanvas_orgcanvasapi",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L73",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_orgchartcanvas_props",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_orgchartcanvas_view",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L99",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_orgchartcanvas_tsx",
+      "target": "orgchart_orgchartcanvas_orgchartcanvas",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L105",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L123"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L129"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L130"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L150"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L159"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L163"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L168"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L174"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L186"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L191"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L209"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L234"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L242"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L247"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L251"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L252"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L255"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L256"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L259"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L286"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L363"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L417"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L432"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L451"
+    },
+    {
+      "caller_nid": "orgchart_orgchartcanvas_orgchartcanvas",
+      "callee": "round",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/OrgChartCanvas.tsx",
+      "source_location": "L598"
+    }
+  ]
+}

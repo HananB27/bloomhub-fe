@@ -1,0 +1,142 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_types_conferencecourseregistration_ts",
+      "label": "conferenceCourseRegistration.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/conferenceCourseRegistration.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "types_conferencecourseregistration_conferencecourseregistrationstatus",
+      "label": "ConferenceCourseRegistrationStatus",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/conferenceCourseRegistration.ts",
+      "source_location": "L4"
+    },
+    {
+      "id": "types_conferencecourseregistration_conference_course_registration_status_labels",
+      "label": "CONFERENCE_COURSE_REGISTRATION_STATUS_LABELS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/conferenceCourseRegistration.ts",
+      "source_location": "L9"
+    },
+    {
+      "id": "types_conferencecourseregistration_conference_course_registration_status_pill_classes",
+      "label": "CONFERENCE_COURSE_REGISTRATION_STATUS_PILL_CLASSES",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/conferenceCourseRegistration.ts",
+      "source_location": "L18"
+    },
+    {
+      "id": "types_conferencecourseregistration_all_conference_course_registration_statuses",
+      "label": "ALL_CONFERENCE_COURSE_REGISTRATION_STATUSES",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/conferenceCourseRegistration.ts",
+      "source_location": "L27"
+    },
+    {
+      "id": "types_conferencecourseregistration_conferencecourseregistration",
+      "label": "ConferenceCourseRegistration",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/conferenceCourseRegistration.ts",
+      "source_location": "L33"
+    },
+    {
+      "id": "types_conferencecourseregistration_conferencecourseregistrationfilters",
+      "label": "ConferenceCourseRegistrationFilters",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/conferenceCourseRegistration.ts",
+      "source_location": "L46"
+    },
+    {
+      "id": "types_conferencecourseregistration_createconferencecourseregistrationpayload",
+      "label": "CreateConferenceCourseRegistrationPayload",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/conferenceCourseRegistration.ts",
+      "source_location": "L54"
+    },
+    {
+      "id": "types_conferencecourseregistration_updateconferencecourseregistrationpayload",
+      "label": "UpdateConferenceCourseRegistrationPayload",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/conferenceCourseRegistration.ts",
+      "source_location": "L62"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_conferencecourseregistration_ts",
+      "target": "types_conferencecourseregistration_conferencecourseregistrationstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/conferenceCourseRegistration.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_conferencecourseregistration_ts",
+      "target": "types_conferencecourseregistration_conference_course_registration_status_labels",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/conferenceCourseRegistration.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_conferencecourseregistration_ts",
+      "target": "types_conferencecourseregistration_conference_course_registration_status_pill_classes",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/conferenceCourseRegistration.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_conferencecourseregistration_ts",
+      "target": "types_conferencecourseregistration_all_conference_course_registration_statuses",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/conferenceCourseRegistration.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_conferencecourseregistration_ts",
+      "target": "types_conferencecourseregistration_conferencecourseregistration",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/conferenceCourseRegistration.ts",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_conferencecourseregistration_ts",
+      "target": "types_conferencecourseregistration_conferencecourseregistrationfilters",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/conferenceCourseRegistration.ts",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_conferencecourseregistration_ts",
+      "target": "types_conferencecourseregistration_createconferencecourseregistrationpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/conferenceCourseRegistration.ts",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_conferencecourseregistration_ts",
+      "target": "types_conferencecourseregistration_updateconferencecourseregistrationpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/conferenceCourseRegistration.ts",
+      "source_location": "L62",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

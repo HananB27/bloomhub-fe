@@ -1,0 +1,142 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_types_training_ts",
+      "label": "training.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/training.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "types_training_trainingstatus",
+      "label": "TrainingStatus",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/training.ts",
+      "source_location": "L4"
+    },
+    {
+      "id": "types_training_trainingtype",
+      "label": "TrainingType",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/training.ts",
+      "source_location": "L9"
+    },
+    {
+      "id": "types_training_trainingentry",
+      "label": "TrainingEntry",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/training.ts",
+      "source_location": "L20"
+    },
+    {
+      "id": "types_training_trainingentryfilters",
+      "label": "TrainingEntryFilters",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/training.ts",
+      "source_location": "L41"
+    },
+    {
+      "id": "types_training_createtrainingentrypayload",
+      "label": "CreateTrainingEntryPayload",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/training.ts",
+      "source_location": "L52"
+    },
+    {
+      "id": "types_training_updatetrainingentrypayload",
+      "label": "UpdateTrainingEntryPayload",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/training.ts",
+      "source_location": "L67"
+    },
+    {
+      "id": "types_training_paginatedresponse",
+      "label": "PaginatedResponse",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/training.ts",
+      "source_location": "L77"
+    },
+    {
+      "id": "types_training_apierror",
+      "label": "ApiError",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/training.ts",
+      "source_location": "L87"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_training_ts",
+      "target": "types_training_trainingstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/training.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_training_ts",
+      "target": "types_training_trainingtype",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/training.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_training_ts",
+      "target": "types_training_trainingentry",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/training.ts",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_training_ts",
+      "target": "types_training_trainingentryfilters",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/training.ts",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_training_ts",
+      "target": "types_training_createtrainingentrypayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/training.ts",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_training_ts",
+      "target": "types_training_updatetrainingentrypayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/training.ts",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_training_ts",
+      "target": "types_training_paginatedresponse",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/training.ts",
+      "source_location": "L77",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_types_training_ts",
+      "target": "types_training_apierror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/types/training.ts",
+      "source_location": "L87",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

@@ -1,0 +1,13 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_commitlint_config_mjs",
+      "label": "commitlint.config.mjs",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/commitlint.config.mjs",
+      "source_location": "L1"
+    }
+  ],
+  "edges": [],
+  "raw_calls": []
+}

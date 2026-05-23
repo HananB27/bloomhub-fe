@@ -1,0 +1,440 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "label": "ExportProjectsDialog.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "dialogs_exportprojectsdialog_exportformat",
+      "label": "ExportFormat",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L19"
+    },
+    {
+      "id": "dialogs_exportprojectsdialog_exportscope",
+      "label": "ExportScope",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L20"
+    },
+    {
+      "id": "dialogs_exportprojectsdialog_exportprojectsvalues",
+      "label": "ExportProjectsValues",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L22"
+    },
+    {
+      "id": "dialogs_exportprojectsdialog_exportprojectsdialogprops",
+      "label": "ExportProjectsDialogProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L28"
+    },
+    {
+      "id": "dialogs_exportprojectsdialog_columns",
+      "label": "COLUMNS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L36"
+    },
+    {
+      "id": "dialogs_exportprojectsdialog_default_columns",
+      "label": "DEFAULT_COLUMNS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L48"
+    },
+    {
+      "id": "dialogs_exportprojectsdialog_exportprojectsdialog",
+      "label": "ExportProjectsDialog()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L50"
+    },
+    {
+      "id": "dialogs_exportprojectsdialog_formattileprops",
+      "label": "FormatTileProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L188"
+    },
+    {
+      "id": "dialogs_exportprojectsdialog_formattile",
+      "label": "FormatTile()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L196"
+    },
+    {
+      "id": "dialogs_exportprojectsdialog_scoperowprops",
+      "label": "ScopeRowProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L218"
+    },
+    {
+      "id": "dialogs_exportprojectsdialog_scoperow",
+      "label": "ScopeRow()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L225"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_button_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "ui_button_button",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_checkbox_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "ui_checkbox_checkbox",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_dialog_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "ui_dialog_dialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "ui_dialog_dialogcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "ui_dialog_dialogdescription",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "ui_dialog_dialogfooter",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "ui_dialog_dialogheader",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "ui_dialog_dialogtitle",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_label_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "ui_label_label",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_radio_group_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "ui_radio_group_radiogroup",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "ui_radio_group_radiogroupitem",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_utils_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "ui_utils_cn",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "dialogs_exportprojectsdialog_exportformat",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "dialogs_exportprojectsdialog_exportscope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "dialogs_exportprojectsdialog_exportprojectsvalues",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "dialogs_exportprojectsdialog_exportprojectsdialogprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "dialogs_exportprojectsdialog_columns",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "dialogs_exportprojectsdialog_default_columns",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "dialogs_exportprojectsdialog_exportprojectsdialog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L50",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "dialogs_exportprojectsdialog_formattileprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L188",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "dialogs_exportprojectsdialog_formattile",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L196",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "dialogs_exportprojectsdialog_scoperowprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L218",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_exportprojectsdialog_tsx",
+      "target": "dialogs_exportprojectsdialog_scoperow",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L225",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "dialogs_exportprojectsdialog_exportprojectsdialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "dialogs_exportprojectsdialog_exportprojectsdialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "dialogs_exportprojectsdialog_exportprojectsdialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L61"
+    },
+    {
+      "caller_nid": "dialogs_exportprojectsdialog_exportprojectsdialog",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "dialogs_exportprojectsdialog_formattile",
+      "callee": "cn",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L199"
+    },
+    {
+      "caller_nid": "dialogs_exportprojectsdialog_scoperow",
+      "callee": "cn",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L228"
+    },
+    {
+      "caller_nid": "dialogs_exportprojectsdialog_scoperow",
+      "callee": "cn",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/ExportProjectsDialog.tsx",
+      "source_location": "L236"
+    }
+  ]
+}

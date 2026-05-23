@@ -1,0 +1,328 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "label": "index.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "projects_index_projectstatus",
+      "label": "ProjectStatus",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L11"
+    },
+    {
+      "id": "projects_index_projecttype",
+      "label": "ProjectType",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L19"
+    },
+    {
+      "id": "projects_index_projectstage",
+      "label": "ProjectStage",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L21"
+    },
+    {
+      "id": "projects_index_assignmentstatus",
+      "label": "AssignmentStatus",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L31"
+    },
+    {
+      "id": "projects_index_projectassignment",
+      "label": "ProjectAssignment",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L33"
+    },
+    {
+      "id": "projects_index_projectactivityevent",
+      "label": "ProjectActivityEvent",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L54"
+    },
+    {
+      "id": "projects_index_projectassignmentsummary",
+      "label": "ProjectAssignmentSummary",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L61"
+    },
+    {
+      "id": "projects_index_project",
+      "label": "Project",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L67"
+    },
+    {
+      "id": "projects_index_projectlistparams",
+      "label": "ProjectListParams",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L87"
+    },
+    {
+      "id": "projects_index_createprojectpayload",
+      "label": "CreateProjectPayload",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L97"
+    },
+    {
+      "id": "projects_index_updateprojectpayload",
+      "label": "UpdateProjectPayload",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L111"
+    },
+    {
+      "id": "projects_index_createassignmentpayload",
+      "label": "CreateAssignmentPayload",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L113"
+    },
+    {
+      "id": "projects_index_updateassignmentpayload",
+      "label": "UpdateAssignmentPayload",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L123"
+    },
+    {
+      "id": "projects_index_projectapi",
+      "label": "projectApi",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L127"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_config_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "lib_config_api_base_url",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_helpers_httpclient_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "helpers_httpclient_buildquerystring",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "helpers_httpclient_del",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "helpers_httpclient_get",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "helpers_httpclient_handlelistresponse",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "helpers_httpclient_patch",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "helpers_httpclient_post",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "projects_index_projectstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "projects_index_projecttype",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "projects_index_projectstage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "projects_index_assignmentstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "projects_index_projectassignment",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "projects_index_projectactivityevent",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "projects_index_projectassignmentsummary",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "projects_index_project",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "projects_index_projectlistparams",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L87",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "projects_index_createprojectpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L97",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "projects_index_updateprojectpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L111",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "projects_index_createassignmentpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L113",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "projects_index_updateassignmentpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L123",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "target": "projects_index_projectapi",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/modules/projects/index.ts",
+      "source_location": "L127",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}
