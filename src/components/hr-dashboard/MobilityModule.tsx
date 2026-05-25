@@ -463,6 +463,10 @@ export function MobilityModule() {
                 Post a role
               </Button>
             )}
+            <Button variant="outline" onClick={() => setActiveTab("cpf")}>
+              <Layers className="w-3.5 h-3.5" />
+              CPF ladder
+            </Button>
           </div>
         </div>
 
