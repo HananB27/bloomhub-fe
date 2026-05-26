@@ -65,10 +65,7 @@ export function AddMemberDialog({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [role, setRole] = useState<MemberRole>("Contributor");
-  // TODO: Allocation is fixed at 100% in the UI for now. When the Time Tracking
-  // module is wired to project assignments, expose allocation here and derive
-  // expected hours from it (allocation % × weekly baseline). See TimeTrackingModule.
-  const allocation = 100;
+  const [allocationInput, setAllocationInput] = useState("100");
   const [startDate, setStartDate] = useState<string>(todayIso());
   const [endDate, setEndDate] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
@@ -115,6 +112,7 @@ export function AddMemberDialog({
       setSearch("");
       setSelectedId(null);
       setRole("Contributor");
+      setAllocationInput("100");
       setStartDate(todayIso());
       setEndDate("");
       setNotes("");
@@ -127,6 +125,10 @@ export function AddMemberDialog({
     () => new Set(project.members.map((m) => m.id)),
     [project.members]
   );
+  const allocation = Number(allocationInput);
+  const weeklyHours = Number.isFinite(allocation)
+    ? ((allocation / 100) * 40).toFixed(2)
+    : "0.00";
 
   const errors = useMemo(() => {
     if (selectedId === null) return {};
@@ -267,6 +269,35 @@ export function AddMemberDialog({
                   <SelectItem value="Contributor">Contributor</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="col-span-12 space-y-1.5">
+              <Label
+                htmlFor="member-allocation"
+                className="text-[12px] font-medium text-gray-700"
+              >
+                Time allocation <span className="text-red-600">*</span>
+              </Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="member-allocation"
+                  type="number"
+                  min="1"
+                  max="100"
+                  step="1"
+                  value={allocationInput}
+                  onChange={(e) => setAllocationInput(e.target.value)}
+                  className="h-9"
+                />
+                <span className="whitespace-nowrap text-[12px] text-gray-600">
+                  % · {weeklyHours}h/week
+                </span>
+              </div>
+              {show("allocation") ? (
+                <p className="flex items-center gap-1 text-[11px] font-medium text-red-600">
+                  <AlertCircle className="h-3 w-3" /> {errors.allocation}
+                </p>
+              ) : null}
             </div>
 
             <div className="col-span-6 space-y-1.5">

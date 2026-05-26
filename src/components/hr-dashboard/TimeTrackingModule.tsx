@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import {
   timeTrackingApi,
+  type ActiveAllocations,
+  type JiraAssignedIssuesImportResult,
   type JiraImportCommitResult,
   type JiraImportFilters,
   type JiraImportPreview,
@@ -156,6 +158,11 @@ type JiraImportFilterForm = {
   jira_project_key: string;
   jira_issue_key: string;
   worklog_id: string;
+};
+
+type JiraAssignedIssuesForm = {
+  employee_id: string;
+  max_results: string;
 };
 
 type JiraDiscoveryForm = {
@@ -470,6 +477,24 @@ function allocationStatusClass(
     : "border-green-200 bg-green-50 text-green-800 dark:border-green-700 dark:bg-green-950 dark:text-green-200";
 }
 
+function timeEntryAllocationStatus(
+  entry: TimeEntry
+): "allocated" | "unallocated" | null {
+  return entry.allocation_context?.allocation_status ?? null;
+}
+
+function activeAssignmentContext(
+  allocations: ActiveAllocations | null,
+  projectId: string
+) {
+  if (!allocations || !projectId) return null;
+  return (
+    allocations.assignments.find(
+      (assignment) => assignment.project_id === Number(projectId)
+    ) ?? null
+  );
+}
+
 function jiraSettingsToForm(settings: JiraSettings | null): JiraSettingsForm {
   if (!settings) return EMPTY_JIRA_SETTINGS_FORM;
   return {
@@ -492,6 +517,24 @@ function jiraImportFiltersPayload(
     jira_issue_key: filters.jira_issue_key.trim() || undefined,
     worklog_id: filters.worklog_id.trim() || undefined,
   };
+}
+
+function jiraAssignedIssuesPayload(
+  form: JiraAssignedIssuesForm,
+  dryRun: boolean
+) {
+  return {
+    employee_id: Number(form.employee_id),
+    max_results: Number(form.max_results) || 1000,
+    dry_run: dryRun,
+  };
+}
+
+function jiraIssueUrl(baseUrl: string | undefined, issueKey: string): string {
+  const normalizedBase = (baseUrl || "").trim().replace(/\/+$/, "");
+  const normalizedIssue = issueKey.trim();
+  if (!normalizedBase || !normalizedIssue) return "";
+  return `${normalizedBase}/browse/${encodeURIComponent(normalizedIssue)}`;
 }
 
 function jiraDiscoveryPayload(form: JiraDiscoveryForm) {
@@ -790,6 +833,11 @@ const EMPTY_JIRA_DISCOVERY_FORM: JiraDiscoveryForm = {
   limit: "1000",
 };
 
+const EMPTY_JIRA_ASSIGNED_ISSUES_FORM: JiraAssignedIssuesForm = {
+  employee_id: "",
+  max_results: "1000",
+};
+
 const EMPTY_TEMPO_SETTINGS_FORM: TempoSettingsForm = {
   base_url: "https://api.tempo.io/4",
   api_token: "",
@@ -863,6 +911,13 @@ export function TimeTrackingModule() {
   const [weeklySummary, setWeeklySummary] = useState<WeeklySummary | null>(
     null
   );
+  const [activeAllocations, setActiveAllocations] =
+    useState<ActiveAllocations | null>(null);
+  const [activeAllocationsError, setActiveAllocationsError] = useState<
+    string | null
+  >(null);
+  const [isActiveAllocationsLoading, setIsActiveAllocationsLoading] =
+    useState(false);
   const [approvalEntries, setApprovalEntries] = useState<TimeEntry[]>([]);
   const [selectedApprovalIds, setSelectedApprovalIds] = useState<number[]>([]);
   const [isApprovalActionLoading, setIsApprovalActionLoading] = useState(false);
@@ -941,6 +996,10 @@ export function TimeTrackingModule() {
   );
   const [jiraCommitResult, setJiraCommitResult] =
     useState<JiraImportCommitResult | null>(null);
+  const [jiraAssignedIssuesForm, setJiraAssignedIssuesForm] =
+    useState<JiraAssignedIssuesForm>(EMPTY_JIRA_ASSIGNED_ISSUES_FORM);
+  const [jiraAssignedIssuesResult, setJiraAssignedIssuesResult] =
+    useState<JiraAssignedIssuesImportResult | null>(null);
   const [jiraError, setJiraError] = useState<string | null>(null);
   const [jiraMessage, setJiraMessage] = useState<string | null>(null);
   const [isJiraLoading, setIsJiraLoading] = useState(false);
@@ -1073,6 +1132,39 @@ export function TimeTrackingModule() {
       return left.name.localeCompare(right.name);
     });
   }, [projectSummaryById, projects]);
+  const activeAllocationProjectIds = useMemo(
+    () =>
+      new Set(
+        activeAllocations?.assignments.map(
+          (assignment) => assignment.project_id
+        )
+      ),
+    [activeAllocations]
+  );
+  const allocatedProjectOptions = useMemo(
+    () =>
+      activeAllocations?.assignments.map((assignment) => ({
+        id: assignment.project_id,
+        name: assignment.project_name,
+        allocation: assignment,
+      })) ?? [],
+    [activeAllocations]
+  );
+  const unallocatedProjectOptions = useMemo(
+    () =>
+      orderedProjects.filter(
+        (project) => !activeAllocationProjectIds.has(project.id)
+      ),
+    [activeAllocationProjectIds, orderedProjects]
+  );
+  const selectedActiveAssignment = useMemo(
+    () => activeAssignmentContext(activeAllocations, entryForm.project_id),
+    [activeAllocations, entryForm.project_id]
+  );
+  const selectedEntryAllocationContext =
+    calendarDialogTarget?.mode === "entry"
+      ? calendarDialogTarget.entry.allocation_context
+      : null;
 
   const loadProjects = useCallback(async () => {
     const response = await projectApi.list({
@@ -1133,6 +1225,28 @@ export function TimeTrackingModule() {
       setIsSummaryLoading(false);
     }
   }, [selectedEmployeeNumber, weekStart]);
+
+  const loadActiveAllocations = useCallback(async () => {
+    if (!calendarDialogTarget) return;
+
+    setIsActiveAllocationsLoading(true);
+    setActiveAllocationsError(null);
+
+    try {
+      const payload = await timeTrackingApi.getActiveAllocations({
+        work_date: entryForm.work_date,
+        employee_id: selectedEmployeeNumber,
+      });
+      setActiveAllocations(payload);
+    } catch (loadError) {
+      setActiveAllocations(null);
+      setActiveAllocationsError(
+        getErrorMessage(loadError, "Failed to load active allocations.")
+      );
+    } finally {
+      setIsActiveAllocationsLoading(false);
+    }
+  }, [calendarDialogTarget, entryForm.work_date, selectedEmployeeNumber]);
 
   const loadTasks = useCallback(async () => {
     try {
@@ -1330,6 +1444,15 @@ export function TimeTrackingModule() {
   useEffect(() => {
     void loadWeeklySummary();
   }, [loadWeeklySummary]);
+
+  useEffect(() => {
+    if (!calendarDialogTarget) {
+      setActiveAllocations(null);
+      setActiveAllocationsError(null);
+      return;
+    }
+    void loadActiveAllocations();
+  }, [calendarDialogTarget, loadActiveAllocations]);
 
   useEffect(() => {
     void loadTasks();
@@ -2133,6 +2256,46 @@ export function TimeTrackingModule() {
     }
   };
 
+  const runJiraAssignedIssuesImport = async (dryRun: boolean) => {
+    if (!jiraAssignedIssuesForm.employee_id) {
+      setJiraError("Employee is required.");
+      return;
+    }
+
+    const maxResults = Number(jiraAssignedIssuesForm.max_results);
+    if (!Number.isFinite(maxResults) || maxResults < 1 || maxResults > 1000) {
+      setJiraError("Max results must be between 1 and 1000.");
+      return;
+    }
+
+    setIsJiraSaving(true);
+    setJiraError(null);
+    setJiraMessage(null);
+
+    try {
+      const result = await timeTrackingApi.importJiraAssignedIssues(
+        jiraAssignedIssuesPayload(jiraAssignedIssuesForm, dryRun)
+      );
+      setJiraAssignedIssuesResult(result);
+      setJiraMessage(
+        dryRun
+          ? `Dry run loaded with ${result.row_count} assigned issues.`
+          : `Imported ${result.row_count} assigned issues.`
+      );
+      if (!dryRun) {
+        await loadJiraIntegration();
+        await loadProjects();
+        await loadTasks();
+      }
+    } catch (importError) {
+      setJiraError(
+        getErrorMessage(importError, "Failed to import assigned Jira issues.")
+      );
+    } finally {
+      setIsJiraSaving(false);
+    }
+  };
+
   const previewTempoImport = async () => {
     setIsTempoSaving(true);
     setTempoError(null);
@@ -2680,6 +2843,8 @@ export function TimeTrackingModule() {
                                 const readOnly = !canEditGridEntry(entry);
                                 const showStatusBadges =
                                   readOnly || entry.status === "rejected";
+                                const allocationStatus =
+                                  timeEntryAllocationStatus(entry);
                                 const isCompact = entryHours <= 0.5;
                                 const badges = showStatusBadges ? (
                                   <>
@@ -2726,15 +2891,36 @@ export function TimeTrackingModule() {
                                             {badges}
                                           </span>
                                         )}
+                                        {allocationStatus && (
+                                          <Badge
+                                            variant="outline"
+                                            className={allocationStatusClass(
+                                              allocationStatus
+                                            )}
+                                          >
+                                            {allocationStatus}
+                                          </Badge>
+                                        )}
                                       </div>
                                     ) : (
                                       <>
                                         <div className="truncate">
                                           {entry.task_name || "No task"}
                                         </div>
-                                        {showStatusBadges && (
+                                        {(showStatusBadges ||
+                                          allocationStatus) && (
                                           <div className="mt-1 flex flex-wrap gap-1">
                                             {badges}
+                                            {allocationStatus && (
+                                              <Badge
+                                                variant="outline"
+                                                className={allocationStatusClass(
+                                                  allocationStatus
+                                                )}
+                                              >
+                                                {allocationStatus}
+                                              </Badge>
+                                            )}
                                           </div>
                                         )}
                                       </>
@@ -3061,6 +3247,9 @@ export function TimeTrackingModule() {
                 setImportFilters={setJiraImportFilters}
                 preview={jiraPreview}
                 commitResult={jiraCommitResult}
+                assignedIssuesForm={jiraAssignedIssuesForm}
+                setAssignedIssuesForm={setJiraAssignedIssuesForm}
+                assignedIssuesResult={jiraAssignedIssuesResult}
                 employees={employees}
                 projects={projects}
                 tasks={tasks}
@@ -3077,6 +3266,7 @@ export function TimeTrackingModule() {
                 onSaveDiscoveryMapping={saveJiraDiscoveryMapping}
                 onPreview={previewJiraImport}
                 onCommit={commitJiraImport}
+                onRunAssignedIssuesImport={runJiraAssignedIssuesImport}
                 onRefresh={() => void loadJiraIntegration()}
                 onRefreshEntries={() => {
                   void loadWeek();
@@ -3449,7 +3639,12 @@ export function TimeTrackingModule() {
                       <SelectValue placeholder="Project" />
                     </SelectTrigger>
                     <SelectContent>
-                      {orderedProjects.map((project) => (
+                      {allocatedProjectOptions.map((project) => (
+                        <SelectItem key={project.id} value={String(project.id)}>
+                          {project.name}
+                        </SelectItem>
+                      ))}
+                      {unallocatedProjectOptions.map((project) => (
                         <SelectItem key={project.id} value={String(project.id)}>
                           {project.name}
                         </SelectItem>
@@ -3457,6 +3652,19 @@ export function TimeTrackingModule() {
                     </SelectContent>
                   </Select>
                 </Field>
+                <AllocationContextPanel
+                  assignment={selectedActiveAssignment}
+                  entryContext={selectedEntryAllocationContext}
+                  isLoading={isActiveAllocationsLoading}
+                  error={activeAllocationsError}
+                  hasProject={Boolean(entryForm.project_id)}
+                  remainingPercentage={
+                    activeAllocations?.remaining_allocation_percentage
+                  }
+                  remainingHours={
+                    activeAllocations?.remaining_weekly_allocation_hours
+                  }
+                />
                 <Field label="Task">
                   <Select
                     value={entryForm.task_id}
@@ -3623,6 +3831,9 @@ function JiraIntegrationPanel({
   setImportFilters,
   preview,
   commitResult,
+  assignedIssuesForm,
+  setAssignedIssuesForm,
+  assignedIssuesResult,
   employees,
   projects,
   tasks,
@@ -3639,6 +3850,7 @@ function JiraIntegrationPanel({
   onSaveDiscoveryMapping,
   onPreview,
   onCommit,
+  onRunAssignedIssuesImport,
   onRefresh,
   onRefreshEntries,
 }: {
@@ -3659,6 +3871,9 @@ function JiraIntegrationPanel({
   setImportFilters: Dispatch<SetStateAction<JiraImportFilterForm>>;
   preview: JiraImportPreview | null;
   commitResult: JiraImportCommitResult | null;
+  assignedIssuesForm: JiraAssignedIssuesForm;
+  setAssignedIssuesForm: Dispatch<SetStateAction<JiraAssignedIssuesForm>>;
+  assignedIssuesResult: JiraAssignedIssuesImportResult | null;
   employees: EmployeeProfileData[];
   projects: Project[];
   tasks: TimeTask[];
@@ -3679,6 +3894,7 @@ function JiraIntegrationPanel({
   ) => void;
   onPreview: () => void;
   onCommit: () => void;
+  onRunAssignedIssuesImport: (dryRun: boolean) => void;
   onRefresh: () => void;
   onRefreshEntries: () => void;
 }) {
@@ -3819,12 +4035,13 @@ function JiraIntegrationPanel({
       </Card>
 
       <Tabs defaultValue="users">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-6">
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="projects">Projects</TabsTrigger>
           <TabsTrigger value="issues">Issues</TabsTrigger>
           <TabsTrigger value="discovery">Discovery</TabsTrigger>
           <TabsTrigger value="import">Import</TabsTrigger>
+          <TabsTrigger value="assigned-issues">Assigned Issues</TabsTrigger>
         </TabsList>
 
         <TabsContent value="users" className="mt-4">
@@ -3855,6 +4072,7 @@ function JiraIntegrationPanel({
             form={issueForm}
             setForm={setIssueForm}
             tasks={tasks}
+            jiraBaseUrl={settings?.base_url}
             isSaving={isSaving}
             onSave={onSaveIssueMapping}
           />
@@ -3869,6 +4087,7 @@ function JiraIntegrationPanel({
             employees={employees}
             projects={projects}
             tasks={tasks}
+            jiraBaseUrl={settings?.base_url}
             isSaving={isSaving}
             onDiscover={onDiscover}
             onSaveMapping={onSaveDiscoveryMapping}
@@ -3881,12 +4100,25 @@ function JiraIntegrationPanel({
             setFilters={setImportFilters}
             preview={preview}
             commitResult={commitResult}
+            jiraBaseUrl={settings?.base_url}
             employees={employees}
             projects={projects}
             isSaving={isSaving}
             onPreview={onPreview}
             onCommit={onCommit}
             onRefreshEntries={onRefreshEntries}
+          />
+        </TabsContent>
+
+        <TabsContent value="assigned-issues" className="mt-4">
+          <JiraAssignedIssuesImportPanel
+            form={assignedIssuesForm}
+            setForm={setAssignedIssuesForm}
+            result={assignedIssuesResult}
+            jiraBaseUrl={settings?.base_url}
+            employees={employees}
+            isSaving={isSaving}
+            onRun={onRunAssignedIssuesImport}
           />
         </TabsContent>
       </Tabs>
@@ -3902,6 +4134,7 @@ function JiraProjectDiscoveryPanel({
   employees,
   projects,
   tasks,
+  jiraBaseUrl,
   isSaving,
   onDiscover,
   onSaveMapping,
@@ -3913,6 +4146,7 @@ function JiraProjectDiscoveryPanel({
   employees: EmployeeProfileData[];
   projects: Project[];
   tasks: TimeTask[];
+  jiraBaseUrl?: string;
   isSaving: boolean;
   onDiscover: () => void;
   onSaveMapping: (
@@ -4037,6 +4271,7 @@ function JiraProjectDiscoveryPanel({
             rows={discovery.issues}
             mappings={mappings}
             targets={tasks}
+            jiraBaseUrl={jiraBaseUrl}
             manualTargetIds={manualTargetIds}
             setManualTargetIds={setManualTargetIds}
             isSaving={isSaving}
@@ -4075,6 +4310,7 @@ function JiraDiscoveryTable({
   rows,
   mappings,
   targets,
+  jiraBaseUrl,
   manualTargetIds,
   setManualTargetIds,
   isSaving,
@@ -4085,6 +4321,7 @@ function JiraDiscoveryTable({
   rows: JiraProjectDiscoveryRow[];
   mappings: JiraMappings;
   targets: Array<EmployeeProfileData | Project | TimeTask>;
+  jiraBaseUrl?: string;
   manualTargetIds: Record<string, string>;
   setManualTargetIds: Dispatch<SetStateAction<Record<string, string>>>;
   isSaving: boolean;
@@ -4133,13 +4370,23 @@ function JiraDiscoveryTable({
                   row,
                   mappings
                 );
+                const primaryLabel = jiraDiscoveryPrimaryLabel(type, row);
+                const issueUrl =
+                  type === "issue"
+                    ? jiraIssueUrl(jiraBaseUrl, primaryLabel)
+                    : "";
 
                 return (
                   <TableRow key={rowKey}>
                     <TableCell>
-                      <p className="font-medium">
-                        {jiraDiscoveryPrimaryLabel(type, row)}
-                      </p>
+                      {type === "issue" ? (
+                        <JiraIssueLink
+                          issueKey={primaryLabel}
+                          issueUrl={issueUrl}
+                        />
+                      ) : (
+                        <p className="font-medium">{primaryLabel}</p>
+                      )}
                       <p className="text-xs text-gray-500">
                         {jiraDiscoverySecondaryLabel(type, row)}
                       </p>
@@ -4672,6 +4919,7 @@ function JiraIssueMappingsPanel({
   form,
   setForm,
   tasks,
+  jiraBaseUrl,
   isSaving,
   onSave,
 }: {
@@ -4679,6 +4927,7 @@ function JiraIssueMappingsPanel({
   form: JiraIssueMappingForm;
   setForm: Dispatch<SetStateAction<JiraIssueMappingForm>>;
   tasks: TimeTask[];
+  jiraBaseUrl?: string;
   isSaving: boolean;
   onSave: () => void;
 }) {
@@ -4763,38 +5012,47 @@ function JiraIssueMappingsPanel({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mappings.map((mapping) => (
-              <TableRow key={mapping.id}>
-                <TableCell>
-                  <p className="font-medium">{mapping.jira_issue_key}</p>
-                  <p className="text-xs text-gray-500">
-                    {mapping.jira_issue_id}
-                  </p>
-                </TableCell>
-                <TableCell>{mapping.task_name}</TableCell>
-                <TableCell>{mapping.project_name}</TableCell>
-                <TableCell>
-                  {mapping.is_active ? "Active" : "Inactive"}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      setForm({
-                        id: mapping.id,
-                        jira_issue_key: mapping.jira_issue_key,
-                        jira_issue_id: mapping.jira_issue_id,
-                        task_id: String(mapping.task_id),
-                        is_active: mapping.is_active,
-                      })
-                    }
-                  >
-                    <Edit3 className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {mappings.map((mapping) => {
+              const issueUrl = jiraIssueUrl(
+                jiraBaseUrl,
+                mapping.jira_issue_key
+              );
+              return (
+                <TableRow key={mapping.id}>
+                  <TableCell>
+                    <JiraIssueLink
+                      issueKey={mapping.jira_issue_key}
+                      issueUrl={issueUrl}
+                    />
+                    <p className="text-xs text-gray-500">
+                      {mapping.jira_issue_id}
+                    </p>
+                  </TableCell>
+                  <TableCell>{mapping.task_name}</TableCell>
+                  <TableCell>{mapping.project_name}</TableCell>
+                  <TableCell>
+                    {mapping.is_active ? "Active" : "Inactive"}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        setForm({
+                          id: mapping.id,
+                          jira_issue_key: mapping.jira_issue_key,
+                          jira_issue_id: mapping.jira_issue_id,
+                          task_id: String(mapping.task_id),
+                          is_active: mapping.is_active,
+                        })
+                      }
+                    >
+                      <Edit3 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </CardContent>
@@ -4807,6 +5065,7 @@ function JiraImportPanel({
   setFilters,
   preview,
   commitResult,
+  jiraBaseUrl,
   employees,
   projects,
   isSaving,
@@ -4818,6 +5077,7 @@ function JiraImportPanel({
   setFilters: Dispatch<SetStateAction<JiraImportFilterForm>>;
   preview: JiraImportPreview | null;
   commitResult: JiraImportCommitResult | null;
+  jiraBaseUrl?: string;
   employees: EmployeeProfileData[];
   projects: Project[];
   isSaving: boolean;
@@ -5016,64 +5276,70 @@ function JiraImportPanel({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {preview.rows.map((row) => (
-                    <TableRow
-                      key={`${row.issue_key}-${row.worklog_id}`}
-                      className={
-                        row.status === "error" || row.action === "skip"
-                          ? "bg-amber-50/60"
-                          : undefined
-                      }
-                    >
-                      <TableCell>
-                        <p className="font-medium">{row.issue_key}</p>
-                        <p className="text-xs text-gray-500">
-                          {row.worklog_id}
-                        </p>
-                      </TableCell>
-                      <TableCell>
-                        {row.employee_name || row.employee_id || "--"}
-                      </TableCell>
-                      <TableCell>
-                        <p>{row.project_name || row.project_id || "--"}</p>
-                        <p className="text-xs text-gray-500">
-                          {row.task_name || row.task_id || "--"}
-                        </p>
-                      </TableCell>
-                      <TableCell>{row.work_date || "--"}</TableCell>
-                      <TableCell>{row.hours}h</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={
-                            row.action === "skip"
-                              ? "border-amber-200 bg-amber-50 text-amber-800"
-                              : row.action === "update"
-                                ? "border-blue-200 bg-blue-50 text-blue-800"
-                                : "border-green-200 bg-green-50 text-green-800"
-                          }
-                        >
-                          {row.action}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {row.validation_messages.length === 0 ? (
-                          <span className="text-sm text-gray-500">Valid</span>
-                        ) : (
-                          <div className="space-y-1">
-                            {row.validation_messages.map((message) => (
-                              <p
-                                key={`${row.worklog_id}-${message.code}`}
-                                className="text-xs text-amber-800"
-                              >
-                                {message.code}: {message.message}
-                              </p>
-                            ))}
-                          </div>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {preview.rows.map((row) => {
+                    const issueUrl = jiraIssueUrl(jiraBaseUrl, row.issue_key);
+                    return (
+                      <TableRow
+                        key={`${row.issue_key}-${row.worklog_id}`}
+                        className={
+                          row.status === "error" || row.action === "skip"
+                            ? "bg-amber-50/60"
+                            : undefined
+                        }
+                      >
+                        <TableCell>
+                          <JiraIssueLink
+                            issueKey={row.issue_key}
+                            issueUrl={issueUrl}
+                          />
+                          <p className="text-xs text-gray-500">
+                            {row.worklog_id}
+                          </p>
+                        </TableCell>
+                        <TableCell>
+                          {row.employee_name || row.employee_id || "--"}
+                        </TableCell>
+                        <TableCell>
+                          <p>{row.project_name || row.project_id || "--"}</p>
+                          <p className="text-xs text-gray-500">
+                            {row.task_name || row.task_id || "--"}
+                          </p>
+                        </TableCell>
+                        <TableCell>{row.work_date || "--"}</TableCell>
+                        <TableCell>{row.hours}h</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className={
+                              row.action === "skip"
+                                ? "border-amber-200 bg-amber-50 text-amber-800"
+                                : row.action === "update"
+                                  ? "border-blue-200 bg-blue-50 text-blue-800"
+                                  : "border-green-200 bg-green-50 text-green-800"
+                            }
+                          >
+                            {row.action}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {row.validation_messages.length === 0 ? (
+                            <span className="text-sm text-gray-500">Valid</span>
+                          ) : (
+                            <div className="space-y-1">
+                              {row.validation_messages.map((message) => (
+                                <p
+                                  key={`${row.worklog_id}-${message.code}`}
+                                  className="text-xs text-amber-800"
+                                >
+                                  {message.code}: {message.message}
+                                </p>
+                              ))}
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
@@ -5081,6 +5347,219 @@ function JiraImportPanel({
         </Card>
       )}
     </div>
+  );
+}
+
+function JiraAssignedIssuesImportPanel({
+  form,
+  setForm,
+  result,
+  jiraBaseUrl,
+  employees,
+  isSaving,
+  onRun,
+}: {
+  form: JiraAssignedIssuesForm;
+  setForm: Dispatch<SetStateAction<JiraAssignedIssuesForm>>;
+  result: JiraAssignedIssuesImportResult | null;
+  jiraBaseUrl?: string;
+  employees: EmployeeProfileData[];
+  isSaving: boolean;
+  onRun: (dryRun: boolean) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Assigned Issues Import</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <Field label="Employee">
+              <Select
+                value={form.employee_id}
+                onValueChange={(value) =>
+                  setForm((prev) => ({ ...prev, employee_id: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select employee" />
+                </SelectTrigger>
+                <SelectContent>
+                  {employees.map((employee) => (
+                    <SelectItem key={employee.id} value={String(employee.id)}>
+                      {employeeDisplayName(employee)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label="Max results">
+              <Input
+                type="number"
+                min="1"
+                max="1000"
+                step="1"
+                value={form.max_results}
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    max_results: event.target.value,
+                  }))
+                }
+              />
+            </Field>
+            <div className="flex items-end gap-2 md:col-span-2">
+              <Button
+                variant="primary"
+                onClick={() => onRun(true)}
+                disabled={isSaving || !form.employee_id}
+              >
+                Dry run
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => onRun(false)}
+                disabled={isSaving || !form.employee_id}
+              >
+                Import
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {result && (
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              {result.dry_run ? "Dry Run Result" : "Import Result"} ·{" "}
+              {result.row_count} issues
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
+              <SummaryMini
+                label="Projects"
+                value={result.counts.created_projects}
+              />
+              <SummaryMini label="Tasks" value={result.counts.created_tasks} />
+              <SummaryMini
+                label="Updated Tasks"
+                value={result.counts.updated_tasks}
+              />
+              <SummaryMini
+                label="Mappings"
+                value={result.counts.created_issue_mappings}
+              />
+              <SummaryMini
+                label="Updated Maps"
+                value={result.counts.updated_issue_mappings}
+              />
+              <SummaryMini label="Errors" value={result.counts.errors} />
+            </div>
+
+            <div className="overflow-x-auto rounded-md border border-gray-200">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Jira Issue</TableHead>
+                    <TableHead>Jira Project</TableHead>
+                    <TableHead>BloomHub Project</TableHead>
+                    <TableHead>BloomHub Task</TableHead>
+                    <TableHead>Action</TableHead>
+                    <TableHead>Validation</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {result.rows.map((row) => {
+                    const issueUrl = jiraIssueUrl(
+                      jiraBaseUrl,
+                      row.jira_issue_key
+                    );
+                    return (
+                      <TableRow
+                        key={`${row.jira_issue_key}-${row.jira_issue_id}`}
+                      >
+                        <TableCell>
+                          <JiraIssueLink
+                            issueKey={row.jira_issue_key}
+                            issueUrl={issueUrl}
+                          />
+                          <p className="text-xs text-gray-500">
+                            {row.jira_issue_id}
+                          </p>
+                        </TableCell>
+                        <TableCell>
+                          <p>{row.jira_project_key}</p>
+                          <p className="text-xs text-gray-500">
+                            {row.jira_project_name}
+                          </p>
+                        </TableCell>
+                        <TableCell>{row.project_id ?? "--"}</TableCell>
+                        <TableCell>
+                          <p>{row.task_name || "--"}</p>
+                          <p className="text-xs text-gray-500">
+                            {row.task_id ?? "--"}
+                          </p>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{row.action || "--"}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          {row.validation_messages.length === 0 ? (
+                            <span className="text-sm text-gray-500">Valid</span>
+                          ) : (
+                            <div className="space-y-1">
+                              {row.validation_messages.map((message) => (
+                                <p
+                                  key={`${row.jira_issue_key}-${message}`}
+                                  className="text-xs text-amber-800"
+                                >
+                                  {message}
+                                </p>
+                              ))}
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+              {result.rows.length === 0 && (
+                <p className="px-3 py-6 text-center text-sm text-gray-500">
+                  No assigned Jira issues returned.
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+function JiraIssueLink({
+  issueKey,
+  issueUrl,
+}: {
+  issueKey: string;
+  issueUrl: string;
+}) {
+  if (!issueUrl) {
+    return <p className="font-medium">{issueKey}</p>;
+  }
+
+  return (
+    <a
+      href={issueUrl}
+      target="_blank"
+      rel="noreferrer"
+      className="font-medium text-blue-700 underline-offset-2 hover:underline"
+    >
+      {issueKey}
+    </a>
   );
 }
 
@@ -7286,6 +7765,7 @@ function ReportEntriesTable({ entries }: { entries: TimeEntry[] }) {
           <TableHead>Employee</TableHead>
           <TableHead>Project / Task</TableHead>
           <TableHead>Hours</TableHead>
+          <TableHead>Allocation</TableHead>
           <TableHead>Source</TableHead>
           <TableHead>Status</TableHead>
         </TableRow>
@@ -7302,6 +7782,29 @@ function ReportEntriesTable({ entries }: { entries: TimeEntry[] }) {
               </p>
             </TableCell>
             <TableCell>{entry.hours}h</TableCell>
+            <TableCell>
+              {entry.allocation_context ? (
+                <div className="space-y-1">
+                  <Badge
+                    variant="outline"
+                    className={allocationStatusClass(
+                      entry.allocation_context.allocation_status
+                    )}
+                  >
+                    {entry.allocation_context.allocation_status}
+                  </Badge>
+                  {entry.allocation_context.allocation_status ===
+                    "allocated" && (
+                    <p className="text-xs text-gray-500">
+                      {entry.allocation_context.allocation_percentage}% ·{" "}
+                      {entry.allocation_context.planned_daily_hours ?? "?"}h/day
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <span className="text-xs text-gray-500">unknown</span>
+              )}
+            </TableCell>
             <TableCell>
               <SourceBadge source={entry.source_type} />
             </TableCell>
@@ -8114,6 +8617,98 @@ function WeeklySummaryPanel({
       )}
     </div>
   );
+}
+
+function AllocationContextPanel({
+  assignment,
+  entryContext,
+  isLoading,
+  error,
+  hasProject,
+  remainingPercentage,
+  remainingHours,
+}: {
+  assignment: ReturnType<typeof activeAssignmentContext>;
+  entryContext: TimeEntry["allocation_context"];
+  isLoading: boolean;
+  error: string | null;
+  hasProject: boolean;
+  remainingPercentage?: string;
+  remainingHours?: string;
+}) {
+  if (isLoading) {
+    return (
+      <div className="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600">
+        Loading allocation context...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        Allocation unknown. Manual logging is still available.
+      </div>
+    );
+  }
+
+  if (assignment) {
+    return (
+      <div className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-900">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge
+            variant="outline"
+            className={allocationStatusClass("allocated")}
+          >
+            allocated
+          </Badge>
+          <span>
+            {assignment.allocation_percentage}% ·{" "}
+            {assignment.weekly_allocation_hours}h planned this week
+          </span>
+        </div>
+        <p className="mt-1 text-xs text-green-800">
+          {assignment.start_date} to {assignment.end_date ?? "ongoing"} ·{" "}
+          {remainingPercentage ?? "0.00"}% / {remainingHours ?? "0.00"}h
+          remaining capacity
+        </p>
+      </div>
+    );
+  }
+
+  if (entryContext?.allocation_status === "allocated") {
+    return (
+      <div className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-900">
+        <Badge variant="outline" className={allocationStatusClass("allocated")}>
+          allocated
+        </Badge>
+        <p className="mt-1 text-xs text-green-800">
+          {entryContext.allocation_percentage}% ·{" "}
+          {entryContext.weekly_allocation_hours}h/wk · daily plan{" "}
+          {entryContext.planned_daily_hours ?? "unknown"}h
+        </p>
+      </div>
+    );
+  }
+
+  if (hasProject) {
+    return (
+      <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        <Badge
+          variant="outline"
+          className={allocationStatusClass("unallocated")}
+        >
+          unallocated
+        </Badge>
+        <p className="mt-1 text-xs">
+          No allocation configured for this employee, date, and project. Manual
+          logging is still allowed.
+        </p>
+      </div>
+    );
+  }
+
+  return null;
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
