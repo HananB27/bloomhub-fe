@@ -1,0 +1,432 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "label": "DocumentUploadModal.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "documents_documentuploadmodal_uploadform",
+      "label": "UploadForm",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L36"
+    },
+    {
+      "id": "documents_documentuploadmodal_default_upload_visibility",
+      "label": "DEFAULT_UPLOAD_VISIBILITY",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L49"
+    },
+    {
+      "id": "documents_documentuploadmodal_empty_upload_form",
+      "label": "EMPTY_UPLOAD_FORM",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L52"
+    },
+    {
+      "id": "documents_documentuploadmodal_documentuploadmodal",
+      "label": "DocumentUploadModal()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L65"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_modules_documents_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "documents_index_documentsapi",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "documents_index_employeedocument",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "documents_index_uploademployeedocumentpayload",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_documents_documentshelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "documents_documentshelpers_document_categories",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "documents_documentshelpers_documentaccessrole",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "documents_documentshelpers_documentcategory",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "documents_documentshelpers_parsedocumenttags",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "documents_documentvisibilitypresets_document_category_default_preset",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "documents_documentvisibilitypresets_visibilityfrompreset",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "documents_documentvisibilitypresets_documentvisibilitysettings",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_utils_notificationhelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "utils_notificationhelpers_notificationmessages",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "utils_notificationhelpers_notifyapierror",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "utils_notificationhelpers_notifysuccess",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_datepicker_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "hr_dashboard_datepicker_datepicker",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_select_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "ui_select_select",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "ui_select_selectcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "ui_select_selectitem",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "ui_select_selecttrigger",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "ui_select_selectvalue",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "documents_documentvisibilityselector_documentvisibilityselector",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "documents_documentuploadmodal_uploadform",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "documents_documentuploadmodal_default_upload_visibility",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "documents_documentuploadmodal_empty_upload_form",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentuploadmodal_tsx",
+      "target": "documents_documentuploadmodal_documentuploadmodal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L65",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "documents_documentuploadmodal_documentuploadmodal",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "documents_documentuploadmodal_documentuploadmodal",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "documents_documentuploadmodal_documentuploadmodal",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L78"
+    },
+    {
+      "caller_nid": "documents_documentuploadmodal_documentuploadmodal",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L79"
+    },
+    {
+      "caller_nid": "documents_documentuploadmodal_documentuploadmodal",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "documents_documentuploadmodal_documentuploadmodal",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "documents_documentuploadmodal_documentuploadmodal",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L101"
+    },
+    {
+      "caller_nid": "documents_documentuploadmodal_documentuploadmodal",
+      "callee": "toFixed",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L177"
+    },
+    {
+      "caller_nid": "documents_documentuploadmodal_documentuploadmodal",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentUploadModal.tsx",
+      "source_location": "L251"
+    }
+  ]
+}

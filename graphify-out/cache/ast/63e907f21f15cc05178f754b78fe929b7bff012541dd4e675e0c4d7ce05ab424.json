@@ -1,0 +1,44 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_tests_lib_api_resolveapimediaurl_test_ts",
+      "label": "resolveApiMediaUrl.test.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/lib/api/resolveApiMediaUrl.test.ts",
+      "source_location": "L1"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_lib_api_resolveapimediaurl_test_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/lib/api/resolveApiMediaUrl.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_lib_api_resolveapimediaurl_test_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_helpers_resolveapimediaurl_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/lib/api/resolveApiMediaUrl.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_lib_api_resolveapimediaurl_test_ts",
+      "target": "helpers_resolveapimediaurl_resolveapimediaurl",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/lib/api/resolveApiMediaUrl.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

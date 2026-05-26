@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "./ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -15,6 +22,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
@@ -45,6 +53,7 @@ import {
   Copy,
   CalendarClock,
   ChevronDown,
+  AlertCircle,
 } from "lucide-react";
 import { employeeApi } from "@/lib/api/modules/employees";
 import type { EmployeeProfileData } from "@/lib/api/modules/employees";
@@ -62,8 +71,10 @@ import {
   deleteInstance,
   deleteTemplate,
   fetchEmployeeTasks,
+  fetchInstances,
   fetchMyTasks,
   fetchTemplates,
+  ChecklistInstance,
   updateTemplate,
   updateTaskStatus,
 } from "@/lib/api/onboarding";
@@ -86,12 +97,62 @@ function toApiStatus(status: TaskStatus | string): ChecklistTaskStatus {
   ) as ChecklistTaskStatus;
 }
 
+function getDueDateInfo(
+  dueDate: string | null | undefined,
+  status: string
+): {
+  isOverdue: boolean;
+  isDueToday: boolean;
+  daysOverdue: number;
+  daysUntil: number | null;
+} {
+  if (!dueDate || status === "done") {
+    return {
+      isOverdue: false,
+      isDueToday: false,
+      daysOverdue: 0,
+      daysUntil: null,
+    };
+  }
+  const due = new Date(dueDate);
+  if (Number.isNaN(due.getTime())) {
+    return {
+      isOverdue: false,
+      isDueToday: false,
+      daysOverdue: 0,
+      daysUntil: null,
+    };
+  }
+  const today = new Date();
+  due.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+  const diffDays = Math.round(
+    (today.getTime() - due.getTime()) / (1000 * 60 * 60 * 24)
+  );
+  return {
+    isOverdue: diffDays > 0,
+    isDueToday: diffDays === 0,
+    daysOverdue: Math.max(diffDays, 0),
+    daysUntil: -diffDays,
+  };
+}
+
+function formatDaysUntil(daysUntil: number | null): string {
+  if (daysUntil === null) return "";
+  if (daysUntil === 0) return "Due today";
+  if (daysUntil === 1) return "Due tomorrow";
+  if (daysUntil === -1) return "1 day overdue";
+  if (daysUntil > 0) return `${daysUntil} days left`;
+  return `${Math.abs(daysUntil)} days overdue`;
+}
+
 type SortOrder =
   | "default"
   | "due_asc"
   | "due_desc"
   | "status_todo_first"
-  | "status_done_first";
+  | "status_done_first"
+  | "overdue_only";
 
 const STATUS_SORT_RANK: Record<string, number> = {
   todo: 0,
@@ -101,6 +162,17 @@ const STATUS_SORT_RANK: Record<string, number> = {
 
 function applySortOrder(tasks: Task[], order: SortOrder): Task[] {
   if (order === "default") return tasks;
+  if (order === "overdue_only") {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return tasks.filter((t) => {
+      if (t.status === "done" || t.dueDate === "No due date") return false;
+      const due = new Date(t.dueDate);
+      if (Number.isNaN(due.getTime())) return false;
+      due.setHours(0, 0, 0, 0);
+      return due.getTime() < today.getTime();
+    });
+  }
   return [...tasks].sort((a, b) => {
     if (order === "due_asc" || order === "due_desc") {
       const aTime =
@@ -180,13 +252,17 @@ function ChecklistTaskCard({
   const status = normalizeStatus(task.status);
   const iconClassName = `w-5 h-5 mt-0.5 ${statusIconClass(status)}`;
   const apiStatus = task.status as ChecklistTaskStatus;
+  const { isOverdue, isDueToday, daysOverdue, daysUntil } = getDueDateInfo(
+    task.due_date,
+    status
+  );
 
   if (variant === "my-tasks") {
     return (
       <Card
         className={`border transition-all hover:shadow-sm ${
-          status === "done" ? "bg-green-50/50" : ""
-        }`}
+          isOverdue ? "border-l-4 border-l-red-500" : ""
+        } ${status === "done" ? "bg-green-50/50" : ""}`}
       >
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
@@ -200,6 +276,15 @@ function ChecklistTaskCard({
               </div>
             </div>
             <div className="flex items-center gap-2">
+              {isOverdue && (
+                <Badge
+                  variant="outline"
+                  className="bg-red-50 text-red-700 border-red-200"
+                >
+                  <AlertCircle className="w-3 h-3 mr-1" />
+                  Overdue · {daysOverdue}d
+                </Badge>
+              )}
               <Badge
                 className={TASK_STATUS_BADGE_COLORS[apiStatus]}
                 variant="outline"
@@ -249,25 +334,64 @@ function ChecklistTaskCard({
               <div className="flex items-center gap-2">
                 <Avatar className="w-6 h-6">
                   <AvatarFallback className="text-xs">
-                    {task.assigned_to
-                      ? `${task.assigned_to.user.first_name.charAt(0)}${task.assigned_to.user.last_name.charAt(0)}`
-                      : "?"}
+                    {(() => {
+                      if (!task.assigned_to) return "?";
+                      const u = task.assigned_to.user;
+                      const full = `${u.first_name} ${u.last_name}`.trim();
+                      return (full || u.username || `#${task.assigned_to.id}`)
+                        .charAt(0)
+                        .toUpperCase();
+                    })()}
                   </AvatarFallback>
                 </Avatar>
                 <span className="text-sm text-gray-600">
                   Assigned by:{" "}
                   <span className="font-medium text-gray-900">
-                    {task.assigned_to
-                      ? `${task.assigned_to.user.first_name} ${task.assigned_to.user.last_name}`
-                      : "Unassigned"}
+                    {(() => {
+                      if (!task.assigned_to) return "Unassigned";
+                      const u = task.assigned_to.user;
+                      const full = `${u.first_name} ${u.last_name}`.trim();
+                      return (
+                        full || u.username || `Employee #${task.assigned_to.id}`
+                      );
+                    })()}
                   </span>
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-gray-400" />
-                <span className="text-sm text-gray-600">
+                <Calendar
+                  className={`w-4 h-4 ${
+                    isOverdue
+                      ? "text-red-600"
+                      : isDueToday
+                        ? "text-amber-600"
+                        : "text-gray-400"
+                  }`}
+                />
+                <span
+                  className={`text-sm ${
+                    isOverdue
+                      ? "text-red-700 font-medium"
+                      : isDueToday
+                        ? "text-amber-700 font-medium"
+                        : "text-gray-600"
+                  }`}
+                >
                   {task.due_date ?? "No due date"}
                 </span>
+                {daysUntil !== null && (
+                  <span
+                    className={`text-xs px-1.5 py-0.5 rounded ${
+                      isOverdue
+                        ? "bg-red-50 text-red-700"
+                        : isDueToday
+                          ? "bg-amber-50 text-amber-700"
+                          : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {formatDaysUntil(daysUntil)}
+                  </span>
+                )}
               </div>
             </div>
             {onStatusChange && (
@@ -309,7 +433,9 @@ function ChecklistTaskCard({
   }
 
   return (
-    <Card className="border">
+    <Card
+      className={`border ${isOverdue ? "border-l-4 border-l-red-500" : ""}`}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-3">
@@ -320,14 +446,49 @@ function ChecklistTaskCard({
                 {task.checklist_instance.employee.user.first_name}{" "}
                 {task.checklist_instance.employee.user.last_name}
               </p>
+              {task.due_date && (
+                <div className="flex items-center gap-1 mt-1">
+                  <Calendar
+                    className={`w-3 h-3 ${
+                      isOverdue
+                        ? "text-red-600"
+                        : isDueToday
+                          ? "text-amber-600"
+                          : "text-gray-400"
+                    }`}
+                  />
+                  <span
+                    className={`text-xs ${
+                      isOverdue
+                        ? "text-red-700 font-medium"
+                        : isDueToday
+                          ? "text-amber-700 font-medium"
+                          : "text-gray-500"
+                    }`}
+                  >
+                    {task.due_date}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
-          <Badge
-            className={TASK_STATUS_BADGE_COLORS[apiStatus]}
-            variant="outline"
-          >
-            {TASK_STATUS_LABELS[apiStatus]}
-          </Badge>
+          <div className="flex items-center gap-2">
+            {isOverdue && (
+              <Badge
+                variant="outline"
+                className="bg-red-50 text-red-700 border-red-200"
+              >
+                <AlertCircle className="w-3 h-3 mr-1" />
+                Overdue · {daysOverdue}d
+              </Badge>
+            )}
+            <Badge
+              className={TASK_STATUS_BADGE_COLORS[apiStatus]}
+              variant="outline"
+            >
+              {TASK_STATUS_LABELS[apiStatus]}
+            </Badge>
+          </div>
         </div>
       </CardHeader>
     </Card>
@@ -370,7 +531,9 @@ interface OnboardingModuleProps {
   onNavigate?: (moduleId: string) => void;
 }
 
-export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
+export function OnboardingModule({
+  onNavigate: _onNavigate,
+}: OnboardingModuleProps = {}) {
   const { data: session } = useSession();
   const sessionUser = session?.user as
     | { is_staff?: boolean; role?: string; image?: string }
@@ -412,9 +575,11 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
   const [confirmUnassignId, setConfirmUnassignId] = useState<number | null>(
     null
   );
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [newComment, setNewComment] = useState("");
   // Template management state
   const [templates, setTemplates] = useState<ChecklistTemplate[]>([]);
+  const [allInstances, setAllInstances] = useState<ChecklistInstance[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState(false);
   const [templatesError, setTemplatesError] = useState<string | null>(null);
   const [showTemplateForm, setShowTemplateForm] = useState(false);
@@ -462,15 +627,15 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
   const progressPercentage =
     totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
-  const activeOnboardingCount = tasks.length;
-  const activeOffboardingCount = offboardingTasksState.length;
+  const _activeOnboardingCount = tasks.length;
+  const _activeOffboardingCount = offboardingTasksState.length;
   const overdueTasksCount = allTasks.filter((task) => {
     const due = new Date(task.dueDate);
     return (
       !Number.isNaN(due.valueOf()) && due < new Date() && task.status !== "done"
     );
   }).length;
-  const averageCompletionPercent =
+  const _averageCompletionPercent =
     allTasks.length > 0
       ? Math.round(
           (allTasks.filter((task) => task.status === "done").length /
@@ -516,7 +681,7 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
     }
   };
 
-  const handleAddComment = (taskId: number) => {
+  const _handleAddComment = (taskId: number) => {
     if (!newComment.trim()) return;
 
     const comment: Comment = {
@@ -550,7 +715,7 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
+  const _getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high":
         return "bg-red-100 text-red-800";
@@ -566,8 +731,12 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
     setTemplatesLoading(true);
     setTemplatesError(null);
     try {
-      const data = await fetchTemplates(accessToken);
-      setTemplates(data);
+      const [templatesData, instancesData] = await Promise.all([
+        fetchTemplates(accessToken),
+        fetchInstances(accessToken).catch(() => []),
+      ]);
+      setTemplates(templatesData);
+      setAllInstances(instancesData);
     } catch {
       setTemplatesError("Failed to load templates. Are you logged in as HR?");
     } finally {
@@ -636,6 +805,15 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
     setNewTaskTitle("");
   };
 
+  const handleRemoveTask = (index: number) => {
+    setTemplateForm((prev) => ({
+      ...prev,
+      task_templates: prev.task_templates
+        .filter((_, i) => i !== index)
+        .map((t, i) => ({ ...t, order: i + 1 })),
+    }));
+  };
+
   const handleAssignTemplate = async () => {
     if (!assignModalTemplate || !assignTargetEmployee) return;
     setAssignLoading(true);
@@ -662,6 +840,147 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
     } finally {
       setAssignLoading(false);
     }
+  };
+
+  const handleExportEmployeePdf = async () => {
+    if (!selectedEmployeeProfile) return;
+    const { default: jsPDF } = await import("jspdf");
+    const { default: autoTable } = await import("jspdf-autotable");
+
+    const empName = employeeDisplayName(selectedEmployeeProfile);
+    const empId = selectedEmployeeProfile.id;
+    const department = selectedEmployeeProfile.department?.trim() || "N/A";
+    const role = selectedEmployeeProfile.role?.name?.trim() || "N/A";
+    const email = selectedEmployeeProfile.email?.trim() || "N/A";
+    const typeLabel =
+      selectedTemplate === "onboarding" ? "Onboarding" : "Offboarding";
+
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text(`${typeLabel} Report`, 14, 18);
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+    doc.text(`Employee: ${empName}`, 14, 26);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 32);
+
+    autoTable(doc, {
+      startY: 40,
+      head: [["Field", "Value"]],
+      body: [
+        ["Name", empName],
+        ["ID", String(empId)],
+        ["Email", email],
+        ["Department", department],
+        ["Role", role],
+      ],
+      theme: "striped",
+      headStyles: { fillColor: [37, 99, 235] },
+      margin: { left: 14, right: 14 },
+    });
+
+    const tasksStartY =
+      (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable
+        ?.finalY ?? 60;
+
+    doc.setFontSize(13);
+    doc.setTextColor(0);
+    doc.text(`${typeLabel} Tasks`, 14, tasksStartY + 12);
+
+    autoTable(doc, {
+      startY: tasksStartY + 16,
+      head: [["Title", "Status", "Due Date", "Assignee", "Category"]],
+      body:
+        currentTasks.length === 0
+          ? [["No tasks", "—", "—", "—", "—"]]
+          : currentTasks.map((t) => [
+              t.title || "N/A",
+              t.status || "N/A",
+              t.dueDate || "N/A",
+              t.assignee || "N/A",
+              t.category || "N/A",
+            ]),
+      theme: "striped",
+      headStyles: { fillColor: [37, 99, 235] },
+      margin: { left: 14, right: 14 },
+      styles: { fontSize: 9, cellPadding: 3 },
+    });
+
+    doc.save(`${empName.replace(/\s+/g, "_")}_${selectedTemplate}.pdf`);
+  };
+
+  const handleExportEmployee = () => {
+    if (!selectedEmployeeProfile) return;
+    const empName = employeeDisplayName(selectedEmployeeProfile);
+    const empId = selectedEmployeeProfile.id;
+    const department = selectedEmployeeProfile.department;
+    const role = selectedEmployeeProfile.role?.name;
+    const email = selectedEmployeeProfile.email;
+    const typeLabel =
+      selectedTemplate === "onboarding" ? "Onboarding" : "Offboarding";
+
+    const quote = (v: string | number | null | undefined) => {
+      const raw = v === null || v === undefined ? "" : String(v).trim();
+      const s = raw === "" ? "N/A" : raw;
+      return `"${s.replace(/"/g, '""')}"`;
+    };
+
+    const headers = [
+      "Employee Name",
+      "Employee ID",
+      "Email",
+      "Department",
+      "Role",
+      "Type",
+      "Task Title",
+      "Status",
+      "Due Date",
+      "Assignee",
+      "Category",
+    ];
+
+    const lines: string[] = [];
+    lines.push("sep=,");
+    lines.push(headers.map(quote).join(","));
+
+    if (currentTasks.length === 0) {
+      lines.push(
+        [empName, empId, email, department, role, typeLabel, "", "", "", "", ""]
+          .map(quote)
+          .join(",")
+      );
+    } else {
+      for (const t of currentTasks) {
+        lines.push(
+          [
+            empName,
+            empId,
+            email,
+            department,
+            role,
+            typeLabel,
+            t.title,
+            t.status,
+            t.dueDate,
+            t.assignee,
+            t.category,
+          ]
+            .map(quote)
+            .join(",")
+        );
+      }
+    }
+
+    const blob = new Blob(["﻿" + lines.join("\r\n")], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${empName.replace(/\s+/g, "_")}_${selectedTemplate}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleEditTemplate = (template: ChecklistTemplate) => {
@@ -776,7 +1095,12 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
 
   useEffect(() => {
     void loadMyTasks();
-    if (canAccessTracker) void loadAllEmployees();
+    if (canAccessTracker) {
+      void loadAllEmployees();
+      if (selectedEmployee) {
+        void loadTrackerTasks(selectedEmployee);
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -871,6 +1195,10 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
                           <DropdownMenuRadioItem value="status_done_first">
                             Completion % (descending)
                           </DropdownMenuRadioItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuRadioItem value="overdue_only">
+                            Overdue tasks only
+                          </DropdownMenuRadioItem>
                         </DropdownMenuRadioGroup>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -878,10 +1206,29 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
                       <CalendarClock className="w-4 h-4 mr-2" />
                       Schedule Review
                     </Button>
-                    <Button variant="outline" size="sm">
-                      <Download className="w-4 h-4 mr-2" />
-                      Export
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={!selectedEmployeeProfile}
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Export
+                          <ChevronDown className="w-3 h-3 ml-1" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={handleExportEmployee}>
+                          Export as CSV
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => void handleExportEmployeePdf()}
+                        >
+                          Export as PDF
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
 
@@ -1362,17 +1709,16 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
                               </span>
                             </div>
                           </div>
-                          {onNavigate && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="w-full mt-2"
-                              onClick={() => onNavigate("profiles")}
-                            >
-                              <User className="w-4 h-4 mr-2" />
-                              View Full Profile
-                            </Button>
-                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full mt-2"
+                            onClick={() => setProfileModalOpen(true)}
+                            disabled={!selectedEmployeeProfile}
+                          >
+                            <User className="w-4 h-4 mr-2" />
+                            View Full Profile
+                          </Button>
                         </>
                       ) : (
                         <div className="py-8 text-center text-sm text-gray-500">
@@ -1394,7 +1740,7 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">My Tasks</h2>
                   <p className="text-gray-600 mt-1">
-                    Checklist tasks assigned to you.
+                    Tasks you supervise on behalf of other employees.
                   </p>
                 </div>
                 <Button
@@ -1581,12 +1927,20 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
                   {/* Tasks */}
                   <div className="space-y-2">
                     <Label>Tasks</Label>
-                    {templateForm.task_templates.map((task) => (
+                    {templateForm.task_templates.map((task, idx) => (
                       <div
                         key={task.id ?? `${task.order}-${task.title}`}
                         className="flex items-center justify-between p-2 bg-gray-50 rounded border text-sm"
                       >
                         <span>{task.title}</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleRemoveTask(idx)}
+                          aria-label="Remove task"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
                       </div>
                     ))}
                     <div className="flex gap-2 mt-2">
@@ -1688,6 +2042,44 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
                   <p className="text-sm text-gray-500 mb-2">
                     {template.task_templates.length} tasks
                   </p>
+                  {(() => {
+                    const assigned = allInstances.filter(
+                      (i) => i.template?.id === template.id
+                    );
+                    return (
+                      <div className="mb-3">
+                        <p className="text-xs font-medium text-gray-700 mb-1">
+                          Assigned to ({assigned.length}):
+                        </p>
+                        {assigned.length === 0 ? (
+                          <p className="text-xs text-gray-500 italic">
+                            Not assigned to any employee
+                          </p>
+                        ) : (
+                          <div className="flex flex-wrap gap-1">
+                            {assigned.map((inst) => {
+                              const u = inst.employee.user;
+                              const full =
+                                `${u.first_name} ${u.last_name}`.trim();
+                              const label =
+                                full ||
+                                u.username ||
+                                `Employee #${inst.employee.id}`;
+                              return (
+                                <Badge
+                                  key={inst.id}
+                                  variant="outline"
+                                  className="text-xs"
+                                >
+                                  {label}
+                                </Badge>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                   <div className="space-y-1">
                     {template.task_templates.map((task) => (
                       <div
@@ -1817,6 +2209,54 @@ export function OnboardingModule({ onNavigate }: OnboardingModuleProps = {}) {
           </div>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={profileModalOpen} onOpenChange={setProfileModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedEmployeeProfile
+                ? employeeDisplayName(selectedEmployeeProfile)
+                : "Employee Profile"}
+            </DialogTitle>
+            <DialogDescription>
+              Read-only profile snapshot for the selected employee.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedEmployeeProfile && (
+            <div className="grid grid-cols-2 gap-4 pt-2">
+              {[
+                ["Employee ID", String(selectedEmployeeProfile.id)],
+                ["Email", selectedEmployeeProfile.email],
+                ["Phone", selectedEmployeeProfile.phone_number],
+                ["Department", selectedEmployeeProfile.department],
+                ["Role", selectedEmployeeProfile.role?.name],
+                ["Start Date", selectedEmployeeProfile.start_date],
+                ["Birth Date", selectedEmployeeProfile.birth_date],
+                ["Address", selectedEmployeeProfile.address],
+                [
+                  "Employment Status",
+                  selectedEmployeeProfile.employment_status,
+                ],
+                [
+                  "Managers",
+                  Array.isArray(selectedEmployeeProfile.manager_names)
+                    ? selectedEmployeeProfile.manager_names.join(", ")
+                    : selectedEmployeeProfile.manager_names,
+                ],
+              ].map(([label, value]) => (
+                <div key={label as string} className="space-y-1">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    {label}
+                  </p>
+                  <p className="text-sm text-gray-900">
+                    {value && String(value).trim() ? String(value) : "N/A"}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

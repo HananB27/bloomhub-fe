@@ -1,0 +1,1496 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "label": "VacationsModule.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "hr_dashboard_vacationsmodule_extendedsession",
+      "label": "ExtendedSession",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L89"
+    },
+    {
+      "id": "hr_dashboard_vacationsmodule_getleavetypeicon",
+      "label": "getLeaveTypeIcon()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L99"
+    },
+    {
+      "id": "hr_dashboard_vacationsmodule_getbalanceusagepercent",
+      "label": "getBalanceUsagePercent()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L120"
+    },
+    {
+      "id": "hr_dashboard_vacationsmodule_formatlocaldate",
+      "label": "formatLocalDate()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L125"
+    },
+    {
+      "id": "hr_dashboard_vacationsmodule_parselocaldate",
+      "label": "parseLocalDate()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L132"
+    },
+    {
+      "id": "hr_dashboard_vacationsmodule_islowbalance",
+      "label": "isLowBalance()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L138"
+    },
+    {
+      "id": "hr_dashboard_vacationsmodule_ispartiallyusedbalance",
+      "label": "isPartiallyUsedBalance()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L141"
+    },
+    {
+      "id": "hr_dashboard_vacationsmodule_getemployeeinitials",
+      "label": "getEmployeeInitials()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L144"
+    },
+    {
+      "id": "hr_dashboard_vacationsmodule_vacationsmoduleprops",
+      "label": "VacationsModuleProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L151"
+    },
+    {
+      "id": "hr_dashboard_vacationsmodule_employeeleavebalancegroup",
+      "label": "EmployeeLeaveBalanceGroup",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L160"
+    },
+    {
+      "id": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "label": "VacationsModule()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L166"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_card_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_card_card",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_card_cardcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_card_cardheader",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_card_cardtitle",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_tabs_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_tabs_tabs",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_tabs_tabscontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_tabs_tabslist",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_tabs_tabstrigger",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_button_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_button_button",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_input_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_input_input",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_label_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_label_label",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_textarea_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_textarea_textarea",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_select_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_select_select",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_select_selectcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_select_selectitem",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_select_selecttrigger",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_select_selectvalue",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_badge_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_badge_badge",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_alert_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_alert_alert",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_alert_alertdescription",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_alert_alerttitle",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_dialog_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_dialog_dialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_dialog_dialogcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_dialog_dialogdescription",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_dialog_dialogheader",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_dialog_dialogtitle",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_table_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_table_table",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_table_tablebody",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_table_tablecell",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_table_tablehead",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_table_tableheader",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_table_tablerow",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_avatar_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_avatar_avatar",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_avatar_avatarfallback",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_avatar_avatarimage",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_progress_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "ui_progress_progress",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_datepicker_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "hr_dashboard_datepicker_datepicker",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_utils_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "utils_index_formatdate",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "date_fns",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "types_vacations_leaverequest",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "types_vacations_leavebalance",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "types_vacations_leavetype",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "types_vacations_leavestatus",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "types_vacations_teamcalendarevent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "types_vacations_createleaverequestpayload",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "types_vacations_vacationcapabilities",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "types_vacations_vacationteammember",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "types_vacations_leave_type_labels",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "types_vacations_leave_type_colors",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "types_vacations_leave_status_labels",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "types_vacations_leave_status_badge_colors",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "types_vacations_all_leave_types",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "types_vacations_default_vacation_capabilities",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "api_vacations_fetchleaverequests",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "api_vacations_fetchleavebalances",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "api_vacations_fetchteamcalendar",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "api_vacations_fetchvacationcapabilities",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "api_vacations_fetchvacationteammembers",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "api_vacations_createleaverequest",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "api_vacations_approveleaverequest",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "api_vacations_hrapproveleaverequest",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "api_vacations_rejectleaverequest",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "api_vacations_updateleavebalance",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "hr_dashboard_vacationsmodule_extendedsession",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "hr_dashboard_vacationsmodule_getleavetypeicon",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L99",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "hr_dashboard_vacationsmodule_getbalanceusagepercent",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L120",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "hr_dashboard_vacationsmodule_formatlocaldate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L125",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "hr_dashboard_vacationsmodule_parselocaldate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L132",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "hr_dashboard_vacationsmodule_islowbalance",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L138",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "hr_dashboard_vacationsmodule_ispartiallyusedbalance",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L141",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "hr_dashboard_vacationsmodule_getemployeeinitials",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L144",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "hr_dashboard_vacationsmodule_vacationsmoduleprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L151",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "hr_dashboard_vacationsmodule_employeeleavebalancegroup",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L160",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_vacationsmodule_tsx",
+      "target": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L166",
+      "weight": 1.0
+    },
+    {
+      "source": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "target": "hr_dashboard_vacationsmodule_formatlocaldate",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L849",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_getbalanceusagepercent",
+      "callee": "min",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_getbalanceusagepercent",
+      "callee": "round",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_formatlocaldate",
+      "callee": "getFullYear",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_formatlocaldate",
+      "callee": "padStart",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_formatlocaldate",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_formatlocaldate",
+      "callee": "getMonth",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_formatlocaldate",
+      "callee": "padStart",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_formatlocaldate",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_formatlocaldate",
+      "callee": "getDate",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_parselocaldate",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L133"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_parselocaldate",
+      "callee": "split",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L133"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_getemployeeinitials",
+      "callee": "split",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L145"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_getemployeeinitials",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L145"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_getemployeeinitials",
+      "callee": "toUpperCase",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useSession",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L167"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L168"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L172"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L173"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L174"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L175"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L188"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L189"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L190"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L191"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L192"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L195"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L196"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L199"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L203"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L204"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L205"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L206"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L207"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L209"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L224"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L272"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L276"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L281"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L285"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L290"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L308"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L315"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L341"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L358"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L398"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L403"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L734"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L810"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L835"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "calculateDays",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L883"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L946"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L955"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L965"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "format",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L998"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L1029"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "(() => {\n                    const firstDay = new Date(\n                      calendarMonth.getFullYear(),\n                      calendarMonth.getMonth(),\n                      1\n                    );\n                    const startOffset = firstDay.getDay(); // Day of week (0-6)\n                    const today = new Date();\n                    return Array.from({ length: 35 }, (_, i) => {\n                      const date = new Date(\n                        calendarMonth.getFullYear(),\n                        calendarMonth.getMonth(),\n                        i - startOffset + 1\n                      );\n                      const dayEvents = teamEvents.filter((event) => {\n                        const start = new Date(event.startDate);\n                        const end = new Date(event.endDate);\n\n                        // Normalize all dates to midnight for accurate day comparison\n                        const dateAtMidnight = new Date(\n                          date.getFullYear(),\n                          date.getMonth(),\n                          date.getDate()\n                        );\n                        const startAtMidnight = new Date(\n                          start.getFullYear(),\n                          start.getMonth(),\n                          start.getDate()\n                        );\n                        const endAtMidnight = new Date(\n                          end.getFullYear(),\n                          end.getMonth(),\n                          end.getDate()\n                        );\n\n                        return (\n                          dateAtMidnight >= startAtMidnight &&\n                          dateAtMidnight <= endAtMidnight\n                        );\n                      });\n                      const isCurrentMonth =\n                        date.getMonth() === calendarMonth.getMonth();\n                      const isToday =\n                        date.toDateString() === today.toDateString();\n                      return (\n                        <div\n                          key={i}\n                          className={`min-h-24 p-1 border rounded ${\n                            isToday\n                              ? \"border-blue-500 bg-blue-50\"\n                              : !isCurrentMonth\n                                ? \"bg-gray-50 border-gray-200\"\n                                : \"border-gray-200\"\n                          }`}\n                        >\n                          <div\n                            className={`text-sm mb-1 ${\n                              isToday\n                                ? \"text-blue-600 font-semibold\"\n                                : !isCurrentMonth\n                                  ? \"text-gray-400\"\n                                  : \"text-gray-600\"\n                            }`}\n                          >\n                            {date.getDate()}\n                          </div>\n                          <div className=\"space-y-1\">\n                            {dayEvents.map((event) => (\n                              <div\n                                key={event.id}\n                                className={`text-xs p-1 rounded text-white ${LEAVE_TYPE_COLORS[event.leaveType]}`}\n                                title={`${event.employeeName} - ${LEAVE_TYPE_LABELS[event.leaveType]}`}\n                              >\n                                {event.employeeName.split(\" \")[0] || \"Employee\"}\n                              </div>\n                            ))}\n                          </div>\n                        </div>\n                      );\n                    });\n                  })",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L1038"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L1161"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L1194"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L1277"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L1356"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L1409"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L1409"
+    },
+    {
+      "caller_nid": "hr_dashboard_vacationsmodule_vacationsmodule",
+      "callee": "(() => {\n          const pendingApprovalRequests = leaveRequests.filter((r) => {\n            if (canApproveRequests && r.status === \"pending\") return true;\n            if (canHrApprove && r.status === \"lead_approved\") return true;\n            return false;\n          });\n\n          return (\n            <Card className=\"border-gray-200\">\n              <CardHeader>\n                <CardTitle>Pending Approvals</CardTitle>\n              </CardHeader>\n              <CardContent className=\"space-y-4\">\n                {adminActionError && (\n                  <Alert variant=\"destructive\">\n                    <AlertCircle className=\"h-4 w-4\" />\n                    <AlertTitle>Action failed</AlertTitle>\n                    <AlertDescription>{adminActionError}</AlertDescription>\n                  </Alert>\n                )}\n\n                {pendingApprovalRequests.length === 0 ? (\n                  <p className=\"text-sm text-gray-500 text-center py-6\">\n                    No requests pending your approval.\n                  </p>\n                ) : (\n                  <Table>\n                    <TableHeader>\n                      <TableRow>\n                        <TableHead>Employee</TableHead>\n                        <TableHead>Type</TableHead>\n                        <TableHead>Dates</TableHead>\n                        <TableHead>Days</TableHead>\n                        <TableHead>Reason</TableHead>\n                        <TableHead>Status</TableHead>\n                        <TableHead>Actions</TableHead>\n                      </TableRow>\n                    </TableHeader>\n                    <TableBody>\n                      {pendingApprovalRequests.map((request) => (\n                        <TableRow key={request.id}>\n                          <TableCell>\n                            <div className=\"flex items-center gap-3\">\n                              <Avatar className=\"w-8 h-8\">\n                                {request.employeeAvatar && (\n                                  <img\n                                    src={request.employeeAvatar}\n                                    alt={request.employeeName}\n                                  />\n                                )}\n                                <AvatarFallback>\n                                  {request.employeeName\n                                    .split(\" \")\n                                    .map((n) => n[0])\n                                    .join(\"\")}\n                                </AvatarFallback>\n                              </Avatar>\n                              <p className=\"font-medium\">\n                                {request.employeeName}\n                              </p>\n                            </div>\n                          </TableCell>\n                          <TableCell>\n                            <Badge>\n                              {LEAVE_TYPE_LABELS[request.leaveType]}\n                            </Badge>\n                          </TableCell>\n                          <TableCell>\n                            <span className=\"text-sm\">\n                              {formatDate(request.startDate)} to{\" \"}\n                              {formatDate(request.endDate)}\n                            </span>\n                          </TableCell>\n                          <TableCell>{request.days}</TableCell>\n                          <TableCell className=\"max-w-sm\">\n                            <p className=\"whitespace-normal break-words text-sm text-gray-700\">\n                              {request.reason?.trim() || \"No reason provided\"}\n                            </p>\n                          </TableCell>\n                          <TableCell>\n                            {getStatusBadge(request.status)}\n                          </TableCell>\n                          <TableCell>\n                            {request.status === \"pending\" &&\n                              canApproveRequests && (\n                                <div className=\"flex gap-2\">\n                                  <Button\n                                    size=\"sm\"\n                                    onClick={() =>\n                                      handleLeadApprove(request.id)\n                                    }\n                                  >\n                                    <Check className=\"w-4 h-4\" />\n                                  </Button>\n                                  <Button\n                                    size=\"sm\"\n                                    variant=\"destructive\"\n                                    onClick={() => handleReject(request.id)}\n                                  >\n                                    <X className=\"w-4 h-4\" />\n                                  </Button>\n                                </div>\n                              )}\n                            {request.status === \"lead_approved\" &&\n                              canHrApprove && (\n                                <div className=\"flex gap-2\">\n                                  <Button\n                                    size=\"sm\"\n                                    onClick={() => handleHrApprove(request.id)}\n                                  >\n                                    <Check className=\"w-4 h-4\" />\n                                  </Button>\n                                  <Button\n                                    size=\"sm\"\n                                    variant=\"destructive\"\n                                    onClick={() => handleReject(request.id)}\n                                  >\n                                    <X className=\"w-4 h-4\" />\n                                  </Button>\n                                </div>\n                              )}\n                          </TableCell>\n                        </TableRow>\n                      ))}\n                    </TableBody>\n                  </Table>\n                )}\n              </CardContent>\n            </Card>\n          );\n        })",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/VacationsModule.tsx",
+      "source_location": "L1447"
+    }
+  ]
+}

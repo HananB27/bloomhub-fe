@@ -1,0 +1,190 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_lib_api_constants_documentsendpoints_ts",
+      "label": "documentsEndpoints.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "constants_documentsendpoints_documentdownloadpath",
+      "label": "documentDownloadPath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L5"
+    },
+    {
+      "id": "constants_documentsendpoints_documentpreviewpath",
+      "label": "documentPreviewPath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L9"
+    },
+    {
+      "id": "constants_documentsendpoints_documentarchivepath",
+      "label": "documentArchivePath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L14"
+    },
+    {
+      "id": "constants_documentsendpoints_documentunarchivepath",
+      "label": "documentUnarchivePath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L19"
+    },
+    {
+      "id": "constants_documentsendpoints_documentversionspath",
+      "label": "documentVersionsPath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L23"
+    },
+    {
+      "id": "constants_documentsendpoints_documentsignaturepath",
+      "label": "documentSignaturePath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L28"
+    },
+    {
+      "id": "constants_documentsendpoints_documentsignpath",
+      "label": "documentSignPath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L33"
+    },
+    {
+      "id": "constants_documentsendpoints_documentsignaturespath",
+      "label": "documentSignaturesPath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L37"
+    },
+    {
+      "id": "constants_documentsendpoints_documentresetsignaturespath",
+      "label": "documentResetSignaturesPath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L41"
+    },
+    {
+      "id": "constants_documentsendpoints_documentreminderpath",
+      "label": "documentReminderPath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L48"
+    },
+    {
+      "id": "constants_documentsendpoints_documentvisibilitypath",
+      "label": "documentVisibilityPath()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L53"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_documentsendpoints_ts",
+      "target": "constants_documentsendpoints_documentdownloadpath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_documentsendpoints_ts",
+      "target": "constants_documentsendpoints_documentpreviewpath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_documentsendpoints_ts",
+      "target": "constants_documentsendpoints_documentarchivepath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_documentsendpoints_ts",
+      "target": "constants_documentsendpoints_documentunarchivepath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_documentsendpoints_ts",
+      "target": "constants_documentsendpoints_documentversionspath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_documentsendpoints_ts",
+      "target": "constants_documentsendpoints_documentsignaturepath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_documentsendpoints_ts",
+      "target": "constants_documentsendpoints_documentsignpath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_documentsendpoints_ts",
+      "target": "constants_documentsendpoints_documentsignaturespath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_documentsendpoints_ts",
+      "target": "constants_documentsendpoints_documentresetsignaturespath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_documentsendpoints_ts",
+      "target": "constants_documentsendpoints_documentreminderpath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_constants_documentsendpoints_ts",
+      "target": "constants_documentsendpoints_documentvisibilitypath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/constants/documentsEndpoints.ts",
+      "source_location": "L53",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

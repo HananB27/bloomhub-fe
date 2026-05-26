@@ -1,6 +1,4 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -13,1009 +11,2568 @@ import {
   SelectValue,
 } from "./ui/select";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "./ui/table";
-import { Badge } from "./ui/badge";
-import { QuickActionButton } from "./QuickActionButton";
-import { Progress } from "./ui/progress";
-import { Avatar, AvatarFallback } from "./ui/avatar";
-import { Separator } from "./ui/separator";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "./ui/dialog";
 import {
-  MapPin,
   Plus,
-  Filter,
-  Download,
-  Upload,
   Search,
-  Building,
-  User,
-  Calendar,
-  DollarSign,
-  Clock,
   Users,
-  TrendingUp,
-  CheckCircle,
-  AlertCircle,
-  XCircle,
-  Eye,
-  Edit3,
-  Send,
-  FileText,
   Briefcase,
-  Star,
-  Target,
+  Layers,
+  Send,
+  Bookmark,
+  Check,
+  X,
+  MapPin,
+  Clock,
+  ChevronRight,
   Award,
+  FileText,
+  AlertCircle,
+  Sparkles,
+  TrendingUp,
   ArrowRight,
-  ExternalLink,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { formatDate } from "@/utils";
 import { useSession } from "next-auth/react";
 import { isHrLikeRole } from "@/lib/permissions/assets-permissions";
+import { jobListingsApi } from "@/lib/api/modules/jobListings";
+import { promotionsApi } from "@/lib/api/modules/promotions";
+import { cpfLevelChangesApi } from "@/lib/api/modules/cpf-level-changes";
+import { cpfLevelsApi } from "@/lib/api/modules/cpf-levels";
+import { employeeApi } from "@/lib/api/modules/employees";
+import { departmentsApi, type Department } from "@/lib/api/departments";
+import type {
+  ApplicationStatus,
+  CreateListingPayload,
+  JobApplication,
+  JobListing,
+  JobListingDetail,
+} from "@/types/jobListing";
+import type {
+  CreatePromotionPayload,
+  PromotionRecord,
+} from "@/types/promotion";
+import {
+  ALL_CPF_CHANGE_SOURCES,
+  CPF_CHANGE_SOURCE_LABELS,
+  CPF_PROGRESSION_EVENT_TYPE_BADGE_COLORS,
+  CPF_PROGRESSION_EVENT_TYPE_LABELS,
+  type CPFChangeSource,
+  type CPFProgression,
+  type CPFProgressionEvent,
+  type CreateCPFLevelChangePayload,
+} from "@/types/cpf";
 
-type ApplicationStatus =
-  | "applied"
-  | "reviewing"
-  | "interview"
-  | "offer"
-  | "accepted"
-  | "rejected";
-type JobType = "full-time" | "part-time" | "contract" | "internship";
-type ExperienceLevel = "entry" | "mid" | "senior" | "lead" | "executive";
+const DEPARTMENT_FILTER_ALL = "all";
 
-interface Job {
-  id: number;
-  title: string;
-  department: string;
-  location: string;
-  type: JobType;
-  salaryRange: string;
-  experienceLevel: ExperienceLevel;
-  description: string;
-  requirements: string[];
-  responsibilities: string[];
-  benefits: string[];
-  postedDate: string;
-  applicationDeadline: string;
-  hiringManager: string;
-  applicantCount: number;
-  isActive: boolean;
+function daysUntil(iso: string): number {
+  const target = new Date(iso).getTime();
+  const now = Date.now();
+  return Math.round((target - now) / 86400000);
 }
 
-interface Application {
-  id: number;
-  jobId: number;
-  jobTitle: string;
-  applicantName: string;
-  applicantId: string;
-  appliedDate: string;
-  status: ApplicationStatus;
-  coverLetter: string;
-  resumeFileName?: string;
-  notes?: string;
+function fmtPostedAgo(iso: string): string {
+  const d = daysUntil(iso);
+  if (d > -1) return "today";
+  if (d > -7) return `${-d}d ago`;
+  if (d > -30) return `${Math.round(-d / 7)}w ago`;
+  return `${Math.round(-d / 30)}mo ago`;
 }
 
-interface PromotionHistory {
-  id: number;
-  employeeId: string;
-  employeeName: string;
-  fromRole: string;
-  toRole: string;
-  fromDepartment: string;
-  toDepartment: string;
-  promotionDate: string;
-  salaryIncrease?: string;
-  notes: string;
-  approvedBy: string;
+function fmtDateShort(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
 }
+
+function applicationStatusStyle(status: ApplicationStatus): {
+  bg: string;
+  dot: string;
+} {
+  switch (status) {
+    case "submitted":
+      return { bg: "bg-gray-100 text-gray-700", dot: "bg-gray-500" };
+    case "under_review":
+      return { bg: "bg-blue-50 text-blue-700", dot: "bg-blue-600" };
+    case "shortlisted":
+      return { bg: "bg-violet-50 text-violet-700", dot: "bg-violet-600" };
+    case "accepted":
+      return { bg: "bg-emerald-50 text-emerald-700", dot: "bg-emerald-600" };
+    case "rejected":
+      return { bg: "bg-red-50 text-red-700", dot: "bg-red-600" };
+    case "withdrawn":
+      return { bg: "bg-gray-100 text-gray-600", dot: "bg-gray-400" };
+    default:
+      return { bg: "bg-gray-100 text-gray-700", dot: "bg-gray-500" };
+  }
+}
+
+type ListingStatusTone = "open" | "closing-soon" | "filled" | "closed";
+
+function listingTone(listing: JobListing): ListingStatusTone {
+  if (listing.status === "closed" || listing.status === "cancelled")
+    return "closed";
+  const days = daysUntil(listing.closeAt);
+  if (days < 0) return "closed";
+  if (days <= 7) return "closing-soon";
+  return "open";
+}
+
+function listingStatusPill(tone: ListingStatusTone): {
+  label: string;
+  bg: string;
+  dot: string;
+} {
+  switch (tone) {
+    case "closing-soon":
+      return {
+        label: "Closing soon",
+        bg: "bg-amber-50 text-amber-700",
+        dot: "bg-amber-600",
+      };
+    case "filled":
+      return {
+        label: "Filled",
+        bg: "bg-blue-50 text-blue-700",
+        dot: "bg-blue-600",
+      };
+    case "closed":
+      return {
+        label: "Closed",
+        bg: "bg-red-50 text-red-700",
+        dot: "bg-red-600",
+      };
+    default:
+      return {
+        label: "Open",
+        bg: "bg-emerald-50 text-emerald-700",
+        dot: "bg-emerald-600",
+      };
+  }
+}
+
+function Pill({ label, bg, dot }: { label: string; bg: string; dot: string }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium ${bg}`}
+    >
+      <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
+      {label}
+    </span>
+  );
+}
+
+type TabKey = "jobs" | "applications" | "history" | "promotions" | "cpf";
 
 export function MobilityModule() {
   const { data: session } = useSession();
-  const [activeTab, setActiveTab] = useState("jobs");
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [isApplicationDialogOpen, setIsApplicationDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabKey>("jobs");
+  const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [departmentFilter, setDepartmentFilter] = useState("all");
-  const roleSource =
-    (session?.user as { role?: string; career_level?: string } | undefined)
-      ?.role ||
-    (session?.user as { role?: string; career_level?: string } | undefined)
-      ?.career_level;
-  const isHRUser = isHrLikeRole(roleSource);
+  const [departmentFilter, setDepartmentFilter] = useState<string>(
+    DEPARTMENT_FILTER_ALL
+  );
 
-  // Application form state
-  const [applicationForm, setApplicationForm] = useState({
-    coverLetter: "",
-    resumeFile: null as File | null,
-    additionalNotes: "",
-  });
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [listings, setListings] = useState<JobListing[]>([]);
+  const [listingsLoading, setListingsLoading] = useState(true);
+  const [listingsError, setListingsError] = useState<string | null>(null);
 
-  // TODO: Implement - fetch job postings from API
-  const [jobs, _setJobs] = useState<Job[]>([]);
+  const [myApplications, setMyApplications] = useState<JobApplication[]>([]);
+  const [applicationsLoading, setApplicationsLoading] = useState(true);
 
-  // TODO: Implement - fetch applications from API
-  const [applications, setApplications] = useState<Application[]>([]);
+  const [selectedListing, setSelectedListing] =
+    useState<JobListingDetail | null>(null);
+  const [drawerTab, setDrawerTab] = useState<
+    "overview" | "process" | "applicants"
+  >("overview");
+  const [drawerApplications, setDrawerApplications] = useState<
+    JobApplication[]
+  >([]);
+  const [drawerAppsLoading, setDrawerAppsLoading] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [isApplicationDialogOpen, setIsApplicationDialogOpen] = useState(false);
+  const [coverNote, setCoverNote] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // TODO: Implement - fetch promotion history from API
-  const promotionHistory: PromotionHistory[] = [];
+  const [isPostDialogOpen, setIsPostDialogOpen] = useState(false);
 
-  const filteredJobs = jobs.filter((job) => {
-    const matchesSearch =
-      job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDepartment =
-      departmentFilter === "all" || job.department === departmentFilter;
-    return matchesSearch && matchesDepartment && job.isActive;
-  });
+  const [promotions, setPromotions] = useState<PromotionRecord[]>([]);
+  const [promotionsLoading, setPromotionsLoading] = useState(true);
+  const [promotionsError, setPromotionsError] = useState<string | null>(null);
+  const [isPromotionDialogOpen, setIsPromotionDialogOpen] = useState(false);
+  const [editingPromotion, setEditingPromotion] =
+    useState<PromotionRecord | null>(null);
+  const [deletingPromotion, setDeletingPromotion] =
+    useState<PromotionRecord | null>(null);
+  const [deletingPromotionBusy, setDeletingPromotionBusy] = useState(false);
 
-  const departments = [...new Set(jobs.map((job) => job.department))];
+  const sessionUser = session?.user as
+    | {
+        role?: string;
+        career_level?: string;
+        is_staff?: boolean;
+        is_superuser?: boolean;
+      }
+    | undefined;
+  const roleSource = sessionUser?.role || sessionUser?.career_level;
+  const isHRUser =
+    isHrLikeRole(roleSource) ||
+    sessionUser?.is_staff === true ||
+    sessionUser?.is_superuser === true;
 
-  const getStatusColor = (status: ApplicationStatus) => {
-    switch (status) {
-      case "applied":
-        return "bg-blue-100 text-blue-800";
-      case "reviewing":
-        return "bg-amber-100 text-amber-800";
-      case "interview":
-        return "bg-purple-100 text-purple-800";
-      case "offer":
-        return "bg-green-100 text-green-800";
-      case "accepted":
-        return "bg-green-100 text-green-800";
-      case "rejected":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200";
-    }
-  };
+  useEffect(() => {
+    const handle = window.setTimeout(() => setSearchTerm(searchInput), 250);
+    return () => window.clearTimeout(handle);
+  }, [searchInput]);
 
-  const getStatusIcon = (status: ApplicationStatus) => {
-    switch (status) {
-      case "applied":
-        return Clock;
-      case "reviewing":
-        return Eye;
-      case "interview":
-        return Users;
-      case "offer":
-        return Star;
-      case "accepted":
-        return CheckCircle;
-      case "rejected":
-        return XCircle;
-      default:
-        return Clock;
-    }
-  };
-
-  const getExperienceLevelColor = (level: ExperienceLevel) => {
-    switch (level) {
-      case "entry":
-        return "bg-green-100 text-green-800";
-      case "mid":
-        return "bg-blue-100 text-blue-800";
-      case "senior":
-        return "bg-purple-100 text-purple-800";
-      case "lead":
-        return "bg-amber-100 text-amber-800";
-      case "executive":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200";
-    }
-  };
-
-  const handleJobApplication = (job: Job) => {
-    setSelectedJob(job);
-    setIsApplicationDialogOpen(true);
-  };
-
-  const submitApplication = () => {
-    if (!selectedJob || !applicationForm.coverLetter.trim()) return;
-
-    const newApplication: Application = {
-      id: Date.now(),
-      jobId: selectedJob.id,
-      jobTitle: selectedJob.title,
-      applicantName: "John Doe", // Current user
-      applicantId: "john-doe",
-      appliedDate: new Date().toISOString().split("T")[0],
-      status: "applied",
-      coverLetter: applicationForm.coverLetter,
-      resumeFileName: applicationForm.resumeFile?.name,
-      notes: applicationForm.additionalNotes,
+  useEffect(() => {
+    let cancelled = false;
+    departmentsApi
+      .listDepartments()
+      .then((rows) => {
+        if (!cancelled) setDepartments(rows);
+      })
+      .catch(() => {
+        if (!cancelled) setDepartments([]);
+      });
+    return () => {
+      cancelled = true;
     };
+  }, []);
 
-    setApplications((prev) => [...prev, newApplication]);
+  const loadListings = useCallback(async () => {
+    setListingsLoading(true);
+    setListingsError(null);
+    try {
+      const rows = await jobListingsApi.listActiveListings({
+        department:
+          departmentFilter === DEPARTMENT_FILTER_ALL
+            ? undefined
+            : Number(departmentFilter),
+        search: searchTerm.trim() || undefined,
+      });
+      setListings(rows);
+    } catch (err) {
+      setListingsError(
+        err instanceof Error ? err.message : "Failed to load job listings."
+      );
+    } finally {
+      setListingsLoading(false);
+    }
+  }, [departmentFilter, searchTerm]);
 
-    // Reset form and close dialog
-    setApplicationForm({
-      coverLetter: "",
-      resumeFile: null,
-      additionalNotes: "",
-    });
-    setIsApplicationDialogOpen(false);
-    setSelectedJob(null);
-  };
+  useEffect(() => {
+    void loadListings();
+  }, [loadListings]);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setApplicationForm((prev) => ({ ...prev, resumeFile: file }));
+  const loadMyApplications = useCallback(async () => {
+    setApplicationsLoading(true);
+    try {
+      const rows = await jobListingsApi.listMyApplications();
+      setMyApplications(rows);
+    } catch {
+      setMyApplications([]);
+    } finally {
+      setApplicationsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadMyApplications();
+  }, [loadMyApplications]);
+
+  const loadPromotions = useCallback(async () => {
+    setPromotionsLoading(true);
+    setPromotionsError(null);
+    try {
+      const rows = await promotionsApi.listPromotions();
+      setPromotions(rows);
+    } catch (err) {
+      setPromotionsError(
+        err instanceof Error ? err.message : "Failed to load promotions."
+      );
+    } finally {
+      setPromotionsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadPromotions();
+  }, [loadPromotions]);
+
+  const appliedListingIds = useMemo(
+    () => new Set(myApplications.map((a) => a.listingId)),
+    [myApplications]
+  );
+
+  const openRoleDrawer = async (listing: JobListing) => {
+    setDetailLoading(true);
+    setSubmitError(null);
+    setCoverNote("");
+    setDrawerTab("overview");
+    setDrawerApplications([]);
+    try {
+      const detail = await jobListingsApi.getListing(listing.id);
+      setSelectedListing(detail);
+      setIsApplicationDialogOpen(true);
+      if (isHRUser) {
+        setDrawerAppsLoading(true);
+        jobListingsApi
+          .listApplicationsForListing(listing.id)
+          .then((rows) => setDrawerApplications(rows))
+          .catch(() => setDrawerApplications([]))
+          .finally(() => setDrawerAppsLoading(false));
+      }
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "Failed to load listing details."
+      );
+    } finally {
+      setDetailLoading(false);
     }
   };
 
-  const updateApplicationStatus = (
-    applicationId: number,
-    newStatus: ApplicationStatus
-  ) => {
-    setApplications((prev) =>
-      prev.map((app) =>
-        app.id === applicationId ? { ...app, status: newStatus } : app
-      )
-    );
+  const submitApplication = async () => {
+    if (!selectedListing) return;
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      await jobListingsApi.applyToListing(selectedListing.id, {
+        coverNote: coverNote.trim(),
+      });
+      setIsApplicationDialogOpen(false);
+      setSelectedListing(null);
+      setCoverNote("");
+      await Promise.all([loadMyApplications(), loadListings()]);
+      setActiveTab("applications");
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "Failed to submit application."
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const departmentBreakdown = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const listing of listings) {
+      const name = listing.departmentName || "Unspecified";
+      counts.set(name, (counts.get(name) ?? 0) + 1);
+    }
+    return Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
+  }, [listings]);
+
+  const visibleListings = isHRUser
+    ? listings
+    : listings.filter((l) => !appliedListingIds.has(l.id));
+
+  const closingSoonCount = visibleListings.filter((l) => {
+    const d = daysUntil(l.closeAt);
+    return d >= 0 && d <= 7;
+  }).length;
+
+  const inProgressCount = myApplications.filter(
+    (a) =>
+      a.status === "submitted" ||
+      a.status === "under_review" ||
+      a.status === "shortlisted"
+  ).length;
+
+  const tabCounts = {
+    jobs: visibleListings.length,
+    applications: myApplications.length,
+    history: myApplications.filter(
+      (a) =>
+        a.status === "accepted" ||
+        a.status === "rejected" ||
+        a.status === "withdrawn"
+    ).length,
+    promotions: promotions.length,
+  };
+
+  const handleListingCreated = async () => {
+    setIsPostDialogOpen(false);
+    await loadListings();
+  };
+
+  const handlePromotionSaved = async () => {
+    setIsPromotionDialogOpen(false);
+    setEditingPromotion(null);
+    await loadPromotions();
+  };
+
+  const confirmDeletePromotion = async () => {
+    if (!deletingPromotion) return;
+    setDeletingPromotionBusy(true);
+    try {
+      await promotionsApi.deletePromotion(deletingPromotion.id);
+      await loadPromotions();
+    } catch (err) {
+      setPromotionsError(
+        err instanceof Error ? err.message : "Failed to delete promotion."
+      );
+    } finally {
+      setDeletingPromotionBusy(false);
+      setDeletingPromotion(null);
+    }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 text-gray-900 dark:text-gray-100">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              Internal Mobility
+      <header>
+        <div className="flex items-start justify-between gap-6 mb-5">
+          <div className="min-w-0">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">
+              Mobility &amp; Promotions · H1 2026 cycle
+            </div>
+            <h1 className="text-2xl font-semibold tracking-tight mt-1 mb-1.5">
+              {isHRUser
+                ? "Run mobility & the promo cycle"
+                : "Find your next chapter — without leaving"}
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Explore career opportunities and track professional growth
+            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed">
+              {isHRUser
+                ? "Source, post, and govern. Every internal application and transfer runs through here with a full audit trail."
+                : "Browse internal openings, track your applications, and see where you stand. The recruiter for any role is one click away."}
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="min-w-[5.5rem]"
-              title="Filter options"
-            >
-              <Filter className="mr-2 h-4 w-4" />
-              Filter
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="min-w-[5.5rem]"
-              title="Export data"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Export
-            </Button>
+          <div className="flex gap-2 shrink-0">
             {isHRUser && (
               <Button
                 variant="primary"
-                size="sm"
-                className="min-w-[5.5rem]"
-                title="Post a new job"
+                onClick={() => setIsPostDialogOpen(true)}
               >
-                <Plus className="mr-2 h-4 w-4" />
-                Post Job
+                <Plus className="w-3.5 h-3.5" />
+                Post a role
               </Button>
             )}
+            <Button variant="outline" onClick={() => setActiveTab("cpf")}>
+              <Layers className="w-3.5 h-3.5" />
+              CPF ladder
+            </Button>
           </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Briefcase className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Open Positions
-              </p>
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {jobs.filter((j) => j.isActive).length}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Across all departments
-            </p>
-          </div>
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Total Applications
-              </p>
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {applications.length}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              This quarter
-            </p>
-          </div>
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Promotions YTD
-              </p>
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {promotionHistory.length}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Internal growth
-            </p>
-          </div>
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Target className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Success Rate
-              </p>
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              73%
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Internal hiring
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2">
-          <Card className="border-gray-200 dark:border-gray-700">
-            <Tabs
-              value={activeTab}
-              onValueChange={setActiveTab}
-              className="w-full"
-            >
-              <CardHeader className="pb-3">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="jobs">Job Board</TabsTrigger>
-                  <TabsTrigger value="applications">
-                    My Applications
-                  </TabsTrigger>
-                  <TabsTrigger value="history">Promotion History</TabsTrigger>
-                </TabsList>
-              </CardHeader>
-
-              <CardContent>
-                <TabsContent value="jobs" className="space-y-6 mt-0">
-                  {/* Search and Filters */}
-                  <div className="flex flex-col md:flex-row gap-4">
-                    <div className="flex-1 relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
-                      <Input
-                        placeholder="Search positions..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-9"
-                      />
-                    </div>
-                    <Select
-                      value={departmentFilter}
-                      onValueChange={setDepartmentFilter}
-                    >
-                      <SelectTrigger className="w-full md:w-48">
-                        <SelectValue placeholder="All Departments" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Departments</SelectItem>
-                        {departments.map((dept) => (
-                          <SelectItem key={dept} value={dept}>
-                            {dept}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Job Cards */}
-                  <div className="space-y-4">
-                    {filteredJobs.map((job) => (
-                      <Card
-                        key={job.id}
-                        className="border-gray-200 dark:border-gray-700 hover:shadow-sm transition-shadow"
-                      >
-                        <CardContent className="p-6">
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex-1">
-                              <div className="flex items-start gap-3 mb-3">
-                                <Building className="w-5 h-5 text-gray-500 dark:text-gray-400 mt-1" />
-                                <div>
-                                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                                    {job.title}
-                                  </h3>
-                                  <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                                    <span>{job.department}</span>
-                                    <span>•</span>
-                                    <span>{job.location}</span>
-                                    <span>•</span>
-                                    <span>{job.salaryRange}</span>
-                                  </div>
-                                </div>
-                              </div>
-                              <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
-                                {job.description}
-                              </p>
-
-                              <div className="flex items-center gap-3 mb-4">
-                                <Badge
-                                  variant="outline"
-                                  className={getExperienceLevelColor(
-                                    job.experienceLevel
-                                  )}
-                                >
-                                  {job.experienceLevel} level
-                                </Badge>
-                                <Badge variant="outline">{job.type}</Badge>
-                                <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                                  <Users className="w-3 h-3" />
-                                  <span>{job.applicantCount} applicants</span>
-                                </div>
-                              </div>
-
-                              <div className="space-y-2">
-                                <div>
-                                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Key Requirements:
-                                  </p>
-                                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                                    {job.requirements
-                                      .slice(0, 3)
-                                      .map((req, index) => (
-                                        <li
-                                          key={index}
-                                          className="flex items-start gap-2"
-                                        >
-                                          <CheckCircle className="w-3 h-3 text-green-500 mt-0.5 flex-shrink-0" />
-                                          <span>{req}</span>
-                                        </li>
-                                      ))}
-                                  </ul>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex flex-col gap-2 ml-4">
-                              <Button
-                                variant="outline"
-                                onClick={() => handleJobApplication(job)}
-                                className="border-gray-300 bg-white text-gray-800 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100 dark:hover:bg-gray-600"
-                              >
-                                Apply Now
-                              </Button>
-                              <Button variant="outline" size="sm">
-                                <Eye className="w-4 h-4 mr-2" />
-                                View Details
-                              </Button>
-                            </div>
-                          </div>
-
-                          <Separator className="mb-3" />
-
-                          <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-                            <div className="flex items-center gap-4">
-                              <span>Posted {formatDate(job.postedDate)}</span>
-                              <span>•</span>
-                              <span>
-                                Deadline: {formatDate(job.applicationDeadline)}
-                              </span>
-                            </div>
-                            <span>Hiring Manager: {job.hiringManager}</span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-
-                  {filteredJobs.length === 0 && (
-                    <div className="text-center py-8">
-                      <Briefcase className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                        No positions found
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400">
-                        Try adjusting your search criteria or check back later
-                        for new opportunities.
-                      </p>
-                    </div>
-                  )}
-                </TabsContent>
-
-                <TabsContent value="applications" className="space-y-6 mt-0">
-                  <div className="space-y-4">
-                    <h3 className="font-medium text-gray-900 dark:text-gray-100">
-                      Application Status
-                    </h3>
-
-                    {applications.length > 0 ? (
-                      <div className="space-y-3">
-                        {applications.map((application) => {
-                          const StatusIcon = getStatusIcon(application.status);
-
-                          return (
-                            <Card
-                              key={application.id}
-                              className="border-gray-200 dark:border-gray-700"
-                            >
-                              <CardContent className="p-4">
-                                <div className="flex items-start justify-between">
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-3 mb-2">
-                                      <Briefcase className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                                      <h4 className="font-medium text-gray-900 dark:text-gray-100">
-                                        {application.jobTitle}
-                                      </h4>
-                                      <Badge
-                                        variant="outline"
-                                        className={getStatusColor(
-                                          application.status
-                                        )}
-                                      >
-                                        <StatusIcon className="w-3 h-3 mr-1" />
-                                        {application.status}
-                                      </Badge>
-                                    </div>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                                      {application.coverLetter.slice(0, 150)}...
-                                    </p>
-                                    <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                                      <span>
-                                        Applied:{" "}
-                                        {formatDate(application.appliedDate)}
-                                      </span>
-                                      {application.resumeFileName && (
-                                        <>
-                                          <span>•</span>
-                                          <span>
-                                            Resume: {application.resumeFileName}
-                                          </span>
-                                        </>
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div className="flex gap-2">
-                                    <Button variant="ghost" size="sm">
-                                      <Eye className="w-4 h-4" />
-                                    </Button>
-                                    {isHRUser &&
-                                      application.status === "applied" && (
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          onClick={() =>
-                                            updateApplicationStatus(
-                                              application.id,
-                                              "reviewing"
-                                            )
-                                          }
-                                        >
-                                          Review
-                                        </Button>
-                                      )}
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <FileText className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                          No applications yet
-                        </h3>
-                        <p className="text-gray-600 dark:text-gray-400">
-                          Browse open positions and apply to start your internal
-                          mobility journey.
-                        </p>
-                        <Button
-                          variant="outline"
-                          className="mt-4 border-gray-300 bg-white text-gray-800 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100 dark:hover:bg-gray-600"
-                          onClick={() => setActiveTab("jobs")}
-                        >
-                          Browse Jobs
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Application Statistics */}
-                  {applications.length > 0 && (
-                    <div className="mt-6">
-                      <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-4">
-                        Application Summary
-                      </h4>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {["applied", "reviewing", "interview", "offer"].map(
-                          (status) => (
-                            <div
-                              key={status}
-                              className="text-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg"
-                            >
-                              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                                {
-                                  applications.filter(
-                                    (app) => app.status === status
-                                  ).length
-                                }
-                              </p>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 capitalize">
-                                {status}
-                              </p>
-                            </div>
-                          )
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </TabsContent>
-
-                <TabsContent value="history" className="space-y-6 mt-0">
-                  <div className="space-y-4">
-                    <h3 className="font-medium text-gray-900 dark:text-gray-100">
-                      Promotion Timeline
-                    </h3>
-
-                    <div className="space-y-4">
-                      {promotionHistory.map((promotion, index) => (
-                        <div key={promotion.id} className="relative">
-                          {/* Timeline line */}
-                          {index < promotionHistory.length - 1 && (
-                            <div className="absolute left-6 top-12 w-0.5 h-16 bg-gray-200"></div>
-                          )}
-
-                          <Card className="border-gray-200 dark:border-gray-700">
-                            <CardContent className="p-4">
-                              <div className="flex items-start gap-4">
-                                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                  <Award className="w-5 h-5 text-blue-600" />
-                                </div>
-
-                                <div className="flex-1">
-                                  <div className="flex items-start justify-between mb-2">
-                                    <div>
-                                      <h4 className="font-medium text-gray-900 dark:text-gray-100">
-                                        {promotion.employeeName}
-                                      </h4>
-                                      <div className="flex items-center gap-2 mt-1">
-                                        <span className="text-sm text-gray-600 dark:text-gray-400">
-                                          {promotion.fromRole}
-                                        </span>
-                                        <ArrowRight className="w-3 h-3 text-gray-400 dark:text-gray-500" />
-                                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                          {promotion.toRole}
-                                        </span>
-                                      </div>
-                                    </div>
-                                    <div className="text-right">
-                                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                        {formatDate(promotion.promotionDate)}
-                                      </p>
-                                      {promotion.salaryIncrease && (
-                                        <p className="text-sm text-green-600">
-                                          +{promotion.salaryIncrease} salary
-                                        </p>
-                                      )}
-                                    </div>
-                                  </div>
-
-                                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                                    {promotion.notes}
-                                  </p>
-
-                                  <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-                                    <div className="flex items-center gap-1">
-                                      <Building className="w-3 h-3" />
-                                      <span>
-                                        {promotion.fromDepartment} →{" "}
-                                        {promotion.toDepartment}
-                                      </span>
-                                    </div>
-                                    <span>•</span>
-                                    <span>
-                                      Approved by {promotion.approvedBy}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </div>
-                      ))}
-                    </div>
-
-                    {promotionHistory.length === 0 && (
-                      <div className="text-center py-8">
-                        <Award className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                          No promotion history
-                        </h3>
-                        <p className="text-gray-600 dark:text-gray-400">
-                          Promotion records will appear here as employees
-                          advance in their careers.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </TabsContent>
-              </CardContent>
-            </Tabs>
-          </Card>
+        {/* Stat strip */}
+        <div className="grid grid-cols-2 md:grid-cols-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg mb-4 overflow-hidden">
+          <StripCell
+            label="Open roles"
+            value={visibleListings.length}
+            trend={`${closingSoonCount} closing in < 7d`}
+          />
+          <StripCell
+            label={isHRUser ? "Active applications" : "Your applications"}
+            value={myApplications.length}
+            trend={`${inProgressCount} in active loops`}
+          />
+          <StripCell
+            label="Departments hiring"
+            value={departmentBreakdown.length}
+            trend="With active roles"
+          />
+          <StripCell
+            label="In progress"
+            value={inProgressCount}
+            trend="Across your loops"
+            last
+          />
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Quick Actions */}
-          <Card className="border-gray-200 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <QuickActionButton
-                label="Browse Jobs"
-                icon={Search}
-                onClick={() => {}}
-              />
-              <QuickActionButton
-                label="Update Resume"
-                icon={FileText}
-                onClick={() => {}}
-              />
-              <QuickActionButton
-                label="Career Interests"
-                icon={User}
-                onClick={() => {}}
-              />
-              {isHRUser && (
-                <>
-                  <QuickActionButton
-                    label="Post New Job"
-                    icon={Plus}
-                    onClick={() => {}}
-                  />
-                  <QuickActionButton
-                    label="Review Applications"
-                    icon={Eye}
-                    onClick={() => {}}
-                  />
-                </>
-              )}
-            </CardContent>
-          </Card>
+        {/* Tabs */}
+        <nav className="flex border-b border-gray-200 dark:border-gray-700">
+          <TabButton
+            label="Open roles"
+            count={tabCounts.jobs}
+            active={activeTab === "jobs"}
+            onClick={() => setActiveTab("jobs")}
+          />
+          <TabButton
+            label={isHRUser ? "Applications" : "My applications"}
+            count={tabCounts.applications}
+            active={activeTab === "applications"}
+            onClick={() => setActiveTab("applications")}
+          />
+          <TabButton
+            label="History"
+            count={tabCounts.history}
+            active={activeTab === "history"}
+            onClick={() => setActiveTab("history")}
+          />
+          <TabButton
+            label="Promotions"
+            count={tabCounts.promotions}
+            active={activeTab === "promotions"}
+            onClick={() => setActiveTab("promotions")}
+          />
+          <TabButton
+            label="Career progression"
+            active={activeTab === "cpf"}
+            onClick={() => setActiveTab("cpf")}
+          />
+        </nav>
+      </header>
 
-          {/* Department Breakdown */}
-          <Card className="border-gray-200 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building className="w-5 h-5" />
-                Open Positions
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {departments.map((dept) => {
-                const deptJobs = jobs.filter(
-                  (job) => job.department === dept && job.isActive
-                );
-                return (
-                  <div key={dept} className="flex items-center justify-between">
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                      {dept}
-                    </span>
-                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {deptJobs.length}
-                    </span>
-                  </div>
-                );
-              })}
-            </CardContent>
-          </Card>
-
-          {/* Career Growth Tips */}
-          <Card className="border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <TrendingUp className="mt-0.5 h-5 w-5 text-slate-600 dark:text-slate-400" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    Career Growth Tip
-                  </p>
-                  <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-                    Update your skills profile regularly and set career goals to
-                    receive personalized job recommendations.
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mt-2 border-gray-300 bg-white text-gray-800 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100 dark:hover:bg-gray-600"
-                  >
-                    Learn More
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Recent Activity */}
-          <Card className="border-gray-200 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="w-5 h-5" />
-                Recent Activity
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                  <div>
-                    <p className="text-sm text-gray-900 dark:text-gray-100">
-                      New position posted
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      2 hours ago
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                  <div>
-                    <p className="text-sm text-gray-900 dark:text-gray-100">
-                      Application submitted
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      1 day ago
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
-                  <div>
-                    <p className="text-sm text-gray-900 dark:text-gray-100">
-                      Promotion announced
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      3 days ago
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Application Dialog */}
-      <Dialog
-        open={isApplicationDialogOpen}
-        onOpenChange={setIsApplicationDialogOpen}
-      >
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Apply for {selectedJob?.title}</DialogTitle>
-            <DialogDescription>
-              Submit your application for this internal position. Your
-              information will be reviewed by the hiring manager.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-6">
-            {/* Job Summary */}
-            {selectedJob && (
-              <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">
-                  {selectedJob.title}
-                </h4>
-                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  <span>{selectedJob.department}</span>
-                  <span>•</span>
-                  <span>{selectedJob.location}</span>
-                  <span>•</span>
-                  <span>{selectedJob.salaryRange}</span>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {selectedJob.description}
-                </p>
-              </div>
+      {/* Tab body */}
+      <div className="pt-2">
+        {activeTab === "jobs" && (
+          <JobsTab
+            listings={listings}
+            loading={listingsLoading}
+            error={listingsError}
+            search={searchInput}
+            onSearch={setSearchInput}
+            departments={departments}
+            departmentFilter={departmentFilter}
+            onDepartmentFilter={setDepartmentFilter}
+            appliedListingIds={appliedListingIds}
+            onOpen={openRoleDrawer}
+            isHRUser={isHRUser}
+            onPost={() => setIsPostDialogOpen(true)}
+          />
+        )}
+        {activeTab === "applications" && (
+          <ApplicationsTab
+            apps={myApplications}
+            loading={applicationsLoading}
+            onBrowse={() => setActiveTab("jobs")}
+          />
+        )}
+        {activeTab === "history" && (
+          <HistoryTab
+            apps={myApplications.filter(
+              (a) =>
+                a.status === "accepted" ||
+                a.status === "rejected" ||
+                a.status === "withdrawn"
             )}
+          />
+        )}
+        {activeTab === "promotions" && (
+          <PromotionsTab
+            promotions={promotions}
+            loading={promotionsLoading}
+            error={promotionsError}
+            isHRUser={isHRUser}
+            onAdd={() => {
+              setEditingPromotion(null);
+              setIsPromotionDialogOpen(true);
+            }}
+            onEdit={(p) => {
+              setEditingPromotion(p);
+              setIsPromotionDialogOpen(true);
+            }}
+            onDelete={setDeletingPromotion}
+          />
+        )}
+        {activeTab === "cpf" && <CPFProgressionTab isHRUser={isHRUser} />}
+      </div>
 
-            {/* Application Form */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="cover-letter">Cover Letter *</Label>
-                <Textarea
-                  id="cover-letter"
-                  placeholder="Explain why you're interested in this position and how your experience makes you a great fit..."
-                  value={applicationForm.coverLetter}
-                  onChange={(e) =>
-                    setApplicationForm((prev) => ({
-                      ...prev,
-                      coverLetter: e.target.value,
-                    }))
-                  }
-                  rows={5}
-                />
-              </div>
+      {/* Role drawer (overlay) */}
+      {isApplicationDialogOpen && selectedListing && (
+        <RoleDrawer
+          listing={selectedListing}
+          isHRUser={isHRUser}
+          drawerTab={drawerTab}
+          setDrawerTab={setDrawerTab}
+          drawerApplications={drawerApplications}
+          drawerAppsLoading={drawerAppsLoading}
+          coverNote={coverNote}
+          setCoverNote={setCoverNote}
+          submitting={submitting}
+          submitError={submitError}
+          onSubmit={submitApplication}
+          onClose={() => {
+            setIsApplicationDialogOpen(false);
+            setSelectedListing(null);
+            setSubmitError(null);
+            setCoverNote("");
+          }}
+        />
+      )}
 
-              <div className="space-y-2">
-                <Label htmlFor="resume-upload">Resume Upload</Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  <input
-                    type="file"
-                    id="resume-upload"
-                    accept=".pdf,.doc,.docx"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  <label htmlFor="resume-upload" className="cursor-pointer">
-                    <Upload className="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-2" />
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                      {applicationForm.resumeFile
-                        ? applicationForm.resumeFile.name
-                        : "Click to upload your resume"}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      PDF, DOC, or DOCX (max 10MB)
-                    </p>
-                  </label>
-                </div>
-              </div>
+      {detailLoading && (
+        <div className="fixed inset-0 bg-black/10 grid place-items-center z-40">
+          <div className="bg-white dark:bg-gray-800 px-4 py-2 rounded-md text-sm shadow">
+            Loading role…
+          </div>
+        </div>
+      )}
 
-              <div className="space-y-2">
-                <Label htmlFor="additional-notes">Additional Notes</Label>
-                <Textarea
-                  id="additional-notes"
-                  placeholder="Any additional information you'd like to share..."
-                  value={applicationForm.additionalNotes}
-                  onChange={(e) =>
-                    setApplicationForm((prev) => ({
-                      ...prev,
-                      additionalNotes: e.target.value,
-                    }))
-                  }
-                  rows={3}
-                />
-              </div>
-            </div>
+      {/* Post role modal (HR/admin) */}
+      {isHRUser && (
+        <PostRoleDialog
+          open={isPostDialogOpen}
+          onOpenChange={setIsPostDialogOpen}
+          departments={departments}
+          onCreated={handleListingCreated}
+        />
+      )}
 
-            <div className="flex gap-3">
+      {/* Promotion form modal (HR/admin) */}
+      {isHRUser && (
+        <PromotionDialog
+          open={isPromotionDialogOpen}
+          onOpenChange={(v) => {
+            setIsPromotionDialogOpen(v);
+            if (!v) setEditingPromotion(null);
+          }}
+          editing={editingPromotion}
+          onSaved={handlePromotionSaved}
+        />
+      )}
+
+      {/* Delete promotion confirmation (HR/admin) */}
+      {isHRUser && (
+        <Dialog
+          open={deletingPromotion !== null}
+          onOpenChange={(v) => {
+            if (!v && !deletingPromotionBusy) setDeletingPromotion(null);
+          }}
+        >
+          <DialogContent className="max-w-md min-h-0">
+            <DialogHeader>
+              <DialogTitle>Delete promotion record</DialogTitle>
+              <DialogDescription>
+                {deletingPromotion
+                  ? `Delete the promotion for ${
+                      deletingPromotion.employeeName || "this employee"
+                    } dated ${formatDate(
+                      deletingPromotion.date
+                    )}? This cannot be undone.`
+                  : ""}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
-                onClick={submitApplication}
-                disabled={!applicationForm.coverLetter.trim()}
-                className="border-gray-300 bg-white text-gray-800 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100 dark:hover:bg-gray-600"
-              >
-                <Send className="w-4 h-4 mr-2" />
-                Submit Application
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setIsApplicationDialogOpen(false)}
+                onClick={() => setDeletingPromotion(null)}
+                disabled={deletingPromotionBusy}
               >
                 Cancel
               </Button>
+              <Button
+                variant="destructive"
+                onClick={confirmDeletePromotion}
+                disabled={deletingPromotionBusy}
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                {deletingPromotionBusy ? "Deleting…" : "Delete"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
+  );
+}
+
+/* ============ Atoms ============ */
+function StripCell({
+  label,
+  value,
+  trend,
+  last,
+}: {
+  label: string;
+  value: number;
+  trend: string;
+  last?: boolean;
+}) {
+  return (
+    <div
+      className={`px-4 py-3.5 ${
+        last ? "" : "md:border-r border-gray-200 dark:border-gray-700"
+      }`}
+    >
+      <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500 dark:text-gray-400">
+        {label}
+      </div>
+      <div className="text-[22px] font-semibold tracking-tight tabular-nums mt-1.5">
+        {value}
+      </div>
+      <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+        {trend}
+      </div>
+    </div>
+  );
+}
+
+function TabButton({
+  label,
+  count,
+  active,
+  onClick,
+}: {
+  label: string;
+  count?: number;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 h-[38px] px-3.5 text-[13px] font-medium -mb-px border-b-2 transition-colors ${
+        active
+          ? "text-gray-900 dark:text-gray-100 border-gray-900 dark:border-gray-100"
+          : "text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-900 dark:hover:text-gray-200"
+      }`}
+    >
+      {label}
+      {count !== undefined && (
+        <span
+          className={`text-[11px] font-mono font-medium px-1.5 py-0.5 rounded ${
+            active
+              ? "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900"
+              : "bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300"
+          }`}
+        >
+          {count}
+        </span>
+      )}
+    </button>
+  );
+}
+
+/* ============ Jobs Tab ============ */
+function JobsTab({
+  listings,
+  loading,
+  error,
+  search,
+  onSearch,
+  departments,
+  departmentFilter,
+  onDepartmentFilter,
+  appliedListingIds,
+  onOpen,
+  isHRUser,
+  onPost,
+}: {
+  listings: JobListing[];
+  loading: boolean;
+  error: string | null;
+  search: string;
+  onSearch: (v: string) => void;
+  departments: Department[];
+  departmentFilter: string;
+  onDepartmentFilter: (v: string) => void;
+  appliedListingIds: Set<number>;
+  onOpen: (l: JobListing) => void;
+  isHRUser: boolean;
+  onPost: () => void;
+}) {
+  // Employees never see roles they already applied to in the Open roles tab.
+  const visible = isHRUser
+    ? listings
+    : listings.filter((l) => !appliedListingIds.has(l.id));
+  // Spotlight a matched role for employees but keep it in the grid too.
+  const spotlight = !isHRUser
+    ? visible.find((l) => listingTone(l) === "open")
+    : null;
+  const rest = visible;
+
+  return (
+    <div>
+      {/* Toolbar */}
+      <div className="flex gap-2.5 items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2.5 mb-4 flex-wrap">
+        <div className="flex-1 min-w-[220px] relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+          <Input
+            placeholder="Search roles, skills, teams…"
+            value={search}
+            onChange={(e) => onSearch(e.target.value)}
+            className="pl-9 h-9 text-sm"
+          />
+        </div>
+        <Select value={departmentFilter} onValueChange={onDepartmentFilter}>
+          <SelectTrigger className="w-full md:w-56 h-9">
+            <SelectValue placeholder="All departments" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={DEPARTMENT_FILTER_ALL}>
+              All departments
+            </SelectItem>
+            {departments.map((d) => (
+              <SelectItem key={d.id} value={String(d.id)}>
+                {d.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {isHRUser && (
+          <Button variant="primary" onClick={onPost}>
+            <Plus className="w-3.5 h-3.5" />
+            Post a role
+          </Button>
+        )}
+      </div>
+
+      {error && (
+        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800 mb-4">
+          {error}
+        </div>
+      )}
+
+      {spotlight && (
+        <section className="mb-7">
+          <SectionHead
+            icon={<Sparkles className="w-3 h-3" />}
+            title="Matched to your level &amp; team"
+            sub="Suggestions are based on your role and the areas you've worked in."
+          />
+          <SpotlightCard listing={spotlight} onOpen={onOpen} />
+        </section>
+      )}
+
+      <section>
+        <SectionHead
+          title={spotlight ? "All open roles" : "Currently hiring"}
+          sub={`${rest.length} open · sorted by closing date`}
+        />
+        {loading ? (
+          <div className="text-center py-8 text-sm text-gray-500 dark:text-gray-400">
+            Loading roles…
+          </div>
+        ) : rest.length === 0 ? (
+          <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg py-10 px-6 text-center text-sm text-gray-500">
+            <p className="mb-3">No positions match your filters.</p>
+            {isHRUser && (
+              <Button variant="primary" onClick={onPost}>
+                <Plus className="w-3.5 h-3.5" />
+                Post a role
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-3">
+            {rest.map((l) => (
+              <JobCard
+                key={l.id}
+                listing={l}
+                onOpen={onOpen}
+                applied={appliedListingIds.has(l.id)}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function SectionHead({
+  icon,
+  title,
+  sub,
+}: {
+  icon?: React.ReactNode;
+  title: React.ReactNode;
+  sub?: string;
+}) {
+  return (
+    <div className="mb-3">
+      <h3 className="text-[13px] font-semibold flex items-center gap-1.5">
+        {icon}
+        {title}
+      </h3>
+      {sub && (
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{sub}</p>
+      )}
+    </div>
+  );
+}
+
+function SpotlightCard({
+  listing,
+  onOpen,
+}: {
+  listing: JobListing;
+  onOpen: (l: JobListing) => void;
+}) {
+  const tone = listingTone(listing);
+  const pill = listingStatusPill(tone);
+  return (
+    <div
+      onClick={() => onOpen(listing)}
+      className="grid grid-cols-1 md:grid-cols-[1fr_240px] gap-6 bg-gradient-to-b from-indigo-50/40 to-white dark:from-gray-800 dark:to-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-xl p-5 cursor-pointer hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
+    >
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <Pill {...pill} />
+          <span className="text-[11px] text-gray-500 ml-auto">
+            Closes {fmtDateShort(listing.closeAt)}
+          </span>
+        </div>
+        <h4 className="text-lg font-semibold tracking-tight mb-1.5">
+          {listing.title}
+        </h4>
+        <div className="flex flex-wrap gap-3.5 text-xs text-gray-500 dark:text-gray-400 mb-3">
+          <span className="inline-flex items-center gap-1.5">
+            <Briefcase className="w-3 h-3" />{" "}
+            {listing.departmentName || "Unspecified"}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Clock className="w-3 h-3" /> Posted {fmtPostedAgo(listing.openAt)}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Users className="w-3 h-3" /> {listing.applicationCount} applicants
+          </span>
+        </div>
+      </div>
+      <div className="flex flex-col gap-2 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+        <div className="text-center pb-2 border-b border-gray-200 dark:border-gray-700 mb-1">
+          <div className="text-[26px] font-semibold tracking-tight tabular-nums">
+            {listing.applicationCount}
+          </div>
+          <div className="text-[11px] uppercase tracking-[0.05em] text-gray-500">
+            internal applicants
+          </div>
+        </div>
+        <Button
+          variant="primary"
+          className="w-full justify-center"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpen(listing);
+          }}
+        >
+          <Send className="w-3 h-3" /> Apply
+        </Button>
+        <Button
+          variant="outline"
+          className="w-full justify-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Bookmark className="w-3 h-3" /> Save for later
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function JobCard({
+  listing,
+  onOpen,
+  applied,
+}: {
+  listing: JobListing;
+  onOpen: (l: JobListing) => void;
+  applied: boolean;
+}) {
+  const tone = listingTone(listing);
+  const pill = listingStatusPill(tone);
+  const days = daysUntil(listing.closeAt);
+  return (
+    <div
+      onClick={() => onOpen(listing)}
+      className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 cursor-pointer transition-all hover:border-gray-300 dark:hover:border-gray-600 hover:-translate-y-px flex flex-col gap-2.5"
+    >
+      <div className="flex items-center gap-1.5">
+        <Pill {...pill} />
+        {applied && (
+          <Pill
+            label="Applied"
+            bg="bg-blue-50 text-blue-700"
+            dot="bg-blue-600"
+          />
+        )}
+      </div>
+      <h4 className="text-[14.5px] font-semibold leading-tight tracking-tight">
+        {listing.title}
+      </h4>
+      <div className="flex flex-col gap-1 text-xs text-gray-500 dark:text-gray-400">
+        <span className="inline-flex items-center gap-1.5">
+          <Briefcase className="w-3 h-3" />
+          {listing.departmentName || "Unspecified"}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <Clock className="w-3 h-3" /> Posted {fmtPostedAgo(listing.openAt)}
+        </span>
+      </div>
+      <div className="flex items-center justify-between pt-2.5 mt-auto border-t border-gray-200 dark:border-gray-700">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[11.5px] text-gray-700 dark:text-gray-200">
+          <Users className="w-3 h-3" /> {listing.applicationCount}
+        </span>
+        <span
+          className={`text-[11.5px] font-medium ${
+            days <= 7 && days >= 0
+              ? "text-amber-700 dark:text-amber-400"
+              : "text-gray-500 dark:text-gray-400"
+          }`}
+        >
+          {days < 0
+            ? "Closed"
+            : days <= 7
+              ? `${days}d left`
+              : `Closes ${fmtDateShort(listing.closeAt)}`}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* ============ Applications Tab ============ */
+function ApplicationsTab({
+  apps,
+  loading,
+  onBrowse,
+}: {
+  apps: JobApplication[];
+  loading: boolean;
+  onBrowse: () => void;
+}) {
+  if (loading) {
+    return (
+      <div className="text-center py-8 text-sm text-gray-500 dark:text-gray-400">
+        Loading your applications…
+      </div>
+    );
+  }
+  const active = apps.filter(
+    (a) =>
+      a.status !== "accepted" &&
+      a.status !== "rejected" &&
+      a.status !== "withdrawn"
+  );
+  const closed = apps.filter(
+    (a) =>
+      a.status === "accepted" ||
+      a.status === "rejected" ||
+      a.status === "withdrawn"
+  );
+
+  if (apps.length === 0) {
+    return (
+      <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg py-12 px-6 text-center">
+        <FileText className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+        <h3 className="text-base font-medium mb-1">No applications yet</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          Browse open positions and apply to start your internal mobility
+          journey.
+        </p>
+        <Button variant="outline" onClick={onBrowse}>
+          Browse roles
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <section>
+        <SectionHead title="In progress" sub="Your active loops" />
+        <AppList apps={active} empty="Nothing in flight." />
+      </section>
+      {closed.length > 0 && (
+        <section>
+          <SectionHead title="Closed" />
+          <AppList apps={closed} />
+        </section>
+      )}
+    </div>
+  );
+}
+
+function AppList({ apps, empty }: { apps: JobApplication[]; empty?: string }) {
+  if (apps.length === 0) {
+    return (
+      <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg py-8 px-6 text-center text-sm text-gray-500">
+        {empty || "No items."}
+      </div>
+    );
+  }
+  return (
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+      <div className="grid grid-cols-[1fr_120px_140px_40px] md:grid-cols-[1.5fr_1fr_120px_140px_40px] gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-500">
+        <div>Role</div>
+        <div className="hidden md:block">Cover note</div>
+        <div>Applied</div>
+        <div>Status</div>
+        <div />
+      </div>
+      {apps.map((a) => {
+        const style = applicationStatusStyle(a.status);
+        return (
+          <div
+            key={a.id}
+            className="grid grid-cols-[1fr_120px_140px_40px] md:grid-cols-[1.5fr_1fr_120px_140px_40px] gap-4 px-4 py-3 items-center border-b border-gray-200 dark:border-gray-700 last:border-b-0 text-sm hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-colors"
+          >
+            <div>
+              <div className="font-medium">{a.listingTitle}</div>
+              <div className="text-[11px] text-gray-500 mt-0.5">
+                App #{a.id}
+              </div>
+            </div>
+            <div className="hidden md:block text-xs text-gray-500 truncate">
+              {a.coverNote || "—"}
+            </div>
+            <div className="text-xs text-gray-500 tabular-nums">
+              {formatDate(a.appliedAt)}
+            </div>
+            <div>
+              <Pill label={a.statusDisplay} bg={style.bg} dot={style.dot} />
+            </div>
+            <div className="text-gray-400">
+              <ChevronRight className="w-4 h-4" />
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        );
+      })}
     </div>
+  );
+}
+
+/* ============ History Tab ============ */
+function HistoryTab({ apps }: { apps: JobApplication[] }) {
+  if (apps.length === 0) {
+    return (
+      <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg py-12 px-6 text-center">
+        <Award className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+        <h3 className="text-base font-medium mb-1">No history yet</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Closed and accepted applications will appear here.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <section>
+      <SectionHead
+        title="Application ledger"
+        sub="Closed loops, accepted offers, and withdrawals"
+      />
+      <div className="flex flex-col gap-2">
+        {apps.map((a) => {
+          const style = applicationStatusStyle(a.status);
+          return (
+            <div
+              key={a.id}
+              className="grid grid-cols-[1fr_auto] gap-3 items-start bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3"
+            >
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[13.5px] font-semibold">
+                    {a.listingTitle}
+                  </span>
+                  <Pill label={a.statusDisplay} bg={style.bg} dot={style.dot} />
+                </div>
+                <div className="text-[11.5px] text-gray-500 mt-1">
+                  Applied {formatDate(a.appliedAt)} · last updated{" "}
+                  {formatDate(a.updatedAt)}
+                </div>
+                {a.coverNote && (
+                  <p className="text-xs mt-1.5 text-gray-700 dark:text-gray-300 leading-relaxed">
+                    {a.coverNote}
+                  </p>
+                )}
+              </div>
+              <div className="text-[11px] text-gray-500 px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded font-mono">
+                #{a.id}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/* ============ Role Drawer ============ */
+function RoleDrawer({
+  listing,
+  isHRUser,
+  drawerTab,
+  setDrawerTab,
+  drawerApplications,
+  drawerAppsLoading,
+  coverNote,
+  setCoverNote,
+  submitting,
+  submitError,
+  onSubmit,
+  onClose,
+}: {
+  listing: JobListingDetail;
+  isHRUser: boolean;
+  drawerTab: "overview" | "process" | "applicants";
+  setDrawerTab: (k: "overview" | "process" | "applicants") => void;
+  drawerApplications: JobApplication[];
+  drawerAppsLoading: boolean;
+  coverNote: string;
+  setCoverNote: (v: string) => void;
+  submitting: boolean;
+  submitError: string | null;
+  onSubmit: () => void;
+  onClose: () => void;
+}) {
+  const tone = listingTone(listing);
+  const pill = listingStatusPill(tone);
+  const rawDescription = listing.description || "";
+  // Split on first blank line: summary block above, requirements list below.
+  const blankIdx = rawDescription.search(/\r?\n\s*\r?\n/);
+  const summaryText =
+    blankIdx >= 0
+      ? rawDescription.slice(0, blankIdx).trim()
+      : rawDescription.trim();
+  const requirements =
+    blankIdx >= 0
+      ? rawDescription
+          .slice(blankIdx)
+          .split(/\r?\n/)
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [];
+
+  return (
+    <div
+      onClick={onClose}
+      className="fixed inset-0 bg-slate-900/30 z-50 flex justify-end animate-in fade-in duration-150"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-[640px] bg-white dark:bg-gray-800 shadow-2xl flex flex-col animate-in slide-in-from-right duration-200"
+      >
+        {/* Head */}
+        <div className="p-5 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-2 mb-3">
+            <button
+              onClick={onClose}
+              className="w-7 h-7 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 grid place-items-center"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <Pill {...pill} />
+            <div className="flex-1" />
+            <button className="w-7 h-7 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 grid place-items-center">
+              <Bookmark className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <h2 className="text-[19px] font-semibold tracking-tight mb-2">
+            {listing.title}
+          </h2>
+          <div className="flex flex-wrap gap-3.5 text-xs text-gray-500 dark:text-gray-400">
+            <span className="inline-flex items-center gap-1.5">
+              <MapPin className="w-3 h-3" />{" "}
+              {listing.departmentName || "Unspecified"}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Clock className="w-3 h-3" /> Posted{" "}
+              {fmtPostedAgo(listing.openAt)} · closes{" "}
+              {formatDate(listing.closeAt)}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Users className="w-3 h-3" /> {listing.applicationCount}{" "}
+              applicants
+            </span>
+          </div>
+          {listing.createdByName && (
+            <div className="mt-3.5 pt-3.5 border-t border-gray-200 dark:border-gray-700 grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-[10.5px] uppercase tracking-[0.06em] font-medium text-gray-500 mb-1.5">
+                  Posted by
+                </div>
+                <div className="text-[12.5px] font-medium">
+                  {listing.createdByName}
+                </div>
+              </div>
+              <div>
+                <div className="text-[10.5px] uppercase tracking-[0.06em] font-medium text-gray-500 mb-1.5">
+                  Status
+                </div>
+                <div className="text-[12.5px] font-medium">
+                  {listing.statusDisplay}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Tabs */}
+        <div className="flex px-3.5 border-b border-gray-200 dark:border-gray-700">
+          {(
+            [
+              ["overview", "Overview"],
+              ["process", "Process"],
+              isHRUser
+                ? ["applicants", `Applicants · ${listing.applicationCount}`]
+                : null,
+            ].filter(Boolean) as Array<
+              ["overview" | "process" | "applicants", string]
+            >
+          ).map(([k, l]) => (
+            <button
+              key={k}
+              onClick={() => setDrawerTab(k)}
+              className={`h-9 px-3 text-[12.5px] font-medium -mb-px border-b-2 ${
+                drawerTab === k
+                  ? "text-gray-900 dark:text-gray-100 border-gray-900 dark:border-gray-100"
+                  : "text-gray-500 border-transparent hover:text-gray-900"
+              }`}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto px-5 py-5">
+          {drawerTab === "overview" && (
+            <>
+              <section className="mb-6">
+                <h4 className="text-[11.5px] uppercase tracking-[0.06em] font-semibold text-gray-500 mb-2.5">
+                  About the role
+                </h4>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                  {summaryText || "No description provided."}
+                </p>
+              </section>
+              {requirements.length > 0 && (
+                <section className="mb-6">
+                  <h4 className="text-[11.5px] uppercase tracking-[0.06em] font-semibold text-gray-500 mb-2.5">
+                    What we&apos;re looking for
+                  </h4>
+                  <ul className="flex flex-col gap-2">
+                    {requirements.slice(0, 12).map((r, i) => (
+                      <li
+                        key={i}
+                        className="flex gap-2 text-sm leading-relaxed"
+                      >
+                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-1" />
+                        <span>{r}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </>
+          )}
+          {drawerTab === "process" && (
+            <section>
+              <h4 className="text-[11.5px] uppercase tracking-[0.06em] font-semibold text-gray-500 mb-2.5">
+                Hiring loop
+              </h4>
+              <ol className="flex flex-col gap-2">
+                {[
+                  "Manager screen (30m)",
+                  "Cross-functional interview (45m)",
+                  "Final loop",
+                  "Offer & close",
+                ].map((step, i) => (
+                  <li
+                    key={i}
+                    className="flex items-center gap-3 px-3.5 py-2.5 bg-gray-50 dark:bg-gray-900/40 rounded-md text-sm"
+                  >
+                    <span className="w-5 h-5 grid place-items-center rounded-full bg-gray-900 text-white text-[11px] font-semibold dark:bg-gray-100 dark:text-gray-900">
+                      {i + 1}
+                    </span>
+                    {step}
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
+          {drawerTab === "applicants" && isHRUser && (
+            <section>
+              <h4 className="text-[11.5px] uppercase tracking-[0.06em] font-semibold text-gray-500 mb-2.5">
+                Internal applicants
+              </h4>
+              {drawerAppsLoading ? (
+                <div className="text-sm text-gray-500 py-6 text-center">
+                  Loading applicants…
+                </div>
+              ) : drawerApplications.length === 0 ? (
+                <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-md py-8 text-center text-sm text-gray-500">
+                  No one has applied yet.
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {drawerApplications.map((a) => {
+                    const style = applicationStatusStyle(a.status);
+                    return (
+                      <div
+                        key={a.id}
+                        className="grid grid-cols-[1fr_auto] gap-3 items-start p-3 border border-gray-200 dark:border-gray-700 rounded-md"
+                      >
+                        <div>
+                          <div className="text-[13px] font-medium">
+                            {a.applicantName || `Applicant #${a.applicantId}`}
+                          </div>
+                          <div className="text-[11.5px] text-gray-500 mt-0.5">
+                            Applied {fmtPostedAgo(a.appliedAt)}
+                          </div>
+                          {a.coverNote && (
+                            <p className="text-xs mt-1.5 leading-relaxed">
+                              {a.coverNote}
+                            </p>
+                          )}
+                        </div>
+                        <Pill
+                          label={a.statusDisplay}
+                          bg={style.bg}
+                          dot={style.dot}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+          )}
+        </div>
+
+        {/* Foot */}
+        <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex items-center gap-2">
+          <Button variant="ghost" onClick={onClose}>
+            Close
+          </Button>
+          <div className="flex-1" />
+          {!isHRUser &&
+            (listing.hasApplied ? (
+              <Button variant="outline" disabled>
+                <Check className="w-3.5 h-3.5" /> Applied
+              </Button>
+            ) : (
+              <>
+                <div className="flex-1 max-w-[280px]">
+                  <Textarea
+                    value={coverNote}
+                    onChange={(e) => setCoverNote(e.target.value)}
+                    placeholder="Optional cover note…"
+                    rows={2}
+                    className="text-xs"
+                  />
+                </div>
+                <Button
+                  variant="primary"
+                  onClick={onSubmit}
+                  disabled={submitting}
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  {submitting ? "Submitting…" : "Apply"}
+                </Button>
+              </>
+            ))}
+          {isHRUser && (
+            <Button variant="primary">
+              <Send className="w-3.5 h-3.5" /> Notify shortlist
+            </Button>
+          )}
+        </div>
+        {submitError && (
+          <div className="px-5 py-2 text-xs text-red-700 bg-red-50 border-t border-red-200">
+            <AlertCircle className="w-3.5 h-3.5 inline mr-1.5" />
+            {submitError}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ============ Post Role Dialog ============ */
+function PostRoleDialog({
+  open,
+  onOpenChange,
+  departments,
+  onCreated,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  departments: Department[];
+  onCreated: () => void | Promise<void>;
+}) {
+  const [title, setTitle] = useState("");
+  const [departmentId, setDepartmentId] = useState<string>("__none");
+  const [openAt, setOpenAt] = useState<string>(
+    new Date().toISOString().slice(0, 10)
+  );
+  const [closeAt, setCloseAt] = useState<string>(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 21);
+    return d.toISOString().slice(0, 10);
+  });
+  const [summary, setSummary] = useState("");
+  const [requirements, setRequirements] = useState("");
+  const [posting, setPosting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const reset = () => {
+    setTitle("");
+    setDepartmentId("__none");
+    setSummary("");
+    setRequirements("");
+    setError(null);
+  };
+
+  const submit = async (asDraft: boolean) => {
+    if (!title.trim()) {
+      setError("Title is required.");
+      return;
+    }
+    const description = [summary.trim(), requirements.trim()]
+      .filter(Boolean)
+      .join("\n\n");
+    const payload: CreateListingPayload = {
+      title: title.trim(),
+      description,
+      departmentId:
+        departmentId && departmentId !== "__none" ? Number(departmentId) : null,
+      openAt,
+      closeAt,
+      status: asDraft ? "draft" : "open",
+    };
+    setPosting(true);
+    setError(null);
+    try {
+      await jobListingsApi.createListing(payload);
+      reset();
+      await onCreated();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to post role.");
+    } finally {
+      setPosting(false);
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) reset();
+        onOpenChange(v);
+      }}
+    >
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Post a new role</DialogTitle>
+          <DialogDescription>
+            Internal listings are visible to all employees and notify matched
+            subscribers.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="post-title">Title</Label>
+            <Input
+              id="post-title"
+              placeholder="e.g. Senior Product Designer · Growth"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label>Department</Label>
+              <Select
+                value={departmentId}
+                onValueChange={(v) => setDepartmentId(v)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select department" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none">Unspecified</SelectItem>
+                  {departments.map((d) => (
+                    <SelectItem key={d.id} value={String(d.id)}>
+                      {d.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="post-open">Opens</Label>
+              <Input
+                id="post-open"
+                type="date"
+                value={openAt}
+                onChange={(e) => setOpenAt(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="post-close">Closes</Label>
+              <Input
+                id="post-close"
+                type="date"
+                value={closeAt}
+                onChange={(e) => setCloseAt(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="post-summary">One-paragraph summary</Label>
+            <Textarea
+              id="post-summary"
+              rows={3}
+              placeholder="What's the scope of the role? What kind of person is going to thrive here?"
+              value={summary}
+              onChange={(e) => setSummary(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="post-req">Requirements (one per line)</Label>
+            <Textarea
+              id="post-req"
+              rows={4}
+              placeholder={
+                "3+ years of …\nTrack record on …\nOperating at P3 today or …"
+              }
+              value={requirements}
+              onChange={(e) => setRequirements(e.target.value)}
+            />
+          </div>
+
+          {error && (
+            <div className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+              <AlertCircle className="w-3.5 h-3.5 inline mr-1.5" />
+              {error}
+            </div>
+          )}
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+            <Button
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+              disabled={posting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => submit(true)}
+              disabled={posting}
+            >
+              Save as draft
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => submit(false)}
+              disabled={posting}
+            >
+              <Send className="w-3.5 h-3.5" />
+              {posting ? "Posting…" : "Post role"}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ============ Promotions Tab ============ */
+function PromotionsTab({
+  promotions,
+  loading,
+  error,
+  isHRUser,
+  onAdd,
+  onEdit,
+  onDelete,
+}: {
+  promotions: PromotionRecord[];
+  loading: boolean;
+  error: string | null;
+  isHRUser: boolean;
+  onAdd: () => void;
+  onEdit: (p: PromotionRecord) => void;
+  onDelete: (p: PromotionRecord) => void;
+}) {
+  if (loading) {
+    return (
+      <div className="text-center py-8 text-sm text-gray-500 dark:text-gray-400">
+        Loading promotion history…
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-4">
+        <SectionHead
+          icon={<TrendingUp className="w-3 h-3" />}
+          title={isHRUser ? "Promotion records" : "Your promotion history"}
+          sub={
+            isHRUser
+              ? "Every recorded promotion across the organisation."
+              : "Milestones in your career advancement."
+          }
+        />
+        {isHRUser && (
+          <Button variant="primary" onClick={onAdd}>
+            <Plus className="w-3.5 h-3.5" />
+            Add promotion
+          </Button>
+        )}
+      </div>
+
+      {error && (
+        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          {error}
+        </div>
+      )}
+
+      {promotions.length === 0 ? (
+        <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg py-12 px-6 text-center">
+          <TrendingUp className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+          <h3 className="text-base font-medium mb-1">No promotions recorded</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            {isHRUser
+              ? "Record a promotion to start building employee career histories."
+              : "Your promotion history will appear here once HR records one."}
+          </p>
+          {isHRUser && (
+            <Button variant="outline" onClick={onAdd}>
+              <Plus className="w-3.5 h-3.5" />
+              Add promotion
+            </Button>
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {promotions.map((p) => (
+            <PromotionCard
+              key={p.id}
+              promotion={p}
+              isHRUser={isHRUser}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PromotionCard({
+  promotion,
+  isHRUser,
+  onEdit,
+  onDelete,
+}: {
+  promotion: PromotionRecord;
+  isHRUser: boolean;
+  onEdit: (p: PromotionRecord) => void;
+  onDelete: (p: PromotionRecord) => void;
+}) {
+  return (
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3.5">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            {isHRUser && (
+              <span className="text-[13.5px] font-semibold">
+                {promotion.employeeName || `Employee #${promotion.employeeId}`}
+              </span>
+            )}
+            <Pill
+              label={formatDate(promotion.date)}
+              bg="bg-emerald-50 text-emerald-700"
+              dot="bg-emerald-600"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-2 mt-2 text-sm">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[12px] text-gray-700 dark:text-gray-200">
+              {promotion.previousRoleName || "—"}
+            </span>
+            <ArrowRight className="w-3.5 h-3.5 text-gray-400" />
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 rounded text-[12px] font-medium">
+              {promotion.newRoleName || "—"}
+            </span>
+          </div>
+          {(promotion.previousCpfLevel || promotion.newCpfLevel) && (
+            <div className="text-[11.5px] text-gray-500 mt-1.5">
+              CPF: {promotion.previousCpfLevel || "—"} →{" "}
+              {promotion.newCpfLevel || "—"}
+            </div>
+          )}
+          {promotion.notes && (
+            <p className="text-xs mt-1.5 text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+              {promotion.notes}
+            </p>
+          )}
+        </div>
+        {isHRUser && (
+          <div className="flex shrink-0 gap-1">
+            <button
+              onClick={() => onEdit(promotion)}
+              className="w-7 h-7 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 grid place-items-center"
+              aria-label="Edit promotion"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => onDelete(promotion)}
+              className="w-7 h-7 rounded-md text-gray-500 hover:bg-red-50 hover:text-red-600 grid place-items-center"
+              aria-label="Delete promotion"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ============ Promotion Dialog ============ */
+const ROLE_NONE = "__none";
+
+function PromotionDialog({
+  open,
+  onOpenChange,
+  editing,
+  onSaved,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  editing: PromotionRecord | null;
+  onSaved: () => void | Promise<void>;
+}) {
+  const [employees, setEmployees] = useState<{ id: number; name: string }[]>(
+    []
+  );
+  const [roles, setRoles] = useState<{ id: number; name: string }[]>([]);
+  const [refsLoading, setRefsLoading] = useState(false);
+
+  const [employeeId, setEmployeeId] = useState<string>("");
+  const [previousRoleId, setPreviousRoleId] = useState<string>(ROLE_NONE);
+  const [newRoleId, setNewRoleId] = useState<string>(ROLE_NONE);
+  const [date, setDate] = useState<string>(
+    new Date().toISOString().slice(0, 10)
+  );
+  const [notes, setNotes] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    setRefsLoading(true);
+    Promise.all([
+      employeeApi
+        .listEmployees({ page_size: 200 })
+        .then((res) =>
+          res.results.map((e) => ({
+            id: e.id,
+            name: `${e.first_name} ${e.last_name}`.trim() || `#${e.id}`,
+          }))
+        )
+        .catch(() => [] as { id: number; name: string }[]),
+      employeeApi.getRoles().catch(() => [] as { id: number; name: string }[]),
+    ])
+      .then(([emps, rls]) => {
+        if (cancelled) return;
+        setEmployees(emps);
+        setRoles(rls);
+      })
+      .finally(() => {
+        if (!cancelled) setRefsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    if (editing) {
+      setEmployeeId(String(editing.employeeId));
+      setPreviousRoleId(
+        editing.previousRoleId != null
+          ? String(editing.previousRoleId)
+          : ROLE_NONE
+      );
+      setNewRoleId(
+        editing.newRoleId != null ? String(editing.newRoleId) : ROLE_NONE
+      );
+      setDate(editing.date);
+      setNotes(editing.notes);
+    } else {
+      setEmployeeId("");
+      setPreviousRoleId(ROLE_NONE);
+      setNewRoleId(ROLE_NONE);
+      setDate(new Date().toISOString().slice(0, 10));
+      setNotes("");
+    }
+    setError(null);
+  }, [open, editing]);
+
+  const submit = async () => {
+    if (!employeeId) {
+      setError("Select an employee.");
+      return;
+    }
+    if (!date) {
+      setError("Promotion date is required.");
+      return;
+    }
+    const payload: CreatePromotionPayload = {
+      employeeId: Number(employeeId),
+      previousRoleId:
+        previousRoleId === ROLE_NONE ? null : Number(previousRoleId),
+      newRoleId: newRoleId === ROLE_NONE ? null : Number(newRoleId),
+      date,
+      notes: notes.trim(),
+    };
+    setSaving(true);
+    setError(null);
+    try {
+      if (editing) {
+        await promotionsApi.updatePromotion(editing.id, payload);
+      } else {
+        await promotionsApi.createPromotion(payload);
+      }
+      await onSaved();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to save promotion."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle>
+            {editing ? "Edit promotion record" : "Record a promotion"}
+          </DialogTitle>
+          <DialogDescription>
+            Capture the role change, effective date, and any context worth
+            keeping in the employee&apos;s career history.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label>Employee</Label>
+            <Select value={employeeId} onValueChange={setEmployeeId}>
+              <SelectTrigger>
+                <SelectValue
+                  placeholder={
+                    refsLoading ? "Loading employees…" : "Select employee"
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {employees.map((e) => (
+                  <SelectItem key={e.id} value={String(e.id)}>
+                    {e.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Previous role</Label>
+              <Select value={previousRoleId} onValueChange={setPreviousRoleId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ROLE_NONE}>Unspecified</SelectItem>
+                  {roles.map((r) => (
+                    <SelectItem key={r.id} value={String(r.id)}>
+                      {r.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>New role</Label>
+              <Select value={newRoleId} onValueChange={setNewRoleId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ROLE_NONE}>Unspecified</SelectItem>
+                  {roles.map((r) => (
+                    <SelectItem key={r.id} value={String(r.id)}>
+                      {r.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="promo-date">Effective date</Label>
+            <Input
+              id="promo-date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="promo-notes">Notes</Label>
+            <Textarea
+              id="promo-notes"
+              rows={4}
+              placeholder="Context about the promotion — scope change, performance, sponsor…"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+          </div>
+
+          {error && (
+            <div className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+              <AlertCircle className="w-3.5 h-3.5 inline mr-1.5" />
+              {error}
+            </div>
+          )}
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+            <Button
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+              disabled={saving}
+            >
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={submit} disabled={saving}>
+              <Check className="w-3.5 h-3.5" />
+              {saving
+                ? "Saving…"
+                : editing
+                  ? "Save changes"
+                  : "Record promotion"}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ============ Career Progression (CPF) Tab ============ */
+interface CPFEmployeeOption {
+  id: number;
+  name: string;
+  cpfLevel: string;
+  roleName: string;
+}
+
+function CPFProgressionTab({ isHRUser }: { isHRUser: boolean }) {
+  const [employees, setEmployees] = useState<CPFEmployeeOption[]>([]);
+  const [selectedEmployee, setSelectedEmployee] = useState<string>("");
+  const [progression, setProgression] = useState<CPFProgression | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isRecordDialogOpen, setIsRecordDialogOpen] = useState(false);
+
+  // HR picks whose timeline to view. The roster carries each employee's
+  // current CPF level, so it is refreshed after every recorded change.
+  const loadEmployees = useCallback(async () => {
+    if (!isHRUser) return;
+    try {
+      const res = await employeeApi.listEmployees({ page_size: 200 });
+      setEmployees(
+        res.results.map((e) => ({
+          id: e.id,
+          name: `${e.first_name} ${e.last_name}`.trim() || `#${e.id}`,
+          cpfLevel: e.cpf_level ?? "",
+          roleName: e.role?.name ?? "",
+        }))
+      );
+    } catch {
+      setEmployees([]);
+    }
+  }, [isHRUser]);
+
+  useEffect(() => {
+    void loadEmployees();
+  }, [loadEmployees]);
+
+  const load = useCallback(async () => {
+    // HR must select an employee; everyone else gets their own timeline.
+    if (isHRUser && !selectedEmployee) {
+      setProgression(null);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await cpfLevelChangesApi.getProgression(
+        isHRUser ? Number(selectedEmployee) : undefined
+      );
+      setProgression(data);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to load CPF progression."
+      );
+      setProgression(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [isHRUser, selectedEmployee]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const handleRecorded = async () => {
+    setIsRecordDialogOpen(false);
+    await Promise.all([load(), loadEmployees()]);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <SectionHead
+          icon={<TrendingUp className="w-3 h-3" />}
+          title={isHRUser ? "Career progression" : "Your career progression"}
+          sub="CPF level advancement over time — recorded changes and review outcomes."
+        />
+        <div className="flex items-center gap-2">
+          {isHRUser && (
+            <Select
+              value={selectedEmployee}
+              onValueChange={setSelectedEmployee}
+            >
+              <SelectTrigger className="w-56 h-9">
+                <SelectValue placeholder="Select employee" />
+              </SelectTrigger>
+              <SelectContent>
+                {employees.map((e) => (
+                  <SelectItem key={e.id} value={String(e.id)}>
+                    {e.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          {isHRUser && (
+            <Button
+              variant="primary"
+              onClick={() => setIsRecordDialogOpen(true)}
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Record CPF change
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {error && (
+        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          {error}
+        </div>
+      )}
+
+      {isHRUser && !selectedEmployee ? (
+        <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg py-12 px-6 text-center">
+          <Layers className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+          <h3 className="text-base font-medium mb-1">Pick an employee</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Select an employee above to view their CPF career progression
+            timeline.
+          </p>
+        </div>
+      ) : loading ? (
+        <div className="text-center py-8 text-sm text-gray-500 dark:text-gray-400">
+          Loading career progression…
+        </div>
+      ) : progression ? (
+        <CPFProgressionView progression={progression} />
+      ) : null}
+
+      {isHRUser && (
+        <CPFChangeDialog
+          open={isRecordDialogOpen}
+          onOpenChange={setIsRecordDialogOpen}
+          employees={employees}
+          defaultEmployeeId={selectedEmployee}
+          onSaved={handleRecorded}
+        />
+      )}
+    </div>
+  );
+}
+
+function CPFProgressionView({ progression }: { progression: CPFProgression }) {
+  const { timeline } = progression;
+  return (
+    <div className="space-y-4">
+      {/* Current level summary */}
+      <div className="flex items-center gap-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3.5">
+        <div className="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 grid place-items-center shrink-0">
+          <Award className="w-5 h-5 text-indigo-600 dark:text-indigo-300" />
+        </div>
+        <div className="min-w-0">
+          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500">
+            Current CPF level
+          </div>
+          <div className="text-lg font-semibold tracking-tight">
+            {progression.currentLevel || "Not set"}
+          </div>
+        </div>
+        <div className="ml-auto text-right">
+          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500">
+            Timeline events
+          </div>
+          <div className="text-lg font-semibold tabular-nums">
+            {timeline.length}
+          </div>
+        </div>
+      </div>
+
+      {timeline.length === 0 ? (
+        <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg py-12 px-6 text-center">
+          <TrendingUp className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+          <h3 className="text-base font-medium mb-1">No progression yet</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            CPF level changes and review outcomes will appear here as a
+            timeline.
+          </p>
+        </div>
+      ) : (
+        <ol className="relative pl-6">
+          {/* connecting line */}
+          <span className="absolute left-[9px] top-1.5 bottom-1.5 w-px bg-gray-200 dark:bg-gray-700" />
+          {timeline.map((event, i) => (
+            <CPFTimelineNode
+              key={`${event.eventType}-${event.referenceId ?? "x"}-${i}`}
+              event={event}
+            />
+          ))}
+        </ol>
+      )}
+    </div>
+  );
+}
+
+function CPFTimelineNode({ event }: { event: CPFProgressionEvent }) {
+  return (
+    <li className="relative pb-4 last:pb-0">
+      {/* node dot */}
+      <span className="absolute -left-[15px] top-2 w-2.5 h-2.5 rounded-full bg-white dark:bg-gray-800 border-2 border-indigo-500" />
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${
+              CPF_PROGRESSION_EVENT_TYPE_BADGE_COLORS[event.eventType]
+            }`}
+          >
+            {CPF_PROGRESSION_EVENT_TYPE_LABELS[event.eventType]}
+          </span>
+          <span className="text-[11.5px] text-gray-500 tabular-nums">
+            {formatDate(event.date)}
+          </span>
+          {event.cpfScore !== null && (
+            <span className="ml-auto text-[11px] text-gray-500">
+              CPF score{" "}
+              <span className="font-semibold text-gray-900 dark:text-gray-100">
+                {event.cpfScore}
+              </span>
+            </span>
+          )}
+        </div>
+        <div className="flex flex-wrap items-center gap-2 mt-2 text-sm">
+          <span className="inline-flex items-center px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[12px] text-gray-700 dark:text-gray-200">
+            {event.previousLevel || "—"}
+          </span>
+          <ArrowRight className="w-3.5 h-3.5 text-gray-400" />
+          <span className="inline-flex items-center px-2 py-0.5 bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 rounded text-[12px] font-medium">
+            {event.newLevel || "—"}
+          </span>
+        </div>
+        {event.referenceLabel && (
+          <div className="text-[11.5px] text-gray-500 mt-1.5">
+            {event.referenceLabel}
+          </div>
+        )}
+        {event.notes && (
+          <p className="text-xs mt-1.5 text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+            {event.notes}
+          </p>
+        )}
+      </div>
+    </li>
+  );
+}
+
+function CPFChangeDialog({
+  open,
+  onOpenChange,
+  employees,
+  defaultEmployeeId,
+  onSaved,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  employees: CPFEmployeeOption[];
+  defaultEmployeeId: string;
+  onSaved: () => void | Promise<void>;
+}) {
+  const [employeeId, setEmployeeId] = useState<string>("");
+  const [newLevel, setNewLevel] = useState("");
+  const [effectiveDate, setEffectiveDate] = useState<string>(
+    new Date().toISOString().slice(0, 10)
+  );
+  const [source, setSource] = useState<CPFChangeSource>("manual");
+  const [cpfScore, setCpfScore] = useState<string>("");
+  const [notes, setNotes] = useState("");
+  const [roleLevels, setRoleLevels] = useState<string[]>([]);
+  const [levelsLoading, setLevelsLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const selectedEmp =
+    employees.find((e) => String(e.id) === employeeId) ?? null;
+  // Previous level is the employee's actual current CPF level — never typed.
+  const previousLevel = selectedEmp?.cpfLevel ?? "";
+  // The ladder is ordered; offer only levels above the current one.
+  const currentIdx = roleLevels.indexOf(previousLevel);
+  const nextLevels =
+    currentIdx >= 0 ? roleLevels.slice(currentIdx + 1) : roleLevels;
+
+  useEffect(() => {
+    if (!open) return;
+    setEmployeeId(defaultEmployeeId || "");
+    setNewLevel("");
+    setEffectiveDate(new Date().toISOString().slice(0, 10));
+    setSource("manual");
+    setCpfScore("");
+    setNotes("");
+    setRoleLevels([]);
+    setError(null);
+  }, [open, defaultEmployeeId]);
+
+  // Load the selected employee's role-specific CPF ladder.
+  useEffect(() => {
+    const emp = employees.find((e) => String(e.id) === employeeId);
+    if (!open || !emp || !emp.roleName) {
+      setRoleLevels([]);
+      return;
+    }
+    let cancelled = false;
+    setLevelsLoading(true);
+    setNewLevel("");
+    cpfLevelsApi
+      .getCPFLevelsByRole(emp.roleName)
+      .then((levels) => {
+        if (!cancelled) setRoleLevels(levels);
+      })
+      .catch(() => {
+        if (!cancelled) setRoleLevels([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLevelsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, employeeId, employees]);
+
+  const submit = async () => {
+    if (!employeeId) {
+      setError("Select an employee.");
+      return;
+    }
+    if (!newLevel) {
+      setError("Select a new CPF level.");
+      return;
+    }
+    if (!effectiveDate) {
+      setError("Effective date is required.");
+      return;
+    }
+    const score = cpfScore.trim() === "" ? null : Number(cpfScore);
+    if (score !== null && (Number.isNaN(score) || score < 0 || score > 100)) {
+      setError("CPF score must be a number between 0 and 100.");
+      return;
+    }
+    const payload: CreateCPFLevelChangePayload = {
+      employeeId: Number(employeeId),
+      previousLevel,
+      newLevel,
+      effectiveDate,
+      source,
+      cpfScore: score,
+      notes: notes.trim(),
+    };
+    setSaving(true);
+    setError(null);
+    try {
+      await cpfLevelChangesApi.createChange(payload);
+      await onSaved();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to record CPF change."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle>Record a CPF level change</DialogTitle>
+          <DialogDescription>
+            Capture a Career Progression Framework level change for an
+            employee&apos;s longitudinal history.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label>Employee</Label>
+            <Select value={employeeId} onValueChange={setEmployeeId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select employee" />
+              </SelectTrigger>
+              <SelectContent>
+                {employees.map((e) => (
+                  <SelectItem key={e.id} value={String(e.id)}>
+                    {e.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Previous level</Label>
+              <div className="h-9 px-3 flex items-center rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 text-sm text-gray-700 dark:text-gray-200">
+                {employeeId ? previousLevel || "Not set" : "—"}
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label>New level</Label>
+              <Select
+                value={newLevel}
+                onValueChange={setNewLevel}
+                disabled={
+                  !employeeId || levelsLoading || nextLevels.length === 0
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue
+                    placeholder={
+                      !employeeId
+                        ? "Select an employee first"
+                        : levelsLoading
+                          ? "Loading levels…"
+                          : nextLevels.length === 0
+                            ? "No higher level available"
+                            : "Select new level"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {nextLevels.map((lvl) => (
+                    <SelectItem key={lvl} value={lvl}>
+                      {lvl}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="cpf-date">Effective date</Label>
+              <Input
+                id="cpf-date"
+                type="date"
+                value={effectiveDate}
+                onChange={(e) => setEffectiveDate(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Source</Label>
+              <Select
+                value={source}
+                onValueChange={(v) => setSource(v as CPFChangeSource)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ALL_CPF_CHANGE_SOURCES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {CPF_CHANGE_SOURCE_LABELS[s]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="cpf-score">CPF score (0–100)</Label>
+              <Input
+                id="cpf-score"
+                type="number"
+                min={0}
+                max={100}
+                placeholder="Optional"
+                value={cpfScore}
+                onChange={(e) => setCpfScore(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="cpf-notes">Notes</Label>
+            <Textarea
+              id="cpf-notes"
+              rows={3}
+              placeholder="Context — review outcome, sponsor, rationale…"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+          </div>
+
+          {error && (
+            <div className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+              <AlertCircle className="w-3.5 h-3.5 inline mr-1.5" />
+              {error}
+            </div>
+          )}
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+            <Button
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+              disabled={saving}
+            >
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={submit} disabled={saving}>
+              <Check className="w-3.5 h-3.5" />
+              {saving ? "Saving…" : "Record change"}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

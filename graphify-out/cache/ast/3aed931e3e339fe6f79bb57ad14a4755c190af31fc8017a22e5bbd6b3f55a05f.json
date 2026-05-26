@@ -1,0 +1,198 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_crossmodulenav_ts",
+      "label": "crossModuleNav.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "orgchart_crossmodulenav_safestorage",
+      "label": "safeStorage()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L14"
+    },
+    {
+      "id": "orgchart_crossmodulenav_requestopenemployee",
+      "label": "requestOpenEmployee()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L23"
+    },
+    {
+      "id": "orgchart_crossmodulenav_consumeopenemployeerequest",
+      "label": "consumeOpenEmployeeRequest()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L27"
+    },
+    {
+      "id": "orgchart_crossmodulenav_requestprojectssearch",
+      "label": "requestProjectsSearch()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L37"
+    },
+    {
+      "id": "orgchart_crossmodulenav_consumeprojectssearchrequest",
+      "label": "consumeProjectsSearchRequest()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L41"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_crossmodulenav_ts",
+      "target": "orgchart_crossmodulenav_safestorage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_crossmodulenav_ts",
+      "target": "orgchart_crossmodulenav_requestopenemployee",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_crossmodulenav_ts",
+      "target": "orgchart_crossmodulenav_consumeopenemployeerequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_crossmodulenav_ts",
+      "target": "orgchart_crossmodulenav_requestprojectssearch",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_orgchart_crossmodulenav_ts",
+      "target": "orgchart_crossmodulenav_consumeprojectssearchrequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "orgchart_crossmodulenav_requestopenemployee",
+      "target": "orgchart_crossmodulenav_safestorage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "orgchart_crossmodulenav_consumeopenemployeerequest",
+      "target": "orgchart_crossmodulenav_safestorage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "orgchart_crossmodulenav_requestprojectssearch",
+      "target": "orgchart_crossmodulenav_safestorage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "orgchart_crossmodulenav_consumeprojectssearchrequest",
+      "target": "orgchart_crossmodulenav_safestorage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L42",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "orgchart_crossmodulenav_requestopenemployee",
+      "callee": "setItem",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "orgchart_crossmodulenav_requestopenemployee",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "orgchart_crossmodulenav_consumeopenemployeerequest",
+      "callee": "getItem",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "orgchart_crossmodulenav_consumeopenemployeerequest",
+      "callee": "removeItem",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "orgchart_crossmodulenav_consumeopenemployeerequest",
+      "callee": "Number",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "orgchart_crossmodulenav_consumeopenemployeerequest",
+      "callee": "isFinite",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "orgchart_crossmodulenav_requestprojectssearch",
+      "callee": "setItem",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "orgchart_crossmodulenav_consumeprojectssearchrequest",
+      "callee": "getItem",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "orgchart_crossmodulenav_consumeprojectssearchrequest",
+      "callee": "removeItem",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/orgchart/crossModuleNav.ts",
+      "source_location": "L46"
+    }
+  ]
+}

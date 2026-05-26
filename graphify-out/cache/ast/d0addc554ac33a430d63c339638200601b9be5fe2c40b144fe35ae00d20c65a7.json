@@ -1,0 +1,278 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "label": "EndAssignmentDialog.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "dialogs_endassignmentdialog_endassignmentdialogprops",
+      "label": "EndAssignmentDialogProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L18"
+    },
+    {
+      "id": "dialogs_endassignmentdialog_todayiso",
+      "label": "todayIso()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L25"
+    },
+    {
+      "id": "dialogs_endassignmentdialog_endassignmentdialog",
+      "label": "EndAssignmentDialog()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L29"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_button_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "ui_button_button",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_dialog_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "ui_dialog_dialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "ui_dialog_dialogcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "ui_dialog_dialogdescription",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "ui_dialog_dialogfooter",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "ui_dialog_dialogheader",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "ui_dialog_dialogtitle",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_label_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "ui_label_label",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_datepicker_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "hr_dashboard_datepicker_datepicker",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_types_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "projects_types_projectmember",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "dialogs_endassignmentdialog_endassignmentdialogprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "dialogs_endassignmentdialog_todayiso",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_endassignmentdialog_tsx",
+      "target": "dialogs_endassignmentdialog_endassignmentdialog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "dialogs_endassignmentdialog_endassignmentdialog",
+      "target": "dialogs_endassignmentdialog_todayiso",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L35",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "dialogs_endassignmentdialog_todayiso",
+      "callee": "slice",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "dialogs_endassignmentdialog_todayiso",
+      "callee": "toISOString",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "dialogs_endassignmentdialog_endassignmentdialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "dialogs_endassignmentdialog_endassignmentdialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L36"
+    },
+    {
+      "caller_nid": "dialogs_endassignmentdialog_endassignmentdialog",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/dialogs/EndAssignmentDialog.tsx",
+      "source_location": "L38"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_useavatarsready_ts",
+      "label": "useAvatarsReady.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/useAvatarsReady.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "employee_profiles_useavatarsready_useavatarsready",
+      "label": "useAvatarsReady()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/useAvatarsReady.ts",
+      "source_location": "L12"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_useavatarsready_ts",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/useAvatarsReady.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_useavatarsready_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_employees_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/useAvatarsReady.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_useavatarsready_ts",
+      "target": "api_employees_employeeprofiledata",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/useAvatarsReady.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_useavatarsready_ts",
+      "target": "employee_profiles_useavatarsready_useavatarsready",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/useAvatarsReady.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "employee_profiles_useavatarsready_useavatarsready",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/useAvatarsReady.ts",
+      "source_location": "L13"
+    },
+    {
+      "caller_nid": "employee_profiles_useavatarsready_useavatarsready",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/useAvatarsReady.ts",
+      "source_location": "L15"
+    }
+  ]
+}

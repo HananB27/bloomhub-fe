@@ -1,0 +1,543 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "label": "ProjectsModule.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "projects_projectsmodule_projectsmoduleprops",
+      "label": "ProjectsModuleProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L34"
+    },
+    {
+      "id": "projects_projectsmodule_actiontarget",
+      "label": "ActionTarget",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L39"
+    },
+    {
+      "id": "projects_projectsmodule_loadstate",
+      "label": "LoadState",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L45"
+    },
+    {
+      "id": "projects_projectsmodule_projectsmodule",
+      "label": "ProjectsModule()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L47"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "sonner",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectdetailview_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "projects_projectdetailview_projectdetailview",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectslistpage_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "projects_projectslistpage_projectslistpage",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_dialogs_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "dialogs_index_addmemberdialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "dialogs_index_confirmactiondialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "dialogs_index_createprojectdrawer",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "dialogs_index_editassignmentdialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "dialogs_index_editprojectdialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "dialogs_index_endassignmentdialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "dialogs_index_exportprojectsdialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "dialogs_index_statuseditordialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "dialogs_index_createprojectformvalues",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "dialogs_index_exportprojectsvalues",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "dialogs_index_statuseditresult",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectshelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "projects_projectshelpers_apiprojecttoui",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "projects_projectshelpers_uitocreateprojectpayload",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "projects_projectshelpers_uistatustoapi",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_modules_projects_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "projects_index_projectapi",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_projects_adminsettings_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "projects_adminsettings_getprojectdefaults",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_types_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "projects_types_project",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "projects_types_projectactionkind",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "projects_types_projectmember",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "projects_types_projectstageid",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "projects_projectsmodule_projectsmoduleprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "projects_projectsmodule_actiontarget",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "projects_projectsmodule_loadstate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsmodule_tsx",
+      "target": "projects_projectsmodule_projectsmodule",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L47",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L56"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L64"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L133"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L149"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L159"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L324"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L352"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L375"
+    },
+    {
+      "caller_nid": "projects_projectsmodule_projectsmodule",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx",
+      "source_location": "L392"
+    }
+  ]
+}

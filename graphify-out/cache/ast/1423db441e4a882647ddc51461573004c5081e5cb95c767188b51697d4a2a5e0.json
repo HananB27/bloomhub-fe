@@ -1,0 +1,584 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "label": "TemplatesManagement.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "templates_templatesmanagement_skeletoncard",
+      "label": "SkeletonCard()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L49"
+    },
+    {
+      "id": "templates_templatesmanagement_previewmodal",
+      "label": "PreviewModal()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L68"
+    },
+    {
+      "id": "templates_templatesmanagement_actionmenu",
+      "label": "ActionMenu()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L121"
+    },
+    {
+      "id": "templates_templatesmanagement_templatecard",
+      "label": "TemplateCard()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L217"
+    },
+    {
+      "id": "templates_templatesmanagement_deleteconfirmdialog",
+      "label": "DeleteConfirmDialog()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L358"
+    },
+    {
+      "id": "templates_templatesmanagement_templatesmanagement",
+      "label": "TemplatesManagement()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L413"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_select_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "ui_select_select",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "ui_select_selectcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "ui_select_selectitem",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "ui_select_selecttrigger",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "ui_select_selectvalue",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_templates_templateshelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "templates_templateshelpers_templatecategory",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "templates_templateshelpers_templatestatus",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "templates_templateshelpers_templatevisibility",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "templates_templateshelpers_template_categories",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "templates_templateshelpers_documenttemplate",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "templates_templateshelpers_gettemplatecategorycolor",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "templates_templateshelpers_gettemplatecategorylabel",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_modules_templates_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "templates_index_templatesapi",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilityhelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "documents_documentvisibilityhelpers_documentvisibilitylabel",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "documents_documentvisibilityhelpers_isrestrictedvisibility",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_utils_notificationhelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "utils_notificationhelpers_notifysuccess",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "utils_notificationhelpers_notifyapierror",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "utils_notificationhelpers_withnotification",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_utils_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "utils_index_formatdate",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "templates_templatesmanagement_skeletoncard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "templates_templatesmanagement_previewmodal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L68",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "templates_templatesmanagement_actionmenu",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L121",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "templates_templatesmanagement_templatecard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L217",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "templates_templatesmanagement_deleteconfirmdialog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L358",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_templatesmanagement_tsx",
+      "target": "templates_templatesmanagement_templatesmanagement",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L413",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "templates_templatesmanagement_previewmodal",
+      "callee": "getTemplateCategoryColor",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_previewmodal",
+      "callee": "getTemplateCategoryLabel",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_actionmenu",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_actionmenu",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L137"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_actionmenu",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L139"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatecard",
+      "callee": "getTemplateCategoryColor",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L234"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatecard",
+      "callee": "getTemplateCategoryLabel",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatecard",
+      "callee": "isRestrictedVisibility",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L305"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatecard",
+      "callee": "isRestrictedVisibility",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L313"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatecard",
+      "callee": "documentVisibilityLabel",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L321"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatecard",
+      "callee": "creatorInitials",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L336"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatecard",
+      "callee": "formatDate",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L340"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatesmanagement",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L426"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatesmanagement",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L427"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatesmanagement",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L428"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatesmanagement",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L430"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatesmanagement",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L431"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatesmanagement",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L434"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatesmanagement",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L437"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatesmanagement",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L442"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatesmanagement",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L443"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatesmanagement",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L447"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatesmanagement",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L449"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatesmanagement",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L475"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatesmanagement",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L476"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatesmanagement",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L506"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatesmanagement",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L629"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatesmanagement",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L670"
+    },
+    {
+      "caller_nid": "templates_templatesmanagement_templatesmanagement",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/TemplatesManagement.tsx",
+      "source_location": "L724"
+    }
+  ]
+}

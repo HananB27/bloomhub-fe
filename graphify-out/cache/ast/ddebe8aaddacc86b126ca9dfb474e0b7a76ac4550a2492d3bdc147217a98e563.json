@@ -1,0 +1,267 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_lib_tech_techcatalog_ts",
+      "label": "techCatalog.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "tech_techcatalog_techbrand",
+      "label": "TechBrand",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L8"
+    },
+    {
+      "id": "tech_techcatalog_canonical",
+      "label": "CANONICAL",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L16"
+    },
+    {
+      "id": "tech_techcatalog_aliases",
+      "label": "ALIASES",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L304"
+    },
+    {
+      "id": "tech_techcatalog_by_key",
+      "label": "BY_KEY",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L365"
+    },
+    {
+      "id": "tech_techcatalog_gettechbrand",
+      "label": "getTechBrand()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L368"
+    },
+    {
+      "id": "tech_techcatalog_techlogourl",
+      "label": "techLogoUrl()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L377"
+    },
+    {
+      "id": "tech_techcatalog_hashhue",
+      "label": "hashHue()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L382"
+    },
+    {
+      "id": "tech_techcatalog_fallbacktechcolor",
+      "label": "fallbackTechColor()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L390"
+    },
+    {
+      "id": "tech_techcatalog_searchtech",
+      "label": "searchTech()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L407"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_tech_techcatalog_ts",
+      "target": "tech_techcatalog_techbrand",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_tech_techcatalog_ts",
+      "target": "tech_techcatalog_canonical",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_tech_techcatalog_ts",
+      "target": "tech_techcatalog_aliases",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L304",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_tech_techcatalog_ts",
+      "target": "tech_techcatalog_by_key",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L365",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_tech_techcatalog_ts",
+      "target": "tech_techcatalog_gettechbrand",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L368",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_tech_techcatalog_ts",
+      "target": "tech_techcatalog_techlogourl",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L377",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_tech_techcatalog_ts",
+      "target": "tech_techcatalog_hashhue",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L382",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_tech_techcatalog_ts",
+      "target": "tech_techcatalog_fallbacktechcolor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L390",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_tech_techcatalog_ts",
+      "target": "tech_techcatalog_searchtech",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L407",
+      "weight": 1.0
+    },
+    {
+      "source": "tech_techcatalog_fallbacktechcolor",
+      "target": "tech_techcatalog_hashhue",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L395",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "tech_techcatalog_gettechbrand",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L370"
+    },
+    {
+      "caller_nid": "tech_techcatalog_gettechbrand",
+      "callee": "toLowerCase",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L370"
+    },
+    {
+      "caller_nid": "tech_techcatalog_hashhue",
+      "callee": "charCodeAt",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L385"
+    },
+    {
+      "caller_nid": "tech_techcatalog_searchtech",
+      "callee": "toLowerCase",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L408"
+    },
+    {
+      "caller_nid": "tech_techcatalog_searchtech",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L408"
+    },
+    {
+      "caller_nid": "tech_techcatalog_searchtech",
+      "callee": "includes",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L413"
+    },
+    {
+      "caller_nid": "tech_techcatalog_searchtech",
+      "callee": "toLowerCase",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L413"
+    },
+    {
+      "caller_nid": "tech_techcatalog_searchtech",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L414"
+    },
+    {
+      "caller_nid": "tech_techcatalog_searchtech",
+      "callee": "add",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L415"
+    },
+    {
+      "caller_nid": "tech_techcatalog_searchtech",
+      "callee": "entries",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L419"
+    },
+    {
+      "caller_nid": "tech_techcatalog_searchtech",
+      "callee": "includes",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L421"
+    },
+    {
+      "caller_nid": "tech_techcatalog_searchtech",
+      "callee": "has",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L423"
+    },
+    {
+      "caller_nid": "tech_techcatalog_searchtech",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L424"
+    },
+    {
+      "caller_nid": "tech_techcatalog_searchtech",
+      "callee": "add",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/tech/techCatalog.ts",
+      "source_location": "L425"
+    }
+  ]
+}

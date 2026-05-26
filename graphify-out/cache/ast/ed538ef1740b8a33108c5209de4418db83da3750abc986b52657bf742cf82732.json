@@ -1,0 +1,217 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_lib_permissions_assets_permissions_ts",
+      "label": "assets-permissions.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "permissions_assets_permissions_assetrole",
+      "label": "AssetRole",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "permissions_assets_permissions_assetpermissionaction",
+      "label": "AssetPermissionAction",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L3"
+    },
+    {
+      "id": "permissions_assets_permissions_full_asset_permissions",
+      "label": "FULL_ASSET_PERMISSIONS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L21"
+    },
+    {
+      "id": "permissions_assets_permissions_role_permissions",
+      "label": "ROLE_PERMISSIONS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L38"
+    },
+    {
+      "id": "permissions_assets_permissions_tonormalizedrolevalue",
+      "label": "toNormalizedRoleValue()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L62"
+    },
+    {
+      "id": "permissions_assets_permissions_normalizeassetpermissionaction",
+      "label": "normalizeAssetPermissionAction()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L66"
+    },
+    {
+      "id": "permissions_assets_permissions_resolveassetrole",
+      "label": "resolveAssetRole()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L76"
+    },
+    {
+      "id": "permissions_assets_permissions_canassetaction",
+      "label": "canAssetAction()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L109"
+    },
+    {
+      "id": "permissions_assets_permissions_ishrlikerole",
+      "label": "isHrLikeRole()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L116"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_permissions_assets_permissions_ts",
+      "target": "permissions_assets_permissions_assetrole",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_permissions_assets_permissions_ts",
+      "target": "permissions_assets_permissions_assetpermissionaction",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_permissions_assets_permissions_ts",
+      "target": "permissions_assets_permissions_full_asset_permissions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_permissions_assets_permissions_ts",
+      "target": "permissions_assets_permissions_role_permissions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_permissions_assets_permissions_ts",
+      "target": "permissions_assets_permissions_tonormalizedrolevalue",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_permissions_assets_permissions_ts",
+      "target": "permissions_assets_permissions_normalizeassetpermissionaction",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_permissions_assets_permissions_ts",
+      "target": "permissions_assets_permissions_resolveassetrole",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_permissions_assets_permissions_ts",
+      "target": "permissions_assets_permissions_canassetaction",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L109",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_permissions_assets_permissions_ts",
+      "target": "permissions_assets_permissions_ishrlikerole",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L116",
+      "weight": 1.0
+    },
+    {
+      "source": "permissions_assets_permissions_resolveassetrole",
+      "target": "permissions_assets_permissions_tonormalizedrolevalue",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L81",
+      "weight": 1.0
+    },
+    {
+      "source": "permissions_assets_permissions_canassetaction",
+      "target": "permissions_assets_permissions_normalizeassetpermissionaction",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L113",
+      "weight": 1.0
+    },
+    {
+      "source": "permissions_assets_permissions_ishrlikerole",
+      "target": "permissions_assets_permissions_resolveassetrole",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L117",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "permissions_assets_permissions_tonormalizedrolevalue",
+      "callee": "replace",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "permissions_assets_permissions_tonormalizedrolevalue",
+      "callee": "toLowerCase",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "permissions_assets_permissions_tonormalizedrolevalue",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "permissions_assets_permissions_canassetaction",
+      "callee": "has",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/permissions/assets-permissions.ts",
+      "source_location": "L113"
+    }
+  ]
+}

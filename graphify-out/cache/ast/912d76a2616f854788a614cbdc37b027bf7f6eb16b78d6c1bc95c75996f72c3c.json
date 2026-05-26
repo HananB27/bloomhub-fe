@@ -1,0 +1,183 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_tech_techbadge_tsx",
+      "label": "TechBadge.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "tech_techbadge_techbadgeprops",
+      "label": "TechBadgeProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L12"
+    },
+    {
+      "id": "tech_techbadge_techbadge",
+      "label": "TechBadge()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L19"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_tech_techbadge_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_tech_techbadge_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_tech_techbadge_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_utils_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_tech_techbadge_tsx",
+      "target": "ui_utils_cn",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_tech_techbadge_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_tech_techcatalog_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_tech_techbadge_tsx",
+      "target": "tech_techcatalog_fallbacktechcolor",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_tech_techbadge_tsx",
+      "target": "tech_techcatalog_gettechbrand",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_tech_techbadge_tsx",
+      "target": "tech_techcatalog_techlogourl",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_tech_techbadge_tsx",
+      "target": "tech_techbadge_techbadgeprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_tech_techbadge_tsx",
+      "target": "tech_techbadge_techbadge",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "tech_techbadge_techbadge",
+      "callee": "getTechBrand",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L25"
+    },
+    {
+      "caller_nid": "tech_techbadge_techbadge",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "tech_techbadge_techbadge",
+      "callee": "fallbackTechColor",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "tech_techbadge_techbadge",
+      "callee": "cn",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "tech_techbadge_techbadge",
+      "callee": "techLogoUrl",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "tech_techbadge_techbadge",
+      "callee": "max",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "tech_techbadge_techbadge",
+      "callee": "charAt",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L73"
+    },
+    {
+      "caller_nid": "tech_techbadge_techbadge",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/tech/TechBadge.tsx",
+      "source_location": "L73"
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_lib_api_employees_ts",
+      "label": "employees.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "api_employees_employee",
+      "label": "Employee",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L3"
+    },
+    {
+      "id": "api_employees_fetchemployeesoptions",
+      "label": "FetchEmployeesOptions",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L27"
+    },
+    {
+      "id": "api_employees_fetchemployees",
+      "label": "fetchEmployees()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L31"
+    },
+    {
+      "id": "api_employees_fetchcurrentuserprofile",
+      "label": "fetchCurrentUserProfile()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L59"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_employees_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_config_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_employees_ts",
+      "target": "lib_config_api_base_url",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_employees_ts",
+      "target": "api_employees_employee",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_employees_ts",
+      "target": "api_employees_fetchemployeesoptions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_employees_ts",
+      "target": "api_employees_fetchemployees",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_employees_ts",
+      "target": "api_employees_fetchcurrentuserprofile",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L59",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "api_employees_fetchemployees",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "api_employees_fetchemployees",
+      "callee": "catch",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L43"
+    },
+    {
+      "caller_nid": "api_employees_fetchemployees",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L43"
+    },
+    {
+      "caller_nid": "api_employees_fetchemployees",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L56"
+    },
+    {
+      "caller_nid": "api_employees_fetchcurrentuserprofile",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L62"
+    },
+    {
+      "caller_nid": "api_employees_fetchcurrentuserprofile",
+      "callee": "catch",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L71"
+    },
+    {
+      "caller_nid": "api_employees_fetchcurrentuserprofile",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L71"
+    },
+    {
+      "caller_nid": "api_employees_fetchcurrentuserprofile",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/employees.ts",
+      "source_location": "L75"
+    }
+  ]
+}

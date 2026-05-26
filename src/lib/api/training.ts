@@ -8,12 +8,25 @@ import type {
   TrainingType,
   TrainingStatus,
 } from "@/types/training";
+import type {
+  TrainingBudgetWarning,
+  TrainingBudgetWarningLevel,
+} from "@/types/trainingBudget";
 
 const API_BASE_URL = getApiBaseUrl();
 
 // ============================================
 // TRANSFORMATION UTILITIES (snake_case <-> camelCase)
 // ============================================
+
+interface ApiBudgetWarning {
+  level: string;
+  fiscal_year: number;
+  allocated_budget: string | number;
+  used_budget: string | number;
+  remaining_budget: string | number;
+  percent_used: number;
+}
 
 interface ApiTrainingEntry {
   id: number;
@@ -31,6 +44,34 @@ interface ApiTrainingEntry {
   status: string;
   created_at: string;
   updated_at: string;
+  budget_warning?: ApiBudgetWarning;
+}
+
+export interface CreateTrainingEntryResult {
+  entry: TrainingEntry;
+  budgetWarning?: TrainingBudgetWarning;
+}
+
+function toNumber(value: string | number | null | undefined): number {
+  if (value === null || value === undefined) return 0;
+  const n = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function transformBudgetWarning(
+  raw: ApiBudgetWarning | undefined
+): TrainingBudgetWarning | undefined {
+  if (!raw) return undefined;
+  const level: TrainingBudgetWarningLevel =
+    raw.level === "exceeded" ? "exceeded" : "approaching_limit";
+  return {
+    level,
+    fiscalYear: raw.fiscal_year,
+    allocatedBudget: toNumber(raw.allocated_budget),
+    usedBudget: toNumber(raw.used_budget),
+    remainingBudget: toNumber(raw.remaining_budget),
+    percentUsed: Number(raw.percent_used) || 0,
+  };
 }
 
 /**
@@ -151,7 +192,7 @@ export const fetchTrainingEntry = async (
 export const createTrainingEntry = async (
   payload: CreateTrainingEntryPayload,
   accessToken: string
-): Promise<TrainingEntry> => {
+): Promise<CreateTrainingEntryResult> => {
   const requestBody: Record<string, string | number | undefined> = {
     course_title: payload.courseTitle,
     provider: payload.provider,
@@ -218,7 +259,10 @@ export const createTrainingEntry = async (
   }
 
   const data: ApiTrainingEntry = await response.json();
-  return transformTrainingEntry(data);
+  return {
+    entry: transformTrainingEntry(data),
+    budgetWarning: transformBudgetWarning(data.budget_warning),
+  };
 };
 
 /**

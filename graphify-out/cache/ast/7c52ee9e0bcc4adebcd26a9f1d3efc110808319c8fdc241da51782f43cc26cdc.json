@@ -1,0 +1,308 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "label": "DocumentVisibilitySelector.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "documents_documentvisibilityselector_custom_role_options",
+      "label": "CUSTOM_ROLE_OPTIONS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L20"
+    },
+    {
+      "id": "documents_documentvisibilityselector_documentvisibilityselectorprops",
+      "label": "DocumentVisibilitySelectorProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L26"
+    },
+    {
+      "id": "documents_documentvisibilityselector_nextrolesontoggle",
+      "label": "nextRolesOnToggle()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L34"
+    },
+    {
+      "id": "documents_documentvisibilityselector_documentvisibilityselector",
+      "label": "DocumentVisibilitySelector()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L45"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_documents_documentshelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "documents_documentshelpers_documentaccessrole",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "documents_documentvisibilitypresets_documentvisibilitypreset",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "documents_documentvisibilitypresets_documentvisibilitysettings",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "documents_documentvisibilitypresets_ordered_document_visibility_presets",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "documents_documentvisibilitypresets_presetfromvisibility",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "documents_documentvisibilitypresets_visibilityfrompreset",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilityhelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "documents_documentvisibilityhelpers_custom_preset_helper_text",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_radio_group_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "ui_radio_group_radiogroup",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_visibilitypresetoption_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "documents_visibilitypresetoption_visibilitypresetoption",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "documents_visibilitypresetoption_visibilitydensity",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_visibilitycustomrolerow_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "documents_visibilitycustomrolerow_visibilitycustomrolerow",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "documents_documentvisibilityselector_custom_role_options",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "documents_documentvisibilityselector_documentvisibilityselectorprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "documents_documentvisibilityselector_nextrolesontoggle",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "target": "documents_documentvisibilityselector_documentvisibilityselector",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L45",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "documents_documentvisibilityselector_nextrolesontoggle",
+      "callee": "includes",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "documents_documentvisibilityselector_nextrolesontoggle",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "documents_documentvisibilityselector_documentvisibilityselector",
+      "callee": "presetFromVisibility",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "documents_documentvisibilityselector_documentvisibilityselector",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "documents_documentvisibilityselector_documentvisibilityselector",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L56"
+    },
+    {
+      "caller_nid": "documents_documentvisibilityselector_documentvisibilityselector",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "documents_documentvisibilityselector_documentvisibilityselector",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/DocumentVisibilitySelector.tsx",
+      "source_location": "L140"
+    }
+  ]
+}

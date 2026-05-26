@@ -2,10 +2,17 @@ import {
   useState,
   useEffect,
   useCallback,
+  createElement,
   Fragment,
   useRef,
   type ChangeEvent,
 } from "react";
+import {
+  consumeOpenEmployeeRequest,
+  requestOpenProject,
+} from "../orgchart/crossModuleNav";
+import { DEFAULT_EMPLOYEES_LIST_FILTERS } from "./employeesListHelpers";
+import { invalidateOrgChartCache } from "../orgchart/useOrgChartData";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -55,11 +62,12 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
-import { formatDate } from "@/utils";
-import { cn } from "../ui/utils";
+import { formatDate as _formatDate } from "@/utils";
+import { cn as _cn } from "../ui/utils";
 import {
   employeeApi,
   EmployeeProfileData,
+  type EmployeeExportPayload,
   type EmployeeProfileChangeHistoryItem,
 } from "@/lib/api/employees";
 import { cpfLevelsApi } from "@/lib/api/cpf-levels";
@@ -68,7 +76,8 @@ import {
   employeeCVApi,
   type EmployeeCVVersion,
 } from "@/lib/api/modules/employee-cvs";
-import { getStoredUser } from "@/lib/api/tokens";
+import { getAccessToken, getStoredUser } from "@/lib/api/tokens";
+import { fetchTemplates, type ChecklistTemplate } from "@/lib/api/onboarding";
 import {
   getUserPermissions,
   EMPLOYEE_PERMISSIONS,
@@ -88,8 +97,7 @@ import type { TechnologyTag } from "@/types/technology-tags";
 import {
   buildEmployeeUpdatePayload,
   canUploadCvForEmployee,
-  cvVersionSupportsEmbeddedPreview,
-  employeeDisplayInitials,
+  cvVersionSupportsEmbeddedPreview as _cvVersionSupportsEmbeddedPreview,
   getEmbeddedPreviewUrl,
   inferCvLinkProvider,
   normalizeExternalCvUrl,
@@ -102,17 +110,416 @@ import {
   fetchLegacyProfilesPageSnapshot,
   fetchProfilesDropdownRefs,
 } from "./profilesModuleLoaders";
+import { EmployeesListPage } from "./EmployeesListPage";
+import type { EmployeesExportContext } from "./EmployeesListPage";
+import { ProfilesDetailView } from "./ProfilesDetailView";
+import { AddEmployeeDialog } from "./AddEmployeeDialog";
+import { ExportEmployeesDialog } from "./ExportEmployeesDialog";
+import {
+  Document as PdfDocument,
+  Page as PdfPage,
+  Text as PdfText,
+  View as PdfView,
+  StyleSheet as PdfStyleSheet,
+  pdf as renderPdf,
+} from "@react-pdf/renderer";
 
 const TRACKED_HISTORY_FIELDS = new Set(["role", "salary", "cpf", "cpf_level"]);
 
-function profileHistoryFieldLabel(field: string): string {
+const EMPLOYEE_EXPORT_COLUMN_LABELS: Record<string, string> = {
+  first_name: "First name",
+  last_name: "Last name",
+  email: "Work email",
+  phone_number: "Phone",
+  role: "Job title",
+  department: "Department",
+  team: "Team",
+  location: "Location",
+  employment_status: "Status",
+  start_date: "Start date",
+  salary: "Salary",
+  address: "Home address",
+  birth_date: "Date of birth",
+  emergency_contact: "Emergency contact",
+};
+
+function employeeExportValue(employee: EmployeeProfileData, column: string) {
+  switch (column) {
+    case "role":
+      return employee.role?.name ?? "";
+    case "team":
+      return (
+        employee.assigned_projects
+          ?.filter(
+            (project) => (project.status ?? "").toLowerCase() !== "ended"
+          )
+          .map((project) => project.project_name)
+          .join("; ") ?? ""
+      );
+    case "location":
+      return "";
+    case "emergency_contact":
+      return [employee.emergency_contact_name, employee.emergency_contact_phone]
+        .filter(Boolean)
+        .join(" - ");
+    default:
+      return String(
+        (employee as unknown as Record<string, unknown>)[column] ?? ""
+      );
+  }
+}
+
+function csvCell(value: string) {
+  return /[",\n\r]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+}
+
+function localEmployeeExportRows(
+  rows: EmployeeProfileData[],
+  payload: EmployeeExportPayload
+) {
+  const header = payload.columns.map(
+    (column) => EMPLOYEE_EXPORT_COLUMN_LABELS[column] ?? column
+  );
+  const body = rows.map((employee) =>
+    payload.columns.map((column) => employeeExportValue(employee, column))
+  );
+  return { header, body };
+}
+
+function escapeXml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function xlsxColumnName(index: number) {
+  let name = "";
+  let n = index + 1;
+  while (n > 0) {
+    const remainder = (n - 1) % 26;
+    name = String.fromCharCode(65 + remainder) + name;
+    n = Math.floor((n - 1) / 26);
+  }
+  return name;
+}
+
+async function buildXlsxEmployeeExport(
+  rows: EmployeeProfileData[],
+  payload: EmployeeExportPayload
+) {
+  const JSZip = (await import("jszip")).default;
+  const zip = new JSZip();
+  const { header, body } = localEmployeeExportRows(rows, payload);
+  const tableRows = [...(payload.include_header ? [header] : []), ...body];
+
+  const sheetRows = tableRows
+    .map((row, rowIndex) => {
+      const cells = row
+        .map((value, columnIndex) => {
+          const ref = `${xlsxColumnName(columnIndex)}${rowIndex + 1}`;
+          return `<c r="${ref}" t="inlineStr"><is><t>${escapeXml(value)}</t></is></c>`;
+        })
+        .join("");
+      return `<row r="${rowIndex + 1}">${cells}</row>`;
+    })
+    .join("");
+
+  zip.file(
+    "[Content_Types].xml",
+    `<?xml version="1.0" encoding="UTF-8"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+  <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+</Types>`
+  );
+  zip.folder("_rels")?.file(
+    ".rels",
+    `<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>`
+  );
+  zip.folder("xl")?.file(
+    "workbook.xml",
+    `<?xml version="1.0" encoding="UTF-8"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <sheets><sheet name="Employees" sheetId="1" r:id="rId1"/></sheets>
+</workbook>`
+  );
+  zip
+    .folder("xl")
+    ?.folder("_rels")
+    ?.file(
+      "workbook.xml.rels",
+      `<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
+</Relationships>`
+    );
+  zip
+    .folder("xl")
+    ?.folder("worksheets")
+    ?.file(
+      "sheet1.xml",
+      `<?xml version="1.0" encoding="UTF-8"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <sheetData>${sheetRows}</sheetData>
+</worksheet>`
+    );
+
+  return zip.generateAsync({
+    type: "blob",
+    mimeType:
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+}
+
+const employeeExportPdfStyles = PdfStyleSheet.create({
+  page: {
+    padding: 28,
+    backgroundColor: "#f8fafc",
+    color: "#111827",
+    fontFamily: "Helvetica",
+  },
+  eyebrow: {
+    color: "#6b7280",
+    fontSize: 8,
+    letterSpacing: 2.4,
+    marginBottom: 6,
+    textTransform: "uppercase",
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 700,
+    marginBottom: 4,
+  },
+  subtitle: {
+    color: "#6b7280",
+    fontSize: 9,
+    marginBottom: 18,
+  },
+  table: {
+    borderColor: "#e5e7eb",
+    borderRadius: 6,
+    borderWidth: 1,
+    overflow: "hidden",
+  },
+  row: {
+    flexDirection: "row",
+    minHeight: 24,
+  },
+  headerRow: {
+    backgroundColor: "#374151",
+  },
+  oddRow: {
+    backgroundColor: "#ffffff",
+  },
+  evenRow: {
+    backgroundColor: "#f3f4f6",
+  },
+  cell: {
+    borderColor: "#e5e7eb",
+    borderRightWidth: 1,
+    flexGrow: 1,
+    flexShrink: 1,
+    paddingHorizontal: 6,
+    paddingVertical: 7,
+  },
+  lastCell: {
+    borderRightWidth: 0,
+  },
+  headerText: {
+    color: "#ffffff",
+    fontSize: 7,
+    fontWeight: 700,
+  },
+  cellText: {
+    color: "#1f2937",
+    fontSize: 7,
+    lineHeight: 1.25,
+  },
+  footer: {
+    bottom: 18,
+    color: "#9ca3af",
+    fontSize: 8,
+    left: 28,
+    position: "absolute",
+    right: 28,
+    textAlign: "right",
+  },
+});
+
+async function buildPdfEmployeeExport(
+  rows: EmployeeProfileData[],
+  payload: EmployeeExportPayload
+) {
+  const { header, body } = localEmployeeExportRows(rows, payload);
+  const columnFlex = 1 / Math.max(header.length, 1);
+  const rowNodes = body.length > 0 ? body : [payload.columns.map(() => "")];
+
+  const tableHeader = payload.include_header
+    ? createElement(
+        PdfView,
+        {
+          fixed: true,
+          style: [
+            employeeExportPdfStyles.row,
+            employeeExportPdfStyles.headerRow,
+          ],
+        },
+        ...header.map((label, index) =>
+          createElement(
+            PdfView,
+            {
+              key: `header-${label}-${index}`,
+              style: [
+                employeeExportPdfStyles.cell,
+                ...(index === header.length - 1
+                  ? [employeeExportPdfStyles.lastCell]
+                  : []),
+                { flexBasis: `${columnFlex * 100}%` },
+              ],
+            },
+            createElement(
+              PdfText,
+              { style: employeeExportPdfStyles.headerText },
+              label
+            )
+          )
+        )
+      )
+    : null;
+
+  const document = createElement(
+    PdfDocument,
+    null,
+    createElement(
+      PdfPage,
+      {
+        size: "A4",
+        orientation: "landscape",
+        style: employeeExportPdfStyles.page,
+      },
+      createElement(
+        PdfText,
+        { style: employeeExportPdfStyles.eyebrow },
+        "BloomHub Export"
+      ),
+      createElement(
+        PdfText,
+        { style: employeeExportPdfStyles.title },
+        "Employees"
+      ),
+      createElement(
+        PdfText,
+        { style: employeeExportPdfStyles.subtitle },
+        `${rows.length} rows x ${header.length} columns`
+      ),
+      createElement(
+        PdfView,
+        { style: employeeExportPdfStyles.table },
+        tableHeader,
+        ...rowNodes.map((row, rowIndex) =>
+          createElement(
+            PdfView,
+            {
+              key: `row-${rowIndex}`,
+              wrap: false,
+              style: [
+                employeeExportPdfStyles.row,
+                rowIndex % 2 === 0
+                  ? employeeExportPdfStyles.oddRow
+                  : employeeExportPdfStyles.evenRow,
+              ],
+            },
+            ...row.map((value, columnIndex) =>
+              createElement(
+                PdfView,
+                {
+                  key: `cell-${rowIndex}-${columnIndex}`,
+                  style: [
+                    employeeExportPdfStyles.cell,
+                    ...(columnIndex === row.length - 1
+                      ? [employeeExportPdfStyles.lastCell]
+                      : []),
+                    { flexBasis: `${columnFlex * 100}%` },
+                  ],
+                },
+                createElement(
+                  PdfText,
+                  { style: employeeExportPdfStyles.cellText },
+                  value || "-"
+                )
+              )
+            )
+          )
+        )
+      ),
+      createElement(PdfText, {
+        fixed: true,
+        render: ({ pageNumber, totalPages }) =>
+          `Page ${pageNumber} of ${totalPages}`,
+        style: employeeExportPdfStyles.footer,
+      })
+    )
+  );
+
+  return renderPdf(document).toBlob();
+}
+
+async function buildLocalEmployeeExport(
+  rows: EmployeeProfileData[],
+  payload: EmployeeExportPayload
+) {
+  if (payload.format === "json") {
+    const data = rows.map((employee) =>
+      Object.fromEntries(
+        payload.columns.map((column) => [
+          column,
+          employeeExportValue(employee, column),
+        ])
+      )
+    );
+    return new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json;charset=utf-8",
+    });
+  }
+  if (payload.format === "xlsx") {
+    return buildXlsxEmployeeExport(rows, payload);
+  }
+  if (payload.format === "pdf") {
+    return buildPdfEmployeeExport(rows, payload);
+  }
+
+  const { header, body } = localEmployeeExportRows(rows, payload);
+  const csv = [...(payload.include_header ? [header] : []), ...body]
+    .map((row) => row.map((value) => csvCell(value)).join(","))
+    .join("\n");
+
+  return new Blob([csv], { type: "text/csv;charset=utf-8" });
+}
+
+function shouldUseLocalExportFallback(error: unknown) {
+  const message = error instanceof Error ? error.message.toLowerCase() : "";
+  return (
+    message.includes("not found") ||
+    message.includes("method") ||
+    message.includes("not allowed")
+  );
+}
+
+function _profileHistoryFieldLabel(field: string): string {
   if (field === "cpf" || field === "cpf_level") return "CPF Level";
   if (field === "role") return "Role";
   if (field === "salary") return "Salary";
   return field.replace(/_/g, " ");
 }
 
-function profileHistoryValueText(field: string, value: unknown): string {
+function _profileHistoryValueText(field: string, value: unknown): string {
   if (value === null || value === undefined || value === "") return "—";
   if (field === "salary") {
     const amount = typeof value === "number" ? value : Number(value);
@@ -132,24 +539,34 @@ function profileHistoryValueText(field: string, value: unknown): string {
   return String(value);
 }
 
-export default function ProfilesModule() {
+interface ProfilesModuleProps {
+  onNavigate?: (moduleId: string) => void;
+}
+
+export default function ProfilesModule({
+  onNavigate,
+}: ProfilesModuleProps = {}) {
   const [employees, setEmployees] = useState<EmployeeProfileData[]>([]);
   const [selectedEmployee, setSelectedEmployee] =
     useState<EmployeeProfileData | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [departmentFilter, setDepartmentFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [addEmployeeOpen, setAddEmployeeOpen] = useState(false);
+  const [exportEmployeesOpen, setExportEmployeesOpen] = useState(false);
+  const [isCreatingEmployee, setIsCreatingEmployee] = useState(false);
+  const [isExportingEmployees, setIsExportingEmployees] = useState(false);
+  const [exportContext, setExportContext] =
+    useState<EmployeesExportContext | null>(null);
+  const [viewMode, setViewMode] = useState<"list" | "detail">("list");
   const [editMode, setEditMode] = useState(false);
+  const [editBaseline, setEditBaseline] = useState<EmployeeProfileData | null>(
+    null
+  );
   const [departments, setDepartments] = useState<string[]>([]);
   const [canEditAll, setCanEditAll] = useState(false);
   const [permissionBits, setPermissionBits] = useState<number | bigint>(0);
   const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [_saveSuccess, setSaveSuccess] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
-  const [isLoadingEmployee, setIsLoadingEmployee] = useState(false);
   const [cvVersions, setCvVersions] = useState<EmployeeCVVersion[]>([]);
   const [profileChangeHistory, setProfileChangeHistory] = useState<
     EmployeeProfileChangeHistoryItem[]
@@ -168,6 +585,9 @@ export default function ProfilesModule() {
   const [cvPendingDelete, setCvPendingDelete] =
     useState<EmployeeCVVersion | null>(null);
   const [isDeletingCV, setIsDeletingCV] = useState(false);
+  const [deleteConfirmEmployee, setDeleteConfirmEmployee] =
+    useState<EmployeeProfileData | null>(null);
+  const [isDeletingEmployee, setIsDeletingEmployee] = useState(false);
   const cvFileInputRef = useRef<HTMLInputElement | null>(null);
   const [cvAddMode, setCvAddMode] = useState<"file" | "link">("file");
   const [cvLinkDraft, setCvLinkDraft] = useState("");
@@ -180,12 +600,19 @@ export default function ProfilesModule() {
     { id: number; name: string; leaders?: { id: number; name: string }[] }[]
   >([]);
   const [managers, setManagers] = useState<Manager[]>([]);
-  const [cpfLevels, setCpfLevels] = useState<string[]>([]);
+  const [onboardingTemplates, setOnboardingTemplates] = useState<
+    ChecklistTemplate[]
+  >([]);
   const [_loadingDropdowns, setLoadingDropdowns] = useState(false);
-  const [loadingCpfLevels, setLoadingCpfLevels] = useState(false);
   const [allTechnologyTags, setAllTechnologyTags] = useState<TechnologyTag[]>(
     []
   );
+  // Restored after merge conflict resolution dropped these state declarations
+  const [_cpfLevels, setCpfLevels] = useState<string[]>([]);
+  const [_loadingCpfLevels, setLoadingCpfLevels] = useState(false);
+  const [_isLoadingEmployee, setIsLoadingEmployee] = useState(false);
+  const [_saveError, setSaveError] = useState<string | null>(null);
+  const [_saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
     let stale = false;
@@ -266,6 +693,51 @@ export default function ProfilesModule() {
     };
   }, []);
 
+  // Cross-module request: org chart asked us to open a specific employee.
+  // Fires once after employees load.
+  const orgChartHandoffConsumedRef = useRef(false);
+  useEffect(() => {
+    if (orgChartHandoffConsumedRef.current) return;
+    if (employees.length === 0) return;
+    const id = consumeOpenEmployeeRequest();
+    if (id == null) {
+      orgChartHandoffConsumedRef.current = true;
+      return;
+    }
+    const match = employees.find((e) => e.id === id);
+    orgChartHandoffConsumedRef.current = true;
+    if (match) void openEmployeeDialog(match, "view");
+    // openEmployeeDialog is stable enough for this one-shot trigger
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [employees]);
+
+  useEffect(() => {
+    if (!addEmployeeOpen) return;
+
+    let stale = false;
+    const loadOnboardingTemplates = async () => {
+      const token = getAccessToken();
+      if (!token) {
+        setOnboardingTemplates([]);
+        return;
+      }
+      try {
+        const templates = await fetchTemplates(token);
+        if (stale) return;
+        setOnboardingTemplates(
+          templates.filter((template) => template.type === "onboarding")
+        );
+      } catch {
+        if (!stale) setOnboardingTemplates([]);
+      }
+    };
+
+    void loadOnboardingTemplates();
+    return () => {
+      stale = true;
+    };
+  }, [addEmployeeOpen]);
+
   // Fetch CPF levels based on role name
   const fetchCPFLevelsByRole = useCallback(async (roleName?: string) => {
     if (!roleName) {
@@ -324,20 +796,23 @@ export default function ProfilesModule() {
           skipInitialCpfFetchAfterModalBundleRef.current = true;
         }
         setEditMode(mode === "edit");
-        setDialogOpen(true);
+        setEditBaseline(mode === "edit" ? modalBundle.employee : null);
+        setViewMode("detail");
         return;
       }
 
       setCvVersions(result.cvVersions);
       setSelectedEmployee(result.employee);
       setEditMode(mode === "edit");
-      setDialogOpen(true);
+      setEditBaseline(mode === "edit" ? result.employee : null);
+      setViewMode("detail");
       await refetchDropdownData();
     } catch (err) {
       console.error("Error fetching employee details:", err);
       setSelectedEmployee(employee);
       setEditMode(mode === "edit");
-      setDialogOpen(true);
+      setEditBaseline(mode === "edit" ? employee : null);
+      setViewMode("detail");
       try {
         setIsLoadingCVs(true);
         const rawCvs = await employeeCVApi.list(employee.id);
@@ -353,16 +828,16 @@ export default function ProfilesModule() {
   };
 
   useEffect(() => {
-    if (!dialogOpen || !selectedEmployee?.role?.name) return;
+    if (!selectedEmployee?.role?.name) return;
     if (skipInitialCpfFetchAfterModalBundleRef.current) {
       skipInitialCpfFetchAfterModalBundleRef.current = false;
       return;
     }
     void fetchCPFLevelsByRole(selectedEmployee.role.name);
-  }, [dialogOpen, selectedEmployee?.role?.name, fetchCPFLevelsByRole]);
+  }, [selectedEmployee?.role?.name, fetchCPFLevelsByRole]);
 
   useEffect(() => {
-    if (!dialogOpen || !selectedEmployee) return;
+    if (!selectedEmployee) return;
 
     const canViewHistory =
       selectedEmployee.id === currentUserId ||
@@ -402,10 +877,9 @@ export default function ProfilesModule() {
     return () => {
       stale = true;
     };
-  }, [dialogOpen, selectedEmployee, permissionBits, currentUserId]);
+  }, [selectedEmployee, permissionBits, currentUserId]);
 
-  const closeEmployeeDialog = () => {
-    setDialogOpen(false);
+  const _closeEmployeeDialog = () => {
     setSelectedEmployee(null);
     setEditMode(false);
     setSaveError(null);
@@ -568,6 +1042,33 @@ export default function ProfilesModule() {
     }
   };
 
+  const confirmDeleteEmployee = async () => {
+    if (!deleteConfirmEmployee) return;
+    const target = deleteConfirmEmployee;
+    try {
+      setIsDeletingEmployee(true);
+      await employeeApi.deleteEmployee(target.id);
+      setEmployees((arr) => arr.filter((e) => e.id !== target.id));
+      // Org-chart module reads cached snapshot — bust it so the deleted
+      // employee disappears from the chart on next view.
+      invalidateOrgChartCache();
+      toast.success(`Deleted ${target.first_name} ${target.last_name}`.trim(), {
+        position: "bottom-right",
+      });
+      setDeleteConfirmEmployee(null);
+      setSelectedEmployee(null);
+      setEditMode(false);
+      setEditBaseline(null);
+      setViewMode("list");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to delete employee";
+      toast.error(message, { position: "bottom-right" });
+    } finally {
+      setIsDeletingEmployee(false);
+    }
+  };
+
   const handleSaveEmployee = async () => {
     if (!selectedEmployee) return;
 
@@ -606,6 +1107,7 @@ export default function ProfilesModule() {
       );
 
       setEditMode(false);
+      setEditBaseline(null);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to save employee";
@@ -617,1149 +1119,230 @@ export default function ProfilesModule() {
     }
   };
 
+  const canAddEmployees =
+    PERMISSION_REQUIREMENTS.canManageEmployees(permissionBits) ||
+    PERMISSION_REQUIREMENTS.isHR(permissionBits) ||
+    canEditAll;
+  const canExportEmployees =
+    PERMISSION_REQUIREMENTS.canExportData(permissionBits);
+
+  const refreshEmployees = useCallback(async () => {
+    const data = await employeeApi.listEmployees();
+    const employeeResults = data.results || [];
+    setEmployees(employeeResults);
+    setAllTechnologyTags(technologyTagsApi.getAllTags(employeeResults));
+    return employeeResults;
+  }, []);
+
+  const handleCreateEmployee = async (
+    payload: Parameters<typeof employeeApi.createEmployee>[0]
+  ) => {
+    try {
+      setIsCreatingEmployee(true);
+      const created = await employeeApi.createEmployee(payload);
+      const refreshedEmployees = await refreshEmployees().catch(() => {
+        const fallbackEmployees = [created, ...employees];
+        setEmployees(fallbackEmployees);
+        setAllTechnologyTags(technologyTagsApi.getAllTags(fallbackEmployees));
+        return fallbackEmployees;
+      });
+      setAddEmployeeOpen(false);
+      toast.success(
+        `${created.first_name} ${created.last_name} has been added successfully`,
+        { position: "bottom-right" }
+      );
+      return (
+        refreshedEmployees.find((employee) => employee.id === created.id) ??
+        created
+      );
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to add employee";
+      toast.error(message, { position: "bottom-right" });
+      throw err;
+    } finally {
+      setIsCreatingEmployee(false);
+    }
+  };
+
+  const handleCheckEmployeeEmail = async (email: string) => {
+    const result = await employeeApi.checkEmailAvailability(email);
+    return result.available;
+  };
+
+  const handleOpenExport = (context: EmployeesExportContext) => {
+    setExportContext(context);
+    setExportEmployeesOpen(true);
+  };
+
+  const handleExportEmployees = async (payload: EmployeeExportPayload) => {
+    try {
+      setIsExportingEmployees(true);
+      let blob: Blob;
+      let filename: string;
+
+      try {
+        const result = await employeeApi.exportEmployees(payload);
+        blob = result.blob;
+        filename = result.filename;
+      } catch (err) {
+        if (!shouldUseLocalExportFallback(err)) throw err;
+
+        const rows =
+          payload.scope === "filtered"
+            ? (exportContext?.filteredEmployees ?? employees)
+            : employees;
+        blob = await buildLocalEmployeeExport(rows, payload);
+        filename = payload.filename || `bloomhub-employees.${payload.format}`;
+        toast.info(
+          "Backend export is unavailable, so a local export was generated.",
+          {
+            position: "bottom-right",
+          }
+        );
+      }
+
+      const objectUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = filename;
+      link.rel = "noopener";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(objectUrl);
+      setExportEmployeesOpen(false);
+      toast.success("Employee export is ready", { position: "bottom-right" });
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to export employees";
+      toast.error(message, { position: "bottom-right" });
+      throw err;
+    } finally {
+      setIsExportingEmployees(false);
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Employee Profiles
-          </h1>
-          <p className="text-gray-600">
-            Manage employee information, roles, and professional development
-          </p>
-        </div>
-      </div>
-
-      <div className="flex gap-4 items-center flex-wrap">
-        <div className="flex-1 min-w-50">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-            <Input
-              placeholder="Search by name, email, or ID..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 bg-white border-zinc-200 focus:ring-zinc-500/10 focus:border-zinc-400 rounded-xl h-11"
-              disabled={isLoading}
-            />
-          </div>
-        </div>
-
-        <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-          <SelectTrigger className="w-45 bg-white border-zinc-200 focus:ring-zinc-500/10 focus:border-zinc-400 rounded-xl h-11">
-            <SelectValue placeholder="Filter by department" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Departments</SelectItem>
-            {departments.map((dept) => (
-              <SelectItem key={dept} value={dept}>
-                {dept}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {error && (
-        <div className="rounded-md bg-red-50 p-4 border border-red-200 flex gap-3">
-          <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 shrink-0" />
+    <div className="-m-4 flex min-h-0 flex-1 flex-col bg-[#f7f7f6]">
+      {error ? (
+        <div className="m-4 flex gap-3 rounded-md border border-red-200 bg-red-50 p-4">
+          <AlertCircle
+            className="h-5 w-5 text-red-600 mt-0.5 shrink-0"
+            aria-hidden
+          />
           <div>
             <h3 className="font-medium text-red-900">Error</h3>
             <p className="text-sm text-red-700">{error}</p>
           </div>
         </div>
+      ) : null}
+
+      {viewMode === "detail" && selectedEmployee ? (
+        <ProfilesDetailView
+          profile={selectedEmployee}
+          allTechnologyTags={allTechnologyTags}
+          canEditAll={canEditAll}
+          currentUserId={currentUserId}
+          editMode={editMode}
+          dirty={
+            editMode &&
+            editBaseline !== null &&
+            JSON.stringify(selectedEmployee) !== JSON.stringify(editBaseline)
+          }
+          isSaving={isSaving}
+          onEmployeeChange={setSelectedEmployee}
+          cvVersions={cvVersions}
+          isLoadingCVs={isLoadingCVs}
+          canUploadCV={canUploadCV}
+          cvAddMode={cvAddMode}
+          onCvAddModeChange={setCvAddMode}
+          cvFileInputRef={cvFileInputRef}
+          isUploadingCV={isUploadingCV}
+          onCvFilePicked={handleCVFilePicked}
+          cvLinkDraft={cvLinkDraft}
+          onCvLinkDraftChange={setCvLinkDraft}
+          isAddingCvLink={isAddingCvLink}
+          onAddCvLink={handleAddCvLink}
+          onCVAccess={handleCVAccess}
+          onCVPreview={handleCVPreview}
+          onDeleteCV={handleDeleteCV}
+          isLoadingProfileHistory={isLoadingProfileHistory}
+          profileHistoryError={profileHistoryError}
+          profileHistory={profileChangeHistory}
+          onBack={() => {
+            setViewMode("list");
+            setSelectedEmployee(null);
+            setEditMode(false);
+            setEditBaseline(null);
+          }}
+          onEnterEdit={() => {
+            setEditMode(true);
+            setEditBaseline(selectedEmployee);
+          }}
+          onCancelEdit={() => {
+            if (editBaseline) setSelectedEmployee(editBaseline);
+            setEditMode(false);
+            setEditBaseline(null);
+          }}
+          onSave={handleSaveEmployee}
+          canDelete={canEditAll}
+          onExport={() => {
+            handleOpenExport({
+              filteredEmployees: [selectedEmployee],
+              search: "",
+              filters: DEFAULT_EMPLOYEES_LIST_FILTERS,
+              activeFilterCount: 0,
+            });
+          }}
+          onDelete={() => setDeleteConfirmEmployee(selectedEmployee)}
+          onOpenProject={(projectId) => {
+            requestOpenProject(projectId);
+            onNavigate?.("projects");
+          }}
+        />
+      ) : (
+        <EmployeesListPage
+          employees={employees}
+          isLoading={isLoading}
+          canEditAll={canEditAll}
+          canAdd={canAddEmployees}
+          canExport={canExportEmployees}
+          onOpenEmployee={openEmployeeDialog}
+          onAdd={() => setAddEmployeeOpen(true)}
+          onExport={handleOpenExport}
+        />
       )}
-
-      {isLoading && (
-        <Card>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Department</TableHead>
-                    <TableHead>Start Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Skeleton className="h-8 w-8 rounded-full shrink-0" />
-                          <Skeleton className="h-4 w-24" />
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-4 w-32" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-4 w-20" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-4 w-24" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-4 w-28" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-4 w-16" />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Skeleton className="h-8 w-16 ml-auto" />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {!isLoading && employees.length === 0 && (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <p className="text-gray-600">No employees found</p>
-          </CardContent>
-        </Card>
-      )}
-
-      {!isLoading && employees.length > 0 && (
-        <Card>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Department</TableHead>
-                    <TableHead>Start Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {employees.map((employee) => {
-                    const initials = employeeDisplayInitials(
-                      employee.first_name,
-                      employee.last_name
-                    );
-
-                    return (
-                      <TableRow key={employee.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-8 w-8">
-                              <AvatarImage
-                                src={employee.avatar}
-                                alt={`${employee.first_name} ${employee.last_name}`}
-                              />
-                              <AvatarFallback className="text-xs">
-                                {initials}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <div className="font-medium text-gray-900">
-                                {employee.first_name} {employee.last_name}
-                              </div>
-                              {(employee.technology_tags?.length ?? 0) > 0 && (
-                                <div className="mt-1 flex flex-wrap items-center">
-                                  {employee
-                                    .technology_tags!.slice(0, 3)
-                                    .map((tag, idx) => (
-                                      <Fragment key={tag.id}>
-                                        {idx > 0 ? (
-                                          <span
-                                            className="mx-1.5 h-3 w-px shrink-0 self-center bg-zinc-200"
-                                            aria-hidden
-                                          />
-                                        ) : null}
-                                        <span
-                                          className="inline-flex size-4 shrink-0 items-center justify-center leading-none"
-                                          title={tag.name}
-                                          aria-label={tag.name}
-                                        >
-                                          <TechIcon name={tag.name} size={16} />
-                                        </span>
-                                      </Fragment>
-                                    ))}
-                                  {employee.technology_tags!.length > 3 ? (
-                                    <>
-                                      <span
-                                        className="mx-1.5 h-3 w-px shrink-0 self-center bg-zinc-200"
-                                        aria-hidden
-                                      />
-                                      <span className="text-[10px] font-medium leading-none text-zinc-400 tabular-nums">
-                                        +{employee.technology_tags!.length - 3}
-                                      </span>
-                                    </>
-                                  ) : null}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-gray-600">
-                          {employee.email}
-                        </TableCell>
-                        <TableCell>{employee.role?.name || "—"}</TableCell>
-                        <TableCell>{employee.department || "—"}</TableCell>
-                        <TableCell>{formatDate(employee.start_date)}</TableCell>
-                        <TableCell>
-                          <Badge
-                            className={
-                              employee.is_active
-                                ? "bg-green-100 text-green-800 border-green-200"
-                                : "bg-gray-100 text-gray-800 border-gray-200"
-                            }
-                          >
-                            {employee.is_active ? "Active" : "Inactive"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => openEmployeeDialog(employee, "view")}
-                            className="gap-2"
-                          >
-                            <Eye className="w-4 h-4" />
-                            View
-                          </Button>
-                          {canEditAll && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                openEmployeeDialog(employee, "edit")
-                              }
-                              className="gap-2 ml-2"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                              Edit
-                            </Button>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Employee View/Edit Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-4xl p-0 overflow-hidden border-none shadow-2xl bg-white max-h-[92vh] flex flex-col rounded-2xl ring-1 ring-zinc-900/6">
-          <DialogTitle className="sr-only">
-            {selectedEmployee
-              ? `${selectedEmployee.first_name} ${selectedEmployee.last_name} Profile`
-              : "Employee Profile"}
-          </DialogTitle>
-          <DialogDescription className="sr-only">
-            Employee profile information{" "}
-            {editMode ? "in edit mode" : "in view mode"}
-          </DialogDescription>
-
-          {isLoadingEmployee ? (
-            <div className="p-8 space-y-6 overflow-y-auto flex-1">
-              {/* Loading skeleton ... */}
-            </div>
-          ) : selectedEmployee ? (
-            <div className="flex-1 overflow-y-auto px-8 pt-8 scrollbar-thin scrollbar-thumb-zinc-300 scrollbar-track-zinc-50 hover:scrollbar-thumb-zinc-400 transition-colors">
-              <div className="space-y-8">
-                {/* Header with Profile Picture and Title */}
-                <div className="flex items-center gap-6 pb-8 border-b border-gray-100">
-                  <Avatar className="h-24 w-24 shrink-0 shadow-sm border border-gray-100">
-                    <AvatarImage src={selectedEmployee.avatar} alt="avatar" />
-                    <AvatarFallback className="text-2xl font-bold bg-gray-100 text-teal-700 uppercase">
-                      {`${selectedEmployee.first_name?.[0] || ""}${selectedEmployee.last_name?.[0] || ""}`}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">
-                        {selectedEmployee.first_name}{" "}
-                        {selectedEmployee.last_name}
-                      </h2>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          "text-[10px] uppercase font-bold tracking-widest px-2 py-0 border-gray-200 text-gray-500 bg-gray-50"
-                        )}
-                      >
-                        {editMode ? "Editing" : "Overview"}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-500 text-sm mt-1">
-                      <span>{selectedEmployee.email}</span>
-                      <span className="text-gray-300 mx-1">•</span>
-                      <span className="font-semibold text-gray-700">
-                        {selectedEmployee.role?.name || "Member"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Form Fields */}
-                <div className="space-y-6">
-                  {/* Personal Information Section */}
-                  <div className="space-y-6">
-                    <div className="flex items-baseline justify-between border-b border-gray-100 pb-2">
-                      <h3 className="text-lg font-bold text-gray-900 tracking-tight">
-                        Personal Information
-                      </h3>
-                      <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
-                        SECTION 01
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-8 gap-y-6">
-                      <EditableInput
-                        label="First Name"
-                        value={selectedEmployee.first_name}
-                        onChange={(value) =>
-                          currentUserId === selectedEmployee.id &&
-                          setSelectedEmployee({
-                            ...selectedEmployee,
-                            first_name: value,
-                          })
-                        }
-                        disabled={currentUserId !== selectedEmployee.id}
-                        isEditing={editMode}
-                        placeholder="First name"
-                      />
-                      <EditableInput
-                        label="Last Name"
-                        value={selectedEmployee.last_name}
-                        onChange={(value) =>
-                          currentUserId === selectedEmployee.id &&
-                          setSelectedEmployee({
-                            ...selectedEmployee,
-                            last_name: value,
-                          })
-                        }
-                        disabled={currentUserId !== selectedEmployee.id}
-                        isEditing={editMode}
-                        placeholder="Last name"
-                      />
-                      <EditableInput
-                        label="Email"
-                        type="email"
-                        value={selectedEmployee.email}
-                        onChange={(value) =>
-                          currentUserId === selectedEmployee.id &&
-                          setSelectedEmployee({
-                            ...selectedEmployee,
-                            email: value,
-                          })
-                        }
-                        disabled={currentUserId !== selectedEmployee.id}
-                        isEditing={editMode}
-                        placeholder="Email address"
-                      />
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
-                          Birth Date
-                        </label>
-                        {currentUserId === selectedEmployee.id && editMode ? (
-                          <DatePicker
-                            value={selectedEmployee.birth_date}
-                            onChange={(date) =>
-                              currentUserId === selectedEmployee.id &&
-                              setSelectedEmployee({
-                                ...selectedEmployee,
-                                birth_date: date,
-                              })
-                            }
-                            mode="single"
-                            disabled={currentUserId !== selectedEmployee.id}
-                            placeholder="Select your birth date"
-                            disabledDates={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
-                            }
-                          />
-                        ) : (
-                          <div className="py-1">
-                            <p
-                              className={cn(
-                                "text-base font-medium transition-colors",
-                                selectedEmployee.birth_date
-                                  ? "text-gray-900"
-                                  : "text-gray-400 italic"
-                              )}
-                            >
-                              {selectedEmployee.birth_date
-                                ? formatDate(selectedEmployee.birth_date)
-                                : "Not provided"}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                      {/* Address - Only show for own profile */}
-                      {currentUserId === selectedEmployee.id && (
-                        <div className="col-span-2">
-                          <EditableInput
-                            label="Address"
-                            value={selectedEmployee.address || ""}
-                            onChange={(value) =>
-                              setSelectedEmployee({
-                                ...selectedEmployee,
-                                address: value,
-                              })
-                            }
-                            isEditing={editMode}
-                            placeholder="Your street address"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Employment Information Section - Editable only if user has permission */}
-                  <div className="space-y-6">
-                    <div className="flex items-baseline justify-between border-b border-gray-100 pb-2">
-                      <h3 className="text-lg font-bold text-gray-900 tracking-tight">
-                        Employment Information
-                      </h3>
-                      <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
-                        SECTION 02
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-8 gap-y-6">
-                      <EditableSelect
-                        label="Department"
-                        value={selectedEmployee.department || ""}
-                        onChange={(value) =>
-                          setSelectedEmployee({
-                            ...selectedEmployee,
-                            department: value,
-                          })
-                        }
-                        options={departments}
-                        getOptionValue={(dept) => dept}
-                        getOptionLabel={(dept) => dept}
-                        disabled={!canEditAll}
-                        isEditing={editMode}
-                        placeholder="Select department"
-                      />
-                      <EditableSelect
-                        label="Role"
-                        value={selectedEmployee.role?.id?.toString() || ""}
-                        onChange={(value) => {
-                          const selectedRole = roles.find(
-                            (r) => r.id.toString() === value
-                          );
-                          setSelectedEmployee({
-                            ...selectedEmployee,
-                            role: selectedRole,
-                          });
-                          // Fetch CPF levels for the selected role (by name)
-                          if (selectedRole?.name) {
-                            fetchCPFLevelsByRole(selectedRole.name);
-                          }
-                        }}
-                        options={roles}
-                        getOptionValue={(role) => role.id.toString()}
-                        getOptionLabel={(role) => role.name}
-                        disabled={!canEditAll}
-                        isEditing={editMode}
-                        placeholder="Select role"
-                      />
-                      <EditableMultiSelect
-                        label="Assigned Projects"
-                        selectedValues={projects.filter((p) =>
-                          selectedEmployee.assigned_projects?.some(
-                            (ap) => ap.project_id === p.id
-                          )
-                        )}
-                        onChange={(newProjects) => {
-                          // Keep assignments that are still selected
-                          const keptAssignments = (
-                            selectedEmployee.assigned_projects || []
-                          ).filter((ap) =>
-                            newProjects.some((p) => p.id === ap.project_id)
-                          );
-
-                          // Create new assignments for projects that weren't selected before
-                          const newAssignments = newProjects
-                            .filter(
-                              (p) =>
-                                !keptAssignments.some(
-                                  (ap) => ap.project_id === p.id
-                                )
-                            )
-                            .map((p) => ({
-                              id: 0,
-                              project_id: p.id,
-                              project_name: p.name,
-                              role: "",
-                              start_date: new Date()
-                                .toISOString()
-                                .split("T")[0],
-                              status: "active",
-                            }));
-
-                          const allAssignments = [
-                            ...keptAssignments,
-                            ...newAssignments,
-                          ];
-
-                          const updatedEmployee = {
-                            ...selectedEmployee,
-                            assigned_projects: allAssignments,
-                          };
-
-                          if (newProjects.length > 0) {
-                            // Collect all unique leads from all selected projects
-                            const allLeads: { id: number; name: string }[] = [];
-                            const seenIds = new Set<number>();
-
-                            newProjects.forEach((np) => {
-                              if (np.leaders) {
-                                np.leaders.forEach(
-                                  (leader: { id: number; name: string }) => {
-                                    if (!seenIds.has(leader.id)) {
-                                      seenIds.add(leader.id);
-                                      allLeads.push(leader);
-                                    }
-                                  }
-                                );
-                              }
-                            });
-
-                            if (allLeads.length > 0) {
-                              updatedEmployee.manager_ids = allLeads.map(
-                                (l) => l.id
-                              );
-
-                              toast.info(
-                                `Managers automatically set to project leads: ${allLeads
-                                  .map((l) => l.name)
-                                  .join(", ")}`,
-                                {
-                                  position: "bottom-right",
-                                }
-                              );
-                            }
-                          } else {
-                            // If no projects, clear managers
-                            updatedEmployee.manager_ids = [];
-                            toast.info(
-                              "Projects cleared. Manager selection reset.",
-                              {
-                                position: "bottom-right",
-                              }
-                            );
-                          }
-
-                          setSelectedEmployee(updatedEmployee);
-                        }}
-                        allOptions={projects}
-                        getOptionValue={(project) => project.id}
-                        getOptionLabel={(project) => project.name}
-                        disabled={!canEditAll}
-                        isEditing={editMode}
-                        colSpan="col-span-2"
-                      />
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
-                          Start Date
-                        </label>
-                        {canEditAll && editMode ? (
-                          <div className="w-full">
-                            <DatePicker
-                              value={selectedEmployee.start_date}
-                              onChange={(date) =>
-                                setSelectedEmployee({
-                                  ...selectedEmployee,
-                                  start_date: date,
-                                })
-                              }
-                              mode="single"
-                              disabled={!editMode}
-                              placeholder="Select start date"
-                              disabledDates={(date) => date > new Date()}
-                            />
-                          </div>
-                        ) : (
-                          <div className="py-1">
-                            <p
-                              className={cn(
-                                "text-base font-medium transition-colors",
-                                selectedEmployee.start_date
-                                  ? "text-gray-900"
-                                  : "text-gray-400 italic"
-                              )}
-                            >
-                              {selectedEmployee.start_date
-                                ? formatDate(selectedEmployee.start_date)
-                                : "Not started"}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wider pb">
-                          Employment Status
-                        </label>
-                        {canEditAll && editMode ? (
-                          <Select
-                            value={
-                              selectedEmployee.employment_status || "active"
-                            }
-                            onValueChange={(value) =>
-                              editMode &&
-                              setSelectedEmployee({
-                                ...selectedEmployee,
-                                employment_status: value,
-                              })
-                            }
-                            disabled={!editMode}
-                          >
-                            <SelectTrigger className="w-full mt-0.5 bg-white border-zinc-200 focus:ring-zinc-500/10 focus:border-zinc-400 transition-all rounded-xl h-14! shadow-sm">
-                              <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="active">Active</SelectItem>
-                              <SelectItem value="inactive">Inactive</SelectItem>
-                              <SelectItem value="on_leave">On Leave</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <div className="py-1">
-                            <Badge
-                              className={cn(
-                                "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-tighter",
-                                selectedEmployee.employment_status === "active"
-                                  ? "bg-green-100 text-green-700 border-green-200"
-                                  : selectedEmployee.employment_status ===
-                                      "on_leave"
-                                    ? "bg-amber-100 text-amber-700 border-amber-200"
-                                    : "bg-gray-100 text-gray-700 border-gray-200"
-                              )}
-                            >
-                              {selectedEmployee.employment_status || "Unknown"}
-                            </Badge>
-                          </div>
-                        )}
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
-                          CPF Level
-                        </label>
-                        {loadingCpfLevels ? (
-                          <div className="py-1 flex items-center gap-2 text-gray-400 animate-pulse">
-                            <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
-                            <p className="text-sm font-medium">
-                              Optimizing CPF data...
-                            </p>
-                          </div>
-                        ) : (
-                          <EditableSelect
-                            label=""
-                            value={selectedEmployee.cpf_level || ""}
-                            onChange={(value) =>
-                              setSelectedEmployee({
-                                ...selectedEmployee,
-                                cpf_level: value,
-                              })
-                            }
-                            options={cpfLevels}
-                            getOptionValue={(level) => level}
-                            getOptionLabel={(level) => level}
-                            disabled={!canEditAll}
-                            isEditing={editMode}
-                            placeholder="Select CPF Level"
-                            noDataMessage="No CPF levels available"
-                            triggerClassName="h-11! !py-0"
-                          />
-                        )}
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
-                          Manager (Tech Lead)
-                        </label>
-                        {canEditAll ? (
-                          <EditableMultiSelect
-                            label=""
-                            selectedValues={managers.filter((m) =>
-                              selectedEmployee.manager_ids?.includes(m.id)
-                            )}
-                            onChange={(selectedManagers) =>
-                              setSelectedEmployee({
-                                ...selectedEmployee,
-                                manager_ids: selectedManagers.map((m) => m.id),
-                              })
-                            }
-                            allOptions={managers}
-                            getOptionValue={(manager) => manager.id}
-                            getOptionLabel={(manager) =>
-                              `${manager.first_name} ${manager.last_name}`
-                            }
-                            disabled={!canEditAll}
-                            isEditing={editMode}
-                          />
-                        ) : (
-                          <div className="py-1">
-                            <p
-                              className={cn(
-                                "text-base font-medium transition-colors",
-                                selectedEmployee.manager_names
-                                  ? "text-gray-900"
-                                  : "text-gray-400 italic"
-                              )}
-                            >
-                              {selectedEmployee.manager_names ||
-                                "No manager assigned"}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Technology Tags Section */}
-                  <div className="space-y-6">
-                    <div className="flex items-baseline justify-between border-b border-gray-100 pb-2">
-                      <h3 className="text-lg font-bold text-gray-900 tracking-tight">
-                        Technology & Skills
-                      </h3>
-                      <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
-                        SECTION 03
-                      </span>
-                    </div>
-                    <TechnologyTagInput
-                      selectedTags={selectedEmployee.technology_tags ?? []}
-                      allTags={allTechnologyTags}
-                      isEditing={editMode}
-                      disabled={
-                        !canEditAll && currentUserId !== selectedEmployee.id
-                      }
-                      onTagAdded={(tag) =>
-                        setSelectedEmployee({
-                          ...selectedEmployee,
-                          technology_tags: [
-                            ...(selectedEmployee.technology_tags ?? []),
-                            tag,
-                          ],
-                        })
-                      }
-                      onTagRemoved={(tagId) =>
-                        setSelectedEmployee({
-                          ...selectedEmployee,
-                          technology_tags: (
-                            selectedEmployee.technology_tags ?? []
-                          ).filter((t) => t.id !== tagId),
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div className="space-y-6">
-                    <div className="flex items-baseline justify-between border-b border-gray-100 pb-2">
-                      <h3 className="text-lg font-bold text-gray-900 tracking-tight">
-                        CV
-                      </h3>
-                      <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
-                        SECTION 04
-                      </span>
-                    </div>
-                    <div className="space-y-4">
-                      {editMode && canUploadCV ? (
-                        <div className="space-y-2 rounded-xl border border-zinc-200 bg-white px-3 py-2.5 shadow-sm">
-                          <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">
-                            Add a CV version
-                          </p>
-
-                          <div
-                            className="relative flex min-h-8 w-full rounded-lg border border-zinc-300/70 bg-zinc-200 p-1 shadow-inner"
-                            role="tablist"
-                            aria-label="CV source"
-                          >
-                            <span
-                              aria-hidden
-                              className={cn(
-                                "pointer-events-none absolute rounded-[6px] bg-white shadow-md ring-1 ring-black/[0.08] transition-[left,right] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
-                                cvAddMode === "file"
-                                  ? "inset-y-1 left-1 right-1/2"
-                                  : "inset-y-1 left-1/2 right-1"
-                              )}
-                            />
-                            <button
-                              type="button"
-                              role="tab"
-                              aria-selected={cvAddMode === "file"}
-                              className={cn(
-                                "relative z-10 flex-1 rounded-md py-1 text-xs font-medium transition-colors duration-200",
-                                cvAddMode === "file"
-                                  ? "text-zinc-900"
-                                  : "text-zinc-500 hover:text-zinc-700"
-                              )}
-                              onClick={() => setCvAddMode("file")}
-                            >
-                              Upload file
-                            </button>
-                            <button
-                              type="button"
-                              role="tab"
-                              aria-selected={cvAddMode === "link"}
-                              className={cn(
-                                "relative z-10 flex-1 rounded-md py-1 text-xs font-medium transition-colors duration-200",
-                                cvAddMode === "link"
-                                  ? "text-zinc-900"
-                                  : "text-zinc-500 hover:text-zinc-700"
-                              )}
-                              onClick={() => setCvAddMode("link")}
-                            >
-                              Paste link
-                            </button>
-                          </div>
-
-                          <div
-                            key={cvAddMode}
-                            className="animate-in fade-in slide-in-from-top-1 duration-200 space-y-1.5 pt-0.5"
-                          >
-                            {cvAddMode === "file" ? (
-                              <>
-                                <p className="text-[11px] leading-tight text-zinc-500">
-                                  PDF, DOC or DOCX · max 10MB
-                                </p>
-                                <div>
-                                  <input
-                                    ref={cvFileInputRef}
-                                    type="file"
-                                    accept=".pdf,.doc,.docx"
-                                    className="hidden"
-                                    onChange={handleCVFilePicked}
-                                  />
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() =>
-                                      cvFileInputRef.current?.click()
-                                    }
-                                    disabled={isUploadingCV}
-                                    className="h-8 gap-2 px-3 text-xs"
-                                  >
-                                    {isUploadingCV ? (
-                                      <>
-                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                        Uploading...
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Upload className="w-3.5 h-3.5" />
-                                        Choose file
-                                      </>
-                                    )}
-                                  </Button>
-                                </div>
-                              </>
-                            ) : (
-                              <>
-                                <p className="text-[11px] leading-tight text-zinc-500">
-                                  Canva share URL or any https link
-                                </p>
-                                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                                  <Input
-                                    type="url"
-                                    placeholder="https://…"
-                                    value={cvLinkDraft}
-                                    onChange={(e) =>
-                                      setCvLinkDraft(e.target.value)
-                                    }
-                                    className="h-8 bg-white text-sm sm:flex-1"
-                                    disabled={isAddingCvLink}
-                                  />
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    className="h-8 gap-2 px-3 text-xs shrink-0 sm:w-auto w-full justify-center"
-                                    onClick={() => void handleAddCvLink()}
-                                    disabled={isAddingCvLink}
-                                  >
-                                    {isAddingCvLink ? (
-                                      <>
-                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                        Saving…
-                                      </>
-                                    ) : (
-                                      <>
-                                        <ExternalLink className="w-3.5 h-3.5" />
-                                        Save link
-                                      </>
-                                    )}
-                                  </Button>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      ) : editMode && !canUploadCV ? (
-                        <p className="text-xs text-zinc-500">
-                          You don&apos;t have permission to add or remove CVs
-                          for this profile.
-                        </p>
-                      ) : null}
-
-                      {isLoadingCVs ? (
-                        <div className="space-y-2">
-                          <Skeleton className="h-12 w-full" />
-                          <Skeleton className="h-12 w-full" />
-                        </div>
-                      ) : cvVersions.length === 0 ? (
-                        <p className="text-sm text-gray-400 italic">
-                          No CV on file yet
-                        </p>
-                      ) : (
-                        <div className="space-y-2">
-                          {cvVersions.map((cv) => (
-                            <div
-                              key={cv.id}
-                              className="flex items-center justify-between rounded-xl border border-zinc-200 px-4 py-3"
-                            >
-                              <div className="min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <FileText className="h-4 w-4 text-zinc-500 shrink-0" />
-                                  <p className="truncate text-sm font-medium text-zinc-900">
-                                    {cv.file_name ||
-                                      (cv.provider === "canva"
-                                        ? "Canva CV link"
-                                        : "CV file")}
-                                  </p>
-                                  {cv.provider === "canva" ? (
-                                    <Badge className="bg-purple-100 text-purple-700 border-purple-200">
-                                      Canva
-                                    </Badge>
-                                  ) : null}
-                                  {cv.is_current ? (
-                                    <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">
-                                      Current
-                                    </Badge>
-                                  ) : null}
-                                </div>
-                                <p className="mt-0.5 text-xs text-zinc-500">
-                                  Uploaded {formatDate(cv.uploaded_at)}
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-1 shrink-0">
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  className="gap-2"
-                                  onClick={() => handleCVAccess(cv)}
-                                >
-                                  {cv.source_type === "external_link" ? (
-                                    <ExternalLink className="h-4 w-4" />
-                                  ) : (
-                                    <Download className="h-4 w-4" />
-                                  )}
-                                  {cv.source_type === "external_link"
-                                    ? "Open link"
-                                    : "Download"}
-                                </Button>
-                                {cvVersionSupportsEmbeddedPreview(cv) ? (
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    className="gap-2"
-                                    onClick={() => handleCVPreview(cv)}
-                                  >
-                                    <Eye className="h-4 w-4" />
-                                    Preview
-                                  </Button>
-                                ) : null}
-                                {canUploadCV && editMode ? (
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    className="gap-2 text-red-600 hover:text-red-700"
-                                    onClick={() => handleDeleteCV(cv)}
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                    Delete
-                                  </Button>
-                                ) : null}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="space-y-6">
-                    <div className="flex items-baseline justify-between border-b border-gray-100 pb-2">
-                      <h3 className="text-lg font-bold text-gray-900 tracking-tight">
-                        Change History
-                      </h3>
-                      <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
-                        SECTION 06
-                      </span>
-                    </div>
-                    {isLoadingProfileHistory ? (
-                      <div className="flex items-center gap-2 text-sm text-zinc-500">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Loading change history...
-                      </div>
-                    ) : profileHistoryError ? (
-                      <p className="text-sm text-red-600">
-                        {profileHistoryError}
-                      </p>
-                    ) : profileChangeHistory.length === 0 ? (
-                      <p className="text-sm text-zinc-500">
-                        No tracked profile changes yet.
-                      </p>
-                    ) : (
-                      <div className="overflow-x-auto rounded-xl border border-zinc-200">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>When</TableHead>
-                              <TableHead>Field</TableHead>
-                              <TableHead>Old Value</TableHead>
-                              <TableHead>New Value</TableHead>
-                              <TableHead>Changed By</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {profileChangeHistory.map((entry) => (
-                              <TableRow key={String(entry.id)}>
-                                <TableCell>
-                                  {formatDate(entry.changed_at)}
-                                </TableCell>
-                                <TableCell>
-                                  {profileHistoryFieldLabel(entry.field)}
-                                </TableCell>
-                                <TableCell className="text-zinc-600">
-                                  {profileHistoryValueText(
-                                    entry.field,
-                                    entry.old_value
-                                  )}
-                                </TableCell>
-                                <TableCell className="font-medium text-zinc-900">
-                                  {profileHistoryValueText(
-                                    entry.field,
-                                    entry.new_value
-                                  )}
-                                </TableCell>
-                                <TableCell className="text-zinc-600">
-                                  {entry.changed_by_name ||
-                                    entry.changed_by_email ||
-                                    "System"}
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Emergency Contact Section - Editable only if user has permission */}
-                  <div className="space-y-6">
-                    <div className="flex items-baseline justify-between border-b border-gray-100 pb-2">
-                      <h3 className="text-lg font-bold text-gray-900 tracking-tight">
-                        Emergency Contact
-                      </h3>
-                      <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
-                        SECTION 05
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-8 gap-y-6">
-                      <EditableInput
-                        label="Contact Name"
-                        value={selectedEmployee.emergency_contact_name}
-                        onChange={(value) =>
-                          setSelectedEmployee({
-                            ...selectedEmployee,
-                            emergency_contact_name: value,
-                          })
-                        }
-                        disabled={
-                          !canEditAll && currentUserId !== selectedEmployee.id
-                        }
-                        isEditing={editMode}
-                        placeholder="Full name"
-                      />
-                      <EditableInput
-                        label="Contact Phone"
-                        value={selectedEmployee.emergency_contact_phone}
-                        onChange={(value) =>
-                          setSelectedEmployee({
-                            ...selectedEmployee,
-                            emergency_contact_phone: value.slice(0, 30),
-                          })
-                        }
-                        disabled={
-                          !canEditAll && currentUserId !== selectedEmployee.id
-                        }
-                        isEditing={editMode}
-                        placeholder="+XXXXXXXXXXX"
-                        maxLength={30}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Error Message */}
-                {saveError && editMode && (
-                  <div className="rounded-md bg-red-50 p-4 border border-red-200 flex gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                    <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 shrink-0" />
-                    <div>
-                      <h3 className="font-medium text-red-900">Error</h3>
-                      <p className="text-sm text-red-700">{saveError}</p>
-                    </div>
-                  </div>
-                )}
-
-                {editMode ? (
-                  <div className="flex justify-end gap-3 pt-8 border-t border-gray-100 mt-6 bg-white sticky bottom-0 -mx-8 px-8 pb-8 z-40">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={closeEmployeeDialog}
-                      disabled={isSaving}
-                      className="text-gray-600 hover:text-zinc-900 font-semibold"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => void handleSaveEmployee()}
-                      disabled={isSaving}
-                      className="gap-2 bg-zinc-800 hover:bg-zinc-900 text-white border-none shadow-lg shadow-zinc-900/10 px-10 h-12 rounded-xl transition-all active:scale-95"
-                    >
-                      {isSaving ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Saving...
-                        </>
-                      ) : (
-                        "Save changes"
-                      )}
-                    </Button>
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          ) : null}
-        </DialogContent>
-      </Dialog>
+      <AddEmployeeDialog
+        open={addEmployeeOpen}
+        onOpenChange={setAddEmployeeOpen}
+        departments={departments}
+        roles={roles}
+        projects={projects}
+        managers={managers}
+        existingEmails={employees.map((employee) => employee.email)}
+        onboardingTemplates={onboardingTemplates}
+        isSaving={isCreatingEmployee}
+        onCheckEmail={handleCheckEmployeeEmail}
+        onSubmit={handleCreateEmployee}
+      />
+      <ExportEmployeesDialog
+        open={exportEmployeesOpen}
+        onOpenChange={setExportEmployeesOpen}
+        employees={employees}
+        filteredEmployees={exportContext?.filteredEmployees ?? employees}
+        search={exportContext?.search ?? ""}
+        filters={
+          exportContext?.filters ?? {
+            department: "all",
+            status: "all",
+            sort: "name_asc",
+          }
+        }
+        activeFilterCount={exportContext?.activeFilterCount ?? 0}
+        isExporting={isExportingEmployees}
+        onExport={handleExportEmployees}
+      />
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
         <DialogContent className="max-w-6xl h-[88vh] p-0 overflow-hidden border-none shadow-2xl bg-white flex flex-col rounded-2xl">
           <DialogTitle className="px-6 pt-5 pb-3 text-base font-semibold text-zinc-900 border-b border-zinc-200 bg-white flex items-center justify-between">
@@ -1844,6 +1427,45 @@ export default function ProfilesModule() {
                 </>
               ) : (
                 "Delete"
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog
+        open={!!deleteConfirmEmployee}
+        onOpenChange={(open) => {
+          if (!open) setDeleteConfirmEmployee(null);
+        }}
+      >
+        <AlertDialogContent className="sm:max-w-md border-zinc-200 bg-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-lg font-semibold text-zinc-900">
+              Delete employee?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-zinc-600">
+              {deleteConfirmEmployee
+                ? `This will permanently delete ${deleteConfirmEmployee.first_name} ${deleteConfirmEmployee.last_name} and all linked data (assignments, CVs, history). This action cannot be undone.`
+                : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 sm:gap-2">
+            <AlertDialogCancel disabled={isDeletingEmployee} type="button">
+              Cancel
+            </AlertDialogCancel>
+            <Button
+              type="button"
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={confirmDeleteEmployee}
+              disabled={isDeletingEmployee}
+            >
+              {isDeletingEmployee ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete employee"
               )}
             </Button>
           </AlertDialogFooter>

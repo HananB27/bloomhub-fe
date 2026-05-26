@@ -1,0 +1,28 @@
+{
+  "nodes": [
+    {
+      "id": "cavemancompress_readme",
+      "label": "caveman-compress/README.md",
+      "file_type": "document",
+      "source_file": ".agents/skills/caveman-compress/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "cavemancompress_readme",
+      "target": "cavemancompress_skill",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": ".agents/skills/caveman-compress/README.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

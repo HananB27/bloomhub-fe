@@ -1,0 +1,17 @@
+{
+  "nodes": [
+    {
+      "id": "caveman_compress_detect",
+      "label": "caveman-compress detect.py",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/.agents/skills/caveman-compress/scripts/detect.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

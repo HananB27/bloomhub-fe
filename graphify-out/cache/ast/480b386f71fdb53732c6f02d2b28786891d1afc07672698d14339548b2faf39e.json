@@ -1,0 +1,44 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_tests_app_page_test_tsx",
+      "label": "page.test.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/app/page.test.tsx",
+      "source_location": "L1"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_app_page_test_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/app/page.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_app_page_test_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_app_page_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/app/page.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_app_page_test_tsx",
+      "target": "vitest",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/app/page.test.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

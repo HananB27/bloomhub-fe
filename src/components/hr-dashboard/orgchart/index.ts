@@ -1,0 +1,1 @@
+export { OrgChartModule } from "./OrgChartModule";

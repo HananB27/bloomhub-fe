@@ -1,0 +1,528 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "label": "ConferenceCourseRegistrationSection.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "training_conferencecourseregistrationsection_statusfilter",
+      "label": "StatusFilter",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L39"
+    },
+    {
+      "id": "training_conferencecourseregistrationsection_years",
+      "label": "YEARS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L41"
+    },
+    {
+      "id": "training_conferencecourseregistrationsection_conferencecourseregistrationsectionprops",
+      "label": "ConferenceCourseRegistrationSectionProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L46"
+    },
+    {
+      "id": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "label": "ConferenceCourseRegistrationSection()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L50"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_button_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "ui_button_button",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_dialog_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "ui_dialog_dialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "ui_dialog_dialogcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "ui_dialog_dialogdescription",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "ui_dialog_dialogheader",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "ui_dialog_dialogtitle",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_alert_dialog_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "ui_alert_dialog_alertdialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "ui_alert_dialog_alertdialogaction",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "ui_alert_dialog_alertdialogcancel",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "ui_alert_dialog_alertdialogcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "ui_alert_dialog_alertdialogdescription",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "ui_alert_dialog_alertdialogheader",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "ui_alert_dialog_alertdialogtitle",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "sonner",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_types_conferencecourseregistration_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "types_conferencecourseregistration_conferencecourseregistration",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "types_conferencecourseregistration_conferencecourseregistrationfilters",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "types_conferencecourseregistration_conferencecourseregistrationstatus",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_types_conferencecourseregistration_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "types_conferencecourseregistration_all_conference_course_registration_statuses",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "types_conferencecourseregistration_conference_course_registration_status_labels",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_conferencecourseregistrations_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "api_conferencecourseregistrations_deleteconferencecourseregistration",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "api_conferencecourseregistrations_fetchconferencecourseregistrations",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationform_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "training_conferencecourseregistrationform_conferencecourseregistrationform",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationlist_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "training_conferencecourseregistrationlist_conferencecourseregistrationlist",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "training_conferencecourseregistrationsection_statusfilter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "training_conferencecourseregistrationsection_years",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "training_conferencecourseregistrationsection_conferencecourseregistrationsectionprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_conferencecourseregistrationsection_tsx",
+      "target": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L50",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L61"
+    },
+    {
+      "caller_nid": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L62"
+    },
+    {
+      "caller_nid": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L216"
+    },
+    {
+      "caller_nid": "training_conferencecourseregistrationsection_conferencecourseregistrationsection",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx",
+      "source_location": "L232"
+    }
+  ]
+}

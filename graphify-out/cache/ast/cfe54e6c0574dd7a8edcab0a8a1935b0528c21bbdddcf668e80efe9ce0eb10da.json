@@ -1,0 +1,121 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_stagechip_tsx",
+      "label": "StageChip.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StageChip.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "atoms_stagechip_stagechipprops",
+      "label": "StageChipProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StageChip.tsx",
+      "source_location": "L5"
+    },
+    {
+      "id": "atoms_stagechip_stagechip",
+      "label": "StageChip()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StageChip.tsx",
+      "source_location": "L11"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_stagechip_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_utils_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StageChip.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_stagechip_tsx",
+      "target": "ui_utils_cn",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StageChip.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_stagechip_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsdata_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StageChip.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_stagechip_tsx",
+      "target": "projects_projectsdata_stage_by_id",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StageChip.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_stagechip_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_types_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StageChip.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_stagechip_tsx",
+      "target": "projects_types_projectstageid",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StageChip.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_stagechip_tsx",
+      "target": "atoms_stagechip_stagechipprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StageChip.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_stagechip_tsx",
+      "target": "atoms_stagechip_stagechip",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StageChip.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "atoms_stagechip_stagechip",
+      "callee": "cn",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StageChip.tsx",
+      "source_location": "L21"
+    },
+    {
+      "caller_nid": "atoms_stagechip_stagechip",
+      "callee": "cn",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StageChip.tsx",
+      "source_location": "L38"
+    }
+  ]
+}

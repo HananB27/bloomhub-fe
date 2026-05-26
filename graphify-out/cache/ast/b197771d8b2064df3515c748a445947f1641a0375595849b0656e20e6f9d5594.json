@@ -1,0 +1,506 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "label": "FieldComponents.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "templates_fieldcomponents_fieldinputprops",
+      "label": "FieldInputProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L28"
+    },
+    {
+      "id": "templates_fieldcomponents_fieldlabel",
+      "label": "FieldLabel()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L37"
+    },
+    {
+      "id": "templates_fieldcomponents_fieldhint",
+      "label": "FieldHint()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L55"
+    },
+    {
+      "id": "templates_fieldcomponents_fieldisempty",
+      "label": "fieldIsEmpty()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L60"
+    },
+    {
+      "id": "templates_fieldcomponents_textfieldinput",
+      "label": "TextFieldInput()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L70"
+    },
+    {
+      "id": "templates_fieldcomponents_datefieldinput",
+      "label": "DateFieldInput()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L96"
+    },
+    {
+      "id": "templates_fieldcomponents_numberfieldinput",
+      "label": "NumberFieldInput()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L121"
+    },
+    {
+      "id": "templates_fieldcomponents_dropdownfieldinput",
+      "label": "DropdownFieldInput()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L147"
+    },
+    {
+      "id": "templates_fieldcomponents_checkboxfieldinput",
+      "label": "CheckboxFieldInput()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L189"
+    },
+    {
+      "id": "templates_fieldcomponents_userselectfieldinput",
+      "label": "UserSelectFieldInput()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L246"
+    },
+    {
+      "id": "templates_fieldcomponents_field_component_map",
+      "label": "FIELD_COMPONENT_MAP",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L276"
+    },
+    {
+      "id": "templates_fieldcomponents_fieldrenderer",
+      "label": "FieldRenderer()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L288"
+    },
+    {
+      "id": "templates_fieldcomponents_field_type_icon_map",
+      "label": "FIELD_TYPE_ICON_MAP",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L295"
+    },
+    {
+      "id": "templates_fieldcomponents_fieldtypeicon",
+      "label": "FieldTypeIcon()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L307"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_select_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "ui_select_select",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "ui_select_selectcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "ui_select_selectitem",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "ui_select_selecttrigger",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "ui_select_selectvalue",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_datepicker_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "hr_dashboard_datepicker_datepicker",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_templates_templateshelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "templates_templateshelpers_templatefieldtype",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "templates_templateshelpers_template_field_type_labels",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "templates_templateshelpers_templatefield",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "templates_fieldcomponents_fieldinputprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "templates_fieldcomponents_fieldlabel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "templates_fieldcomponents_fieldhint",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "templates_fieldcomponents_fieldisempty",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "templates_fieldcomponents_textfieldinput",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L70",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "templates_fieldcomponents_datefieldinput",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L96",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "templates_fieldcomponents_numberfieldinput",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L121",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "templates_fieldcomponents_dropdownfieldinput",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L147",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "templates_fieldcomponents_checkboxfieldinput",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L189",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "templates_fieldcomponents_userselectfieldinput",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L246",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "templates_fieldcomponents_field_component_map",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L276",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "templates_fieldcomponents_fieldrenderer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L288",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "templates_fieldcomponents_field_type_icon_map",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L295",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_templates_fieldcomponents_tsx",
+      "target": "templates_fieldcomponents_fieldtypeicon",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L307",
+      "weight": 1.0
+    },
+    {
+      "source": "templates_fieldcomponents_textfieldinput",
+      "target": "templates_fieldcomponents_fieldisempty",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "templates_fieldcomponents_datefieldinput",
+      "target": "templates_fieldcomponents_fieldisempty",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L102",
+      "weight": 1.0
+    },
+    {
+      "source": "templates_fieldcomponents_numberfieldinput",
+      "target": "templates_fieldcomponents_fieldisempty",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L127",
+      "weight": 1.0
+    },
+    {
+      "source": "templates_fieldcomponents_dropdownfieldinput",
+      "target": "templates_fieldcomponents_fieldisempty",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L157",
+      "weight": 1.0
+    },
+    {
+      "source": "templates_fieldcomponents_userselectfieldinput",
+      "target": "templates_fieldcomponents_fieldisempty",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L252",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "templates_fieldcomponents_fieldisempty",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "templates_fieldcomponents_fieldisempty",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "templates_fieldcomponents_textfieldinput",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "templates_fieldcomponents_datefieldinput",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "templates_fieldcomponents_numberfieldinput",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L133"
+    },
+    {
+      "caller_nid": "templates_fieldcomponents_dropdownfieldinput",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L153"
+    },
+    {
+      "caller_nid": "templates_fieldcomponents_dropdownfieldinput",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L153"
+    },
+    {
+      "caller_nid": "templates_fieldcomponents_dropdownfieldinput",
+      "callee": "split",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L153"
+    },
+    {
+      "caller_nid": "templates_fieldcomponents_dropdownfieldinput",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L162"
+    },
+    {
+      "caller_nid": "templates_fieldcomponents_dropdownfieldinput",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L174"
+    },
+    {
+      "caller_nid": "templates_fieldcomponents_userselectfieldinput",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/templates/FieldComponents.tsx",
+      "source_location": "L258"
+    }
+  ]
+}

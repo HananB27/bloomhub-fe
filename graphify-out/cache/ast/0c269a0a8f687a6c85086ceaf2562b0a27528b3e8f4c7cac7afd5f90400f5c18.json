@@ -1,0 +1,191 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sections_profileemploymentsection_tsx",
+      "label": "ProfileEmploymentSection.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "sections_profileemploymentsection_profileemploymentsectionprops",
+      "label": "ProfileEmploymentSectionProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L13"
+    },
+    {
+      "id": "sections_profileemploymentsection_profileemploymentsection",
+      "label": "ProfileEmploymentSection()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L18"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sections_profileemploymentsection_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sections_profileemploymentsection_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_employees_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sections_profileemploymentsection_tsx",
+      "target": "api_employees_employeeprofiledata",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sections_profileemploymentsection_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_utils_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sections_profileemploymentsection_tsx",
+      "target": "utils_index_formatdate",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sections_profileemploymentsection_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_atoms_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sections_profileemploymentsection_tsx",
+      "target": "atoms_index_field",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sections_profileemploymentsection_tsx",
+      "target": "atoms_index_fieldempty",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sections_profileemploymentsection_tsx",
+      "target": "atoms_index_fieldvalue",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sections_profileemploymentsection_tsx",
+      "target": "atoms_index_profilesection",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sections_profileemploymentsection_tsx",
+      "target": "atoms_index_statuspill",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sections_profileemploymentsection_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_employeeslisthelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sections_profileemploymentsection_tsx",
+      "target": "employee_profiles_employeeslisthelpers_deriveemployeestatus",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sections_profileemploymentsection_tsx",
+      "target": "sections_profileemploymentsection_profileemploymentsectionprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_employee_profiles_sections_profileemploymentsection_tsx",
+      "target": "sections_profileemploymentsection_profileemploymentsection",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "sections_profileemploymentsection_profileemploymentsection",
+      "callee": "deriveEmployeeStatus",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L21"
+    },
+    {
+      "caller_nid": "sections_profileemploymentsection_profileemploymentsection",
+      "callee": "formatDate",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
+      "source_location": "L49"
+    }
+  ]
+}

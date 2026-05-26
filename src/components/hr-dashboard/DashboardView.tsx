@@ -19,6 +19,7 @@ import { useSession } from "next-auth/react";
 // ... (rest of imports unchanged)
 import { VacationsModule } from "./VacationsModule";
 import ProfilesModule from "./ProfilesModule";
+import { ProjectsModule } from "./projects";
 import { ReviewsModule } from "./ReviewsModule";
 import { OnboardingModule } from "./OnboardingModule";
 import { TrainingModule } from "./TrainingModule";
@@ -393,13 +394,15 @@ export function DashboardView({
     case "vacations":
       return <VacationsModule addNotification={addNotification} />;
     case "profiles":
-      return <ProfilesModule />;
+      return <ProfilesModule onNavigate={onNavigate} />;
+    case "projects":
+      return <ProjectsModule onNavigate={onNavigate} />;
     case "reviews":
       return <ReviewsModule />;
     case "onboarding":
       return <OnboardingModule onNavigate={onNavigate} />;
     case "training":
-      return <TrainingModule />;
+      return <TrainingModule onNavigate={onNavigate} />;
     case "compensation":
       return <CompensationModule />;
     case "feedback":
@@ -413,7 +416,7 @@ export function DashboardView({
     case "assets":
       return <AssetsModule />;
     case "orgchart":
-      return <OrgChartModule />;
+      return <OrgChartModule onNavigate={onNavigate} />;
     case "analytics":
       return <AnalyticsModule />;
     case "announcements":

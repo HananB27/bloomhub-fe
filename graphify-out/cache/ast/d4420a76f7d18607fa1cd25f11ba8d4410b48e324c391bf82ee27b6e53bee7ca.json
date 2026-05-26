@@ -1,0 +1,803 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "label": "page.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "id_page_employeeprofilepage",
+      "label": "EmployeeProfilePage()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L71"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "navigation",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_card_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "ui_card_card",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "ui_card_cardcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "ui_card_cardheader",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "ui_card_cardtitle",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_button_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "ui_button_button",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_input_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "ui_input_input",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_label_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "ui_label_label",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_avatar_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "ui_avatar_avatar",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "ui_avatar_avatarfallback",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "ui_avatar_avatarimage",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_badge_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "ui_badge_badge",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_table_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "ui_table_table",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "ui_table_tablebody",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "ui_table_tablecell",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "ui_table_tablehead",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "ui_table_tableheader",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "ui_table_tablerow",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_employees_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "api_employees_employeeapi",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "api_employees_employeeprofiledata",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "api_employees_employeeprofilechangehistoryitem",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "api_employees_salaryhistoryitem",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_profilehistory_helpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "profilehistory_helpers_profilehistoryfieldlabel",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "profilehistory_helpers_filtertrackedprofilehistoryentries",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "profilehistory_helpers_profilehistoryvaluetext",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "training_index_trainingrecentsection",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_utils_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "utils_index_formatdate",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "utils_index_formatcurrency",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_app_employee_id_profilepagehelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "id_profilepagehelpers_buildformdatafromemployee",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "id_profilepagehelpers_buildprofileupdatepayload",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "id_profilepagehelpers_geteditablefields",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "id_profilepagehelpers_ishrrole",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "id_profilepagehelpers_isownprofilebyid",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "id_profilepagehelpers_validateprofileform",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "id_profilepagehelpers_editablefield",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "id_profilepagehelpers_employeeprofileformdata",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "id_profilepagehelpers_profilefielderrors",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_app_employee_id_page_tsx",
+      "target": "id_page_employeeprofilepage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L71",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "useRouter",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "useParams",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L73"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "useSession",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "isArray",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L89"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "isHrRole",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "Number",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L107"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "isOwnProfileById",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "getEditableFields",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L150"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "toUpperCase",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L345"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "formatDate",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L450"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L465"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L465"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "renderField",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L473"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "renderField",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L478"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "renderField",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L486"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "renderField",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L493"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "renderField",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L501"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "renderField",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L506"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L595"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "formatCurrency",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L657"
+    },
+    {
+      "caller_nid": "id_page_employeeprofilepage",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/app/employee/[id]/page.tsx",
+      "source_location": "L692"
+    }
+  ]
+}

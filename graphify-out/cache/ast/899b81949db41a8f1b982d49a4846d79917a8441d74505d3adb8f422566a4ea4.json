@@ -1,0 +1,268 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "label": "documentVisibilityPresets.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "documents_documentvisibilitypresets_documentvisibilityscope",
+      "label": "DocumentVisibilityScope",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L3"
+    },
+    {
+      "id": "documents_documentvisibilitypresets_documentvisibilitypreset",
+      "label": "DocumentVisibilityPreset",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L5"
+    },
+    {
+      "id": "documents_documentvisibilitypresets_documentvisibilitysettings",
+      "label": "DocumentVisibilitySettings",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L14"
+    },
+    {
+      "id": "documents_documentvisibilitypresets_documentvisibilitypresetdefinition",
+      "label": "DocumentVisibilityPresetDefinition",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L24"
+    },
+    {
+      "id": "documents_documentvisibilitypresets_document_visibility_presets",
+      "label": "DOCUMENT_VISIBILITY_PRESETS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L31"
+    },
+    {
+      "id": "documents_documentvisibilitypresets_ordered_document_visibility_presets",
+      "label": "ORDERED_DOCUMENT_VISIBILITY_PRESETS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L80"
+    },
+    {
+      "id": "documents_documentvisibilitypresets_role_named_presets",
+      "label": "ROLE_NAMED_PRESETS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L90"
+    },
+    {
+      "id": "documents_documentvisibilitypresets_default_visibility_settings",
+      "label": "DEFAULT_VISIBILITY_SETTINGS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L97"
+    },
+    {
+      "id": "documents_documentvisibilitypresets_rolesequal",
+      "label": "rolesEqual()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L103"
+    },
+    {
+      "id": "documents_documentvisibilitypresets_presetfromvisibility",
+      "label": "presetFromVisibility()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L114"
+    },
+    {
+      "id": "documents_documentvisibilitypresets_visibilityfrompreset",
+      "label": "visibilityFromPreset()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L128"
+    },
+    {
+      "id": "documents_documentvisibilitypresets_document_category_default_preset",
+      "label": "DOCUMENT_CATEGORY_DEFAULT_PRESET",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L154"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_documents_documentshelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "target": "documents_documentshelpers_documentaccessrole",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "target": "documents_documentshelpers_documentcategory",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "target": "documents_documentvisibilitypresets_documentvisibilityscope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "target": "documents_documentvisibilitypresets_documentvisibilitypreset",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "target": "documents_documentvisibilitypresets_documentvisibilitysettings",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "target": "documents_documentvisibilitypresets_documentvisibilitypresetdefinition",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "target": "documents_documentvisibilitypresets_document_visibility_presets",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "target": "documents_documentvisibilitypresets_ordered_document_visibility_presets",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "target": "documents_documentvisibilitypresets_role_named_presets",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L90",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "target": "documents_documentvisibilitypresets_default_visibility_settings",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L97",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "target": "documents_documentvisibilitypresets_rolesequal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "target": "documents_documentvisibilitypresets_presetfromvisibility",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L114",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "target": "documents_documentvisibilitypresets_visibilityfrompreset",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L128",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "target": "documents_documentvisibilitypresets_document_category_default_preset",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L154",
+      "weight": 1.0
+    },
+    {
+      "source": "documents_documentvisibilitypresets_presetfromvisibility",
+      "target": "documents_documentvisibilitypresets_rolesequal",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L121",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "documents_documentvisibilitypresets_rolesequal",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L105"
+    },
+    {
+      "caller_nid": "documents_documentvisibilitypresets_rolesequal",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "documents_documentvisibilitypresets_rolesequal",
+      "callee": "every",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/documents/documentVisibilityPresets.ts",
+      "source_location": "L107"
+    }
+  ]
+}

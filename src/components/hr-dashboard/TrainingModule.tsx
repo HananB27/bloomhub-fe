@@ -25,6 +25,10 @@ import {
   TrainingFilters,
   TrainingEntryList,
   ConferenceCourseRegistrationSection,
+  CertificatesSection,
+  PeerSessionSection,
+  TrainingBudgetSection,
+  EmployeeBudgetCard,
 } from "./training";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs";
 import type { TrainingEntry, TrainingEntryFilters } from "@/types/training";
@@ -39,7 +43,11 @@ import {
   Award,
 } from "lucide-react";
 
-export function TrainingModule() {
+interface TrainingModuleProps {
+  onNavigate?: (moduleId: string) => void;
+}
+
+export function TrainingModule({ onNavigate }: TrainingModuleProps = {}) {
   const { data: session } = useSession() as {
     data: { accessToken?: string; user?: { name?: string } } | null;
   };
@@ -53,6 +61,8 @@ export function TrainingModule() {
   const [isDeleting, setIsDeleting] = useState<Record<number, boolean>>({});
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<TrainingEntry | null>(null);
+  // Bumped after a budget-relevant mutation so the EmployeeBudgetCard refreshes.
+  const [budgetRefreshSignal, setBudgetRefreshSignal] = useState(0);
 
   // Fetch without the search term — employee-name search is done client-side
   // so we can match across title, provider, and employee name in one pass.
@@ -145,6 +155,8 @@ export function TrainingModule() {
       setAllEntries((prev) => [entry, ...prev]);
       toast.success("Training entry added");
     }
+    // Bump the signal so the budget card re-fetches usage.
+    setBudgetRefreshSignal((value) => value + 1);
     setShowFormDialog(false);
     setEditingEntry(null);
   };
@@ -187,9 +199,16 @@ export function TrainingModule() {
           <TabsTrigger value="registrations">
             Conferences &amp; Courses
           </TabsTrigger>
+          <TabsTrigger value="certificates">Certificates</TabsTrigger>
+          <TabsTrigger value="peer-sessions">Peer Sessions</TabsTrigger>
+          <TabsTrigger value="budget">Budget</TabsTrigger>
         </TabsList>
 
         <TabsContent value="history" className="space-y-4">
+          {/* Employee-only budget snapshot — HR/admins see the full table in
+              the dedicated Budget tab, so we hide it for them here. */}
+          <EmployeeBudgetCard refreshSignal={budgetRefreshSignal} />
+
           <div className="flex items-start justify-between gap-6">
             <div>
               <h2 className="text-base font-semibold text-gray-900">
@@ -269,6 +288,23 @@ export function TrainingModule() {
 
         <TabsContent value="registrations" className="space-y-4">
           <ConferenceCourseRegistrationSection accessToken={accessToken} />
+        </TabsContent>
+
+        <TabsContent value="certificates" className="space-y-4">
+          <CertificatesSection />
+        </TabsContent>
+
+        <TabsContent value="peer-sessions" className="space-y-4">
+          <PeerSessionSection
+            accessToken={accessToken}
+            onNavigateToCompensation={
+              onNavigate ? () => onNavigate("compensation") : undefined
+            }
+          />
+        </TabsContent>
+
+        <TabsContent value="budget" className="space-y-4">
+          <TrainingBudgetSection />
         </TabsContent>
       </Tabs>
 

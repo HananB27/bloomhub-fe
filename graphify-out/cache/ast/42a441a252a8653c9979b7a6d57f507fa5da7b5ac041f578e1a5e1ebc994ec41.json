@@ -1,0 +1,187 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_trainingbudgethelpers_ts",
+      "label": "trainingBudgetHelpers.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "training_trainingbudgethelpers_budgetstate",
+      "label": "BudgetState",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L6"
+    },
+    {
+      "id": "training_trainingbudgethelpers_classifybudget",
+      "label": "classifyBudget()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L8"
+    },
+    {
+      "id": "training_trainingbudgethelpers_budget_state_bar_colors",
+      "label": "BUDGET_STATE_BAR_COLORS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L19"
+    },
+    {
+      "id": "training_trainingbudgethelpers_budget_state_text_colors",
+      "label": "BUDGET_STATE_TEXT_COLORS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L25"
+    },
+    {
+      "id": "training_trainingbudgethelpers_budget_state_bg_colors",
+      "label": "BUDGET_STATE_BG_COLORS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L31"
+    },
+    {
+      "id": "training_trainingbudgethelpers_budget_state_labels",
+      "label": "BUDGET_STATE_LABELS",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L37"
+    },
+    {
+      "id": "training_trainingbudgethelpers_clamppercent",
+      "label": "clampPercent()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L43"
+    },
+    {
+      "id": "training_trainingbudgethelpers_currentfiscalyear",
+      "label": "currentFiscalYear()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L49"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_trainingbudgethelpers_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_types_trainingbudget_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_trainingbudgethelpers_ts",
+      "target": "types_trainingbudget_training_budget_warning_threshold_percent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_trainingbudgethelpers_ts",
+      "target": "types_trainingbudget_trainingbudget",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_trainingbudgethelpers_ts",
+      "target": "training_trainingbudgethelpers_budgetstate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_trainingbudgethelpers_ts",
+      "target": "training_trainingbudgethelpers_classifybudget",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_trainingbudgethelpers_ts",
+      "target": "training_trainingbudgethelpers_budget_state_bar_colors",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_trainingbudgethelpers_ts",
+      "target": "training_trainingbudgethelpers_budget_state_text_colors",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_trainingbudgethelpers_ts",
+      "target": "training_trainingbudgethelpers_budget_state_bg_colors",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_trainingbudgethelpers_ts",
+      "target": "training_trainingbudgethelpers_budget_state_labels",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_trainingbudgethelpers_ts",
+      "target": "training_trainingbudgethelpers_clamppercent",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_training_trainingbudgethelpers_ts",
+      "target": "training_trainingbudgethelpers_currentfiscalyear",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L49",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "training_trainingbudgethelpers_clamppercent",
+      "callee": "isFinite",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "training_trainingbudgethelpers_currentfiscalyear",
+      "callee": "getFullYear",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/training/trainingBudgetHelpers.ts",
+      "source_location": "L50"
+    }
+  ]
+}

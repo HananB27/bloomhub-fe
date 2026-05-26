@@ -1,0 +1,357 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "label": "EditVisibilityDialog.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "documents_editvisibilitydialog_editvisibilitydialogprops",
+      "label": "EditVisibilityDialogProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L32"
+    },
+    {
+      "id": "documents_editvisibilitydialog_describedialog",
+      "label": "describeDialog()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L51"
+    },
+    {
+      "id": "documents_editvisibilitydialog_settingsfromdocument",
+      "label": "settingsFromDocument()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L58"
+    },
+    {
+      "id": "documents_editvisibilitydialog_editvisibilitydialog",
+      "label": "EditVisibilityDialog()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L69"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_modules_documents_index_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "documents_index_documentsapi",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "documents_index_employeedocument",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "documents_documentvisibilitypresets_documentvisibilitysettings",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "documents_documentvisibilitypresets_presetfromvisibility",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilityhelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "documents_documentvisibilityhelpers_document_visibility_dialog_description_fallback",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "documents_documentvisibilityhelpers_document_visibility_dialog_description_prefix",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "documents_documentvisibilityhelpers_document_visibility_dialog_title",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_utils_notificationhelpers_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "utils_notificationhelpers_notifyapierror",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "utils_notificationhelpers_notifysuccess",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "utils_notificationhelpers_notificationmessages",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_dialog_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "ui_dialog_dialog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "ui_dialog_dialogcontent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "ui_dialog_dialogdescription",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "ui_dialog_dialogfooter",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "ui_dialog_dialogheader",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "ui_dialog_dialogtitle",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_documentvisibilityselector_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "documents_documentvisibilityselector_documentvisibilityselector",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "documents_editvisibilitydialog_editvisibilitydialogprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "documents_editvisibilitydialog_describedialog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "documents_editvisibilitydialog_settingsfromdocument",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_editvisibilitydialog_tsx",
+      "target": "documents_editvisibilitydialog_editvisibilitydialog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L69",
+      "weight": 1.0
+    },
+    {
+      "source": "documents_editvisibilitydialog_editvisibilitydialog",
+      "target": "documents_editvisibilitydialog_describedialog",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L117",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "documents_editvisibilitydialog_settingsfromdocument",
+      "callee": "presetFromVisibility",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "documents_editvisibilitydialog_editvisibilitydialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L75"
+    },
+    {
+      "caller_nid": "documents_editvisibilitydialog_editvisibilitydialog",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L78"
+    },
+    {
+      "caller_nid": "documents_editvisibilitydialog_editvisibilitydialog",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/EditVisibilityDialog.tsx",
+      "source_location": "L80"
+    }
+  ]
+}

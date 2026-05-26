@@ -1,0 +1,197 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_app_test_tsx",
+      "label": "App.test.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "hr_dashboard_app_test_mockmarkasread",
+      "label": "mockMarkAsRead",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L40"
+    },
+    {
+      "id": "hr_dashboard_app_test_mockmarkallasread",
+      "label": "mockMarkAllAsRead",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L41"
+    },
+    {
+      "id": "hr_dashboard_app_test_search",
+      "label": "search",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L114"
+    },
+    {
+      "id": "hr_dashboard_app_test_buttons",
+      "label": "buttons",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L118"
+    },
+    {
+      "id": "hr_dashboard_app_test_vacationbuttons",
+      "label": "vacationButtons",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L129"
+    },
+    {
+      "id": "hr_dashboard_app_test_collapsebtn",
+      "label": "collapseBtn",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L144"
+    },
+    {
+      "id": "hr_dashboard_app_test_vacationsnav",
+      "label": "vacationsNav",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L162"
+    },
+    {
+      "id": "hr_dashboard_app_test_firstnotification",
+      "label": "firstNotification",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L189"
+    },
+    {
+      "id": "hr_dashboard_app_test_markall",
+      "label": "markAll",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L199"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_app_test_tsx",
+      "target": "vitest",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_app_test_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_app_test_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_app_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_app_test_tsx",
+      "target": "hr_dashboard_app_test_mockmarkasread",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_app_test_tsx",
+      "target": "hr_dashboard_app_test_mockmarkallasread",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_app_test_tsx",
+      "target": "hr_dashboard_app_test_search",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L114",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_app_test_tsx",
+      "target": "hr_dashboard_app_test_buttons",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L118",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_app_test_tsx",
+      "target": "hr_dashboard_app_test_search",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L125",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_app_test_tsx",
+      "target": "hr_dashboard_app_test_vacationbuttons",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L129",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_app_test_tsx",
+      "target": "hr_dashboard_app_test_collapsebtn",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L144",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_app_test_tsx",
+      "target": "hr_dashboard_app_test_vacationsnav",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L162",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_app_test_tsx",
+      "target": "hr_dashboard_app_test_firstnotification",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L189",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_tests_components_hr_dashboard_app_test_tsx",
+      "target": "hr_dashboard_app_test_markall",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/tests/components/hr-dashboard/App.test.tsx",
+      "source_location": "L199",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

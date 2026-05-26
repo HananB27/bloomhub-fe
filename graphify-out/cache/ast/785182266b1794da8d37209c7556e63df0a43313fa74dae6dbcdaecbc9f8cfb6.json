@@ -1,0 +1,206 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_visibilitypresetoption_tsx",
+      "label": "VisibilityPresetOption.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "documents_visibilitypresetoption_visibilitydensity",
+      "label": "VisibilityDensity",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L19"
+    },
+    {
+      "id": "documents_visibilitypresetoption_visibilitypresetoptionprops",
+      "label": "VisibilityPresetOptionProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L21"
+    },
+    {
+      "id": "documents_visibilitypresetoption_visibilitypresetinputid",
+      "label": "visibilityPresetInputId()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L32"
+    },
+    {
+      "id": "documents_visibilitypresetoption_row_padding_by_density",
+      "label": "ROW_PADDING_BY_DENSITY",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L44"
+    },
+    {
+      "id": "documents_visibilitypresetoption_label_classes_by_density",
+      "label": "LABEL_CLASSES_BY_DENSITY",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L49"
+    },
+    {
+      "id": "documents_visibilitypresetoption_description_classes_by_density",
+      "label": "DESCRIPTION_CLASSES_BY_DENSITY",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L54"
+    },
+    {
+      "id": "documents_visibilitypresetoption_visibilitypresetoption",
+      "label": "VisibilityPresetOption()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L72"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_visibilitypresetoption_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_visibilitypresetoption_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_visibilitypresetoption_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_documents_documentvisibilitypresets_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_visibilitypresetoption_tsx",
+      "target": "documents_documentvisibilitypresets_document_visibility_presets",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_visibilitypresetoption_tsx",
+      "target": "documents_documentvisibilitypresets_documentvisibilitypreset",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_visibilitypresetoption_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_radio_group_tsx",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_visibilitypresetoption_tsx",
+      "target": "ui_radio_group_radiogroupitem",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_visibilitypresetoption_tsx",
+      "target": "documents_visibilitypresetoption_visibilitydensity",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_visibilitypresetoption_tsx",
+      "target": "documents_visibilitypresetoption_visibilitypresetoptionprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_visibilitypresetoption_tsx",
+      "target": "documents_visibilitypresetoption_visibilitypresetinputid",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_visibilitypresetoption_tsx",
+      "target": "documents_visibilitypresetoption_row_padding_by_density",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L44",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_visibilitypresetoption_tsx",
+      "target": "documents_visibilitypresetoption_label_classes_by_density",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_visibilitypresetoption_tsx",
+      "target": "documents_visibilitypresetoption_description_classes_by_density",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_documents_visibilitypresetoption_tsx",
+      "target": "documents_visibilitypresetoption_visibilitypresetoption",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L72",
+      "weight": 1.0
+    },
+    {
+      "source": "documents_visibilitypresetoption_visibilitypresetoption",
+      "target": "documents_visibilitypresetoption_visibilitypresetinputid",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/documents/VisibilityPresetOption.tsx",
+      "source_location": "L80",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

@@ -1,0 +1,1350 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "label": "vacations.ts",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "api_vacations_api_base_url",
+      "label": "API_BASE_URL",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L21"
+    },
+    {
+      "id": "api_vacations_getapierrormessage",
+      "label": "getApiErrorMessage()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L25"
+    },
+    {
+      "id": "api_vacations_apileaverequest",
+      "label": "ApiLeaveRequest",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L62"
+    },
+    {
+      "id": "api_vacations_apileavebalance",
+      "label": "ApiLeaveBalance",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L93"
+    },
+    {
+      "id": "api_vacations_apileavepolicy",
+      "label": "ApiLeavePolicy",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L108"
+    },
+    {
+      "id": "api_vacations_apiteamcalendarevent",
+      "label": "ApiTeamCalendarEvent",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L121"
+    },
+    {
+      "id": "api_vacations_transformleaverequest",
+      "label": "transformLeaveRequest()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L134"
+    },
+    {
+      "id": "api_vacations_transformleavebalance",
+      "label": "transformLeaveBalance()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L168"
+    },
+    {
+      "id": "api_vacations_transformleavepolicy",
+      "label": "transformLeavePolicy()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L186"
+    },
+    {
+      "id": "api_vacations_transformteamcalendarevent",
+      "label": "transformTeamCalendarEvent()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L201"
+    },
+    {
+      "id": "api_vacations_apivacationteammember",
+      "label": "ApiVacationTeamMember",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L215"
+    },
+    {
+      "id": "api_vacations_apivacationcapabilities",
+      "label": "ApiVacationCapabilities",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L221"
+    },
+    {
+      "id": "api_vacations_transformvacationteammember",
+      "label": "transformVacationTeamMember()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L228"
+    },
+    {
+      "id": "api_vacations_transformvacationcapabilities",
+      "label": "transformVacationCapabilities()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L238"
+    },
+    {
+      "id": "api_vacations_fetchvacationteammembers",
+      "label": "fetchVacationTeamMembers()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L252"
+    },
+    {
+      "id": "api_vacations_fetchvacationcapabilities",
+      "label": "fetchVacationCapabilities()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L280"
+    },
+    {
+      "id": "api_vacations_fetchleavepolicies",
+      "label": "fetchLeavePolicies()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L308"
+    },
+    {
+      "id": "api_vacations_fetchleavebalances",
+      "label": "fetchLeaveBalances()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L333"
+    },
+    {
+      "id": "api_vacations_fetchleavebalance",
+      "label": "fetchLeaveBalance()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L358"
+    },
+    {
+      "id": "api_vacations_updateleavebalance",
+      "label": "updateLeaveBalance()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L387"
+    },
+    {
+      "id": "api_vacations_fetchleaverequests",
+      "label": "fetchLeaveRequests()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L427"
+    },
+    {
+      "id": "api_vacations_fetchleaverequest",
+      "label": "fetchLeaveRequest()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L452"
+    },
+    {
+      "id": "api_vacations_createleaverequest",
+      "label": "createLeaveRequest()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L481"
+    },
+    {
+      "id": "api_vacations_approveleaverequest",
+      "label": "approveLeaveRequest()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L517"
+    },
+    {
+      "id": "api_vacations_rejectleaverequest",
+      "label": "rejectLeaveRequest()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L554"
+    },
+    {
+      "id": "api_vacations_cancelleaverequest",
+      "label": "cancelLeaveRequest()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L591"
+    },
+    {
+      "id": "api_vacations_fetchpendingapprovals",
+      "label": "fetchPendingApprovals()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L626"
+    },
+    {
+      "id": "api_vacations_fetchteamcalendar",
+      "label": "fetchTeamCalendar()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L654"
+    },
+    {
+      "id": "api_vacations_hrapproveleaverequest",
+      "label": "hrApproveLeaveRequest()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L688"
+    },
+    {
+      "id": "api_vacations_fetchhrpendingapprovals",
+      "label": "fetchHrPendingApprovals()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L726"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_config_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "lib_config_getapibaseurl",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_types_vacations_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "types_vacations_createleaverequestpayload",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "types_vacations_leavebalance",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "types_vacations_leavepolicy",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "types_vacations_leaverequest",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "types_vacations_leavestatus",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "types_vacations_leavetype",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "types_vacations_teamcalendarevent",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "types_vacations_updateleavebalancepayload",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "types_vacations_vacationcapabilities",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "types_vacations_vacationteammember",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "users_bloomteq_bloomhub_fe_src_lib_api_constants_vacationsendpoints_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "constants_vacationsendpoints_leaverequesthrapprovepath",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "constants_vacationsendpoints_leave_requests_capabilities_path",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "constants_vacationsendpoints_leave_requests_hr_pending_path",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "constants_vacationsendpoints_leave_requests_team_members_path",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_api_base_url",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_getapierrormessage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_apileaverequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_apileavebalance",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_apileavepolicy",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L108",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_apiteamcalendarevent",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L121",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_transformleaverequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L134",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_transformleavebalance",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L168",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_transformleavepolicy",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L186",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_transformteamcalendarevent",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L201",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_apivacationteammember",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L215",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_apivacationcapabilities",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L221",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_transformvacationteammember",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L228",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_transformvacationcapabilities",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L238",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_fetchvacationteammembers",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L252",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_fetchvacationcapabilities",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L280",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_fetchleavepolicies",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L308",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_fetchleavebalances",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L333",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_fetchleavebalance",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L358",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_updateleavebalance",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L387",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_fetchleaverequests",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L427",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_fetchleaverequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L452",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_createleaverequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L481",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_approveleaverequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L517",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_rejectleaverequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L554",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_cancelleaverequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L591",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_fetchpendingapprovals",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L626",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_fetchteamcalendar",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L654",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_hrapproveleaverequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L688",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_lib_api_vacations_ts",
+      "target": "api_vacations_fetchhrpendingapprovals",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L726",
+      "weight": 1.0
+    },
+    {
+      "source": "api_vacations_fetchvacationcapabilities",
+      "target": "api_vacations_transformvacationcapabilities",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L302",
+      "weight": 1.0
+    },
+    {
+      "source": "api_vacations_fetchleavebalance",
+      "target": "api_vacations_transformleavebalance",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L381",
+      "weight": 1.0
+    },
+    {
+      "source": "api_vacations_updateleavebalance",
+      "target": "api_vacations_getapierrormessage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L416",
+      "weight": 1.0
+    },
+    {
+      "source": "api_vacations_updateleavebalance",
+      "target": "api_vacations_transformleavebalance",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L421",
+      "weight": 1.0
+    },
+    {
+      "source": "api_vacations_fetchleaverequest",
+      "target": "api_vacations_transformleaverequest",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L475",
+      "weight": 1.0
+    },
+    {
+      "source": "api_vacations_createleaverequest",
+      "target": "api_vacations_getapierrormessage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L506",
+      "weight": 1.0
+    },
+    {
+      "source": "api_vacations_createleaverequest",
+      "target": "api_vacations_transformleaverequest",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L511",
+      "weight": 1.0
+    },
+    {
+      "source": "api_vacations_approveleaverequest",
+      "target": "api_vacations_getapierrormessage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L543",
+      "weight": 1.0
+    },
+    {
+      "source": "api_vacations_approveleaverequest",
+      "target": "api_vacations_transformleaverequest",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L548",
+      "weight": 1.0
+    },
+    {
+      "source": "api_vacations_rejectleaverequest",
+      "target": "api_vacations_getapierrormessage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L580",
+      "weight": 1.0
+    },
+    {
+      "source": "api_vacations_rejectleaverequest",
+      "target": "api_vacations_transformleaverequest",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L585",
+      "weight": 1.0
+    },
+    {
+      "source": "api_vacations_cancelleaverequest",
+      "target": "api_vacations_getapierrormessage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L615",
+      "weight": 1.0
+    },
+    {
+      "source": "api_vacations_cancelleaverequest",
+      "target": "api_vacations_transformleaverequest",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L620",
+      "weight": 1.0
+    },
+    {
+      "source": "api_vacations_hrapproveleaverequest",
+      "target": "api_vacations_getapierrormessage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L714",
+      "weight": 1.0
+    },
+    {
+      "source": "api_vacations_hrapproveleaverequest",
+      "target": "api_vacations_transformleaverequest",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L719",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "api_vacations_getapierrormessage",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "api_vacations_getapierrormessage",
+      "callee": "isArray",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "api_vacations_getapierrormessage",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "api_vacations_getapierrormessage",
+      "callee": "values",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L49"
+    },
+    {
+      "caller_nid": "api_vacations_getapierrormessage",
+      "callee": "isArray",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "api_vacations_transformleaverequest",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "api_vacations_transformleaverequest",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L137"
+    },
+    {
+      "caller_nid": "api_vacations_transformleaverequest",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "api_vacations_transformleaverequest",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L152"
+    },
+    {
+      "caller_nid": "api_vacations_transformleaverequest",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L159"
+    },
+    {
+      "caller_nid": "api_vacations_transformleavebalance",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L170"
+    },
+    {
+      "caller_nid": "api_vacations_transformleavebalance",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "api_vacations_transformleavepolicy",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L188"
+    },
+    {
+      "caller_nid": "api_vacations_transformvacationteammember",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L232"
+    },
+    {
+      "caller_nid": "api_vacations_fetchvacationteammembers",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L255"
+    },
+    {
+      "caller_nid": "api_vacations_fetchvacationteammembers",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L273"
+    },
+    {
+      "caller_nid": "api_vacations_fetchvacationteammembers",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L274"
+    },
+    {
+      "caller_nid": "api_vacations_fetchvacationcapabilities",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L283"
+    },
+    {
+      "caller_nid": "api_vacations_fetchvacationcapabilities",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L301"
+    },
+    {
+      "caller_nid": "api_vacations_fetchleavepolicies",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L311"
+    },
+    {
+      "caller_nid": "api_vacations_fetchleavepolicies",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L326"
+    },
+    {
+      "caller_nid": "api_vacations_fetchleavepolicies",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L327"
+    },
+    {
+      "caller_nid": "api_vacations_fetchleavebalances",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L336"
+    },
+    {
+      "caller_nid": "api_vacations_fetchleavebalances",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L351"
+    },
+    {
+      "caller_nid": "api_vacations_fetchleavebalances",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L352"
+    },
+    {
+      "caller_nid": "api_vacations_fetchleavebalance",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L362"
+    },
+    {
+      "caller_nid": "api_vacations_fetchleavebalance",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L380"
+    },
+    {
+      "caller_nid": "api_vacations_updateleavebalance",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L392"
+    },
+    {
+      "caller_nid": "api_vacations_updateleavebalance",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L400"
+    },
+    {
+      "caller_nid": "api_vacations_updateleavebalance",
+      "callee": "catch",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L414"
+    },
+    {
+      "caller_nid": "api_vacations_updateleavebalance",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L414"
+    },
+    {
+      "caller_nid": "api_vacations_updateleavebalance",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L420"
+    },
+    {
+      "caller_nid": "api_vacations_fetchleaverequests",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L430"
+    },
+    {
+      "caller_nid": "api_vacations_fetchleaverequests",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L445"
+    },
+    {
+      "caller_nid": "api_vacations_fetchleaverequests",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L446"
+    },
+    {
+      "caller_nid": "api_vacations_fetchleaverequest",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L456"
+    },
+    {
+      "caller_nid": "api_vacations_fetchleaverequest",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L474"
+    },
+    {
+      "caller_nid": "api_vacations_createleaverequest",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L485"
+    },
+    {
+      "caller_nid": "api_vacations_createleaverequest",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L491"
+    },
+    {
+      "caller_nid": "api_vacations_createleaverequest",
+      "callee": "catch",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L504"
+    },
+    {
+      "caller_nid": "api_vacations_createleaverequest",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L504"
+    },
+    {
+      "caller_nid": "api_vacations_createleaverequest",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L510"
+    },
+    {
+      "caller_nid": "api_vacations_approveleaverequest",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L522"
+    },
+    {
+      "caller_nid": "api_vacations_approveleaverequest",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L530"
+    },
+    {
+      "caller_nid": "api_vacations_approveleaverequest",
+      "callee": "catch",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L541"
+    },
+    {
+      "caller_nid": "api_vacations_approveleaverequest",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L541"
+    },
+    {
+      "caller_nid": "api_vacations_approveleaverequest",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L547"
+    },
+    {
+      "caller_nid": "api_vacations_rejectleaverequest",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L559"
+    },
+    {
+      "caller_nid": "api_vacations_rejectleaverequest",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L567"
+    },
+    {
+      "caller_nid": "api_vacations_rejectleaverequest",
+      "callee": "catch",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L578"
+    },
+    {
+      "caller_nid": "api_vacations_rejectleaverequest",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L578"
+    },
+    {
+      "caller_nid": "api_vacations_rejectleaverequest",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L584"
+    },
+    {
+      "caller_nid": "api_vacations_cancelleaverequest",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L595"
+    },
+    {
+      "caller_nid": "api_vacations_cancelleaverequest",
+      "callee": "catch",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L613"
+    },
+    {
+      "caller_nid": "api_vacations_cancelleaverequest",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L613"
+    },
+    {
+      "caller_nid": "api_vacations_cancelleaverequest",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L619"
+    },
+    {
+      "caller_nid": "api_vacations_fetchpendingapprovals",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L629"
+    },
+    {
+      "caller_nid": "api_vacations_fetchpendingapprovals",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L647"
+    },
+    {
+      "caller_nid": "api_vacations_fetchpendingapprovals",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L648"
+    },
+    {
+      "caller_nid": "api_vacations_fetchteamcalendar",
+      "callee": "append",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L660"
+    },
+    {
+      "caller_nid": "api_vacations_fetchteamcalendar",
+      "callee": "append",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L661"
+    },
+    {
+      "caller_nid": "api_vacations_fetchteamcalendar",
+      "callee": "toString",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L663"
+    },
+    {
+      "caller_nid": "api_vacations_fetchteamcalendar",
+      "callee": "toString",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L663"
+    },
+    {
+      "caller_nid": "api_vacations_fetchteamcalendar",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L665"
+    },
+    {
+      "caller_nid": "api_vacations_fetchteamcalendar",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L680"
+    },
+    {
+      "caller_nid": "api_vacations_fetchteamcalendar",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L681"
+    },
+    {
+      "caller_nid": "api_vacations_hrapproveleaverequest",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L693"
+    },
+    {
+      "caller_nid": "api_vacations_hrapproveleaverequest",
+      "callee": "leaveRequestHrApprovePath",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L694"
+    },
+    {
+      "caller_nid": "api_vacations_hrapproveleaverequest",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L701"
+    },
+    {
+      "caller_nid": "api_vacations_hrapproveleaverequest",
+      "callee": "catch",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L712"
+    },
+    {
+      "caller_nid": "api_vacations_hrapproveleaverequest",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L712"
+    },
+    {
+      "caller_nid": "api_vacations_hrapproveleaverequest",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L718"
+    },
+    {
+      "caller_nid": "api_vacations_fetchhrpendingapprovals",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L729"
+    },
+    {
+      "caller_nid": "api_vacations_fetchhrpendingapprovals",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L750"
+    },
+    {
+      "caller_nid": "api_vacations_fetchhrpendingapprovals",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/lib/api/vacations.ts",
+      "source_location": "L751"
+    }
+  ]
+}

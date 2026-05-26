@@ -5,6 +5,7 @@ import {
   Clock,
   DollarSign,
   FileText,
+  FolderKanban,
   GraduationCap,
   MapPin,
   Megaphone,
@@ -21,6 +22,7 @@ export type HrModuleId =
   | "dashboard"
   | "vacations"
   | "profiles"
+  | "projects"
   | "reviews"
   | "onboarding"
   | "training"
@@ -45,6 +47,7 @@ export const HR_MODULES: HrModule[] = [
   { id: "dashboard", label: "Dashboard", icon: BarChart3 },
   { id: "vacations", label: "Vacations", icon: Calendar },
   { id: "profiles", label: "Employee Profiles", icon: Users },
+  { id: "projects", label: "Projects", icon: FolderKanban },
   { id: "reviews", label: "Performance Reviews", icon: Star },
   { id: "onboarding", label: "Onboarding", icon: UserPlus },
   { id: "training", label: "Training & Development", icon: GraduationCap },

@@ -1,0 +1,114 @@
+{
+  "nodes": [
+    {
+      "id": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_statuspill_tsx",
+      "label": "StatusPill.tsx",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StatusPill.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "atoms_statuspill_statuspillprops",
+      "label": "StatusPillProps",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StatusPill.tsx",
+      "source_location": "L5"
+    },
+    {
+      "id": "atoms_statuspill_statuspill",
+      "label": "StatusPill()",
+      "file_type": "code",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StatusPill.tsx",
+      "source_location": "L10"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_statuspill_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_ui_utils_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StatusPill.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_statuspill_tsx",
+      "target": "ui_utils_cn",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StatusPill.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_statuspill_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_projectsdata_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StatusPill.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_statuspill_tsx",
+      "target": "projects_projectsdata_status_meta",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StatusPill.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_statuspill_tsx",
+      "target": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_types_ts",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StatusPill.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_statuspill_tsx",
+      "target": "projects_types_projectstatus",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StatusPill.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_statuspill_tsx",
+      "target": "atoms_statuspill_statuspillprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StatusPill.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "users_bloomteq_bloomhub_fe_src_components_hr_dashboard_projects_atoms_statuspill_tsx",
+      "target": "atoms_statuspill_statuspill",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StatusPill.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "atoms_statuspill_statuspill",
+      "callee": "cn",
+      "is_member_call": false,
+      "source_file": "/Users/bloomteq/BloomHub-fe/src/components/hr-dashboard/projects/atoms/StatusPill.tsx",
+      "source_location": "L14"
+    }
+  ]
+}
