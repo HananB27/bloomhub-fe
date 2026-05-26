@@ -70,7 +70,6 @@ import {
   type EmployeeExportPayload,
   type EmployeeProfileChangeHistoryItem,
 } from "@/lib/api/employees";
-import { cpfLevelsApi } from "@/lib/api/cpf-levels";
 import type { Manager } from "@/lib/api/managers";
 import {
   employeeCVApi,
@@ -592,9 +591,6 @@ export default function ProfilesModule({
   const [cvAddMode, setCvAddMode] = useState<"file" | "link">("file");
   const [cvLinkDraft, setCvLinkDraft] = useState("");
   const [isAddingCvLink, setIsAddingCvLink] = useState(false);
-  /** After modal bundle supplies CPF levels, skip one redundant cpf-by-role fetch. */
-  const skipInitialCpfFetchAfterModalBundleRef = useRef(false);
-
   const [roles, setRoles] = useState<{ id: number; name: string }[]>([]);
   const [projects, setProjects] = useState<
     { id: number; name: string; leaders?: { id: number; name: string }[] }[]
@@ -607,9 +603,7 @@ export default function ProfilesModule({
   const [allTechnologyTags, setAllTechnologyTags] = useState<TechnologyTag[]>(
     []
   );
-  // Restored after merge conflict resolution dropped these state declarations
-  const [_cpfLevels, setCpfLevels] = useState<string[]>([]);
-  const [_loadingCpfLevels, setLoadingCpfLevels] = useState(false);
+  const [cpfLevels, setCpfLevels] = useState<string[]>([]);
   const [_isLoadingEmployee, setIsLoadingEmployee] = useState(false);
   const [_saveError, setSaveError] = useState<string | null>(null);
   const [_saveSuccess, setSaveSuccess] = useState(false);
@@ -738,25 +732,6 @@ export default function ProfilesModule({
     };
   }, [addEmployeeOpen]);
 
-  // Fetch CPF levels based on role name
-  const fetchCPFLevelsByRole = useCallback(async (roleName?: string) => {
-    if (!roleName) {
-      setCpfLevels([]);
-      return;
-    }
-
-    try {
-      setLoadingCpfLevels(true);
-      const cpfLevelsData = await cpfLevelsApi.getCPFLevelsByRole(roleName);
-      setCpfLevels(cpfLevelsData);
-    } catch (cpfErr) {
-      console.error("Error fetching CPF levels for role:", cpfErr);
-      setCpfLevels([]);
-    } finally {
-      setLoadingCpfLevels(false);
-    }
-  }, []);
-
   const refetchDropdownData = useCallback(async () => {
     try {
       setLoadingDropdowns(true);
@@ -779,8 +754,6 @@ export default function ProfilesModule({
       setIsLoadingEmployee(true);
       setCvVersions([]);
       setIsLoadingCVs(true);
-      skipInitialCpfFetchAfterModalBundleRef.current = false;
-
       const result = await fetchEmployeeModalOpenPayload(employee);
 
       if (result.kind === "bundle") {
@@ -791,10 +764,6 @@ export default function ProfilesModule({
         setRoles(modalBundle.roles);
         setProjects(modalBundle.projects);
         setManagers(modalBundle.managers);
-        setCpfLevels(modalBundle.cpfLevelsForRole);
-        if (modalBundle.cpfLevelsForRole.length > 0) {
-          skipInitialCpfFetchAfterModalBundleRef.current = true;
-        }
         setEditMode(mode === "edit");
         setEditBaseline(mode === "edit" ? modalBundle.employee : null);
         setViewMode("detail");
@@ -826,15 +795,6 @@ export default function ProfilesModule({
       setIsLoadingCVs(false);
     }
   };
-
-  useEffect(() => {
-    if (!selectedEmployee?.role?.name) return;
-    if (skipInitialCpfFetchAfterModalBundleRef.current) {
-      skipInitialCpfFetchAfterModalBundleRef.current = false;
-      return;
-    }
-    void fetchCPFLevelsByRole(selectedEmployee.role.name);
-  }, [selectedEmployee?.role?.name, fetchCPFLevelsByRole]);
 
   useEffect(() => {
     if (!selectedEmployee) return;
@@ -899,7 +859,6 @@ export default function ProfilesModule({
     setCvAddMode("file");
     setCvLinkDraft("");
     setIsAddingCvLink(false);
-    skipInitialCpfFetchAfterModalBundleRef.current = false;
   };
 
   const fetchCVVersions = useCallback(async (employeeId: number) => {
@@ -1241,6 +1200,7 @@ export default function ProfilesModule({
       {viewMode === "detail" && selectedEmployee ? (
         <ProfilesDetailView
           profile={selectedEmployee}
+          cpfLevels={cpfLevels}
           allTechnologyTags={allTechnologyTags}
           canEditAll={canEditAll}
           currentUserId={currentUserId}

@@ -22,6 +22,9 @@ export interface Employee {
   is_active: boolean;
   permissions_bitmap?: string;
   career_level?: string;
+  current_salary?: string | number | null;
+  current_bonus_pct?: number;
+  compensation_status?: "Active" | "OnLeave" | "PTO";
 }
 
 export interface FetchEmployeesOptions {

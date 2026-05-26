@@ -23,6 +23,7 @@ import type { ProfileViewerRole } from "./atoms/RoleSwitch";
 
 interface ProfilesDetailViewProps {
   profile: EmployeeProfileData;
+  cpfLevels: string[];
   allTechnologyTags: TechnologyTag[];
   canEditAll: boolean;
   currentUserId: number | null;
@@ -83,6 +84,7 @@ function resolveViewerRole(
  */
 export function ProfilesDetailView({
   profile,
+  cpfLevels,
   allTechnologyTags,
   canEditAll,
   currentUserId,
@@ -178,7 +180,13 @@ export function ProfilesDetailView({
         access={access}
       />
       <ProfileEmploymentSection profile={profile} />
-      <ProfileCareerSection profile={profile} />
+      <ProfileCareerSection
+        profile={profile}
+        editMode={editMode}
+        canEditAll={canEditAll}
+        cpfLevels={cpfLevels}
+        onEmployeeChange={onEmployeeChange}
+      />
       <ProfileCompensationSection profile={profile} access={access} />
       <ProfileTechnologySection
         selectedEmployee={profile}
