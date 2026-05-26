@@ -24,7 +24,6 @@ import {
   Briefcase,
   Layers,
   Send,
-  Bookmark,
   Check,
   X,
   MapPin,
@@ -39,8 +38,14 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
-import { formatDate } from "@/utils";
+import {
+  daysUntil,
+  formatDate,
+  formatDateShort as fmtDateShort,
+  formatPostedAgo as fmtPostedAgo,
+} from "@/utils";
 import { useSession } from "next-auth/react";
+import { DatePicker } from "./DatePicker";
 import { isHrLikeRole } from "@/lib/permissions/assets-permissions";
 import { jobListingsApi } from "@/lib/api/modules/jobListings";
 import { promotionsApi } from "@/lib/api/modules/promotions";
@@ -54,6 +59,13 @@ import type {
   JobApplication,
   JobListing,
   JobListingDetail,
+  ListingTone,
+} from "@/types/jobListing";
+import {
+  APPLICATION_STATUS_BADGE_COLORS,
+  APPLICATION_STATUS_LABELS,
+  isTerminalApplicationStatus,
+  LISTING_TONE_PILLS,
 } from "@/types/jobListing";
 import type {
   CreatePromotionPayload,
@@ -72,52 +84,11 @@ import {
 
 const DEPARTMENT_FILTER_ALL = "all";
 
-function daysUntil(iso: string): number {
-  const target = new Date(iso).getTime();
-  const now = Date.now();
-  return Math.round((target - now) / 86400000);
+function applicationStatusStyle(status: ApplicationStatus) {
+  return APPLICATION_STATUS_BADGE_COLORS[status];
 }
 
-function fmtPostedAgo(iso: string): string {
-  const d = daysUntil(iso);
-  if (d > -1) return "today";
-  if (d > -7) return `${-d}d ago`;
-  if (d > -30) return `${Math.round(-d / 7)}w ago`;
-  return `${Math.round(-d / 30)}mo ago`;
-}
-
-function fmtDateShort(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function applicationStatusStyle(status: ApplicationStatus): {
-  bg: string;
-  dot: string;
-} {
-  switch (status) {
-    case "submitted":
-      return { bg: "bg-gray-100 text-gray-700", dot: "bg-gray-500" };
-    case "under_review":
-      return { bg: "bg-blue-50 text-blue-700", dot: "bg-blue-600" };
-    case "shortlisted":
-      return { bg: "bg-violet-50 text-violet-700", dot: "bg-violet-600" };
-    case "accepted":
-      return { bg: "bg-emerald-50 text-emerald-700", dot: "bg-emerald-600" };
-    case "rejected":
-      return { bg: "bg-red-50 text-red-700", dot: "bg-red-600" };
-    case "withdrawn":
-      return { bg: "bg-gray-100 text-gray-600", dot: "bg-gray-400" };
-    default:
-      return { bg: "bg-gray-100 text-gray-700", dot: "bg-gray-500" };
-  }
-}
-
-type ListingStatusTone = "open" | "closing-soon" | "filled" | "closed";
-
-function listingTone(listing: JobListing): ListingStatusTone {
+function listingTone(listing: JobListing): ListingTone {
   if (listing.status === "closed" || listing.status === "cancelled")
     return "closed";
   const days = daysUntil(listing.closeAt);
@@ -126,37 +97,8 @@ function listingTone(listing: JobListing): ListingStatusTone {
   return "open";
 }
 
-function listingStatusPill(tone: ListingStatusTone): {
-  label: string;
-  bg: string;
-  dot: string;
-} {
-  switch (tone) {
-    case "closing-soon":
-      return {
-        label: "Closing soon",
-        bg: "bg-amber-50 text-amber-700",
-        dot: "bg-amber-600",
-      };
-    case "filled":
-      return {
-        label: "Filled",
-        bg: "bg-blue-50 text-blue-700",
-        dot: "bg-blue-600",
-      };
-    case "closed":
-      return {
-        label: "Closed",
-        bg: "bg-red-50 text-red-700",
-        dot: "bg-red-600",
-      };
-    default:
-      return {
-        label: "Open",
-        bg: "bg-emerald-50 text-emerald-700",
-        dot: "bg-emerald-600",
-      };
-  }
+function listingStatusPill(tone: ListingTone) {
+  return LISTING_TONE_PILLS[tone];
 }
 
 function Pill({ label, bg, dot }: { label: string; bg: string; dot: string }) {
@@ -188,12 +130,16 @@ export function MobilityModule() {
 
   const [myApplications, setMyApplications] = useState<JobApplication[]>([]);
   const [applicationsLoading, setApplicationsLoading] = useState(true);
+  // HR-only org-wide application roster (powers the HR stat strip and the
+  // HR view of the "Applications" tab). Employees never read this state.
+  const [allApplications, setAllApplications] = useState<JobApplication[]>([]);
+  const [allApplicationsLoading, setAllApplicationsLoading] = useState(false);
 
   const [selectedListing, setSelectedListing] =
     useState<JobListingDetail | null>(null);
-  const [drawerTab, setDrawerTab] = useState<
-    "overview" | "process" | "applicants"
-  >("overview");
+  const [drawerTab, setDrawerTab] = useState<"overview" | "applicants">(
+    "overview"
+  );
   const [drawerApplications, setDrawerApplications] = useState<
     JobApplication[]
   >([]);
@@ -291,6 +237,23 @@ export function MobilityModule() {
     void loadMyApplications();
   }, [loadMyApplications]);
 
+  const loadAllApplications = useCallback(async () => {
+    if (!isHRUser) return;
+    setAllApplicationsLoading(true);
+    try {
+      const rows = await jobListingsApi.listAllApplications();
+      setAllApplications(rows);
+    } catch {
+      setAllApplications([]);
+    } finally {
+      setAllApplicationsLoading(false);
+    }
+  }, [isHRUser]);
+
+  useEffect(() => {
+    void loadAllApplications();
+  }, [loadAllApplications]);
+
   const loadPromotions = useCallback(async () => {
     setPromotionsLoading(true);
     setPromotionsError(null);
@@ -342,6 +305,45 @@ export function MobilityModule() {
     }
   };
 
+  const refreshAfterMutation = useCallback(async () => {
+    if (selectedListing) {
+      const rows = await jobListingsApi.listApplicationsForListing(
+        selectedListing.id
+      );
+      setDrawerApplications(rows);
+    }
+    await Promise.all([
+      loadListings(),
+      loadAllApplications(),
+      loadMyApplications(),
+    ]);
+  }, [selectedListing, loadListings, loadAllApplications, loadMyApplications]);
+
+  const handleApplicationStatusChange = useCallback(
+    async (
+      applicationId: number,
+      nextStatus: ApplicationStatus,
+      decisionNote?: string
+    ) => {
+      await jobListingsApi.updateApplicationStatus(applicationId, {
+        status: nextStatus,
+        decisionNote,
+      });
+      await refreshAfterMutation();
+    },
+    [refreshAfterMutation]
+  );
+
+  const handleApplicationWithdraw = useCallback(
+    async (applicationId: number, decisionNote?: string) => {
+      await jobListingsApi.withdrawApplication(applicationId, {
+        decisionNote,
+      });
+      await refreshAfterMutation();
+    },
+    [refreshAfterMutation]
+  );
+
   const submitApplication = async () => {
     if (!selectedListing) return;
     setSubmitting(true);
@@ -382,22 +384,25 @@ export function MobilityModule() {
     return d >= 0 && d <= 7;
   }).length;
 
-  const inProgressCount = myApplications.filter(
+  // HR sees the whole organisation's pipeline; employees see only their own.
+  const applicationsForStrip = isHRUser ? allApplications : myApplications;
+  const inProgressCount = applicationsForStrip.filter(
     (a) =>
       a.status === "submitted" ||
       a.status === "under_review" ||
       a.status === "shortlisted"
   ).length;
+  const historyCount = applicationsForStrip.filter(
+    (a) =>
+      a.status === "accepted" ||
+      a.status === "rejected" ||
+      a.status === "withdrawn"
+  ).length;
 
   const tabCounts = {
     jobs: visibleListings.length,
-    applications: myApplications.length,
-    history: myApplications.filter(
-      (a) =>
-        a.status === "accepted" ||
-        a.status === "rejected" ||
-        a.status === "withdrawn"
-    ).length,
+    applications: applicationsForStrip.length,
+    history: historyCount,
     promotions: promotions.length,
   };
 
@@ -458,10 +463,6 @@ export function MobilityModule() {
                 Post a role
               </Button>
             )}
-            <Button variant="outline" onClick={() => setActiveTab("cpf")}>
-              <Layers className="w-3.5 h-3.5" />
-              CPF ladder
-            </Button>
           </div>
         </div>
 
@@ -474,7 +475,7 @@ export function MobilityModule() {
           />
           <StripCell
             label={isHRUser ? "Active applications" : "Your applications"}
-            value={myApplications.length}
+            value={applicationsForStrip.length}
             trend={`${inProgressCount} in active loops`}
           />
           <StripCell
@@ -544,14 +545,18 @@ export function MobilityModule() {
         )}
         {activeTab === "applications" && (
           <ApplicationsTab
-            apps={myApplications}
-            loading={applicationsLoading}
+            apps={applicationsForStrip}
+            loading={isHRUser ? allApplicationsLoading : applicationsLoading}
+            isHRUser={isHRUser}
             onBrowse={() => setActiveTab("jobs")}
+            onWithdraw={handleApplicationWithdraw}
+            onStatusChange={handleApplicationStatusChange}
           />
         )}
         {activeTab === "history" && (
           <HistoryTab
-            apps={myApplications.filter(
+            isHRUser={isHRUser}
+            apps={applicationsForStrip.filter(
               (a) =>
                 a.status === "accepted" ||
                 a.status === "rejected" ||
@@ -588,6 +593,7 @@ export function MobilityModule() {
           setDrawerTab={setDrawerTab}
           drawerApplications={drawerApplications}
           drawerAppsLoading={drawerAppsLoading}
+          onApplicationStatusChange={handleApplicationStatusChange}
           coverNote={coverNote}
           setCoverNote={setCoverNote}
           submitting={submitting}
@@ -883,7 +889,7 @@ function SectionHead({
 }) {
   return (
     <div className="mb-3">
-      <h3 className="text-[13px] font-semibold flex items-center gap-1.5">
+      <h3 className="text-[13px] font-semibold flex items-center gap-1.5 text-gray-900 dark:text-gray-100">
         {icon}
         {title}
       </h3>
@@ -949,13 +955,6 @@ function SpotlightCard({
           }}
         >
           <Send className="w-3 h-3" /> Apply
-        </Button>
-        <Button
-          variant="outline"
-          className="w-full justify-center"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Bookmark className="w-3 h-3" /> Save for later
         </Button>
       </div>
     </div>
@@ -1027,16 +1026,30 @@ function JobCard({
 function ApplicationsTab({
   apps,
   loading,
+  isHRUser,
   onBrowse,
+  onWithdraw,
+  onStatusChange,
 }: {
   apps: JobApplication[];
   loading: boolean;
+  isHRUser: boolean;
   onBrowse: () => void;
+  onWithdraw: (applicationId: number, decisionNote?: string) => Promise<void>;
+  onStatusChange: (
+    applicationId: number,
+    nextStatus: ApplicationStatus,
+    decisionNote?: string
+  ) => Promise<void>;
 }) {
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  // Re-derive the selected row from the live ``apps`` array so the dialog
+  // always reflects the latest server state after a mutation.
+  const selected = apps.find((a) => a.id === selectedId) ?? null;
   if (loading) {
     return (
       <div className="text-center py-8 text-sm text-gray-500 dark:text-gray-400">
-        Loading your applications…
+        {isHRUser ? "Loading applications…" : "Loading your applications…"}
       </div>
     );
   }
@@ -1057,14 +1070,19 @@ function ApplicationsTab({
     return (
       <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg py-12 px-6 text-center">
         <FileText className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-        <h3 className="text-base font-medium mb-1">No applications yet</h3>
+        <h3 className="text-base font-medium mb-1">
+          {isHRUser ? "No applications yet" : "No applications yet"}
+        </h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-          Browse open positions and apply to start your internal mobility
-          journey.
+          {isHRUser
+            ? "Once employees apply to an open role their applications will appear here."
+            : "Browse open positions and apply to start your internal mobility journey."}
         </p>
-        <Button variant="outline" onClick={onBrowse}>
-          Browse roles
-        </Button>
+        {!isHRUser && (
+          <Button variant="outline" onClick={onBrowse}>
+            Browse roles
+          </Button>
+        )}
       </div>
     );
   }
@@ -1072,20 +1090,54 @@ function ApplicationsTab({
   return (
     <div className="space-y-6">
       <section>
-        <SectionHead title="In progress" sub="Your active loops" />
-        <AppList apps={active} empty="Nothing in flight." />
+        <SectionHead
+          title="In progress"
+          sub={
+            isHRUser ? "Active organisation-wide loops" : "Your active loops"
+          }
+        />
+        <AppList
+          apps={active}
+          isHRUser={isHRUser}
+          onWithdraw={onWithdraw}
+          onSelect={isHRUser ? setSelectedId : undefined}
+          empty="Nothing in flight."
+        />
       </section>
       {closed.length > 0 && (
         <section>
           <SectionHead title="Closed" />
-          <AppList apps={closed} />
+          <AppList
+            apps={closed}
+            isHRUser={isHRUser}
+            onWithdraw={onWithdraw}
+            onSelect={isHRUser ? setSelectedId : undefined}
+          />
         </section>
       )}
+      <ApplicationDetailDialog
+        open={selected !== null}
+        application={selected}
+        onClose={() => setSelectedId(null)}
+        onStatusChange={onStatusChange}
+      />
     </div>
   );
 }
 
-function AppList({ apps, empty }: { apps: JobApplication[]; empty?: string }) {
+function AppList({
+  apps,
+  isHRUser,
+  onWithdraw,
+  onSelect,
+  empty,
+}: {
+  apps: JobApplication[];
+  isHRUser: boolean;
+  onWithdraw: (applicationId: number, decisionNote?: string) => Promise<void>;
+  onSelect?: (applicationId: number) => void;
+  empty?: string;
+}) {
   if (apps.length === 0) {
     return (
       <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg py-8 px-6 text-center text-sm text-gray-500">
@@ -1093,9 +1145,21 @@ function AppList({ apps, empty }: { apps: JobApplication[]; empty?: string }) {
       </div>
     );
   }
+  // HR view exposes an extra "Applicant" column; employees keep the
+  // existing role-first layout since the applicant is always them.
+  const headerClass = isHRUser
+    ? "grid grid-cols-[1fr_1fr_140px_140px_40px] md:grid-cols-[1.2fr_1.2fr_1fr_120px_140px_40px] gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-500"
+    : "grid grid-cols-[1fr_120px_140px_80px] md:grid-cols-[1.5fr_1fr_120px_140px_80px] gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-500";
+  const baseRowClass = isHRUser
+    ? "grid grid-cols-[1fr_1fr_140px_140px_40px] md:grid-cols-[1.2fr_1.2fr_1fr_120px_140px_40px] gap-4 px-4 py-3 items-center border-b border-gray-200 dark:border-gray-700 last:border-b-0 text-sm transition-colors"
+    : "grid grid-cols-[1fr_120px_140px_80px] md:grid-cols-[1.5fr_1fr_120px_140px_80px] gap-4 px-4 py-3 items-center border-b border-gray-200 dark:border-gray-700 last:border-b-0 text-sm transition-colors";
+  const rowClass = onSelect
+    ? `${baseRowClass} hover:bg-gray-50 dark:hover:bg-gray-900/30 cursor-pointer`
+    : `${baseRowClass} hover:bg-gray-50 dark:hover:bg-gray-900/30`;
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-      <div className="grid grid-cols-[1fr_120px_140px_40px] md:grid-cols-[1.5fr_1fr_120px_140px_40px] gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-500">
+      <div className={headerClass}>
+        {isHRUser && <div>Applicant</div>}
         <div>Role</div>
         <div className="hidden md:block">Cover note</div>
         <div>Applied</div>
@@ -1104,16 +1168,66 @@ function AppList({ apps, empty }: { apps: JobApplication[]; empty?: string }) {
       </div>
       {apps.map((a) => {
         const style = applicationStatusStyle(a.status);
+        const canWithdraw =
+          !isHRUser && a.allowedNextStatuses.includes("withdrawn");
+        const terminal = isTerminalApplicationStatus(a.status);
+        const decisionLead =
+          a.status === "withdrawn"
+            ? "Withdrawal note"
+            : a.status === "rejected"
+              ? "Rejection note"
+              : a.status === "accepted"
+                ? "Decision note"
+                : "Decision note";
         return (
           <div
             key={a.id}
-            className="grid grid-cols-[1fr_120px_140px_40px] md:grid-cols-[1.5fr_1fr_120px_140px_40px] gap-4 px-4 py-3 items-center border-b border-gray-200 dark:border-gray-700 last:border-b-0 text-sm hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-colors"
+            className={rowClass}
+            onClick={onSelect ? () => onSelect(a.id) : undefined}
+            role={onSelect ? "button" : undefined}
+            tabIndex={onSelect ? 0 : undefined}
+            onKeyDown={
+              onSelect
+                ? (e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onSelect(a.id);
+                    }
+                  }
+                : undefined
+            }
           >
+            {isHRUser && (
+              <div>
+                <div className="font-medium">
+                  {a.applicantName || `Applicant #${a.applicantId}`}
+                </div>
+                <div className="text-[11px] text-gray-500 mt-0.5">
+                  App #{a.id}
+                </div>
+              </div>
+            )}
             <div>
               <div className="font-medium">{a.listingTitle}</div>
-              <div className="text-[11px] text-gray-500 mt-0.5">
-                App #{a.id}
-              </div>
+              {!isHRUser && (
+                <div className="text-[11px] text-gray-500 mt-0.5">
+                  App #{a.id}
+                </div>
+              )}
+              {terminal && a.decisionNote && (
+                <div className="text-[11px] text-gray-600 dark:text-gray-300 mt-1 italic leading-relaxed">
+                  <span className="not-italic font-medium text-gray-500">
+                    {decisionLead}:
+                  </span>{" "}
+                  “{a.decisionNote}”
+                </div>
+              )}
+              {terminal && a.decidedByName && (
+                <div className="text-[11px] text-gray-500 mt-0.5">
+                  Decided by {a.decidedByName}
+                  {a.decidedAt ? ` · ${formatDate(a.decidedAt)}` : ""}
+                </div>
+              )}
             </div>
             <div className="hidden md:block text-xs text-gray-500 truncate">
               {a.coverNote || "—"}
@@ -1124,8 +1238,14 @@ function AppList({ apps, empty }: { apps: JobApplication[]; empty?: string }) {
             <div>
               <Pill label={a.statusDisplay} bg={style.bg} dot={style.dot} />
             </div>
-            <div className="text-gray-400">
-              <ChevronRight className="w-4 h-4" />
+            <div className="flex justify-end">
+              {isHRUser ? (
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              ) : canWithdraw ? (
+                <WithdrawButton application={a} onWithdraw={onWithdraw} />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              )}
             </div>
           </div>
         );
@@ -1134,8 +1254,160 @@ function AppList({ apps, empty }: { apps: JobApplication[]; empty?: string }) {
   );
 }
 
+/* ============ Withdraw Button (applicant side) ============ */
+function WithdrawButton({
+  application,
+  onWithdraw,
+}: {
+  application: JobApplication;
+  onWithdraw: (applicationId: number, decisionNote?: string) => Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [note, setNote] = useState("");
+
+  const submit = async () => {
+    setBusy(true);
+    try {
+      await onWithdraw(application.id, note.trim() || undefined);
+      setConfirming(false);
+      setNote("");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setConfirming(true);
+        }}
+        className="inline-flex items-center gap-1 h-7 px-2 rounded-md text-[11.5px] font-medium border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+        aria-label="Withdraw application"
+      >
+        Withdraw
+      </button>
+      <Dialog
+        open={confirming}
+        onOpenChange={(v) => {
+          if (!v && !busy) setConfirming(false);
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Withdraw application</DialogTitle>
+            <DialogDescription>
+              Withdraw your application for &quot;{application.listingTitle}
+              &quot;? This is recorded in the application&apos;s history.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor={`withdraw-note-${application.id}`}>
+                Note (optional)
+              </Label>
+              <Textarea
+                id={`withdraw-note-${application.id}`}
+                rows={3}
+                placeholder="Anything you'd like the recruiter to know…"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+              <Button
+                variant="ghost"
+                onClick={() => setConfirming(false)}
+                disabled={busy}
+              >
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={submit} disabled={busy}>
+                {busy ? "Withdrawing…" : "Withdraw"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+/* ============ Application Detail Dialog (HR review) ============ */
+function ApplicationDetailDialog({
+  open,
+  application,
+  onClose,
+  onStatusChange,
+}: {
+  open: boolean;
+  application: JobApplication | null;
+  onClose: () => void;
+  onStatusChange: (
+    applicationId: number,
+    nextStatus: ApplicationStatus,
+    decisionNote?: string
+  ) => Promise<void>;
+}) {
+  return (
+    <Dialog
+      open={open && application !== null}
+      onOpenChange={(v) => {
+        if (!v) onClose();
+      }}
+    >
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>
+            {application
+              ? application.applicantName ||
+                `Applicant #${application.applicantId}`
+              : "Application"}
+          </DialogTitle>
+          <DialogDescription>
+            {application
+              ? `${application.listingTitle} · applied ${formatDate(application.appliedAt)}`
+              : ""}
+          </DialogDescription>
+        </DialogHeader>
+        {application && (
+          <div className="space-y-4">
+            <section className="space-y-1.5">
+              <h4 className="text-[11px] uppercase tracking-[0.06em] font-semibold text-gray-500">
+                Cover note
+              </h4>
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                {application.coverNote || (
+                  <span className="text-gray-500 italic">
+                    No cover note provided.
+                  </span>
+                )}
+              </p>
+            </section>
+            <ApplicantRow
+              application={application}
+              onStatusChange={(next, note) =>
+                onStatusChange(application.id, next, note)
+              }
+            />
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 /* ============ History Tab ============ */
-function HistoryTab({ apps }: { apps: JobApplication[] }) {
+function HistoryTab({
+  apps,
+  isHRUser,
+}: {
+  apps: JobApplication[];
+  isHRUser: boolean;
+}) {
   if (apps.length === 0) {
     return (
       <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg py-12 px-6 text-center">
@@ -1162,9 +1434,20 @@ function HistoryTab({ apps }: { apps: JobApplication[] }) {
               className="grid grid-cols-[1fr_auto] gap-3 items-start bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3"
             >
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[13.5px] font-semibold">
-                    {a.listingTitle}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {isHRUser && (
+                    <span className="text-[13.5px] font-semibold">
+                      {a.applicantName || `Applicant #${a.applicantId}`}
+                    </span>
+                  )}
+                  <span
+                    className={
+                      isHRUser
+                        ? "text-[12.5px] text-gray-600 dark:text-gray-300"
+                        : "text-[13.5px] font-semibold"
+                    }
+                  >
+                    {isHRUser ? `· ${a.listingTitle}` : a.listingTitle}
                   </span>
                   <Pill label={a.statusDisplay} bg={style.bg} dot={style.dot} />
                 </div>
@@ -1176,6 +1459,25 @@ function HistoryTab({ apps }: { apps: JobApplication[] }) {
                   <p className="text-xs mt-1.5 text-gray-700 dark:text-gray-300 leading-relaxed">
                     {a.coverNote}
                   </p>
+                )}
+                {a.decisionNote && (
+                  <p className="text-xs mt-1.5 text-gray-600 dark:text-gray-300 italic leading-relaxed">
+                    <span className="not-italic font-medium text-gray-500">
+                      {a.status === "withdrawn"
+                        ? "Withdrawal note"
+                        : a.status === "rejected"
+                          ? "Rejection note"
+                          : "Decision note"}
+                      :
+                    </span>{" "}
+                    “{a.decisionNote}”
+                  </p>
+                )}
+                {a.decidedByName && (
+                  <div className="text-[11px] text-gray-500 mt-0.5">
+                    Decided by {a.decidedByName}
+                    {a.decidedAt ? ` · ${formatDate(a.decidedAt)}` : ""}
+                  </div>
                 )}
               </div>
               <div className="text-[11px] text-gray-500 px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded font-mono">
@@ -1197,6 +1499,7 @@ function RoleDrawer({
   setDrawerTab,
   drawerApplications,
   drawerAppsLoading,
+  onApplicationStatusChange,
   coverNote,
   setCoverNote,
   submitting,
@@ -1206,10 +1509,15 @@ function RoleDrawer({
 }: {
   listing: JobListingDetail;
   isHRUser: boolean;
-  drawerTab: "overview" | "process" | "applicants";
-  setDrawerTab: (k: "overview" | "process" | "applicants") => void;
+  drawerTab: "overview" | "applicants";
+  setDrawerTab: (k: "overview" | "applicants") => void;
   drawerApplications: JobApplication[];
   drawerAppsLoading: boolean;
+  onApplicationStatusChange: (
+    applicationId: number,
+    nextStatus: ApplicationStatus,
+    decisionNote?: string
+  ) => Promise<void>;
   coverNote: string;
   setCoverNote: (v: string) => void;
   submitting: boolean;
@@ -1255,9 +1563,6 @@ function RoleDrawer({
             </button>
             <Pill {...pill} />
             <div className="flex-1" />
-            <button className="w-7 h-7 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 grid place-items-center">
-              <Bookmark className="w-3.5 h-3.5" />
-            </button>
           </div>
           <h2 className="text-[19px] font-semibold tracking-tight mb-2">
             {listing.title}
@@ -1304,13 +1609,10 @@ function RoleDrawer({
           {(
             [
               ["overview", "Overview"],
-              ["process", "Process"],
               isHRUser
                 ? ["applicants", `Applicants · ${listing.applicationCount}`]
                 : null,
-            ].filter(Boolean) as Array<
-              ["overview" | "process" | "applicants", string]
-            >
+            ].filter(Boolean) as Array<["overview" | "applicants", string]>
           ).map(([k, l]) => (
             <button
               key={k}
@@ -1358,31 +1660,6 @@ function RoleDrawer({
               )}
             </>
           )}
-          {drawerTab === "process" && (
-            <section>
-              <h4 className="text-[11.5px] uppercase tracking-[0.06em] font-semibold text-gray-500 mb-2.5">
-                Hiring loop
-              </h4>
-              <ol className="flex flex-col gap-2">
-                {[
-                  "Manager screen (30m)",
-                  "Cross-functional interview (45m)",
-                  "Final loop",
-                  "Offer & close",
-                ].map((step, i) => (
-                  <li
-                    key={i}
-                    className="flex items-center gap-3 px-3.5 py-2.5 bg-gray-50 dark:bg-gray-900/40 rounded-md text-sm"
-                  >
-                    <span className="w-5 h-5 grid place-items-center rounded-full bg-gray-900 text-white text-[11px] font-semibold dark:bg-gray-100 dark:text-gray-900">
-                      {i + 1}
-                    </span>
-                    {step}
-                  </li>
-                ))}
-              </ol>
-            </section>
-          )}
           {drawerTab === "applicants" && isHRUser && (
             <section>
               <h4 className="text-[11.5px] uppercase tracking-[0.06em] font-semibold text-gray-500 mb-2.5">
@@ -1398,34 +1675,15 @@ function RoleDrawer({
                 </div>
               ) : (
                 <div className="flex flex-col gap-2">
-                  {drawerApplications.map((a) => {
-                    const style = applicationStatusStyle(a.status);
-                    return (
-                      <div
-                        key={a.id}
-                        className="grid grid-cols-[1fr_auto] gap-3 items-start p-3 border border-gray-200 dark:border-gray-700 rounded-md"
-                      >
-                        <div>
-                          <div className="text-[13px] font-medium">
-                            {a.applicantName || `Applicant #${a.applicantId}`}
-                          </div>
-                          <div className="text-[11.5px] text-gray-500 mt-0.5">
-                            Applied {fmtPostedAgo(a.appliedAt)}
-                          </div>
-                          {a.coverNote && (
-                            <p className="text-xs mt-1.5 leading-relaxed">
-                              {a.coverNote}
-                            </p>
-                          )}
-                        </div>
-                        <Pill
-                          label={a.statusDisplay}
-                          bg={style.bg}
-                          dot={style.dot}
-                        />
-                      </div>
-                    );
-                  })}
+                  {drawerApplications.map((a) => (
+                    <ApplicantRow
+                      key={a.id}
+                      application={a}
+                      onStatusChange={(next) =>
+                        onApplicationStatusChange(a.id, next)
+                      }
+                    />
+                  ))}
                 </div>
               )}
             </section>
@@ -1464,11 +1722,6 @@ function RoleDrawer({
                 </Button>
               </>
             ))}
-          {isHRUser && (
-            <Button variant="primary">
-              <Send className="w-3.5 h-3.5" /> Notify shortlist
-            </Button>
-          )}
         </div>
         {submitError && (
           <div className="px-5 py-2 text-xs text-red-700 bg-red-50 border-t border-red-200">
@@ -1478,6 +1731,268 @@ function RoleDrawer({
         )}
       </div>
     </div>
+  );
+}
+
+/* ============ Applicant Row (HR) ============ */
+function ApplicantRow({
+  application,
+  onStatusChange,
+}: {
+  application: JobApplication;
+  onStatusChange: (
+    nextStatus: ApplicationStatus,
+    decisionNote?: string
+  ) => Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pendingStatus, setPendingStatus] = useState<ApplicationStatus | null>(
+    null
+  );
+  const style = applicationStatusStyle(application.status);
+  const terminal = isTerminalApplicationStatus(application.status);
+
+  const allowed = application.allowedNextStatuses;
+  const canApprove = allowed.includes("accepted");
+  const canReject = allowed.includes("rejected");
+  // Intermediate transitions belong in the dropdown (under_review, shortlisted).
+  // Accept/Reject live on their own buttons that open the decision dialog.
+  const intermediateOptions = allowed.filter(
+    (s) => s !== "accepted" && s !== "rejected"
+  );
+
+  const commit = async (next: ApplicationStatus, note?: string) => {
+    if (next === application.status || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await onStatusChange(next, note);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to update application."
+      );
+      throw err;
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="grid grid-cols-[1fr_auto] gap-3 items-start p-3 border border-gray-200 dark:border-gray-700 rounded-md">
+        <div>
+          <div className="text-[13px] font-medium">
+            {application.applicantName ||
+              `Applicant #${application.applicantId}`}
+          </div>
+          <div className="text-[11.5px] text-gray-500 mt-0.5">
+            Applied {fmtPostedAgo(application.appliedAt)}
+          </div>
+          {application.coverNote && (
+            <p className="text-xs mt-1.5 leading-relaxed">
+              {application.coverNote}
+            </p>
+          )}
+          {terminal && application.decidedAt && (
+            <p className="text-[11.5px] text-gray-500 mt-1.5">
+              Decided by{" "}
+              <span className="font-medium text-gray-700 dark:text-gray-200">
+                {application.decidedByName || "—"}
+              </span>{" "}
+              · {formatDate(application.decidedAt)}
+            </p>
+          )}
+          {application.decisionNote && (
+            <p className="text-xs mt-1 text-gray-600 dark:text-gray-300 italic leading-relaxed">
+              “{application.decisionNote}”
+            </p>
+          )}
+          {error && (
+            <p className="text-[11.5px] text-red-700 mt-1.5">
+              <AlertCircle className="w-3 h-3 inline mr-1" />
+              {error}
+            </p>
+          )}
+        </div>
+        <div className="flex flex-col items-end gap-1.5 min-w-[180px]">
+          <Pill
+            label={application.statusDisplay}
+            bg={style.bg}
+            dot={style.dot}
+          />
+          {!terminal && intermediateOptions.length > 0 && (
+            <Select
+              value={application.status}
+              onValueChange={(v) => void commit(v as ApplicationStatus)}
+              disabled={busy}
+            >
+              <SelectTrigger className="w-44 h-8 text-[12px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={application.status} disabled>
+                  {application.statusDisplay}
+                </SelectItem>
+                {intermediateOptions.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    Advance to {APPLICATION_STATUS_LABELS[s]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          {!terminal && (canApprove || canReject) && (
+            <div className="flex gap-1.5">
+              {canApprove && (
+                <button
+                  type="button"
+                  onClick={() => setPendingStatus("accepted")}
+                  disabled={busy}
+                  className="inline-flex items-center gap-1 h-7 px-2 rounded-md text-[11.5px] font-medium border border-emerald-200 text-emerald-700 hover:bg-emerald-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-emerald-900/40 dark:text-emerald-400 dark:hover:bg-emerald-900/20"
+                  aria-label="Approve application"
+                >
+                  <Check className="w-3 h-3" />
+                  Approve
+                </button>
+              )}
+              {canReject && (
+                <button
+                  type="button"
+                  onClick={() => setPendingStatus("rejected")}
+                  disabled={busy}
+                  className="inline-flex items-center gap-1 h-7 px-2 rounded-md text-[11.5px] font-medium border border-red-200 text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-red-900/40 dark:text-red-400 dark:hover:bg-red-900/20"
+                  aria-label="Reject application"
+                >
+                  <X className="w-3 h-3" />
+                  Reject
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+      <DecisionDialog
+        open={pendingStatus !== null}
+        decisionStatus={pendingStatus}
+        applicantName={application.applicantName}
+        onClose={() => setPendingStatus(null)}
+        onConfirm={async (note) => {
+          if (pendingStatus === null) return;
+          await commit(pendingStatus, note);
+          setPendingStatus(null);
+        }}
+      />
+    </>
+  );
+}
+
+/* ============ Decision Dialog (approve / reject) ============ */
+function DecisionDialog({
+  open,
+  decisionStatus,
+  applicantName,
+  onClose,
+  onConfirm,
+}: {
+  open: boolean;
+  decisionStatus: ApplicationStatus | null;
+  applicantName: string;
+  onClose: () => void;
+  onConfirm: (note: string) => Promise<void>;
+}) {
+  const [note, setNote] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  // Rejecting demands a reason; approving makes it optional.
+  const noteRequired = decisionStatus === "rejected";
+  const verb = decisionStatus === "accepted" ? "Approve" : "Reject";
+
+  useEffect(() => {
+    if (open) {
+      setNote("");
+      setError(null);
+    }
+  }, [open]);
+
+  const submit = async () => {
+    const trimmed = note.trim();
+    if (noteRequired && !trimmed) {
+      setError("A reason is required to reject an application.");
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    try {
+      await onConfirm(trimmed);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save decision.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v && !submitting) onClose();
+      }}
+    >
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>{verb} application</DialogTitle>
+          <DialogDescription>
+            {decisionStatus === "accepted"
+              ? `Confirm approval for ${applicantName || "this applicant"}. The applicant will be notified.`
+              : `Provide a short reason. ${applicantName || "The applicant"} will be notified.`}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="decision-note">
+              Decision note{noteRequired ? "" : " (optional)"}
+            </Label>
+            <Textarea
+              id="decision-note"
+              rows={4}
+              placeholder={
+                decisionStatus === "accepted"
+                  ? "Offer details, next steps, sponsor…"
+                  : "Why is this candidate not progressing?"
+              }
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+            />
+          </div>
+          {error && (
+            <div className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+              <AlertCircle className="w-3.5 h-3.5 inline mr-1.5" />
+              {error}
+            </div>
+          )}
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+            <Button variant="ghost" onClick={onClose} disabled={submitting}>
+              Cancel
+            </Button>
+            <Button
+              variant={
+                decisionStatus === "accepted" ? "primary" : "destructive"
+              }
+              onClick={submit}
+              disabled={submitting}
+            >
+              {decisionStatus === "accepted" ? (
+                <Check className="w-3.5 h-3.5" />
+              ) : (
+                <X className="w-3.5 h-3.5" />
+              )}
+              {submitting ? "Saving…" : `${verb} application`}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -1595,21 +2110,23 @@ function PostRoleDialog({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="post-open">Opens</Label>
-              <Input
-                id="post-open"
-                type="date"
+              <Label>Opens</Label>
+              <DatePicker
+                mode="single"
+                size="compact"
                 value={openAt}
-                onChange={(e) => setOpenAt(e.target.value)}
+                onChange={setOpenAt}
+                placeholder="Select open date"
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="post-close">Closes</Label>
-              <Input
-                id="post-close"
-                type="date"
+              <Label>Closes</Label>
+              <DatePicker
+                mode="single"
+                size="compact"
                 value={closeAt}
-                onChange={(e) => setCloseAt(e.target.value)}
+                onChange={setCloseAt}
+                placeholder="Select close date"
               />
             </div>
           </div>
@@ -1834,6 +2351,13 @@ function PromotionCard({
 /* ============ Promotion Dialog ============ */
 const ROLE_NONE = "__none";
 
+interface PromotionEmployeeOption {
+  id: number;
+  name: string;
+  currentRoleId: number | null;
+  currentRoleName: string;
+}
+
 function PromotionDialog({
   open,
   onOpenChange,
@@ -1845,14 +2369,11 @@ function PromotionDialog({
   editing: PromotionRecord | null;
   onSaved: () => void | Promise<void>;
 }) {
-  const [employees, setEmployees] = useState<{ id: number; name: string }[]>(
-    []
-  );
+  const [employees, setEmployees] = useState<PromotionEmployeeOption[]>([]);
   const [roles, setRoles] = useState<{ id: number; name: string }[]>([]);
   const [refsLoading, setRefsLoading] = useState(false);
 
   const [employeeId, setEmployeeId] = useState<string>("");
-  const [previousRoleId, setPreviousRoleId] = useState<string>(ROLE_NONE);
   const [newRoleId, setNewRoleId] = useState<string>(ROLE_NONE);
   const [date, setDate] = useState<string>(
     new Date().toISOString().slice(0, 10)
@@ -1860,6 +2381,21 @@ function PromotionDialog({
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const selectedEmployee =
+    employees.find((e) => String(e.id) === employeeId) ?? null;
+
+  // In create mode the "previous role" is always the employee's current
+  // role (read-only). In edit mode we surface the historical previous role
+  // that was captured on the record itself.
+  const previousRoleId: number | null = editing
+    ? (editing.previousRoleId ?? null)
+    : (selectedEmployee?.currentRoleId ?? null);
+  const previousRoleName: string = editing
+    ? (editing.previousRoleName ?? "")
+    : (selectedEmployee?.currentRoleName ?? "");
+
+  const newRoleOptions = roles.filter((r) => r.id !== previousRoleId);
 
   useEffect(() => {
     if (!open) return;
@@ -1869,12 +2405,14 @@ function PromotionDialog({
       employeeApi
         .listEmployees({ page_size: 200 })
         .then((res) =>
-          res.results.map((e) => ({
+          res.results.map<PromotionEmployeeOption>((e) => ({
             id: e.id,
             name: `${e.first_name} ${e.last_name}`.trim() || `#${e.id}`,
+            currentRoleId: e.role?.id ?? null,
+            currentRoleName: e.role?.name ?? "",
           }))
         )
-        .catch(() => [] as { id: number; name: string }[]),
+        .catch(() => [] as PromotionEmployeeOption[]),
       employeeApi.getRoles().catch(() => [] as { id: number; name: string }[]),
     ])
       .then(([emps, rls]) => {
@@ -1894,11 +2432,6 @@ function PromotionDialog({
     if (!open) return;
     if (editing) {
       setEmployeeId(String(editing.employeeId));
-      setPreviousRoleId(
-        editing.previousRoleId != null
-          ? String(editing.previousRoleId)
-          : ROLE_NONE
-      );
       setNewRoleId(
         editing.newRoleId != null ? String(editing.newRoleId) : ROLE_NONE
       );
@@ -1906,13 +2439,22 @@ function PromotionDialog({
       setNotes(editing.notes);
     } else {
       setEmployeeId("");
-      setPreviousRoleId(ROLE_NONE);
       setNewRoleId(ROLE_NONE);
       setDate(new Date().toISOString().slice(0, 10));
       setNotes("");
     }
     setError(null);
   }, [open, editing]);
+
+  // If the picked new role happens to match the employee's current role
+  // (e.g. user switched employees after picking), reset the selection so
+  // the dropdown doesn't show a value that no longer exists in its options.
+  useEffect(() => {
+    if (newRoleId === ROLE_NONE) return;
+    if (Number(newRoleId) === previousRoleId) {
+      setNewRoleId(ROLE_NONE);
+    }
+  }, [newRoleId, previousRoleId]);
 
   const submit = async () => {
     if (!employeeId) {
@@ -1923,11 +2465,14 @@ function PromotionDialog({
       setError("Promotion date is required.");
       return;
     }
+    if (newRoleId === ROLE_NONE) {
+      setError("Select a new role for the promotion.");
+      return;
+    }
     const payload: CreatePromotionPayload = {
       employeeId: Number(employeeId),
-      previousRoleId:
-        previousRoleId === ROLE_NONE ? null : Number(previousRoleId),
-      newRoleId: newRoleId === ROLE_NONE ? null : Number(newRoleId),
+      previousRoleId: previousRoleId,
+      newRoleId: Number(newRoleId),
       date,
       notes: notes.trim(),
     };
@@ -1986,29 +2531,36 @@ function PromotionDialog({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Previous role</Label>
-              <Select value={previousRoleId} onValueChange={setPreviousRoleId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ROLE_NONE}>Unspecified</SelectItem>
-                  {roles.map((r) => (
-                    <SelectItem key={r.id} value={String(r.id)}>
-                      {r.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="h-9 px-3 flex items-center rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 text-sm text-gray-700 dark:text-gray-200">
+                {employeeId
+                  ? previousRoleName || "No role on file"
+                  : "Select an employee first"}
+              </div>
             </div>
             <div className="space-y-1.5">
               <Label>New role</Label>
-              <Select value={newRoleId} onValueChange={setNewRoleId}>
+              <Select
+                value={newRoleId}
+                onValueChange={setNewRoleId}
+                disabled={
+                  !employeeId || refsLoading || newRoleOptions.length === 0
+                }
+              >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select role" />
+                  <SelectValue
+                    placeholder={
+                      !employeeId
+                        ? "Select an employee first"
+                        : refsLoading
+                          ? "Loading roles…"
+                          : newRoleOptions.length === 0
+                            ? "No other roles available"
+                            : "Select new role"
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ROLE_NONE}>Unspecified</SelectItem>
-                  {roles.map((r) => (
+                  {newRoleOptions.map((r) => (
                     <SelectItem key={r.id} value={String(r.id)}>
                       {r.name}
                     </SelectItem>
@@ -2019,12 +2571,13 @@ function PromotionDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="promo-date">Effective date</Label>
-            <Input
-              id="promo-date"
-              type="date"
+            <Label>Effective date</Label>
+            <DatePicker
+              mode="single"
+              size="compact"
               value={date}
-              onChange={(e) => setDate(e.target.value)}
+              onChange={setDate}
+              placeholder="Select effective date"
             />
           </div>
 
@@ -2500,12 +3053,13 @@ function CPFChangeDialog({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="cpf-date">Effective date</Label>
-              <Input
-                id="cpf-date"
-                type="date"
+              <Label>Effective date</Label>
+              <DatePicker
+                mode="single"
+                size="compact"
                 value={effectiveDate}
-                onChange={(e) => setEffectiveDate(e.target.value)}
+                onChange={setEffectiveDate}
+                placeholder="Select effective date"
               />
             </div>
             <div className="space-y-1.5">
