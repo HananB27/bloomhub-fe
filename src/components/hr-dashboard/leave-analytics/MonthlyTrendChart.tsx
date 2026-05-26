@@ -1,19 +1,20 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { LeaveType } from "@/types/vacations";
 import {
   ALL_LEAVE_TYPES,
   LEAVE_TYPE_CHART_COLORS,
   LEAVE_TYPE_LABELS,
 } from "@/types/vacations";
-import { monthlyByType } from "./analyticsModuleHelpers";
+import type { LeaveAnalyticsMonthRow } from "@/types/leaveAnalytics";
 
 interface Props {
   year: number;
+  rows: LeaveAnalyticsMonthRow[];
   activeTypes: Set<LeaveType>;
 }
 
-export function MonthlyTrendChart({ year, activeTypes }: Props) {
-  const data = useMemo(() => monthlyByType(year), [year]);
+export function MonthlyTrendChart({ year, rows, activeTypes }: Props) {
+  const data = rows.length === 12 ? rows : padToTwelve(year, rows);
   const max = Math.max(...data.map((r) => r.total), 10);
   const niceMax = Math.ceil(max / 10) * 10;
 
@@ -153,4 +154,32 @@ export function MonthlyTrendChart({ year, activeTypes }: Props) {
       )}
     </div>
   );
+}
+
+const MONTH_LABELS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+function padToTwelve(
+  year: number,
+  rows: LeaveAnalyticsMonthRow[]
+): LeaveAnalyticsMonthRow[] {
+  const byMonth = new Map<number, LeaveAnalyticsMonthRow>();
+  rows.forEach((r) => byMonth.set(r.month, r));
+  return Array.from({ length: 12 }, (_, i) => {
+    const month = i + 1;
+    return (
+      byMonth.get(month) ?? {
+        year,
+        month,
+        monthLabel: MONTH_LABELS[i],
+        total: 0,
+        byType: Object.fromEntries(ALL_LEAVE_TYPES.map((t) => [t, 0])) as Record<
+          LeaveType,
+          number
+        >,
+      }
+    );
+  });
 }

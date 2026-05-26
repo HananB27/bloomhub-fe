@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   BarChart3,
   Calendar as CalendarIcon,
@@ -10,6 +10,8 @@ import {
   FileSpreadsheet,
   FileText,
   History,
+  Loader2,
+  RefreshCcw,
   Shield,
   Sliders,
 } from "lucide-react";
@@ -19,6 +21,13 @@ import {
   LEAVE_TYPE_LABELS,
   type LeaveType,
 } from "@/types/vacations";
+import type { LeaveAnalyticsYearTotals } from "@/types/leaveAnalytics";
+import { useLeaveAnalyticsData } from "@/hooks/useLeaveAnalyticsData";
+import {
+  NotificationMessages,
+  notifyApiError,
+  withNotification,
+} from "@/utils/notificationHelpers";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -30,17 +39,16 @@ import {
 } from "./ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import {
-  ANCHOR_TODAY,
-  DIRECTORY,
   DepartmentBreakdown,
   EmployeeHistoryTable,
   KpiRow,
-  LEAVES,
   MonthlyTrendChart,
   TeamAvailabilityHeatmap,
   TypeBreakdownDonut,
   YearOverYearStrip,
 } from "./leave-analytics";
+import { triggerAnalyticsRefresh } from "./leave-analytics/analyticsModuleLoaders";
+import { ANCHOR_TODAY } from "./leave-analytics/analyticsModuleHelpers";
 
 const ALL_TYPE_IDS = new Set<LeaveType>(ALL_LEAVE_TYPES);
 
@@ -48,10 +56,23 @@ const TAB_TRIGGER_CLASSES =
   "gap-1.5 rounded-none border-b-2 border-transparent bg-transparent px-3.5 py-2.5 text-[13px] font-medium text-gray-500 shadow-none -mb-px data-[state=active]:border-gray-900 data-[state=active]:bg-transparent data-[state=active]:font-semibold data-[state=active]:text-gray-900 data-[state=active]:shadow-none hover:text-gray-900";
 
 export function AnalyticsModule() {
-  const [year, setYear] = useState(ANCHOR_TODAY.getFullYear());
-  const [activeTypes, setActiveTypes] = useState<Set<LeaveType>>(new Set(ALL_TYPE_IDS));
-  const [tab, setTab] = useState<"overview" | "availability" | "history">("overview");
+  const currentYearAnchor = new Date().getFullYear();
+  const [year, setYear] = useState(currentYearAnchor);
+  const [activeTypes, setActiveTypes] = useState<Set<LeaveType>>(
+    new Set(ALL_TYPE_IDS)
+  );
+  const [tab, setTab] = useState<"overview" | "availability" | "history">(
+    "overview"
+  );
   const [selectedDept, setSelectedDept] = useState<string>("All");
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const data = useLeaveAnalyticsData(year);
+  const prevData = useLeaveAnalyticsData(year - 1);
+
+  useEffect(() => {
+    if (data.error) notifyApiError(new Error(data.error));
+  }, [data.error]);
 
   const toggleType = (id: LeaveType) => {
     setActiveTypes((prev) => {
@@ -63,7 +84,22 @@ export function AnalyticsModule() {
     });
   };
 
-  const approvedCount = LEAVES.filter((l) => l.status === "approved").length;
+  const handleRefresh = async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    try {
+      await withNotification(
+        triggerAnalyticsRefresh({ yearFrom: year, yearTo: year }),
+        NotificationMessages.PROCESSING,
+        NotificationMessages.UPDATED_SUCCESS,
+        "Failed to refresh leave analytics"
+      );
+      data.refresh();
+      prevData.refresh();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const exportItems: { id: string; icon: ReactNode; title: string; subtitle: string }[] = [
     {
@@ -92,6 +128,14 @@ export function AnalyticsModule() {
     },
   ];
 
+  const yoy: LeaveAnalyticsYearTotals[] = data.yearOverYear.length
+    ? data.yearOverYear
+    : [];
+
+  const fallbackAnchor = ANCHOR_TODAY.getFullYear();
+  const minYear = Math.min(fallbackAnchor - 2, currentYearAnchor - 2, 2024);
+  const headerCount = data.employees.length;
+
   return (
     <div className="mx-auto w-full max-w-[1400px] px-1">
       <div className="mb-5 flex flex-wrap items-end justify-between gap-6">
@@ -106,12 +150,15 @@ export function AnalyticsModule() {
               Leave Analytics &amp; History
             </h1>
             <span className="inline-flex h-6 min-w-[28px] items-center justify-center rounded bg-gray-100 px-2 font-mono text-xs font-semibold text-gray-600">
-              {LEAVES.length.toLocaleString()}
+              {(data.yearlyTotals?.total ?? 0).toLocaleString()}
             </span>
+            {data.isLoading && (
+              <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+            )}
           </div>
           <p className="mt-2 text-[13px] text-gray-500">
-            Aggregate insights for workforce planning · {approvedCount} approved
-            leave events across {DIRECTORY.length} employees
+            Aggregate insights for workforce planning · {data.yearlyTotals?.total ?? 0}
+            {" "}working days across {headerCount} employees
           </p>
         </div>
 
@@ -122,7 +169,7 @@ export function AnalyticsModule() {
               size="icon"
               className="h-7 w-7 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
               onClick={() => setYear((y) => y - 1)}
-              disabled={year <= 2024}
+              disabled={year <= minYear}
             >
               <ChevronLeft className="h-3.5 w-3.5" />
             </Button>
@@ -134,7 +181,7 @@ export function AnalyticsModule() {
               size="icon"
               className="h-7 w-7 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
               onClick={() => setYear((y) => y + 1)}
-              disabled={year >= ANCHOR_TODAY.getFullYear()}
+              disabled={year >= currentYearAnchor}
             >
               <ChevronRight className="h-3.5 w-3.5" />
             </Button>
@@ -179,6 +226,20 @@ export function AnalyticsModule() {
             </DropdownMenuContent>
           </DropdownMenu>
 
+          <Button
+            variant="outline"
+            className="h-9 rounded-lg text-[13px]"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+          >
+            {isRefreshing ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <RefreshCcw className="h-3.5 w-3.5" />
+            )}
+            Refresh
+          </Button>
+
           <Button className="h-9 rounded-lg bg-gray-900 text-[13px] hover:bg-black">
             <Sliders className="h-3.5 w-3.5" />
             Configure report
@@ -187,7 +248,11 @@ export function AnalyticsModule() {
       </div>
 
       <div className="mb-4">
-        <KpiRow year={year} />
+        <KpiRow
+          year={year}
+          current={data.yearlyTotals}
+          previous={prevData.yearlyTotals}
+        />
       </div>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
@@ -247,7 +312,11 @@ export function AnalyticsModule() {
                   })}
                 </div>
               </div>
-              <MonthlyTrendChart year={year} activeTypes={activeTypes} />
+              <MonthlyTrendChart
+                year={year}
+                rows={data.monthlyTrend}
+                activeTypes={activeTypes}
+              />
             </section>
 
             <section className="rounded-xl border border-gray-200 bg-white p-5">
@@ -262,7 +331,7 @@ export function AnalyticsModule() {
                 </div>
               </div>
               <TypeBreakdownDonut
-                year={year}
+                yearlyTotals={data.yearlyTotals}
                 activeTypes={activeTypes}
                 onToggleType={toggleType}
               />
@@ -270,7 +339,7 @@ export function AnalyticsModule() {
                 <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
                   3-year trend
                 </div>
-                <YearOverYearStrip />
+                <YearOverYearStrip data={yoy} />
               </div>
             </section>
           </div>
@@ -285,12 +354,16 @@ export function AnalyticsModule() {
                   Leave by department — {year}
                 </h2>
               </div>
-              <Button variant="ghost" size="sm" className="h-auto px-2 py-1 text-xs">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-auto px-2 py-1 text-xs"
+              >
                 <Download className="h-3 w-3" />
                 CSV
               </Button>
             </div>
-            <DepartmentBreakdown year={year} activeTypes={activeTypes} />
+            <DepartmentBreakdown rows={data.departments} activeTypes={activeTypes} />
           </section>
         </TabsContent>
 
@@ -306,6 +379,12 @@ export function AnalyticsModule() {
                 </h2>
               </div>
             </div>
+            {/*
+              TODO(BHB-483): replace with a real `availability` endpoint that
+              returns per-day per-employee leave windows. Until then, the
+              heatmap renders against the deterministic mock data exported by
+              `analyticsModuleHelpers.ts`.
+            */}
             <TeamAvailabilityHeatmap
               selectedDept={selectedDept}
               onSelectDept={setSelectedDept}
@@ -325,7 +404,7 @@ export function AnalyticsModule() {
                 </h2>
               </div>
             </div>
-            <EmployeeHistoryTable year={year} />
+            <EmployeeHistoryTable year={year} rows={data.employees} />
           </section>
         </TabsContent>
       </Tabs>

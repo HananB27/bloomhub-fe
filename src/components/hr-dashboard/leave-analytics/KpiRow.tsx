@@ -1,5 +1,4 @@
-import { useMemo } from "react";
-import { periodKpis } from "./analyticsModuleHelpers";
+import type { LeaveAnalyticsYearTotals } from "@/types/leaveAnalytics";
 
 interface KpiCardSpec {
   kicker: string;
@@ -11,38 +10,52 @@ interface KpiCardSpec {
   ratio?: number;
 }
 
-export function KpiRow({ year }: { year: number }) {
-  const kpis = useMemo(() => periodKpis(year), [year]);
-  const prev = useMemo(() => periodKpis(year - 1), [year]);
+interface Props {
+  year: number;
+  current: LeaveAnalyticsYearTotals | null;
+  previous: LeaveAnalyticsYearTotals | null;
+}
 
-  const delta = (curr: number, p: number) => (p ? ((curr - p) / p) * 100 : null);
+const delta = (curr: number, prev: number) =>
+  prev ? ((curr - prev) / prev) * 100 : null;
+
+export function KpiRow({ year, current, previous }: Props) {
+  const total = current?.total ?? 0;
+  const headcount = current?.headcount ?? 0;
+  const onLeaveToday = current?.onLeaveToday ?? 0;
+  const pending = current?.pendingTotal ?? 0;
+  const avg = headcount ? total / headcount : 0;
+  const prevTotal = previous?.total ?? 0;
+  const prevAvg = previous && previous.headcount
+    ? previous.total / previous.headcount
+    : 0;
 
   const cards: KpiCardSpec[] = [
     {
       kicker: "Total leave days",
-      value: kpis.total.toLocaleString(),
+      value: total.toLocaleString(),
       unit: "working days",
-      delta: delta(kpis.total, prev.total),
+      delta: delta(total, prevTotal),
       deltaLabel: `vs. ${year - 1}`,
     },
     {
       kicker: "On leave today",
-      value: kpis.onLeaveToday,
-      unit: `of ${kpis.headcount} people`,
-      ratio: kpis.headcount ? kpis.onLeaveToday / kpis.headcount : 0,
+      value: onLeaveToday,
+      unit: `of ${headcount} people`,
+      ratio: headcount ? onLeaveToday / headcount : 0,
     },
     {
       kicker: "Avg per employee",
-      value: kpis.avgPerEmployee.toFixed(1),
+      value: avg.toFixed(1),
       unit: "days / year",
-      delta: delta(kpis.avgPerEmployee, prev.avgPerEmployee),
+      delta: delta(avg, prevAvg),
       deltaLabel: `vs. ${year - 1}`,
     },
     {
       kicker: "Pending requests",
-      value: kpis.pending,
+      value: pending,
       unit: "awaiting approval",
-      urgent: kpis.pending > 0,
+      urgent: pending > 0,
     },
   ];
 

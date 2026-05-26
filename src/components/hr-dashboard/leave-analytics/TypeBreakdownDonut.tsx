@@ -1,25 +1,32 @@
-import { useMemo } from "react";
 import type { LeaveType } from "@/types/vacations";
 import {
   ALL_LEAVE_TYPES,
   LEAVE_TYPE_CHART_COLORS,
   LEAVE_TYPE_LABELS,
 } from "@/types/vacations";
-import { yearTotalsByType } from "./analyticsModuleHelpers";
+import type { LeaveAnalyticsYearTotals } from "@/types/leaveAnalytics";
 
 interface Props {
-  year: number;
+  yearlyTotals: LeaveAnalyticsYearTotals | null;
   activeTypes: Set<LeaveType>;
   onToggleType: (id: LeaveType) => void;
 }
 
-export function TypeBreakdownDonut({ year, activeTypes, onToggleType }: Props) {
-  const totals = useMemo(() => yearTotalsByType(year), [year]);
+const ZERO_TOTALS: Record<LeaveType, number> = Object.fromEntries(
+  ALL_LEAVE_TYPES.map((t) => [t, 0])
+) as Record<LeaveType, number>;
+
+export function TypeBreakdownDonut({
+  yearlyTotals,
+  activeTypes,
+  onToggleType,
+}: Props) {
+  const byType = yearlyTotals?.byType ?? ZERO_TOTALS;
+  const grandTotal = Object.values(byType).reduce((s, n) => s + n, 0);
   const filteredTotal = ALL_LEAVE_TYPES.filter((id) => activeTypes.has(id)).reduce(
-    (s, id) => s + totals[id],
+    (s, id) => s + byType[id],
     0
   );
-  const grandTotal = Object.values(totals).reduce((s, n) => s + n, 0);
 
   const R = 70;
   const r = 44;
@@ -27,7 +34,7 @@ export function TypeBreakdownDonut({ year, activeTypes, onToggleType }: Props) {
   const cy = 100;
   let cumulative = 0;
   const arcs = ALL_LEAVE_TYPES.map((id) => {
-    const v = totals[id];
+    const v = byType[id];
     const portion = grandTotal ? v / grandTotal : 0;
     const startA = cumulative * Math.PI * 2 - Math.PI / 2;
     cumulative += portion;

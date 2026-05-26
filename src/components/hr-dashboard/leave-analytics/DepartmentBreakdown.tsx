@@ -1,19 +1,17 @@
-import { useMemo } from "react";
 import type { LeaveType } from "@/types/vacations";
 import {
   ALL_LEAVE_TYPES,
   LEAVE_TYPE_CHART_COLORS,
   LEAVE_TYPE_LABELS,
 } from "@/types/vacations";
-import { departmentBreakdown } from "./analyticsModuleHelpers";
+import type { LeaveAnalyticsDepartmentRow } from "@/types/leaveAnalytics";
 
 interface Props {
-  year: number;
+  rows: LeaveAnalyticsDepartmentRow[];
   activeTypes: Set<LeaveType>;
 }
 
-export function DepartmentBreakdown({ year, activeTypes }: Props) {
-  const rows = useMemo(() => departmentBreakdown(year), [year]);
+export function DepartmentBreakdown({ rows, activeTypes }: Props) {
   const max = Math.max(...rows.map((r) => r.total), 1);
   return (
     <div className="flex flex-col">
@@ -24,6 +22,11 @@ export function DepartmentBreakdown({ year, activeTypes }: Props) {
         <div className="text-right">Avg / person</div>
         <div>Distribution</div>
       </div>
+      {rows.length === 0 && (
+        <div className="px-1 py-6 text-center text-sm text-gray-500">
+          No department-level data available for this period.
+        </div>
+      )}
       {rows.map((r) => (
         <div
           key={r.department}
@@ -33,7 +36,7 @@ export function DepartmentBreakdown({ year, activeTypes }: Props) {
           <div className="text-right font-mono">{r.headcount}</div>
           <div className="text-right font-mono">{r.total}</div>
           <div className="text-right font-mono">
-            {(r.total / r.headcount).toFixed(1)}
+            {r.headcount > 0 ? (r.total / r.headcount).toFixed(1) : "0.0"}
           </div>
           <div className="flex h-2 overflow-hidden rounded bg-gray-100">
             {ALL_LEAVE_TYPES.filter((id) => activeTypes.has(id)).map((id) => {
