@@ -16,6 +16,7 @@ import type {
   JobListingFilters,
   JobListingStatus,
   UpdateApplicationStatusPayload,
+  WithdrawApplicationPayload,
 } from "@/types/jobListing";
 
 const BASE = `${API_BASE_URL}/api/job-listings`;
@@ -51,6 +52,11 @@ interface ApiJobApplication {
   status_display: string;
   applied_at: string;
   cover_note: string;
+  decision_note?: string;
+  decided_by_id?: number | null;
+  decided_by_name?: string;
+  decided_at?: string | null;
+  allowed_next_statuses?: string[];
   created_at: string;
   updated_at: string;
 }
@@ -92,6 +98,13 @@ function transformApplication(raw: ApiJobApplication): JobApplication {
     statusDisplay: raw.status_display,
     appliedAt: raw.applied_at,
     coverNote: raw.cover_note ?? "",
+    decisionNote: raw.decision_note ?? "",
+    decidedById: raw.decided_by_id ?? null,
+    decidedByName: raw.decided_by_name ?? "",
+    decidedAt: raw.decided_at ?? null,
+    allowedNextStatuses: Array.isArray(raw.allowed_next_statuses)
+      ? (raw.allowed_next_statuses as ApplicationStatus[])
+      : [],
     createdAt: raw.created_at,
     updatedAt: raw.updated_at,
   };
@@ -166,14 +179,51 @@ export const jobListingsApi = {
     return transformListing(data);
   },
 
+  async listAllApplications(filters?: {
+    listing?: number;
+    status?: string;
+  }): Promise<JobApplication[]> {
+    const qs = buildQueryString({
+      listing: filters?.listing,
+      status: filters?.status,
+    });
+    const data = await get<
+      ApiJobApplication[] | { results?: ApiJobApplication[]; count?: number }
+    >(
+      `${API_BASE_URL}/api/job-applications/${qs}`,
+      "Failed to fetch applications"
+    );
+    return handleListResponse(data).results.map(transformApplication);
+  },
+
   async updateApplicationStatus(
     applicationId: number,
     payload: UpdateApplicationStatusPayload
   ): Promise<JobApplication> {
+    const body: Record<string, unknown> = { status: payload.status };
+    if (payload.decisionNote !== undefined) {
+      body.decision_note = payload.decisionNote;
+    }
     const data = await patch<ApiJobApplication>(
       `${API_BASE_URL}/api/job-applications/${applicationId}/`,
-      { status: payload.status },
+      body,
       "Failed to update application status"
+    );
+    return transformApplication(data);
+  },
+
+  async withdrawApplication(
+    applicationId: number,
+    payload: WithdrawApplicationPayload = {}
+  ): Promise<JobApplication> {
+    const body: Record<string, unknown> = {};
+    if (payload.decisionNote !== undefined) {
+      body.decision_note = payload.decisionNote;
+    }
+    const data = await post<ApiJobApplication>(
+      `${API_BASE_URL}/api/job-applications/${applicationId}/withdraw/`,
+      body,
+      "Failed to withdraw application"
     );
     return transformApplication(data);
   },
