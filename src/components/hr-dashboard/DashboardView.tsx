@@ -23,7 +23,7 @@ import { ProjectsModule } from "./projects";
 import { ReviewsModule } from "./ReviewsModule";
 import { OnboardingModule } from "./OnboardingModule";
 import { TrainingModule } from "./TrainingModule";
-import { CompensationModule } from "./CompensationModule";
+import { CompensationModule } from "./compensation";
 import { FeedbackModule } from "./FeedbackModule";
 import { TimeTrackingModule } from "./TimeTrackingModule";
 import { MobilityModule } from "./MobilityModule";
@@ -404,7 +404,7 @@ export function DashboardView({
     case "training":
       return <TrainingModule onNavigate={onNavigate} />;
     case "compensation":
-      return <CompensationModule />;
+      return <CompensationModule onNavigate={onNavigate} />;
     case "feedback":
       return <FeedbackModule />;
     case "timetracking":

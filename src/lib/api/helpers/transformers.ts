@@ -19,6 +19,9 @@ export interface EmployeeProfileData {
   manager_ids?: number[];
   manager_names?: string;
   salary?: number;
+  current_salary?: number | null;
+  current_net_salary?: number | null;
+  current_total_monthly?: number | null;
   currency?: string;
   is_active: boolean;
   avatar?: string;
@@ -131,7 +134,20 @@ export function transformEmployeeData(data: any): EmployeeProfileData {
       ? (data.managers as number[])
       : [],
     manager_names: data.manager_names as string | undefined,
-    salary: data.salary as number | undefined,
+    salary:
+      data.salary != null
+        ? Number(data.salary)
+        : data.current_net_salary != null
+          ? Number(data.current_net_salary)
+          : undefined,
+    current_salary:
+      data.current_salary != null ? Number(data.current_salary) : null,
+    current_net_salary:
+      data.current_net_salary != null ? Number(data.current_net_salary) : null,
+    current_total_monthly:
+      data.current_total_monthly != null
+        ? Number(data.current_total_monthly)
+        : null,
     currency: data.currency as string | undefined,
     is_active:
       data.is_active !== undefined ? (data.is_active as boolean) : true,

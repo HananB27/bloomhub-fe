@@ -47,6 +47,15 @@ export interface EmployeeProfileChangeHistoryItem {
   created_at?: string;
 }
 
+function uniqueStringList(values: unknown): string[] {
+  if (!Array.isArray(values)) return [];
+  return Array.from(
+    new Set(
+      values.filter((value): value is string => typeof value === "string")
+    )
+  );
+}
+
 export type EmployeeExportFormat = "csv" | "xlsx" | "json" | "pdf";
 export type EmployeeExportScope = "all" | "filtered";
 
@@ -392,9 +401,9 @@ export const employeeApi = {
       `${API_BASE_URL}/api/cpf-levels/`,
       "Failed to fetch CPF levels"
     );
-    if (Array.isArray(data)) return data as string[];
+    if (Array.isArray(data)) return uniqueStringList(data);
     const obj = data as Record<string, unknown>;
-    return (obj.cpf_levels ?? obj.results ?? []) as string[];
+    return uniqueStringList(obj.cpf_levels ?? obj.results);
   },
 
   async loadHrProfilesPageBundle(
