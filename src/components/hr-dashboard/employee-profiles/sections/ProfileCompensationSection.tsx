@@ -7,6 +7,7 @@ import {
   RestrictedBlock,
 } from "../atoms";
 import type { ProfileViewerAccess } from "../sectionPermissions";
+import { ProfileBonusesBlock } from "./ProfileBonusesBlock";
 
 interface ProfileCompensationSectionProps {
   profile: EmployeeProfileData;
@@ -23,7 +24,7 @@ function formatSalary(
   try {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: currency || "EUR",
+      currency: currency || "BAM",
       maximumFractionDigits: 0,
     }).format(Number(amount));
   } catch {
@@ -37,6 +38,7 @@ export function ProfileCompensationSection({
   access,
 }: ProfileCompensationSectionProps) {
   const isRestricted = access.salary.visibility === "restricted";
+  const policySalary = profile.current_net_salary ?? profile.salary;
   return (
     <ProfileSection
       id="compensation"
@@ -56,11 +58,9 @@ export function ProfileCompensationSection({
       ) : (
         <div className="grid grid-cols-12 gap-x-[22px] gap-y-[18px]">
           <Field label="Current salary" span="col-span-12 sm:col-span-6">
-            {profile.salary ? (
+            {policySalary ? (
               <FieldValue mono>
-                {formatSalary(profile.salary, profile.currency) ?? (
-                  <FieldEmpty />
-                )}
+                {formatSalary(policySalary, profile.currency) ?? <FieldEmpty />}
               </FieldValue>
             ) : (
               <FieldEmpty />
@@ -70,9 +70,10 @@ export function ProfileCompensationSection({
             {profile.currency ? (
               <FieldValue mono>{profile.currency}</FieldValue>
             ) : (
-              <FieldEmpty />
+              <FieldValue mono>BAM</FieldValue>
             )}
           </Field>
+          <ProfileBonusesBlock employeeId={profile.id} />
         </div>
       )}
     </ProfileSection>

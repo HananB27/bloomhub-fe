@@ -134,6 +134,9 @@ export interface EmployeeProfileData {
     status?: string;
   }[];
   salary?: number;
+  current_salary?: number | null;
+  current_net_salary?: number | null;
+  current_total_monthly?: number | null;
   currency?: string;
 }
 
@@ -247,7 +250,20 @@ export function transformEmployeeData(
     assigned_projects: Array.isArray(raw.assigned_projects)
       ? (raw.assigned_projects as EmployeeProfileData["assigned_projects"])
       : [],
-    salary: raw.salary != null ? Number(raw.salary) : undefined,
+    salary:
+      raw.salary != null
+        ? Number(raw.salary)
+        : raw.current_net_salary != null
+          ? Number(raw.current_net_salary)
+          : undefined,
+    current_salary:
+      raw.current_salary != null ? Number(raw.current_salary) : null,
+    current_net_salary:
+      raw.current_net_salary != null ? Number(raw.current_net_salary) : null,
+    current_total_monthly:
+      raw.current_total_monthly != null
+        ? Number(raw.current_total_monthly)
+        : null,
     currency: raw.currency ? String(raw.currency) : undefined,
   };
 }
