@@ -179,3 +179,175 @@ export function transformEmployeeData(data: any): EmployeeProfileData {
 export function transformEmployeeList(data: any[]): EmployeeProfileData[] {
   return data.map((emp) => transformEmployeeData(emp));
 }
+
+// ──────────────────────────────────────────
+// Leave Analytics
+// ──────────────────────────────────────────
+
+import type { LeaveType } from "@/types/vacations";
+import { ALL_LEAVE_TYPES } from "@/types/vacations";
+import type {
+  LeaveAnalyticsDepartmentRow,
+  LeaveAnalyticsEmployeeSummary,
+  LeaveAnalyticsMonthRow,
+  LeaveAnalyticsRefreshResponse,
+  LeaveAnalyticsYearTotals,
+  LeaveBalanceSnapshot,
+  LeaveMonthlyAggregate,
+} from "@/types/leaveAnalytics";
+
+function _normalizeByType(
+  raw: Record<string, unknown> | undefined
+): Record<LeaveType, number> {
+  const out = Object.fromEntries(
+    ALL_LEAVE_TYPES.map((t) => [t, 0])
+  ) as Record<LeaveType, number>;
+  if (raw && typeof raw === "object") {
+    for (const id of ALL_LEAVE_TYPES) {
+      const value = (raw as Record<string, unknown>)[id];
+      if (typeof value === "number") out[id] = value;
+      else if (typeof value === "string") out[id] = Number(value) || 0;
+    }
+  }
+  return out;
+}
+
+export function transformLeaveMonthlyAggregate(
+  raw: Record<string, unknown>
+): LeaveMonthlyAggregate {
+  return {
+    id: raw.id as number,
+    employeeId: raw.employee_id as number,
+    employeeName: (raw.employee_name as string) || "",
+    department: (raw.department as string) || null,
+    leaveType: raw.leave_type as LeaveType,
+    leaveTypeDisplay: (raw.leave_type_display as string) || "",
+    year: raw.year as number,
+    month: raw.month as number,
+    approvedDays: (raw.approved_days as number) ?? 0,
+    pendingDays: (raw.pending_days as number) ?? 0,
+    rejectedDays: (raw.rejected_days as number) ?? 0,
+    cancelledDays: (raw.cancelled_days as number) ?? 0,
+    totalDays: (raw.total_days as number) ?? 0,
+    requestsCount: (raw.requests_count as number) ?? 0,
+    createdAt: (raw.created_at as string) || "",
+    updatedAt: (raw.updated_at as string) || "",
+  };
+}
+
+export function transformLeaveMonthlyAggregateList(
+  list: Record<string, unknown>[]
+): LeaveMonthlyAggregate[] {
+  return list.map(transformLeaveMonthlyAggregate);
+}
+
+export function transformLeaveAnalyticsMonthRow(
+  raw: Record<string, unknown>
+): LeaveAnalyticsMonthRow {
+  return {
+    year: raw.year as number,
+    month: raw.month as number,
+    monthLabel: (raw.month_label as string) || "",
+    total: (raw.total as number) ?? 0,
+    byType: _normalizeByType(raw.by_type as Record<string, unknown>),
+  };
+}
+
+export function transformLeaveAnalyticsMonthRowList(
+  list: Record<string, unknown>[]
+): LeaveAnalyticsMonthRow[] {
+  return list.map(transformLeaveAnalyticsMonthRow);
+}
+
+export function transformLeaveAnalyticsYearTotals(
+  raw: Record<string, unknown>
+): LeaveAnalyticsYearTotals {
+  return {
+    year: raw.year as number,
+    total: (raw.total as number) ?? 0,
+    byType: _normalizeByType(raw.by_type as Record<string, unknown>),
+    pendingTotal: (raw.pending_total as number) ?? 0,
+    headcount: (raw.headcount as number) ?? 0,
+    onLeaveToday: (raw.on_leave_today as number) ?? 0,
+  };
+}
+
+export function transformLeaveAnalyticsDepartmentRow(
+  raw: Record<string, unknown>
+): LeaveAnalyticsDepartmentRow {
+  return {
+    department: (raw.department as string) || "Unassigned",
+    headcount: (raw.headcount as number) ?? 0,
+    total: (raw.total as number) ?? 0,
+    byType: _normalizeByType(raw.by_type as Record<string, unknown>),
+  };
+}
+
+export function transformLeaveAnalyticsDepartmentRowList(
+  list: Record<string, unknown>[]
+): LeaveAnalyticsDepartmentRow[] {
+  return list.map(transformLeaveAnalyticsDepartmentRow);
+}
+
+export function transformLeaveAnalyticsEmployeeSummary(
+  raw: Record<string, unknown>
+): LeaveAnalyticsEmployeeSummary {
+  return {
+    employeeId: raw.employee_id as number,
+    employeeName: (raw.employee_name as string) || "",
+    role: (raw.role as string) || null,
+    department: (raw.department as string) || null,
+    total: (raw.total as number) ?? 0,
+    vacationUsed: (raw.vacation_used as number) ?? 0,
+    vacationRemaining: (raw.vacation_remaining as number) ?? 0,
+    byType: _normalizeByType(raw.by_type as Record<string, unknown>),
+  };
+}
+
+export function transformLeaveAnalyticsEmployeeSummaryList(
+  list: Record<string, unknown>[]
+): LeaveAnalyticsEmployeeSummary[] {
+  return list.map(transformLeaveAnalyticsEmployeeSummary);
+}
+
+export function transformLeaveAnalyticsRefreshResponse(
+  raw: Record<string, unknown>
+): LeaveAnalyticsRefreshResponse {
+  const snapshots =
+    (raw.snapshots as Record<string, unknown> | undefined) ?? {};
+  return {
+    createdCount: (raw.created_count as number) ?? 0,
+    updatedCount: (raw.updated_count as number) ?? 0,
+    deletedCount: (raw.deleted_count as number) ?? 0,
+    snapshots: {
+      createdCount: (snapshots.created_count as number) ?? 0,
+      updatedCount: (snapshots.updated_count as number) ?? 0,
+    },
+  };
+}
+
+export function transformLeaveBalanceSnapshot(
+  raw: Record<string, unknown>
+): LeaveBalanceSnapshot {
+  return {
+    id: raw.id as number,
+    employeeId: raw.employee_id as number,
+    employeeName: (raw.employee_name as string) || "",
+    leaveType: raw.leave_type as LeaveType,
+    leaveTypeDisplay: (raw.leave_type_display as string) || "",
+    year: raw.year as number,
+    snapshotDate: (raw.snapshot_date as string) || "",
+    allocated: (raw.allocated as number) ?? 0,
+    used: (raw.used as number) ?? 0,
+    carryover: (raw.carryover as number) ?? 0,
+    remaining: (raw.remaining as number) ?? 0,
+    createdAt: (raw.created_at as string) || "",
+    updatedAt: (raw.updated_at as string) || "",
+  };
+}
+
+export function transformLeaveBalanceSnapshotList(
+  list: Record<string, unknown>[]
+): LeaveBalanceSnapshot[] {
+  return list.map(transformLeaveBalanceSnapshot);
+}
