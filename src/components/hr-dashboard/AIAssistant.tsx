@@ -126,7 +126,7 @@ const hrModuleCapabilities: Record<
       "Manage salaries",
       "Process bonuses",
       "Benefits administration",
-      "Equity management",
+      "Review compensation bands",
     ],
   },
   feedback: {
@@ -363,7 +363,7 @@ export function AIAssistant({
     ) {
       relatedModule = "compensation";
       responseContent =
-        "I can assist with compensation management! I can help with salary reviews, bonus processing, benefits administration, or equity management. What compensation task can I help with?";
+        "I can assist with compensation management! I can help with salary reviews, bonus processing, benefits administration, or compensation bands. What compensation task can I help with?";
       suggestions = [
         "Process salary reviews",
         "Calculate bonuses",

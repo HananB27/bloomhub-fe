@@ -45,6 +45,7 @@ import { logoutUser } from "@/lib/api/auth";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { getStoredUser, storeTokens } from "@/lib/api/tokens";
+import { useAdminAccess } from "@/hooks/useAdminAccess";
 
 export default function HRDashboardApp() {
   const { data: session, status } = useSession();
@@ -186,15 +187,25 @@ export default function HRDashboardApp() {
       : SIDEBAR_EXPANDED_OFFSET;
     document.documentElement.style.setProperty("--ws-sidebar-w", `${width}px`);
   }, [sidebarCollapsed]);
+  const { isAdmin, isLoading: isAdminLoading } = useAdminAccess();
   const primaryItems = useMemo(
     () =>
-      HR_MODULES.map((m) => ({
+      HR_MODULES.filter((m) => m.id !== "admin" || isAdmin).map((m) => ({
         id: m.id,
         label: m.label,
         icon: m.icon,
       })),
-    []
+    [isAdmin]
   );
+
+  // If user lost admin access (or never had it) but the active module is the
+  // admin panel, bounce them back to the dashboard instead of rendering the
+  // "Access Denied" panel.
+  useEffect(() => {
+    if (!isAdminLoading && !isAdmin && activeModule === "admin") {
+      setActiveModule("dashboard");
+    }
+  }, [isAdmin, isAdminLoading, activeModule]);
 
   return (
     <div className="h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
