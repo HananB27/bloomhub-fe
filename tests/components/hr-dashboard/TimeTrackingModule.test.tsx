@@ -46,6 +46,7 @@ vi.mock("@/lib/api/timeTracking", async () => {
     timeTrackingApi: {
       listTasks: vi.fn(),
       listEntries: vi.fn(),
+      getActiveAllocations: vi.fn(),
       getWeeklySummary: vi.fn(),
       getApprovalQueue: vi.fn(),
       approveEntry: vi.fn(),
@@ -168,6 +169,27 @@ function mockDefaults(entries: TimeEntry[] = [makeEntry()]) {
     },
   ]);
   vi.mocked(timeTrackingApi.listEntries).mockResolvedValue(entries);
+  vi.mocked(timeTrackingApi.getActiveAllocations).mockResolvedValue({
+    employee_id: 12,
+    work_date: "2026-05-18",
+    total_allocation_percentage: "40.00",
+    remaining_allocation_percentage: "60.00",
+    total_weekly_allocation_hours: "16.00",
+    remaining_weekly_allocation_hours: "24.00",
+    assignments: [
+      {
+        assignment_id: 10,
+        project_id: 1,
+        project_name: "Alpha",
+        allocation_percentage: "40.00",
+        weekly_allocation_hours: "16.00",
+        planned_weekly_hours: "16.00",
+        start_date: "2026-05-18",
+        end_date: null,
+        status: "active",
+      },
+    ],
+  });
   vi.mocked(timeTrackingApi.getWeeklySummary).mockResolvedValue({
     employee_id: 12,
     employee_name: "Jane Doe",
