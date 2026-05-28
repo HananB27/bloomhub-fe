@@ -55,6 +55,48 @@ describe("timeTrackingApi", () => {
     });
   });
 
+  it("loads active allocations with employee and work date filters", async () => {
+    vi.mocked(fetchWithAuthRetry).mockResolvedValue(
+      jsonResponse({
+        employee_id: 12,
+        work_date: "2026-05-18",
+        total_allocation_percentage: "75.00",
+        remaining_allocation_percentage: "25.00",
+        total_weekly_allocation_hours: "30.00",
+        remaining_weekly_allocation_hours: "10.00",
+        assignments: [
+          {
+            assignment_id: 101,
+            project_id: 5,
+            project_name: "Alpha",
+            allocation_percentage: "50.00",
+            weekly_allocation_hours: "20.00",
+            planned_weekly_hours: "20.00",
+            start_date: "2026-05-01",
+            end_date: null,
+            status: "active",
+          },
+        ],
+      })
+    );
+
+    const allocations = await timeTrackingApi.getActiveAllocations({
+      work_date: "2026-05-18",
+      employee_id: 12,
+    });
+
+    expect(fetchWithAuthRetry).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "/api/time-tracking/active-allocations/?work_date=2026-05-18&employee_id=12"
+      ),
+      expect.objectContaining({ headers: expect.any(Object) })
+    );
+    expect(allocations.assignments[0]).toMatchObject({
+      project_id: 5,
+      weekly_allocation_hours: "20.00",
+    });
+  });
+
   it("sends Jira preview filters without fixture worklogs", async () => {
     vi.mocked(fetchWithAuthRetry).mockResolvedValue(
       jsonResponse({
@@ -87,6 +129,45 @@ describe("timeTrackingApi", () => {
       jira_project_key: "BH",
     });
     expect(JSON.parse(String(options.body))).not.toHaveProperty("worklogs");
+  });
+
+  it("posts Jira assigned issues import payload", async () => {
+    vi.mocked(fetchWithAuthRetry).mockResolvedValue(
+      jsonResponse({
+        source_type: "jira",
+        employee_id: 123,
+        jira_account_id: "abc123",
+        dry_run: true,
+        row_count: 1,
+        counts: {
+          created_projects: 1,
+          created_tasks: 1,
+          updated_tasks: 0,
+          created_issue_mappings: 1,
+          updated_issue_mappings: 0,
+          errors: 0,
+        },
+        rows: [],
+      })
+    );
+
+    await timeTrackingApi.importJiraAssignedIssues({
+      employee_id: 123,
+      max_results: 1000,
+      dry_run: true,
+    });
+
+    const [url, options] = vi.mocked(fetchWithAuthRetry).mock.calls[0] as [
+      string,
+      RequestInit,
+    ];
+    expect(url).toContain("/api/time-imports/jira/assigned-issues/");
+    expect(options.method).toBe("POST");
+    expect(JSON.parse(String(options.body))).toEqual({
+      employee_id: 123,
+      max_results: 1000,
+      dry_run: true,
+    });
   });
 
   it("tests Jira connection against saved settings", async () => {

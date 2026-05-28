@@ -133,20 +133,18 @@ export function apiAssignmentToMember(
     a.role && a.role.toLowerCase().includes("lead") ? "Lead" : "Contributor";
   const resolvedName =
     a.employee_name || a.name || `Employee #${a.user_profile_id}`;
-  // TODO [TIME TRACKING]: Switch this even-split (100 / active_projects_count)
-  // to a calculation derived from logged hours in the Time Tracking module:
-  //   allocation = hours_on_this_project / employee_total_active_hours * 100
-  // Until time entries are linked to ProjectAssignment, an even split across
-  // currently-active projects is the best signal we have.
   const activeCount = Math.max(1, a.active_projects_count ?? 1);
-  const derivedAllocation = Math.max(1, Math.floor(100 / activeCount));
+  const allocationPercentage = Number(a.allocation_percentage);
+  const allocation = Number.isFinite(allocationPercentage)
+    ? allocationPercentage
+    : Math.max(1, Math.floor(100 / activeCount));
   return {
     id: a.user_profile_id,
     assignment_id: a.assignment_id ?? a.id,
     name: resolvedName,
     role,
     color: colorForId(a.user_profile_id),
-    allocation: derivedAllocation,
+    allocation,
     start_date: a.start_date,
     end_date: a.end_date,
     notes: a.notes ?? undefined,

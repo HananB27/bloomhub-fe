@@ -77,8 +77,22 @@ export interface TimeEntry {
   rejected_by: number | null;
   rejection_reason: string;
   audit_events: TimeEntryAuditEvent[];
+  allocation_context?: TimeEntryAllocationContext | null;
   created_at: string;
   updated_at: string;
+}
+
+export type AllocationStatus = "allocated" | "unallocated";
+
+export interface TimeEntryAllocationContext {
+  allocation_status: AllocationStatus;
+  assignment_id: number | null;
+  allocation_percentage: string | null;
+  weekly_allocation_hours: string | null;
+  planned_daily_hours: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  project_status: string | null;
 }
 
 export interface TimeTaskFilters {
@@ -99,6 +113,34 @@ export interface TimeEntryFilters {
   work_date?: string;
   date_from?: string;
   date_to?: string;
+}
+
+export interface ActiveAllocationFilters {
+  work_date?: string;
+  employee_id?: number;
+  employee?: number;
+}
+
+export interface ActiveAllocationAssignment {
+  assignment_id: number;
+  project_id: number;
+  project_name: string;
+  allocation_percentage: string;
+  weekly_allocation_hours: string;
+  planned_weekly_hours: string;
+  start_date: string;
+  end_date: string | null;
+  status: string;
+}
+
+export interface ActiveAllocations {
+  employee_id: number;
+  work_date: string;
+  total_allocation_percentage: string;
+  remaining_allocation_percentage: string;
+  total_weekly_allocation_hours: string;
+  remaining_weekly_allocation_hours: string;
+  assignments: ActiveAllocationAssignment[];
 }
 
 export interface WeeklyDashboardFilters {
@@ -434,6 +476,41 @@ export interface JiraImportCommitResult {
   };
   entry_ids: number[];
   preview: JiraImportPreview;
+}
+
+export interface JiraAssignedIssuesImportPayload {
+  employee_id: number;
+  max_results?: number;
+  dry_run?: boolean;
+}
+
+export interface JiraAssignedIssuesImportRow {
+  jira_issue_key: string;
+  jira_issue_id: string;
+  jira_project_key: string;
+  jira_project_name: string;
+  project_id: number | null;
+  task_id: number | null;
+  task_name: string;
+  action: string;
+  validation_messages: string[];
+}
+
+export interface JiraAssignedIssuesImportResult {
+  source_type: "jira";
+  employee_id: number;
+  jira_account_id: string;
+  dry_run: boolean;
+  row_count: number;
+  counts: {
+    created_projects: number;
+    created_tasks: number;
+    updated_tasks: number;
+    created_issue_mappings: number;
+    updated_issue_mappings: number;
+    errors: number;
+  };
+  rows: JiraAssignedIssuesImportRow[];
 }
 
 export interface TempoSettings {
@@ -877,6 +954,20 @@ export const timeTrackingApi = {
     );
   },
 
+  async getActiveAllocations(
+    params?: ActiveAllocationFilters
+  ): Promise<ActiveAllocations> {
+    const qs = buildQueryString(
+      params as
+        | Record<string, string | number | boolean | null | undefined>
+        | undefined
+    );
+    return get<ActiveAllocations>(
+      `${base}/time-tracking/active-allocations/${qs}`,
+      "Failed to load active allocations"
+    );
+  },
+
   async getWeeklyDashboard(
     params?: WeeklyDashboardFilters
   ): Promise<WeeklyDashboard> {
@@ -1059,6 +1150,16 @@ export const timeTrackingApi = {
       `${base}/time-imports/jira/commit/`,
       payload,
       "Failed to commit Jira import"
+    );
+  },
+
+  async importJiraAssignedIssues(
+    payload: JiraAssignedIssuesImportPayload
+  ): Promise<JiraAssignedIssuesImportResult> {
+    return post<JiraAssignedIssuesImportResult>(
+      `${base}/time-imports/jira/assigned-issues/`,
+      payload,
+      "Failed to import assigned Jira issues"
     );
   },
 
