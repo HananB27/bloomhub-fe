@@ -51,7 +51,6 @@ import {
   Target,
   Trash2,
   Copy,
-  CalendarClock,
   ChevronDown,
   AlertCircle,
 } from "lucide-react";
@@ -1202,10 +1201,6 @@ export function OnboardingModule({
                         </DropdownMenuRadioGroup>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                    <Button variant="outline" size="sm">
-                      <CalendarClock className="w-4 h-4 mr-2" />
-                      Schedule Review
-                    </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
