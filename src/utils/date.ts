@@ -51,3 +51,34 @@ export function isExpiringNext30Days(expiryDate?: string): boolean {
   thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
   return expiry >= new Date() && expiry <= thirtyDaysFromNow;
 }
+
+/**
+ * Days from now until the given ISO date (positive = future, negative = past).
+ */
+export function daysUntil(iso: string): number {
+  const target = new Date(iso).getTime();
+  const now = Date.now();
+  return Math.round((target - now) / 86400000);
+}
+
+/**
+ * Format an ISO date relative to now, in "posted ago" style:
+ * "today", "5d ago", "3w ago", "2mo ago". Days-based, no hour granularity.
+ */
+export function formatPostedAgo(iso: string): string {
+  const d = daysUntil(iso);
+  if (d > -1) return "today";
+  if (d > -7) return `${-d}d ago`;
+  if (d > -30) return `${Math.round(-d / 7)}w ago`;
+  return `${Math.round(-d / 30)}mo ago`;
+}
+
+/**
+ * Format an ISO date as a short month-day label (e.g. "Jan 15").
+ */
+export function formatDateShort(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}

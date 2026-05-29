@@ -38,10 +38,7 @@ export interface ProjectAssignment {
   employee_name: string;
   role: string | null;
   allocation_percentage: number;
-  /** Distinct active projects the employee is currently assigned to. Used by
-   *  the FE to derive an even-split allocation = 100 / active_projects_count.
-   *  TODO: Replace with a real, hours-based calculation once the Time
-   *  Tracking module persists hours per ProjectAssignment. */
+  weekly_allocation_hours?: string;
   active_projects_count?: number;
   start_date: string;
   end_date: string | null;
@@ -113,7 +110,8 @@ export type UpdateProjectPayload = Partial<CreateProjectPayload>;
 export interface CreateAssignmentPayload {
   user_profile_id: number;
   role?: string | null;
-  allocation_percentage: number;
+  allocation_percentage?: number;
+  weekly_allocation_hours?: string;
   start_date: string;
   end_date?: string | null;
   status?: AssignmentStatus;

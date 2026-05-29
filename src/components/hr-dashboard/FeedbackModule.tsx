@@ -1,4 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getAccessToken } from "@/lib/api/tokens";
+import {
+  createSurvey,
+  fetchSurveys,
+  type Survey as ApiSurvey,
+  type SurveyQuestion as ApiSurveyQuestion,
+} from "@/lib/api/feedback";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
@@ -556,23 +563,123 @@ export function FeedbackModule() {
     }
   };
 
-  const saveSurvey = () => {
-    if (!newSurvey.title.trim() || newSurvey.questions.length === 0) return;
+  // Translate the FE-local question shape into the API question shape.
+  const toApiQuestion = (q: Question): ApiSurveyQuestion => {
+    switch (q.type) {
+      case "multiple_choice":
+        return {
+          text: q.question,
+          type: "choice",
+          options: (q.options ?? []).filter((opt) => opt.trim() !== ""),
+        };
+      case "yes_no":
+        return { text: q.question, type: "choice", options: ["Yes", "No"] };
+      case "rating":
+        return { text: q.question, type: "scale" };
+      default:
+        return { text: q.question, type: "text" };
+    }
+  };
 
-    const survey: Survey = {
-      id: Date.now(),
-      title: newSurvey.title,
-      description: newSurvey.description,
-      questions: newSurvey.questions,
-      anonymous: newSurvey.anonymous,
-      status: "draft",
-      createdDate: new Date().toISOString().split("T")[0],
-      endDate: newSurvey.endDate,
-      responseCount: 0,
+  // Translate API survey shape back into the FE-local shape used by the UI.
+  const fromApiSurvey = (s: ApiSurvey): Survey => {
+    const questions: Question[] = s.questions.map((q, idx) => ({
+      id: q.id ?? idx + 1,
+      type:
+        q.type === "scale"
+          ? "rating"
+          : q.type === "choice"
+            ? "multiple_choice"
+            : "text",
+      question: q.text,
+      options: q.options,
+      required: false,
+    }));
+    return {
+      id: s.id,
+      title: s.title,
+      description: s.description,
+      questions,
+      anonymous: s.is_anonymous,
+      status:
+        s.status === "draft" || s.status === "active" || s.status === "closed"
+          ? s.status
+          : "draft",
+      createdDate: s.created_at?.split("T")[0] ?? "",
+      endDate: "",
+      responseCount: s.response_count,
       targetParticipants: 50,
     };
+  };
 
-    setSurveys((prev) => [...prev, survey]);
+  // Load real surveys on mount (best-effort — keep mock state on failure).
+  useEffect(() => {
+    const token = getAccessToken();
+    if (!token) return;
+    let cancelled = false;
+    void fetchSurveys(token)
+      .then((apiSurveys) => {
+        if (cancelled) return;
+        setSurveys(apiSurveys.map(fromApiSurvey));
+      })
+      .catch(() => {
+        /* keep existing mock surveys on failure */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const saveSurvey = async () => {
+    if (!newSurvey.title.trim() || newSurvey.questions.length === 0) return;
+
+    const token = getAccessToken();
+    const payload = {
+      title: newSurvey.title,
+      description: newSurvey.description,
+      is_anonymous: newSurvey.anonymous,
+      questions: newSurvey.questions.map(toApiQuestion),
+    };
+
+    if (token) {
+      try {
+        const created = await createSurvey(payload, token);
+        setSurveys((prev) => [fromApiSurvey(created), ...prev]);
+      } catch {
+        // Fallback to local-only insert so the UI stays usable offline.
+        setSurveys((prev) => [
+          {
+            id: Date.now(),
+            title: newSurvey.title,
+            description: newSurvey.description,
+            questions: newSurvey.questions,
+            anonymous: newSurvey.anonymous,
+            status: "draft",
+            createdDate: new Date().toISOString().split("T")[0],
+            endDate: newSurvey.endDate,
+            responseCount: 0,
+            targetParticipants: 50,
+          },
+          ...prev,
+        ]);
+      }
+    } else {
+      setSurveys((prev) => [
+        {
+          id: Date.now(),
+          title: newSurvey.title,
+          description: newSurvey.description,
+          questions: newSurvey.questions,
+          anonymous: newSurvey.anonymous,
+          status: "draft",
+          createdDate: new Date().toISOString().split("T")[0],
+          endDate: newSurvey.endDate,
+          responseCount: 0,
+          targetParticipants: 50,
+        },
+        ...prev,
+      ]);
+    }
 
     setNewSurvey({
       title: "",
@@ -1200,7 +1307,7 @@ export function FeedbackModule() {
 
                             <div className="flex gap-2 pt-4 border-t border-gray-200">
                               <Button
-                                onClick={saveSurvey}
+                                onClick={() => void saveSurvey()}
                                 disabled={
                                   !newSurvey.title.trim() ||
                                   newSurvey.questions.length === 0

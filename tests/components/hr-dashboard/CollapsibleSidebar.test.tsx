@@ -156,4 +156,35 @@ describe("CollapsibleSidebar", () => {
       fireEvent.mouseLeave(firstNavButton as HTMLElement);
     }
   });
+
+  it("when collapsed supports secondary item hover and logout click", async () => {
+    const onSelect = vi.fn();
+    const { container } = render(
+      <CollapsibleSidebar
+        collapsed={true}
+        onToggle={() => {}}
+        primaryItems={primaryItems}
+        activeId="dashboard"
+        onSelect={onSelect}
+      />
+    );
+
+    const secondaryList = container.querySelectorAll("ul")[1];
+    const [profileButton, logoutButton] = Array.from(
+      secondaryList?.querySelectorAll("button") ?? []
+    ) as HTMLElement[];
+
+    fireEvent.mouseEnter(profileButton);
+    await waitFor(() => {
+      expect(screen.getByText("Profile")).toBeInTheDocument();
+    });
+    fireEvent.mouseLeave(profileButton);
+
+    fireEvent.mouseEnter(logoutButton);
+    await waitFor(() => {
+      expect(screen.getByText("Logout")).toBeInTheDocument();
+    });
+    fireEvent.click(logoutButton);
+    expect(onSelect).toHaveBeenCalledWith("logout");
+  });
 });
