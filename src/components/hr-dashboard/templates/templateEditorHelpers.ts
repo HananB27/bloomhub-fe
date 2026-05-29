@@ -326,6 +326,116 @@ export function sanitizePastedHtml(html: string): string {
   return doc.body.innerHTML;
 }
 
+function headingLevelFromClass(className: string): 1 | 2 | 3 | null {
+  const normalized = className.toLowerCase().replace(/[_\s]+/g, "-");
+  if (/\bh1\b|\bheading-?1\b|\bheading-one\b/.test(normalized)) return 1;
+  if (/\bh2\b|\bheading-?2\b|\bheading-two\b/.test(normalized)) return 2;
+  if (/\bh3\b|\bheading-?3\b|\bheading-three\b/.test(normalized)) return 3;
+  if (/\bheading\b/.test(normalized)) return 1;
+  return null;
+}
+
+function cssSizeToPx(raw: string): number | null {
+  const value = raw.trim().toLowerCase();
+  const match = value.match(/^(\d+(?:\.\d+)?)(px|pt|rem|em)$/);
+  if (!match) return null;
+  const amount = Number(match[1]);
+  if (!Number.isFinite(amount)) return null;
+  const unit = match[2];
+  if (unit === "px") return amount;
+  if (unit === "pt") return amount * (4 / 3);
+  if (unit === "rem" || unit === "em") return amount * 16;
+  return null;
+}
+
+function headingLevelFromStyle(el: HTMLElement): 1 | 2 | 3 | null {
+  const size = el.style.fontSize ? cssSizeToPx(el.style.fontSize) : null;
+  if (size === null) return null;
+  if (size >= 28) return 1;
+  if (size >= 22) return 2;
+  if (size >= 18) return 3;
+  return null;
+}
+
+function semanticHeadingLevel(el: HTMLElement): 1 | 2 | 3 | null {
+  const tag = el.tagName.toUpperCase();
+  if (tag === "H1" || tag === "H2" || tag === "H3") {
+    return Number(tag.slice(1)) as 1 | 2 | 3;
+  }
+  return headingLevelFromClass(el.className) ?? headingLevelFromStyle(el);
+}
+
+function replaceWithSemanticHeading(
+  doc: Document,
+  el: HTMLElement,
+  level: 1 | 2 | 3
+): HTMLElement {
+  if (el.tagName.toUpperCase() === `H${level}`) return el;
+  const heading = doc.createElement(`h${level}`);
+  while (el.firstChild) heading.appendChild(el.firstChild);
+  el.replaceWith(heading);
+  return heading;
+}
+
+function isOnlyMeaningfulChild(
+  parent: HTMLElement,
+  child: HTMLElement
+): boolean {
+  return Array.from(parent.childNodes).every((node) => {
+    if (node === child) return true;
+    return node.nodeType === Node.TEXT_NODE && !node.textContent?.trim();
+  });
+}
+
+/**
+ * Convert editor/browser heading fallbacks into semantic heading tags before
+ * save. Some contenteditable implementations or pasted sources represent
+ * headings as styled paragraphs/spans; announcement delivery needs h1-h3.
+ */
+export function normalizeSemanticHeadings(html: string): string {
+  if (!html.trim()) return html;
+
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const candidates = Array.from(
+    doc.body.querySelectorAll<HTMLElement>("h1,h2,h3,p,div,span")
+  );
+
+  for (const el of candidates) {
+    if (!el.isConnected) continue;
+
+    const directLevel = semanticHeadingLevel(el);
+    const tag = el.tagName.toUpperCase();
+    if (directLevel && (tag === "H1" || tag === "H2" || tag === "H3")) {
+      el.removeAttribute("class");
+      el.removeAttribute("style");
+      continue;
+    }
+
+    if (directLevel && (tag === "P" || tag === "DIV" || tag === "SPAN")) {
+      const heading = replaceWithSemanticHeading(doc, el, directLevel);
+      heading.removeAttribute("class");
+      heading.removeAttribute("style");
+      continue;
+    }
+
+    if (tag !== "P" && tag !== "DIV") continue;
+    const child = Array.from(el.children).find(
+      (item): item is HTMLElement => item instanceof HTMLElement
+    );
+    if (!child || !isOnlyMeaningfulChild(el, child)) continue;
+    const childLevel = semanticHeadingLevel(child);
+    if (!childLevel) continue;
+
+    while (child.firstChild) el.insertBefore(child.firstChild, child);
+    child.remove();
+    const heading = replaceWithSemanticHeading(doc, el, childLevel);
+    heading.removeAttribute("class");
+    heading.removeAttribute("style");
+  }
+
+  return doc.body.innerHTML;
+}
+
 // Tags allowed when importing a full document (mammoth output).
 const ALLOWED_IMPORT_TAGS = new Set([
   ...ALLOWED_PASTE_TAGS,

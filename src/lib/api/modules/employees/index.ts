@@ -84,6 +84,17 @@ export interface CreateEmployeePayload {
   onboarding_template_id?: number | null;
   send_invite?: boolean;
   start_onboarding?: boolean;
+  publish_intro_announcement?: boolean;
+  intro_announcement_title?: string;
+  intro_announcement_body?: string;
+  intro_announcement_scheduled_at?: string | null;
+}
+
+export interface EmployeeIntroAnnouncementPayload {
+  publish_intro_announcement?: boolean;
+  intro_announcement_title?: string;
+  intro_announcement_body?: string;
+  intro_announcement_scheduled_at?: string | null;
 }
 
 export interface EmployeeEmailAvailability {
@@ -189,7 +200,7 @@ export const employeeApi = {
 
   async updateEmployee(
     id: number | string,
-    data: Partial<EmployeeProfileData>
+    data: Partial<EmployeeProfileData> & EmployeeIntroAnnouncementPayload
   ): Promise<EmployeeProfileData> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const responseData = await patch<any>(
