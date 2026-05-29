@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { employeeApi } from "@/lib/api/modules/employees";
+import { departmentsApi } from "@/lib/api/modules/departments";
 import { fetchWithAuthRetry } from "@/lib/api/refresh";
 
 vi.mock("@/lib/api/refresh", () => ({
@@ -122,6 +123,61 @@ describe("employeeApi", () => {
       available: false,
       user_id: 22,
     });
+  });
+
+  it("loads employee form departments from the departments endpoint as names", async () => {
+    vi.mocked(fetchWithAuthRetry).mockResolvedValue(
+      jsonResponse({
+        results: [
+          { id: 1, name: "Engineering" },
+          { id: 2, name: "People" },
+        ],
+      })
+    );
+
+    await expect(departmentsApi.getDepartmentsAsStrings()).resolves.toEqual([
+      "Engineering",
+      "People",
+    ]);
+
+    expect(fetchWithAuthRetry).toHaveBeenCalledWith(
+      expect.stringContaining("/api/departments/"),
+      expect.any(Object)
+    );
+  });
+
+  it("normalizes bundled employee form lookups from database rows", async () => {
+    vi.mocked(fetchWithAuthRetry).mockResolvedValue(
+      jsonResponse({
+        permission_bits: 1,
+        employees: { results: [], count: 0 },
+        lookups: {
+          departments: {
+            results: [
+              { id: 1, name: "Engineering" },
+              { id: 2, name: "People" },
+            ],
+          },
+          roles: {
+            results: [
+              { id: 10, name: "Backend Engineer" },
+              { id: 11, name: "HR Manager" },
+            ],
+          },
+          projects: [],
+          managers: [],
+          cpf_levels: [],
+        },
+      })
+    );
+
+    const bundle = await employeeApi.loadHrProfilesPageBundle();
+
+    expect(bundle?.departments).toEqual(["Engineering", "People"]);
+    expect(bundle?.roles).toEqual([
+      { id: 10, name: "Backend Engineer" },
+      { id: 11, name: "HR Manager" },
+    ]);
   });
 
   it("surfaces backend export errors", async () => {

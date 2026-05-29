@@ -31,6 +31,7 @@ import {
   combineTplFieldTextDecoration,
   getTplFieldSpansInSelection,
   normalizeLinkUrl,
+  normalizeSemanticHeadings,
   plainTextToSanitizedHtml,
   sanitizePastedHtml,
   ensureSelectionInsideEditor,
@@ -44,9 +45,11 @@ import {
 export function SnippetRichTextEditor({
   initialHtml,
   onHtmlChange,
+  showBackgroundColorControl = true,
 }: {
   initialHtml: string;
   onHtmlChange: (html: string) => void;
+  showBackgroundColorControl?: boolean;
 }) {
   const editorRef = useRef<HTMLDivElement>(null);
   const savedRangeRef = useRef<Range | null>(null);
@@ -119,7 +122,7 @@ export function SnippetRichTextEditor({
   }
 
   function emitChange() {
-    onHtmlChange(editorRef.current?.innerHTML ?? "");
+    onHtmlChange(normalizeSemanticHeadings(editorRef.current?.innerHTML ?? ""));
   }
 
   function execFormat(cmd: string, val?: string) {
@@ -625,23 +628,27 @@ export function SnippetRichTextEditor({
             />
           </label>
 
-          <label
-            className="flex h-8 cursor-pointer select-none items-center gap-1.5 rounded-lg border border-slate-200/80 bg-white px-2 shadow-sm hover:bg-slate-50"
-            title="Background"
-            onMouseDown={() => saveSelection()}
-          >
-            <span className="text-[11px] font-semibold text-slate-500">Bg</span>
-            <span
-              className="h-4 w-4 shrink-0 rounded border border-slate-300"
-              style={{ backgroundColor: editorBgColor }}
-            />
-            <input
-              type="color"
-              value={editorBgColor}
-              onChange={(e) => setEditorBgColor(e.target.value)}
-              className="sr-only"
-            />
-          </label>
+          {showBackgroundColorControl && (
+            <label
+              className="flex h-8 cursor-pointer select-none items-center gap-1.5 rounded-lg border border-slate-200/80 bg-white px-2 shadow-sm hover:bg-slate-50"
+              title="Background"
+              onMouseDown={() => saveSelection()}
+            >
+              <span className="text-[11px] font-semibold text-slate-500">
+                Bg
+              </span>
+              <span
+                className="h-4 w-4 shrink-0 rounded border border-slate-300"
+                style={{ backgroundColor: editorBgColor }}
+              />
+              <input
+                type="color"
+                value={editorBgColor}
+                onChange={(e) => setEditorBgColor(e.target.value)}
+                className="sr-only"
+              />
+            </label>
+          )}
 
           <div className="relative z-[140]" ref={fontDropdownRef}>
             <button
