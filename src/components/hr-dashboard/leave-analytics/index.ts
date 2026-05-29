@@ -5,5 +5,7 @@ export { YearOverYearStrip } from "./YearOverYearStrip";
 export { DepartmentBreakdown } from "./DepartmentBreakdown";
 export { TeamAvailabilityHeatmap } from "./TeamAvailabilityHeatmap";
 export { EmployeeHistoryTable } from "./EmployeeHistoryTable";
+export { BalanceTrendChart } from "./BalanceTrendChart";
+export { EmployeeLeavePeekDialog } from "./EmployeeLeavePeekDialog";
 export * from "./analyticsModuleHelpers";
 export * from "./analyticsModuleLoaders";
