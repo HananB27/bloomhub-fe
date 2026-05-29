@@ -14,58 +14,73 @@ interface Props {
   year: number;
   current: LeaveAnalyticsYearTotals | null;
   previous: LeaveAnalyticsYearTotals | null;
+  isAdmin?: boolean;
 }
 
 const delta = (curr: number, prev: number) =>
   prev ? ((curr - prev) / prev) * 100 : null;
 
-export function KpiRow({ year, current, previous }: Props) {
+export function KpiRow({ year, current, previous, isAdmin = true }: Props) {
   const total = current?.total ?? 0;
   const headcount = current?.headcount ?? 0;
   const onLeaveToday = current?.onLeaveToday ?? 0;
   const pending = current?.pendingTotal ?? 0;
   const avg = headcount ? total / headcount : 0;
   const prevTotal = previous?.total ?? 0;
-  const prevAvg = previous && previous.headcount
-    ? previous.total / previous.headcount
-    : 0;
+  const prevAvg =
+    previous && previous.headcount ? previous.total / previous.headcount : 0;
 
-  const cards: KpiCardSpec[] = [
-    {
-      kicker: "Total leave days",
-      value: total.toLocaleString(),
-      unit: "working days",
-      delta: delta(total, prevTotal),
-      deltaLabel: `vs. ${year - 1}`,
-    },
-    {
-      kicker: "On leave today",
-      value: onLeaveToday,
-      unit: `of ${headcount} people`,
-      ratio: headcount ? onLeaveToday / headcount : 0,
-    },
-    {
-      kicker: "Avg per employee",
-      value: avg.toFixed(1),
-      unit: "days / year",
-      delta: delta(avg, prevAvg),
-      deltaLabel: `vs. ${year - 1}`,
-    },
-    {
-      kicker: "Pending requests",
-      value: pending,
-      unit: "awaiting approval",
-      urgent: pending > 0,
-    },
-  ];
+  const cards: KpiCardSpec[] = isAdmin
+    ? [
+        {
+          kicker: "Total leave days",
+          value: total.toLocaleString(),
+          unit: "working days",
+          delta: delta(total, prevTotal),
+          deltaLabel: `vs. ${year - 1}`,
+        },
+        {
+          kicker: "On leave today",
+          value: onLeaveToday,
+          unit: `of ${headcount} people`,
+          ratio: headcount ? onLeaveToday / headcount : 0,
+        },
+        {
+          kicker: "Avg per employee",
+          value: avg.toFixed(1),
+          unit: "days / year",
+          delta: delta(avg, prevAvg),
+          deltaLabel: `vs. ${year - 1}`,
+        },
+        {
+          kicker: "Pending requests",
+          value: pending,
+          unit: "awaiting approval",
+          urgent: pending > 0,
+        },
+      ]
+    : [
+        {
+          kicker: "My leave days",
+          value: total.toLocaleString(),
+          unit: "working days taken",
+          delta: delta(total, prevTotal),
+          deltaLabel: `vs. ${year - 1}`,
+        },
+        {
+          kicker: "My pending requests",
+          value: pending,
+          unit: "awaiting approval",
+          urgent: pending > 0,
+        },
+      ];
+
+  const gridCols = isAdmin ? "lg:grid-cols-4" : "lg:grid-cols-2";
 
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div className={`grid grid-cols-2 gap-3 ${gridCols}`}>
       {cards.map((c, i) => (
-        <div
-          key={i}
-          className="rounded-xl border border-gray-200 bg-white p-4"
-        >
+        <div key={i} className="rounded-xl border border-gray-200 bg-white p-4">
           <div className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
             {c.kicker}
           </div>

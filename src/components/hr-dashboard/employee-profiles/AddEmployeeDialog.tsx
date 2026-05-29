@@ -35,7 +35,7 @@ interface AddEmployeeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   departments: string[];
-  roles: { id: number; name: string }[];
+  jobTitles: string[];
   projects: EmployeeProjectOption[];
   managers: Manager[];
   existingEmails?: string[];
@@ -86,6 +86,11 @@ interface FormState {
   sendInvite: boolean;
   startOnboarding: boolean;
   onboardingTemplateId: string;
+  publishIntroAnnouncement: boolean;
+  introAnnouncementTitle: string;
+  introAnnouncementBody: string;
+  introAnnouncementScheduleDate: string;
+  introAnnouncementScheduleTime: string;
 }
 
 const INITIAL_FORM: FormState = {
@@ -107,13 +112,47 @@ const INITIAL_FORM: FormState = {
   sendInvite: true,
   startOnboarding: true,
   onboardingTemplateId: DEFAULT_TEMPLATE_VALUE,
+  publishIntroAnnouncement: false,
+  introAnnouncementTitle: "",
+  introAnnouncementBody: "",
+  introAnnouncementScheduleDate: "",
+  introAnnouncementScheduleTime: "",
 };
+
+function defaultIntroTitle(form: FormState) {
+  const name = `${form.firstName} ${form.lastName}`.trim();
+  return name ? `Welcome ${name}` : "Welcome";
+}
+
+function introScheduleToIso(datePart: string, timePart: string) {
+  if (!datePart) return null;
+  const date = new Date(`${datePart}T${timePart || "09:00"}`);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toISOString();
+}
+
+function normalizeEmployeeSubmitError(error: unknown) {
+  const message =
+    error instanceof Error ? error.message : "Failed to add employee.";
+  const lower = message.toLowerCase();
+  if (lower.includes("intro") && lower.includes("already")) {
+    return "introduction announcement already exists.";
+  }
+  if (
+    lower.includes("permission") ||
+    lower.includes("not allowed") ||
+    message.includes("403")
+  ) {
+    return "Not allowed to schedule introduction announcement.";
+  }
+  return message;
+}
 
 export function AddEmployeeDialog({
   open,
   onOpenChange,
   departments,
-  roles,
+  jobTitles,
   projects,
   managers,
   existingEmails = [],
@@ -174,7 +213,9 @@ export function AddEmployeeDialog({
     !emailError &&
     !isCheckingEmail;
   const canContinueJob =
-    form.jobTitle.trim() && form.department.trim() && form.startDate.trim();
+    form.jobTitle.trim() &&
+    (departments.length > 0 ? form.department.trim() : true) &&
+    form.startDate.trim();
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -265,8 +306,11 @@ export function AddEmployeeDialog({
       setError(emailError);
       return;
     }
+    if (form.publishIntroAnnouncement && !form.introAnnouncementBody.trim()) {
+      setError("Add introduction announcement body before saving.");
+      return;
+    }
 
-    const matchedRole = roles.find((role) => role.name === form.jobTitle);
     const status =
       form.initialStatus === "active"
         ? "active"
@@ -275,6 +319,7 @@ export function AddEmployeeDialog({
           : "probation";
 
     try {
+      const introEnabled = form.publishIntroAnnouncement;
       await onSubmit({
         first_name: form.firstName.trim(),
         last_name: form.lastName.trim(),
@@ -283,7 +328,7 @@ export function AddEmployeeDialog({
         birth_date: form.birthDate || undefined,
         address: form.address.trim() || undefined,
         avatar_color: form.avatarColor,
-        role: matchedRole?.id ?? null,
+        role: null,
         role_name: form.jobTitle.trim(),
         job_title: form.jobTitle.trim(),
         employment_type: form.employmentType,
@@ -306,10 +351,22 @@ export function AddEmployeeDialog({
           : null,
         send_invite: form.sendInvite,
         start_onboarding: form.startOnboarding,
+        ...(introEnabled
+          ? {
+              publish_intro_announcement: true,
+              intro_announcement_title:
+                form.introAnnouncementTitle.trim() || defaultIntroTitle(form),
+              intro_announcement_body: form.introAnnouncementBody.trim(),
+              intro_announcement_scheduled_at: introScheduleToIso(
+                form.introAnnouncementScheduleDate,
+                form.introAnnouncementScheduleTime
+              ),
+            }
+          : {}),
       });
       reset();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add employee.");
+      setError(normalizeEmployeeSubmitError(err));
     }
   };
 
@@ -361,7 +418,7 @@ export function AddEmployeeDialog({
             <JobStep
               form={form}
               departments={departments}
-              roles={roles}
+              jobTitles={jobTitles}
               projects={projects}
               managers={managers}
               onboardingTemplates={onboardingTemplates}
@@ -613,7 +670,7 @@ function PersonalStep({
 function JobStep({
   form,
   departments,
-  roles,
+  jobTitles,
   projects,
   managers,
   onboardingTemplates,
@@ -623,7 +680,7 @@ function JobStep({
   update,
 }: StepProps & {
   departments: string[];
-  roles: { id: number; name: string }[];
+  jobTitles: string[];
   projects: EmployeeProjectOption[];
   managers: Manager[];
   onboardingTemplates: OnboardingTemplateOption[];
@@ -637,12 +694,12 @@ function JobStep({
         <CustomSelect
           value={form.jobTitle}
           placeholder="Senior Backend Engineer"
-          disabled={roles.length === 0}
+          disabled={jobTitles.length === 0}
           onChange={(value) => update("jobTitle", value)}
         >
-          {roles.map((role) => (
-            <SelectItem key={role.id} value={role.name}>
-              {role.name}
+          {jobTitles.map((jobTitle) => (
+            <SelectItem key={jobTitle} value={jobTitle}>
+              {jobTitle}
             </SelectItem>
           ))}
         </CustomSelect>
@@ -773,6 +830,74 @@ function JobStep({
           </CustomSelect>
         </Field>
       ) : null}
+      <IntroAnnouncementFields
+        form={form}
+        update={update}
+        datePortalContainer={datePortalContainer}
+      />
+    </div>
+  );
+}
+
+function IntroAnnouncementFields({
+  form,
+  update,
+  datePortalContainer,
+}: StepProps & {
+  datePortalContainer: HTMLElement | null;
+}) {
+  return (
+    <div className="col-span-2 space-y-4 rounded-2xl border border-zinc-200 p-4">
+      <CheckRow
+        checked={form.publishIntroAnnouncement}
+        onCheckedChange={(checked) =>
+          update("publishIntroAnnouncement", checked)
+        }
+        title="Publish introduction announcement"
+        description="Create a company announcement for this new employee."
+      />
+      {form.publishIntroAnnouncement ? (
+        <div className="grid grid-cols-2 gap-x-7 gap-y-5">
+          <Field label="Announcement title" className="col-span-2">
+            <input
+              value={form.introAnnouncementTitle || defaultIntroTitle(form)}
+              onChange={(e) => update("introAnnouncementTitle", e.target.value)}
+            />
+          </Field>
+          <Field label="Announcement body" required className="col-span-2">
+            <textarea
+              className="min-h-28 w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm"
+              value={form.introAnnouncementBody}
+              onChange={(e) => update("introAnnouncementBody", e.target.value)}
+              placeholder="<p>Please welcome Jane to Engineering.</p>"
+            />
+          </Field>
+          <Field
+            label="Schedule date"
+            helper="Leave blank to publish immediately"
+          >
+            <DatePicker
+              mode="single"
+              value={form.introAnnouncementScheduleDate}
+              onChange={(date) => update("introAnnouncementScheduleDate", date)}
+              placeholder="dd. mm. yyyy."
+              size="compact"
+              floatPortal
+              portalContainer={datePortalContainer}
+            />
+          </Field>
+          <Field label="Schedule time">
+            <input
+              type="time"
+              value={form.introAnnouncementScheduleTime}
+              disabled={!form.introAnnouncementScheduleDate}
+              onChange={(e) =>
+                update("introAnnouncementScheduleTime", e.target.value)
+              }
+            />
+          </Field>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -847,6 +972,12 @@ function ReviewStep({
             <li>
               Start the {selectedTemplate?.name ?? "default"} onboarding
               checklist
+            </li>
+          ) : null}
+          {form.publishIntroAnnouncement ? (
+            <li>
+              Publish introduction announcement:{" "}
+              {form.introAnnouncementTitle || defaultIntroTitle(form)}
             </li>
           ) : null}
           <li>Notify the People team</li>

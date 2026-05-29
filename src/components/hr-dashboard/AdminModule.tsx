@@ -58,6 +58,7 @@ import {
 } from "lucide-react";
 import { AdminDepartmentsTab } from "./AdminDepartmentsTab";
 import { AdminCompensationTab } from "./admin/AdminCompensationTab";
+import { DiscordAnnouncementChannelsTab } from "./admin/DiscordAnnouncementChannelsTab";
 import { toast } from "sonner";
 import { ApiError, uploadRolePermissionsCsv } from "@/utils/api";
 import { fetchEmployees, type Employee } from "@/lib/api/employees";
@@ -759,6 +760,8 @@ export function AdminModule() {
                 </div>
               </CardContent>
             </Card>
+
+            <DiscordAnnouncementChannelsTab />
           </div>
         </TabsContent>
       </Tabs>

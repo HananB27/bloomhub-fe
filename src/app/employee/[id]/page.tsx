@@ -35,6 +35,7 @@ import {
   AvatarImage,
 } from "@/components/hr-dashboard/ui/avatar";
 import { Badge } from "@/components/hr-dashboard/ui/badge";
+import { UpcomingCelebrationsWidget } from "@/components/hr-dashboard/employee-profiles/UpcomingCelebrationsWidget";
 import {
   Table,
   TableBody,
@@ -561,6 +562,8 @@ export default function EmployeeProfilePage() {
           </div>
         </CardContent>
       </Card>
+
+      <UpcomingCelebrationsWidget variant="card" />
 
       {(isHRUser || isOwnProfile) && (
         <Card>

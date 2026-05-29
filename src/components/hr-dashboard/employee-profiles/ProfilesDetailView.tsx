@@ -18,8 +18,11 @@ import { ProfileTechnologySection } from "./ProfileTechnologySection";
 import { ProfileEmergencyContactSection } from "./ProfileEmergencyContactSection";
 import { ProfileCvSection } from "./ProfileCvSection";
 import { ProfileHistorySection } from "./ProfileHistorySection";
+import { UpcomingCelebrationsWidget } from "./UpcomingCelebrationsWidget";
 import type { ProfileSectionNavItem } from "./useProfileSectionNav";
 import type { ProfileViewerRole } from "./atoms/RoleSwitch";
+import { ProfileSection } from "./atoms/ProfileSection";
+import { DatePicker } from "../DatePicker";
 
 interface ProfilesDetailViewProps {
   profile: EmployeeProfileData;
@@ -60,6 +63,20 @@ interface ProfilesDetailViewProps {
   onDelete?: () => void;
   canDelete?: boolean;
   onOpenProject?: (projectId: number) => void;
+  introDraft?: IntroAnnouncementDraft;
+  onIntroDraftChange?: (draft: IntroAnnouncementDraft) => void;
+}
+
+interface IntroAnnouncementDraft {
+  enabled: boolean;
+  title: string;
+  body: string;
+  scheduledDate: string;
+  scheduledTime: string;
+}
+
+function defaultIntroTitle(profile: EmployeeProfileData) {
+  return `Welcome ${profile.first_name} ${profile.last_name}`.trim();
 }
 
 /**
@@ -118,6 +135,8 @@ export function ProfilesDetailView({
   onDelete,
   canDelete,
   onOpenProject,
+  introDraft,
+  onIntroDraftChange,
 }: ProfilesDetailViewProps) {
   const viewerRole = resolveViewerRole(canEditAll, currentUserId, profile.id);
   const access = getViewerAccess(viewerRole);
@@ -133,6 +152,10 @@ export function ProfilesDetailView({
         locked: access.emergency.visibility === "restricted",
       },
       { id: "employment", label: "Employment" },
+      ...(editMode && canEditAll
+        ? [{ id: "intro-announcement", label: "Intro announcement" }]
+        : []),
+      { id: "celebrations", label: "Celebrations" },
       { id: "career", label: "Career path & CPF" },
       {
         id: "compensation",
@@ -144,7 +167,12 @@ export function ProfilesDetailView({
       { id: "cv", label: "CV / Resume" },
       { id: "history", label: "Change history" },
     ],
-    [access.emergency.visibility, access.salary.visibility]
+    [
+      access.emergency.visibility,
+      access.salary.visibility,
+      canEditAll,
+      editMode,
+    ]
   );
 
   return (
@@ -180,6 +208,112 @@ export function ProfilesDetailView({
         access={access}
       />
       <ProfileEmploymentSection profile={profile} />
+      {editMode && canEditAll && introDraft && onIntroDraftChange ? (
+        <ProfileSection
+          id="intro-announcement"
+          kicker="Announcements"
+          title="Introduction Announcement"
+        >
+          <div className="space-y-4">
+            <label className="flex items-start gap-3 rounded-lg border border-zinc-200 p-4">
+              <input
+                type="checkbox"
+                className="mt-1 h-4 w-4"
+                checked={introDraft.enabled}
+                onChange={(event) =>
+                  onIntroDraftChange({
+                    ...introDraft,
+                    enabled: event.target.checked,
+                  })
+                }
+              />
+              <span>
+                <span className="block font-semibold text-zinc-900">
+                  Publish introduction announcement
+                </span>
+                <span className="block text-sm text-zinc-500">
+                  Submit these fields only when enabled.
+                </span>
+              </span>
+            </label>
+            {introDraft.enabled ? (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="grid gap-2 sm:col-span-2">
+                  <span className="text-sm font-semibold text-zinc-700">
+                    Title
+                  </span>
+                  <input
+                    className="h-10 rounded-lg border border-zinc-300 px-3 text-sm"
+                    value={introDraft.title || defaultIntroTitle(profile)}
+                    onChange={(event) =>
+                      onIntroDraftChange({
+                        ...introDraft,
+                        title: event.target.value,
+                      })
+                    }
+                  />
+                </label>
+                <label className="grid gap-2 sm:col-span-2">
+                  <span className="text-sm font-semibold text-zinc-700">
+                    Body
+                  </span>
+                  <textarea
+                    className="min-h-28 rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+                    value={introDraft.body}
+                    onChange={(event) =>
+                      onIntroDraftChange({
+                        ...introDraft,
+                        body: event.target.value,
+                      })
+                    }
+                    placeholder="<p>Please welcome Jane to Engineering.</p>"
+                  />
+                </label>
+                <label className="grid gap-2">
+                  <span className="text-sm font-semibold text-zinc-700">
+                    Schedule date
+                  </span>
+                  <DatePicker
+                    mode="single"
+                    value={introDraft.scheduledDate}
+                    onChange={(date) =>
+                      onIntroDraftChange({
+                        ...introDraft,
+                        scheduledDate: date,
+                        scheduledTime:
+                          date && !introDraft.scheduledTime
+                            ? "09:00"
+                            : introDraft.scheduledTime,
+                      })
+                    }
+                    placeholder="dd. mm. yyyy."
+                    size="compact"
+                    floatPortal
+                  />
+                </label>
+                <label className="grid gap-2">
+                  <span className="text-sm font-semibold text-zinc-700">
+                    Schedule time
+                  </span>
+                  <input
+                    type="time"
+                    className="h-10 rounded-lg border border-zinc-300 px-3 text-sm"
+                    value={introDraft.scheduledTime}
+                    disabled={!introDraft.scheduledDate}
+                    onChange={(event) =>
+                      onIntroDraftChange({
+                        ...introDraft,
+                        scheduledTime: event.target.value,
+                      })
+                    }
+                  />
+                </label>
+              </div>
+            ) : null}
+          </div>
+        </ProfileSection>
+      ) : null}
+      <UpcomingCelebrationsWidget />
       <ProfileCareerSection
         profile={profile}
         editMode={editMode}

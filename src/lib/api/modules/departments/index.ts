@@ -16,6 +16,35 @@ export interface DepartmentPayload {
   name: string;
 }
 
+function departmentName(value: unknown): string | null {
+  if (typeof value === "string") return value;
+  if (!value || typeof value !== "object") return null;
+
+  const name = (value as Record<string, unknown>).name;
+  return typeof name === "string" ? name : null;
+}
+
+export function normalizeDepartmentNames(values: unknown): string[] {
+  const arr = Array.isArray(values)
+    ? values
+    : values && typeof values === "object"
+      ? ((values as Record<string, unknown>).departments ??
+        (values as Record<string, unknown>).results ??
+        [])
+      : [];
+
+  if (!Array.isArray(arr)) return [];
+
+  return Array.from(
+    new Set(
+      arr
+        .map(departmentName)
+        .filter((name): name is string => Boolean(name?.trim()))
+        .map((name) => name.trim())
+    )
+  );
+}
+
 export const departmentsApi = {
   async listDepartments(): Promise<Department[]> {
     const data = await get<unknown>(
@@ -33,9 +62,7 @@ export const departmentsApi = {
       `${API_BASE_URL}/api/departments/`,
       "Failed to fetch departments"
     );
-    if (Array.isArray(data)) return data as string[];
-    const obj = data as Record<string, unknown>;
-    return (obj.departments ?? obj.results ?? []) as string[];
+    return normalizeDepartmentNames(data);
   },
 
   async createDepartment(payload: DepartmentPayload): Promise<Department> {

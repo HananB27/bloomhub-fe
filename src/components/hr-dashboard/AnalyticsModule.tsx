@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   BarChart3,
   Calendar as CalendarIcon,
@@ -13,7 +13,7 @@ import {
   Loader2,
   RefreshCcw,
   Shield,
-  Sliders,
+  X,
 } from "lucide-react";
 import {
   ALL_LEAVE_TYPES,
@@ -22,7 +22,9 @@ import {
   type LeaveType,
 } from "@/types/vacations";
 import type { LeaveAnalyticsYearTotals } from "@/types/leaveAnalytics";
+import { useAdminAccess } from "@/hooks/useAdminAccess";
 import { useLeaveAnalyticsData } from "@/hooks/useLeaveAnalyticsData";
+import { leaveAnalyticsApi } from "@/lib/api/modules/leave-analytics";
 import {
   NotificationMessages,
   notifyApiError,
@@ -37,6 +39,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import {
   DepartmentBreakdown,
@@ -49,6 +58,13 @@ import {
 } from "./leave-analytics";
 import { triggerAnalyticsRefresh } from "./leave-analytics/analyticsModuleLoaders";
 import { ANCHOR_TODAY } from "./leave-analytics/analyticsModuleHelpers";
+
+const ALL_DEPARTMENTS_SENTINEL = "all";
+const ALL_MONTHS_SENTINEL = "all";
+const MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => ({
+  value: String(i + 1),
+  label: new Date(2000, i, 1).toLocaleString("en-US", { month: "long" }),
+}));
 
 const ALL_TYPE_IDS = new Set<LeaveType>(ALL_LEAVE_TYPES);
 
@@ -65,10 +81,65 @@ export function AnalyticsModule() {
     "overview"
   );
   const [selectedDept, setSelectedDept] = useState<string>("All");
+  const [deptFilter, setDeptFilter] = useState<string>(
+    ALL_DEPARTMENTS_SENTINEL
+  );
+  const [monthFilter, setMonthFilter] = useState<string>(ALL_MONTHS_SENTINEL);
+  const [deptOptions, setDeptOptions] = useState<string[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const data = useLeaveAnalyticsData(year);
-  const prevData = useLeaveAnalyticsData(year - 1);
+  const scope = useMemo(
+    () => ({
+      department:
+        deptFilter === ALL_DEPARTMENTS_SENTINEL ? undefined : deptFilter,
+      month:
+        monthFilter === ALL_MONTHS_SENTINEL ? undefined : Number(monthFilter),
+    }),
+    [deptFilter, monthFilter]
+  );
+
+  const { isAdmin } = useAdminAccess();
+
+  const data = useLeaveAnalyticsData(year, scope);
+  const prevData = useLeaveAnalyticsData(year - 1, scope);
+
+  useEffect(() => {
+    if (!isAdmin) {
+      setDeptOptions([]);
+      return;
+    }
+    let cancelled = false;
+    leaveAnalyticsApi
+      .departments({ year })
+      .then((rows) => {
+        if (cancelled) return;
+        const names = rows
+          .map((r) => r.department)
+          .filter((d): d is string => Boolean(d));
+        setDeptOptions(Array.from(new Set(names)).sort());
+      })
+      .catch(() => {
+        if (!cancelled) setDeptOptions([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [year, isAdmin]);
+
+  useEffect(() => {
+    if (!isAdmin && deptFilter !== ALL_DEPARTMENTS_SENTINEL) {
+      setDeptFilter(ALL_DEPARTMENTS_SENTINEL);
+    }
+  }, [isAdmin, deptFilter]);
+
+  const hasActiveFilter =
+    deptFilter !== ALL_DEPARTMENTS_SENTINEL ||
+    monthFilter !== ALL_MONTHS_SENTINEL;
+
+  const clearFilters = () => {
+    setDeptFilter(ALL_DEPARTMENTS_SENTINEL);
+    setMonthFilter(ALL_MONTHS_SENTINEL);
+  };
 
   useEffect(() => {
     if (data.error) notifyApiError(new Error(data.error));
@@ -101,7 +172,12 @@ export function AnalyticsModule() {
     }
   };
 
-  const exportItems: { id: string; icon: ReactNode; title: string; subtitle: string }[] = [
+  const exportItems: {
+    id: string;
+    icon: ReactNode;
+    title: string;
+    subtitle: string;
+  }[] = [
     {
       id: "csv",
       icon: <FileText className="h-3.5 w-3.5" />,
@@ -157,9 +233,20 @@ export function AnalyticsModule() {
             )}
           </div>
           <p className="mt-2 text-[13px] text-gray-500">
-            Aggregate insights for workforce planning · {data.yearlyTotals?.total ?? 0}
-            {" "}working days across {headerCount} employees
+            {isAdmin
+              ? `Aggregate insights for workforce planning · ${
+                  data.yearlyTotals?.total ?? 0
+                } working days across ${headerCount} employees`
+              : `Your personal leave history · ${
+                  data.yearlyTotals?.total ?? 0
+                } working days taken this year`}
           </p>
+          {!isAdmin && (
+            <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-800">
+              <Shield className="h-3 w-3" />
+              Showing only your own leave records
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -211,7 +298,9 @@ export function AnalyticsModule() {
                     <span className="font-mono text-xs font-semibold text-gray-900">
                       {i.title}
                     </span>
-                    <span className="text-[11px] text-gray-500">{i.subtitle}</span>
+                    <span className="text-[11px] text-gray-500">
+                      {i.subtitle}
+                    </span>
                   </span>
                   <Download className="h-3 w-3 text-gray-400" />
                 </DropdownMenuItem>
@@ -220,7 +309,8 @@ export function AnalyticsModule() {
               <div className="flex items-center gap-1.5 px-2.5 py-2 text-[11px] text-gray-500">
                 <Shield className="h-3 w-3" />
                 <span>
-                  HR-only exports include salary-linked leave (parental, unpaid).
+                  HR-only exports include salary-linked leave (parental,
+                  unpaid).
                 </span>
               </div>
             </DropdownMenuContent>
@@ -239,12 +329,79 @@ export function AnalyticsModule() {
             )}
             Refresh
           </Button>
-
-          <Button className="h-9 rounded-lg bg-gray-900 text-[13px] hover:bg-black">
-            <Sliders className="h-3.5 w-3.5" />
-            Configure report
-          </Button>
         </div>
+      </div>
+
+      <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+          Report filters
+        </span>
+        {isAdmin && (
+          <div className="flex items-center gap-1.5">
+            <label className="text-[12px] font-medium text-gray-700">
+              Department
+            </label>
+            <Select value={deptFilter} onValueChange={setDeptFilter}>
+              <SelectTrigger className="h-8 w-44 text-[12px]">
+                <SelectValue placeholder="All departments" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_DEPARTMENTS_SENTINEL}>
+                  All departments
+                </SelectItem>
+                {deptOptions.map((d) => (
+                  <SelectItem key={d} value={d}>
+                    {d}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+        <div className="flex items-center gap-1.5">
+          <label className="text-[12px] font-medium text-gray-700">Month</label>
+          <Select value={monthFilter} onValueChange={setMonthFilter}>
+            <SelectTrigger className="h-8 w-36 text-[12px]">
+              <SelectValue placeholder="All months" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_MONTHS_SENTINEL}>All months</SelectItem>
+              {MONTH_OPTIONS.map((m) => (
+                <SelectItem key={m.value} value={m.value}>
+                  {m.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {hasActiveFilter && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 px-2 text-[12px] text-gray-600"
+            onClick={clearFilters}
+          >
+            <X className="h-3 w-3" />
+            Clear filters
+          </Button>
+        )}
+        <span className="ml-auto font-mono text-[11px] text-gray-500">
+          {hasActiveFilter
+            ? `Scoped: ${
+                isAdmin
+                  ? `${
+                      deptFilter !== ALL_DEPARTMENTS_SENTINEL
+                        ? deptFilter
+                        : "all depts"
+                    } · `
+                  : ""
+              }${
+                monthFilter !== ALL_MONTHS_SENTINEL
+                  ? MONTH_OPTIONS[Number(monthFilter) - 1].label
+                  : "all months"
+              }`
+            : "No filters applied"}
+        </span>
       </div>
 
       <div className="mb-4">
@@ -252,6 +409,7 @@ export function AnalyticsModule() {
           year={year}
           current={data.yearlyTotals}
           previous={prevData.yearlyTotals}
+          isAdmin={isAdmin}
         />
       </div>
 
@@ -268,7 +426,7 @@ export function AnalyticsModule() {
             </TabsTrigger>
             <TabsTrigger value="history" className={TAB_TRIGGER_CLASSES}>
               <History className="h-3.5 w-3.5" />
-              Per-employee history
+              {isAdmin ? "Per-employee history" : "My leave history"}
             </TabsTrigger>
           </TabsList>
           <div className="ml-auto pr-1 font-mono text-[11px] text-gray-500">
@@ -344,27 +502,32 @@ export function AnalyticsModule() {
             </section>
           </div>
 
-          <section className="mt-3.5 rounded-xl border border-gray-200 bg-white p-5">
-            <div className="mb-4 flex items-start justify-between gap-4 border-b border-gray-200 pb-4">
-              <div>
-                <div className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
-                  Department breakdown
+          {isAdmin && (
+            <section className="mt-3.5 rounded-xl border border-gray-200 bg-white p-5">
+              <div className="mb-4 flex items-start justify-between gap-4 border-b border-gray-200 pb-4">
+                <div>
+                  <div className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
+                    Department breakdown
+                  </div>
+                  <h2 className="mt-1 text-base font-semibold tracking-tight text-gray-900">
+                    Leave by department — {year}
+                  </h2>
                 </div>
-                <h2 className="mt-1 text-base font-semibold tracking-tight text-gray-900">
-                  Leave by department — {year}
-                </h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-auto px-2 py-1 text-xs font-semibold text-gray-900 hover:text-gray-900"
+                >
+                  <Download className="h-3 w-3 text-gray-900" />
+                  CSV
+                </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-auto px-2 py-1 text-xs"
-              >
-                <Download className="h-3 w-3" />
-                CSV
-              </Button>
-            </div>
-            <DepartmentBreakdown rows={data.departments} activeTypes={activeTypes} />
-          </section>
+              <DepartmentBreakdown
+                rows={data.departments}
+                activeTypes={activeTypes}
+              />
+            </section>
+          )}
         </TabsContent>
 
         <TabsContent value="availability" className="mt-0">
@@ -397,10 +560,10 @@ export function AnalyticsModule() {
             <div className="mb-4 flex items-start justify-between gap-4 border-b border-gray-200 pb-4">
               <div>
                 <div className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
-                  Per-employee leave history
+                  {isAdmin ? "Per-employee leave history" : "My leave history"}
                 </div>
                 <h2 className="mt-1 text-base font-semibold tracking-tight text-gray-900">
-                  All employees — {year}
+                  {isAdmin ? `All employees — ${year}` : `${year}`}
                 </h2>
               </div>
             </div>

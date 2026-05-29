@@ -36,8 +36,12 @@ async function handleResponse<T>(
 ): Promise<T> {
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
+    const fallback =
+      response.status === 403
+        ? "Not allowed to perform this action"
+        : errorMessage;
     throw new Error(
-      extractErrorMessage(error as Record<string, unknown>, errorMessage)
+      extractErrorMessage(error as Record<string, unknown>, fallback)
     );
   }
   return (parseBody ? response.json() : undefined) as T;
