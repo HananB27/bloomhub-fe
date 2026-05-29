@@ -76,9 +76,16 @@ export const leaveAnalyticsApi = {
   async monthly(params: {
     year: number;
     leaveType?: LeaveType;
+    department?: string;
+    month?: number;
   }): Promise<LeaveAnalyticsMonthRow[]> {
     const url = `${API_BASE_URL}${LEAVE_ANALYTICS_MONTHLY_PATH}${buildQueryString(
-      { year: params.year, leave_type: params.leaveType }
+      {
+        year: params.year,
+        leave_type: params.leaveType,
+        department: params.department,
+        month: params.month,
+      }
     )}`;
     const data = await get<Record<string, unknown>[]>(
       url,
@@ -89,9 +96,15 @@ export const leaveAnalyticsApi = {
 
   async yearlyTotals(params: {
     year: number;
+    department?: string;
+    month?: number;
   }): Promise<LeaveAnalyticsYearTotals> {
     const url = `${API_BASE_URL}${LEAVE_ANALYTICS_YEARLY_TOTALS_PATH}${buildQueryString(
-      { year: params.year }
+      {
+        year: params.year,
+        department: params.department,
+        month: params.month,
+      }
     )}`;
     const data = await get<Record<string, unknown>>(
       url,
@@ -102,9 +115,10 @@ export const leaveAnalyticsApi = {
 
   async departments(params: {
     year: number;
+    month?: number;
   }): Promise<LeaveAnalyticsDepartmentRow[]> {
     const url = `${API_BASE_URL}${LEAVE_ANALYTICS_DEPARTMENTS_PATH}${buildQueryString(
-      { year: params.year }
+      { year: params.year, month: params.month }
     )}`;
     const data = await get<Record<string, unknown>[]>(
       url,
@@ -115,9 +129,15 @@ export const leaveAnalyticsApi = {
 
   async employees(params: {
     year: number;
+    department?: string;
+    month?: number;
   }): Promise<LeaveAnalyticsEmployeeSummary[]> {
     const url = `${API_BASE_URL}${LEAVE_ANALYTICS_EMPLOYEES_PATH}${buildQueryString(
-      { year: params.year }
+      {
+        year: params.year,
+        department: params.department,
+        month: params.month,
+      }
     )}`;
     const data = await get<Record<string, unknown>[]>(
       url,
