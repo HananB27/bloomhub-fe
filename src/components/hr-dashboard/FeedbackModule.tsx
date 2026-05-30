@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAccessToken } from "@/lib/api/tokens";
+import { fetchUserProfiles } from "@/lib/api/reviews";
 import {
   createSurvey,
   fetchSurveyAnalytics,
@@ -203,6 +204,7 @@ interface Survey {
   endDate?: string;
   responseCount: number;
   createdByName: string;
+  forbiddenUserIds: number[];
 }
 
 interface SurveyResponse {
@@ -258,6 +260,7 @@ export function FeedbackModule() {
     anonymous: false,
     questions: [] as Question[],
     endDate: "",
+    forbiddenUserIds: [] as number[],
   });
 
   const [newQuestion, setNewQuestion] = useState({
@@ -312,6 +315,7 @@ export function FeedbackModule() {
     status: SurveyStatus;
     endDate: string;
     questions: Question[];
+    forbiddenUserIds: number[];
   }>({
     title: "",
     description: "",
@@ -319,6 +323,7 @@ export function FeedbackModule() {
     status: "draft",
     endDate: "",
     questions: [],
+    forbiddenUserIds: [],
   });
   const [editNewQuestion, setEditNewQuestion] = useState({
     type: "text" as QuestionType,
@@ -333,6 +338,8 @@ export function FeedbackModule() {
   // `availableSurveys` = all active surveys (Take Survey section)
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [availableSurveys, setAvailableSurveys] = useState<Survey[]>([]);
+  // Org user directory (for the visibility / forbidden-users picker).
+  const [orgUsers, setOrgUsers] = useState<{ id: number; name: string }[]>([]);
 
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
 
@@ -493,6 +500,7 @@ export function FeedbackModule() {
       endDate: s.end_date ?? "",
       responseCount: s.response_count,
       createdByName: s.created_by_name ?? "",
+      forbiddenUserIds: s.forbidden_user_ids ?? [],
     };
   };
 
@@ -504,10 +512,12 @@ export function FeedbackModule() {
     void Promise.all([
       fetchSurveys(token, { mine: true }).catch(() => [] as ApiSurvey[]),
       fetchSurveys(token).catch(() => [] as ApiSurvey[]),
-    ]).then(([mine, all]) => {
+      fetchUserProfiles(token).catch(() => []),
+    ]).then(([mine, all, users]) => {
       if (cancelled) return;
       setSurveys(mine.map(fromApiSurvey));
       setAvailableSurveys(all.map(fromApiSurvey));
+      setOrgUsers(users);
     });
     return () => {
       cancelled = true;
@@ -560,6 +570,7 @@ export function FeedbackModule() {
       description: newSurvey.description,
       is_anonymous: newSurvey.anonymous,
       end_date: newSurvey.endDate || null,
+      forbidden_user_ids: newSurvey.forbiddenUserIds,
       questions: newSurvey.questions.map(toApiQuestion),
     };
 
@@ -576,6 +587,7 @@ export function FeedbackModule() {
       endDate: newSurvey.endDate,
       responseCount: 0,
       createdByName: "",
+      forbiddenUserIds: newSurvey.forbiddenUserIds,
     };
 
     if (token) {
@@ -596,6 +608,7 @@ export function FeedbackModule() {
       anonymous: false,
       questions: [],
       endDate: "",
+      forbiddenUserIds: [],
     });
   };
 
@@ -639,6 +652,7 @@ export function FeedbackModule() {
       anonymous: survey.anonymous,
       status: survey.status,
       endDate: survey.endDate ?? "",
+      forbiddenUserIds: [...survey.forbiddenUserIds],
       // Deep-clone so edits don't mutate the original survey object.
       questions: survey.questions.map((q) => ({
         ...q,
@@ -670,6 +684,7 @@ export function FeedbackModule() {
           is_anonymous: editDraft.anonymous,
           status: editDraft.status,
           end_date: editDraft.endDate || null,
+          forbidden_user_ids: editDraft.forbiddenUserIds,
           questions: editDraft.questions.map(toApiQuestion),
         },
         token
@@ -1152,6 +1167,59 @@ export function FeedbackModule() {
                               </Label>
                             </div>
 
+                            {/* Visibility — forbid specific users */}
+                            <div className="space-y-2">
+                              <Label className="text-sm">
+                                Forbid users from this survey (optional)
+                              </Label>
+                              <p className="text-xs text-gray-500">
+                                Selected users will not see or be able to take
+                                this survey.
+                              </p>
+                              <div className="border border-gray-200 rounded p-2 max-h-40 overflow-y-auto space-y-1">
+                                {orgUsers.length === 0 ? (
+                                  <p className="text-xs text-gray-500 italic">
+                                    No users loaded.
+                                  </p>
+                                ) : (
+                                  orgUsers.map((u) => {
+                                    const checked =
+                                      newSurvey.forbiddenUserIds.includes(u.id);
+                                    return (
+                                      <label
+                                        key={u.id}
+                                        className="flex items-center gap-2 text-sm cursor-pointer"
+                                      >
+                                        <Checkbox
+                                          checked={checked}
+                                          onCheckedChange={(v) =>
+                                            setNewSurvey((prev) => ({
+                                              ...prev,
+                                              forbiddenUserIds: v
+                                                ? [
+                                                    ...prev.forbiddenUserIds,
+                                                    u.id,
+                                                  ]
+                                                : prev.forbiddenUserIds.filter(
+                                                    (id) => id !== u.id
+                                                  ),
+                                            }))
+                                          }
+                                        />
+                                        <span>{u.name}</span>
+                                      </label>
+                                    );
+                                  })
+                                )}
+                              </div>
+                              {newSurvey.forbiddenUserIds.length > 0 && (
+                                <p className="text-xs text-amber-700">
+                                  {newSurvey.forbiddenUserIds.length} user(s)
+                                  forbidden.
+                                </p>
+                              )}
+                            </div>
+
                             {/* Questions */}
                             <div className="space-y-4">
                               <h4 className="font-medium text-gray-900">
@@ -1552,85 +1620,33 @@ export function FeedbackModule() {
                         </h3>
                       </div>
 
-                      {/* Survey selector + filters */}
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="md:col-span-2">
-                          <Label className="text-sm font-medium text-gray-700">
-                            Survey
-                          </Label>
-                          <Select
-                            value={
-                              analyticsSurveyId !== null
-                                ? String(analyticsSurveyId)
-                                : ""
-                            }
-                            onValueChange={(v) =>
-                              setAnalyticsSurveyId(v ? Number(v) : null)
-                            }
-                          >
-                            <SelectTrigger className="mt-1">
-                              <SelectValue placeholder="Select a survey..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {surveys.map((s) => (
-                                <SelectItem key={s.id} value={String(s.id)}>
-                                  {s.title}
-                                  {s.anonymous ? " (anonymous)" : ""}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label className="text-sm font-medium text-gray-700">
-                            Team / Department
-                          </Label>
-                          <Input
-                            placeholder="e.g. Engineering"
-                            className="mt-1"
-                            value={analyticsFilters.department}
-                            onChange={(e) =>
-                              setAnalyticsFilters((prev) => ({
-                                ...prev,
-                                department: e.target.value,
-                              }))
-                            }
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <Label className="text-sm font-medium text-gray-700">
-                              From
-                            </Label>
-                            <Input
-                              type="date"
-                              className="mt-1"
-                              value={analyticsFilters.startDate}
-                              onChange={(e) =>
-                                setAnalyticsFilters((prev) => ({
-                                  ...prev,
-                                  startDate: e.target.value,
-                                }))
-                              }
-                            />
-                          </div>
-                          <div>
-                            <Label className="text-sm font-medium text-gray-700">
-                              To
-                            </Label>
-                            <Input
-                              type="date"
-                              className="mt-1"
-                              value={analyticsFilters.endDate}
-                              onChange={(e) =>
-                                setAnalyticsFilters((prev) => ({
-                                  ...prev,
-                                  endDate: e.target.value,
-                                }))
-                              }
-                            />
-                          </div>
-                        </div>
+                      {/* Survey selector */}
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700">
+                          Survey
+                        </Label>
+                        <Select
+                          value={
+                            analyticsSurveyId !== null
+                              ? String(analyticsSurveyId)
+                              : ""
+                          }
+                          onValueChange={(v) =>
+                            setAnalyticsSurveyId(v ? Number(v) : null)
+                          }
+                        >
+                          <SelectTrigger className="mt-1">
+                            <SelectValue placeholder="Select a survey..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {surveys.map((s) => (
+                              <SelectItem key={s.id} value={String(s.id)}>
+                                {s.title}
+                                {s.anonymous ? " (anonymous)" : ""}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       {analyticsSurveyId === null ? (
@@ -1654,7 +1670,7 @@ export function FeedbackModule() {
                       ) : !analytics ? null : (
                         <>
                           {/* Headline metrics */}
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="bg-blue-50 rounded-lg p-4">
                               <p className="text-sm font-medium text-blue-900">
                                 Total Responses
@@ -1674,23 +1690,6 @@ export function FeedbackModule() {
                               </p>
                               <p className="text-2xl font-bold text-green-700">
                                 {analytics.questions.length}
-                              </p>
-                            </div>
-                            <div className="bg-amber-50 rounded-lg p-4">
-                              <p className="text-sm font-medium text-amber-900">
-                                Filters Applied
-                              </p>
-                              <p className="text-xs text-amber-700 mt-1">
-                                {[
-                                  analytics.filters_applied.department &&
-                                    `dept: ${analytics.filters_applied.department}`,
-                                  analytics.filters_applied.start_date &&
-                                    `from: ${analytics.filters_applied.start_date}`,
-                                  analytics.filters_applied.end_date &&
-                                    `to: ${analytics.filters_applied.end_date}`,
-                                ]
-                                  .filter(Boolean)
-                                  .join(" · ") || "None"}
                               </p>
                             </div>
                           </div>
@@ -2263,6 +2262,51 @@ export function FeedbackModule() {
                 <Label htmlFor="edit-anon">Anonymous</Label>
               </div>
 
+              {/* Forbid specific users */}
+              <div className="space-y-2 pt-2 border-t border-gray-100">
+                <Label className="text-sm">Forbid users (optional)</Label>
+                <p className="text-xs text-gray-500">
+                  Selected users will not see or be able to take this survey.
+                </p>
+                <div className="border border-gray-200 rounded p-2 max-h-32 overflow-y-auto space-y-1">
+                  {orgUsers.length === 0 ? (
+                    <p className="text-xs text-gray-500 italic">
+                      No users loaded.
+                    </p>
+                  ) : (
+                    orgUsers.map((u) => {
+                      const checked = editDraft.forbiddenUserIds.includes(u.id);
+                      return (
+                        <label
+                          key={u.id}
+                          className="flex items-center gap-2 text-sm cursor-pointer"
+                        >
+                          <Checkbox
+                            checked={checked}
+                            onCheckedChange={(v) =>
+                              setEditDraft((prev) => ({
+                                ...prev,
+                                forbiddenUserIds: v
+                                  ? [...prev.forbiddenUserIds, u.id]
+                                  : prev.forbiddenUserIds.filter(
+                                      (id) => id !== u.id
+                                    ),
+                              }))
+                            }
+                          />
+                          <span>{u.name}</span>
+                        </label>
+                      );
+                    })
+                  )}
+                </div>
+                {editDraft.forbiddenUserIds.length > 0 && (
+                  <p className="text-xs text-amber-700">
+                    {editDraft.forbiddenUserIds.length} user(s) forbidden.
+                  </p>
+                )}
+              </div>
+
               {/* Question editor */}
               <div className="space-y-3 pt-2 border-t border-gray-100">
                 <div className="flex items-center justify-between">
@@ -2284,9 +2328,42 @@ export function FeedbackModule() {
                         className="p-3 border border-gray-200 rounded-lg space-y-2"
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <Badge variant="outline" className="text-xs shrink-0">
-                            {q.type}
-                          </Badge>
+                          <Select
+                            value={q.type}
+                            onValueChange={(v) =>
+                              setEditDraft((prev) => ({
+                                ...prev,
+                                questions: prev.questions.map((qq, i) => {
+                                  if (i !== idx) return qq;
+                                  const newType = v as QuestionType;
+                                  return {
+                                    ...qq,
+                                    type: newType,
+                                    options:
+                                      newType === "multiple_choice"
+                                        ? qq.options && qq.options.length > 0
+                                          ? qq.options
+                                          : ["", ""]
+                                        : undefined,
+                                  };
+                                }),
+                              }))
+                            }
+                          >
+                            <SelectTrigger className="w-44 h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="text">Text</SelectItem>
+                              <SelectItem value="rating">
+                                Rating (1–5)
+                              </SelectItem>
+                              <SelectItem value="multiple_choice">
+                                Multiple choice
+                              </SelectItem>
+                              <SelectItem value="yes_no">Yes / No</SelectItem>
+                            </SelectContent>
+                          </Select>
                           <Button
                             variant="ghost"
                             size="sm"
@@ -2604,11 +2681,19 @@ export function FeedbackModule() {
 
           {takingSurvey && (
             <div className="space-y-6 pt-2">
-              {takingSurvey.anonymous && (
+              {takingSurvey.anonymous ? (
                 <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-100 rounded-lg">
                   <Lock className="w-4 h-4 text-blue-700" />
                   <p className="text-sm text-blue-900">
                     This survey is anonymous — your identity will not be saved.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-100 rounded-lg">
+                  <AlertCircle className="w-4 h-4 text-amber-700" />
+                  <p className="text-sm text-amber-900">
+                    Submitting again will replace any previous answers you gave
+                    for this survey.
                   </p>
                 </div>
               )}

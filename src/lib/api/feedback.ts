@@ -73,6 +73,7 @@ export interface Survey {
   status: SurveyStatus;
   end_date: string | null;
   questions: SurveyQuestion[];
+  forbidden_user_ids: number[];
   created_at: string;
   created_by: number | null;
   created_by_name: string;
@@ -85,6 +86,7 @@ export interface CreateSurveyPayload {
   is_anonymous: boolean;
   status?: SurveyStatus;
   end_date?: string | null;
+  forbidden_user_ids?: number[];
   questions: SurveyQuestion[];
 }
 
