@@ -62,6 +62,7 @@ export interface SurveyQuestion {
   type: SurveyQuestionType;
   order?: number;
   options?: string[];
+  required?: boolean;
 }
 
 export interface Survey {
@@ -91,8 +92,12 @@ export type UpdateSurveyPayload = Partial<CreateSurveyPayload>;
 
 // ── API functions ─────────────────────────────────────────────────────────
 
-export async function fetchSurveys(token?: string): Promise<Survey[]> {
-  const response = await fetch(buildApiUrl("/api/surveys/"), {
+export async function fetchSurveys(
+  token?: string,
+  options: { mine?: boolean } = {}
+): Promise<Survey[]> {
+  const qs = options.mine ? "?mine=true" : "";
+  const response = await fetch(buildApiUrl(`/api/surveys/${qs}`), {
     headers: getAuthHeaders(token),
   });
   return parseResponse<Survey[]>(response);

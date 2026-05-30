@@ -264,7 +264,7 @@ export function FeedbackModule() {
     type: "text" as QuestionType,
     question: "",
     options: [""],
-    required: false,
+    required: true,
   });
 
   // Suggestion State
@@ -311,17 +311,28 @@ export function FeedbackModule() {
     anonymous: boolean;
     status: SurveyStatus;
     endDate: string;
+    questions: Question[];
   }>({
     title: "",
     description: "",
     anonymous: false,
     status: "draft",
     endDate: "",
+    questions: [],
+  });
+  const [editNewQuestion, setEditNewQuestion] = useState({
+    type: "text" as QuestionType,
+    question: "",
+    options: [""],
+    required: true,
   });
   const [savingEdit, setSavingEdit] = useState(false);
 
   // Surveys + suggestions load from the API; start empty.
+  // `surveys`  = surveys created by the current user (management table)
+  // `availableSurveys` = all active surveys (Take Survey section)
   const [surveys, setSurveys] = useState<Survey[]>([]);
+  const [availableSurveys, setAvailableSurveys] = useState<Survey[]>([]);
 
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
 
@@ -395,7 +406,7 @@ export function FeedbackModule() {
       type: "text",
       question: "",
       options: [""],
-      required: false,
+      required: true,
     });
   };
 
@@ -431,19 +442,26 @@ export function FeedbackModule() {
 
   // Translate the FE-local question shape into the API question shape.
   const toApiQuestion = (q: Question): ApiSurveyQuestion => {
+    const base = { required: q.required };
     switch (q.type) {
       case "multiple_choice":
         return {
+          ...base,
           text: q.question,
           type: "choice",
           options: (q.options ?? []).filter((opt) => opt.trim() !== ""),
         };
       case "yes_no":
-        return { text: q.question, type: "choice", options: ["Yes", "No"] };
+        return {
+          ...base,
+          text: q.question,
+          type: "choice",
+          options: ["Yes", "No"],
+        };
       case "rating":
-        return { text: q.question, type: "scale" };
+        return { ...base, text: q.question, type: "scale" };
       default:
-        return { text: q.question, type: "text" };
+        return { ...base, text: q.question, type: "text" };
     }
   };
 
@@ -459,7 +477,7 @@ export function FeedbackModule() {
             : "text",
       question: q.text,
       options: q.options,
-      required: false,
+      required: q.required ?? true,
     }));
     return {
       id: s.id,
@@ -478,19 +496,19 @@ export function FeedbackModule() {
     };
   };
 
-  // Load real surveys on mount (best-effort — keep mock state on failure).
+  // Load surveys on mount: my own (for management) and all active (for Take).
   useEffect(() => {
     const token = getAccessToken();
     if (!token) return;
     let cancelled = false;
-    void fetchSurveys(token)
-      .then((apiSurveys) => {
-        if (cancelled) return;
-        setSurveys(apiSurveys.map(fromApiSurvey));
-      })
-      .catch(() => {
-        /* keep existing mock surveys on failure */
-      });
+    void Promise.all([
+      fetchSurveys(token, { mine: true }).catch(() => [] as ApiSurvey[]),
+      fetchSurveys(token).catch(() => [] as ApiSurvey[]),
+    ]).then(([mine, all]) => {
+      if (cancelled) return;
+      setSurveys(mine.map(fromApiSurvey));
+      setAvailableSurveys(all.map(fromApiSurvey));
+    });
     return () => {
       cancelled = true;
     };
@@ -545,8 +563,10 @@ export function FeedbackModule() {
       questions: newSurvey.questions.map(toApiQuestion),
     };
 
+    // eslint-disable-next-line react-hooks/purity
+    const tempId = Date.now();
     const localFallback: Survey = {
-      id: Date.now(),
+      id: tempId,
       title: newSurvey.title,
       description: newSurvey.description,
       questions: newSurvey.questions,
@@ -562,6 +582,7 @@ export function FeedbackModule() {
       try {
         const created = await createSurvey(payload, token);
         setSurveys((prev) => [fromApiSurvey(created), ...prev]);
+        await refreshAllSurveyLists(token);
       } catch {
         setSurveys((prev) => [localFallback, ...prev]);
       }
@@ -618,6 +639,17 @@ export function FeedbackModule() {
       anonymous: survey.anonymous,
       status: survey.status,
       endDate: survey.endDate ?? "",
+      // Deep-clone so edits don't mutate the original survey object.
+      questions: survey.questions.map((q) => ({
+        ...q,
+        options: q.options ? [...q.options] : undefined,
+      })),
+    });
+    setEditNewQuestion({
+      type: "text",
+      question: "",
+      options: [""],
+      required: true,
     });
   };
 
@@ -638,11 +670,11 @@ export function FeedbackModule() {
           is_anonymous: editDraft.anonymous,
           status: editDraft.status,
           end_date: editDraft.endDate || null,
+          questions: editDraft.questions.map(toApiQuestion),
         },
         token
       );
-      const refreshed = await fetchSurveys(token);
-      setSurveys(refreshed.map(fromApiSurvey));
+      await refreshAllSurveyLists(token);
       setEditingSurvey(null);
     } finally {
       setSavingEdit(false);
@@ -655,20 +687,33 @@ export function FeedbackModule() {
     setActiveTab("results");
   };
 
-  const handleSendOut = async (surveyId: number) => {
+  const refreshAllSurveyLists = async (token: string) => {
+    const [mine, all] = await Promise.all([
+      fetchSurveys(token, { mine: true }).catch(() => [] as ApiSurvey[]),
+      fetchSurveys(token).catch(() => [] as ApiSurvey[]),
+    ]);
+    setSurveys(mine.map(fromApiSurvey));
+    setAvailableSurveys(all.map(fromApiSurvey));
+  };
+
+  const handleStatusChange = async (surveyId: number, status: SurveyStatus) => {
     const token = getAccessToken();
     if (!token) return;
     try {
-      await updateSurvey(surveyId, { status: "active" }, token);
-      const refreshed = await fetchSurveys(token);
-      setSurveys(refreshed.map(fromApiSurvey));
+      await updateSurvey(surveyId, { status }, token);
+      await refreshAllSurveyLists(token);
     } catch {
-      // Optimistic local fallback so the UI still reflects the intent offline.
       setSurveys((prev) =>
-        prev.map((s) => (s.id === surveyId ? { ...s, status: "active" } : s))
+        prev.map((s) => (s.id === surveyId ? { ...s, status } : s))
       );
     }
   };
+
+  const handleSendOut = (surveyId: number) =>
+    handleStatusChange(surveyId, "active");
+
+  const handleRecall = (surveyId: number) =>
+    handleStatusChange(surveyId, "draft");
 
   const openTakeSurvey = (survey: Survey) => {
     setTakingSurvey(survey);
@@ -691,9 +736,7 @@ export function FeedbackModule() {
     setSubmitError(null);
     try {
       await submitSurveyResponse(takingSurvey.id, answers, token);
-      // Refresh surveys so the response count updates.
-      const refreshed = await fetchSurveys(token);
-      setSurveys(refreshed.map(fromApiSurvey));
+      await refreshAllSurveyLists(token);
       setTakingSurvey(null);
       setTakeDraft({});
     } catch (err) {
@@ -749,7 +792,7 @@ export function FeedbackModule() {
               <p className="text-sm text-gray-600">Active Surveys</p>
             </div>
             <p className="text-2xl font-bold text-gray-900">
-              {surveys.filter((s) => s.status === "active").length}
+              {availableSurveys.filter((s) => s.status === "active").length}
             </p>
             <p className="text-xs text-gray-500">Running now</p>
           </div>
@@ -759,7 +802,10 @@ export function FeedbackModule() {
               <p className="text-sm text-gray-600">Total Responses</p>
             </div>
             <p className="text-2xl font-bold text-gray-900">
-              {surveys.reduce((sum, s) => sum + (s.responseCount || 0), 0)}
+              {availableSurveys.reduce(
+                (sum, s) => sum + (s.responseCount || 0),
+                0
+              )}
             </p>
             <p className="text-xs text-gray-500">Across all surveys</p>
           </div>
@@ -895,7 +941,7 @@ export function FeedbackModule() {
                       Available Surveys
                     </h3>
                     {(() => {
-                      const active = surveys.filter(
+                      const active = availableSurveys.filter(
                         (s) => s.status === "active"
                       );
                       if (active.length === 0) {
@@ -1418,6 +1464,19 @@ export function FeedbackModule() {
                                           >
                                             <Send className="w-4 h-4 mr-1" />
                                             Send Out
+                                          </Button>
+                                        )}
+                                      {survey.status === "active" &&
+                                        !isSurveyLocked(survey) && (
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() =>
+                                              void handleRecall(survey.id)
+                                            }
+                                            title="Stop accepting responses (sets back to draft)"
+                                          >
+                                            Recall
                                           </Button>
                                         )}
                                       <Button
@@ -2116,11 +2175,12 @@ export function FeedbackModule() {
           if (!open && !savingEdit) setEditingSurvey(null);
         }}
       >
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-3xl max-h-[88vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Survey</DialogTitle>
             <DialogDescription>
-              Update basic survey settings. Question changes are coming soon.
+              Update settings, edit existing questions, or add and remove
+              questions.
             </DialogDescription>
           </DialogHeader>
           {editingSurvey && (
@@ -2202,6 +2262,306 @@ export function FeedbackModule() {
                 />
                 <Label htmlFor="edit-anon">Anonymous</Label>
               </div>
+
+              {/* Question editor */}
+              <div className="space-y-3 pt-2 border-t border-gray-100">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium text-gray-900">Questions</h4>
+                  <span className="text-xs text-gray-500">
+                    {editDraft.questions.length} total
+                  </span>
+                </div>
+
+                {editDraft.questions.length === 0 ? (
+                  <p className="text-sm text-gray-500 italic">
+                    No questions yet. Add one below.
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {editDraft.questions.map((q, idx) => (
+                      <div
+                        key={q.id}
+                        className="p-3 border border-gray-200 rounded-lg space-y-2"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <Badge variant="outline" className="text-xs shrink-0">
+                            {q.type}
+                          </Badge>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              setEditDraft((prev) => ({
+                                ...prev,
+                                questions: prev.questions.filter(
+                                  (_, i) => i !== idx
+                                ),
+                              }))
+                            }
+                            title="Remove question"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-600" />
+                          </Button>
+                        </div>
+                        <Input
+                          value={q.question}
+                          onChange={(e) =>
+                            setEditDraft((prev) => ({
+                              ...prev,
+                              questions: prev.questions.map((qq, i) =>
+                                i === idx
+                                  ? { ...qq, question: e.target.value }
+                                  : qq
+                              ),
+                            }))
+                          }
+                          placeholder="Question text"
+                        />
+                        {q.type === "multiple_choice" && (
+                          <div className="space-y-2">
+                            <Label className="text-xs text-gray-500">
+                              Options
+                            </Label>
+                            {(q.options ?? []).map((opt, optIdx) => (
+                              <div
+                                key={optIdx}
+                                className="flex items-center gap-2"
+                              >
+                                <Input
+                                  value={opt}
+                                  onChange={(e) =>
+                                    setEditDraft((prev) => ({
+                                      ...prev,
+                                      questions: prev.questions.map((qq, i) =>
+                                        i === idx
+                                          ? {
+                                              ...qq,
+                                              options: (qq.options ?? []).map(
+                                                (o, j) =>
+                                                  j === optIdx
+                                                    ? e.target.value
+                                                    : o
+                                              ),
+                                            }
+                                          : qq
+                                      ),
+                                    }))
+                                  }
+                                  placeholder={`Option ${optIdx + 1}`}
+                                />
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() =>
+                                    setEditDraft((prev) => ({
+                                      ...prev,
+                                      questions: prev.questions.map((qq, i) =>
+                                        i === idx
+                                          ? {
+                                              ...qq,
+                                              options: (
+                                                qq.options ?? []
+                                              ).filter((_, j) => j !== optIdx),
+                                            }
+                                          : qq
+                                      ),
+                                    }))
+                                  }
+                                  disabled={(q.options ?? []).length <= 1}
+                                >
+                                  <Trash2 className="w-4 h-4 text-red-500" />
+                                </Button>
+                              </div>
+                            ))}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                setEditDraft((prev) => ({
+                                  ...prev,
+                                  questions: prev.questions.map((qq, i) =>
+                                    i === idx
+                                      ? {
+                                          ...qq,
+                                          options: [...(qq.options ?? []), ""],
+                                        }
+                                      : qq
+                                  ),
+                                }))
+                              }
+                            >
+                              <Plus className="w-3 h-3 mr-1" />
+                              Add option
+                            </Button>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            id={`req-${q.id}-${idx}`}
+                            checked={q.required}
+                            onCheckedChange={(checked) =>
+                              setEditDraft((prev) => ({
+                                ...prev,
+                                questions: prev.questions.map((qq, i) =>
+                                  i === idx ? { ...qq, required: checked } : qq
+                                ),
+                              }))
+                            }
+                          />
+                          <Label
+                            htmlFor={`req-${q.id}-${idx}`}
+                            className="text-sm"
+                          >
+                            Required
+                          </Label>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Add new question form */}
+                <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg space-y-2">
+                  <p className="text-sm font-medium text-gray-900">
+                    Add a question
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <Select
+                      value={editNewQuestion.type}
+                      onValueChange={(v) =>
+                        setEditNewQuestion((prev) => ({
+                          ...prev,
+                          type: v as QuestionType,
+                        }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="text">Text</SelectItem>
+                        <SelectItem value="rating">Rating (1–5)</SelectItem>
+                        <SelectItem value="multiple_choice">
+                          Multiple choice
+                        </SelectItem>
+                        <SelectItem value="yes_no">Yes / No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="md:col-span-2">
+                      <Input
+                        placeholder="Question text"
+                        value={editNewQuestion.question}
+                        onChange={(e) =>
+                          setEditNewQuestion((prev) => ({
+                            ...prev,
+                            question: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                  {editNewQuestion.type === "multiple_choice" && (
+                    <div className="space-y-1">
+                      {editNewQuestion.options.map((opt, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <Input
+                            placeholder={`Option ${i + 1}`}
+                            value={opt}
+                            onChange={(e) =>
+                              setEditNewQuestion((prev) => ({
+                                ...prev,
+                                options: prev.options.map((o, j) =>
+                                  j === i ? e.target.value : o
+                                ),
+                              }))
+                            }
+                          />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              setEditNewQuestion((prev) => ({
+                                ...prev,
+                                options: prev.options.filter((_, j) => j !== i),
+                              }))
+                            }
+                            disabled={editNewQuestion.options.length <= 1}
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setEditNewQuestion((prev) => ({
+                            ...prev,
+                            options: [...prev.options, ""],
+                          }))
+                        }
+                      >
+                        <Plus className="w-3 h-3 mr-1" />
+                        Add option
+                      </Button>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="edit-new-required"
+                        checked={editNewQuestion.required}
+                        onCheckedChange={(checked) =>
+                          setEditNewQuestion((prev) => ({
+                            ...prev,
+                            required: checked,
+                          }))
+                        }
+                      />
+                      <Label htmlFor="edit-new-required" className="text-sm">
+                        Required
+                      </Label>
+                    </div>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => {
+                        if (!editNewQuestion.question.trim()) return;
+                        if (
+                          editNewQuestion.type === "multiple_choice" &&
+                          editNewQuestion.options.filter((o) => o.trim())
+                            .length < 2
+                        )
+                          return;
+                        const newQ: Question = {
+                          id: Date.now(),
+                          type: editNewQuestion.type,
+                          question: editNewQuestion.question,
+                          options:
+                            editNewQuestion.type === "multiple_choice"
+                              ? editNewQuestion.options.filter((o) => o.trim())
+                              : undefined,
+                          required: editNewQuestion.required,
+                        };
+                        setEditDraft((prev) => ({
+                          ...prev,
+                          questions: [...prev.questions, newQ],
+                        }));
+                        setEditNewQuestion({
+                          type: "text",
+                          question: "",
+                          options: [""],
+                          required: true,
+                        });
+                      }}
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      Add
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
                 <Button
                   variant="outline"
