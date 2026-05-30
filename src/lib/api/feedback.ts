@@ -78,6 +78,7 @@ export interface Survey {
   created_by: number | null;
   created_by_name: string;
   response_count: number;
+  viewer_has_responded: boolean;
 }
 
 export interface CreateSurveyPayload {

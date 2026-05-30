@@ -205,6 +205,7 @@ interface Survey {
   responseCount: number;
   createdByName: string;
   forbiddenUserIds: number[];
+  viewerHasResponded: boolean;
 }
 
 interface SurveyResponse {
@@ -340,6 +341,10 @@ export function FeedbackModule() {
   const [availableSurveys, setAvailableSurveys] = useState<Survey[]>([]);
   // Org user directory (for the visibility / forbidden-users picker).
   const [orgUsers, setOrgUsers] = useState<{ id: number; name: string }[]>([]);
+  // Filter for the Available Surveys list on the Dashboard.
+  const [availableFilter, setAvailableFilter] = useState<
+    "all" | "todo" | "done" | "anonymous"
+  >("all");
 
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
 
@@ -501,6 +506,7 @@ export function FeedbackModule() {
       responseCount: s.response_count,
       createdByName: s.created_by_name ?? "",
       forbiddenUserIds: s.forbidden_user_ids ?? [],
+      viewerHasResponded: s.viewer_has_responded ?? false,
     };
   };
 
@@ -588,6 +594,7 @@ export function FeedbackModule() {
       responseCount: 0,
       createdByName: "",
       forbiddenUserIds: newSurvey.forbiddenUserIds,
+      viewerHasResponded: false,
     };
 
     if (token) {
@@ -789,10 +796,6 @@ export function FeedbackModule() {
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
-            <Button variant="outline" size="sm">
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
@@ -858,9 +861,9 @@ export function FeedbackModule() {
               <CardHeader className="pb-3">
                 <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-                  <TabsTrigger value="surveys">Surveys</TabsTrigger>
-                  <TabsTrigger value="results">Results</TabsTrigger>
                   <TabsTrigger value="suggestions">Suggestions</TabsTrigger>
+                  <TabsTrigger value="surveys">Manage Surveys</TabsTrigger>
+                  <TabsTrigger value="results">Results</TabsTrigger>
                 </TabsList>
               </CardHeader>
 
@@ -952,13 +955,49 @@ export function FeedbackModule() {
 
                   {/* Available Surveys (anyone can take) */}
                   <div className="space-y-4">
-                    <h3 className="font-medium text-gray-900">
-                      Available Surveys
-                    </h3>
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="font-medium text-gray-900">
+                        Available Surveys
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <Filter className="w-4 h-4 text-gray-500" />
+                        <Select
+                          value={availableFilter}
+                          onValueChange={(v) =>
+                            setAvailableFilter(
+                              v as "all" | "todo" | "done" | "anonymous"
+                            )
+                          }
+                        >
+                          <SelectTrigger className="h-8 w-44 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All active</SelectItem>
+                            <SelectItem value="todo">Not yet taken</SelectItem>
+                            <SelectItem value="done">Already taken</SelectItem>
+                            <SelectItem value="anonymous">
+                              Anonymous only
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                     {(() => {
-                      const active = availableSurveys.filter(
-                        (s) => s.status === "active"
-                      );
+                      const active = availableSurveys
+                        .filter((s) => s.status === "active")
+                        .filter((s) => {
+                          switch (availableFilter) {
+                            case "todo":
+                              return !s.viewerHasResponded;
+                            case "done":
+                              return s.viewerHasResponded;
+                            case "anonymous":
+                              return s.anonymous;
+                            default:
+                              return true;
+                          }
+                        });
                       if (active.length === 0) {
                         return (
                           <p className="text-sm text-gray-500 italic">
@@ -1008,7 +1047,9 @@ export function FeedbackModule() {
                                 }
                               >
                                 <Send className="w-4 h-4 mr-2" />
-                                Take Survey
+                                {survey.viewerHasResponded
+                                  ? "Retake Survey"
+                                  : "Take Survey"}
                               </Button>
                             </div>
                           ))}
@@ -2827,7 +2868,11 @@ export function FeedbackModule() {
                   disabled={submittingResponse}
                 >
                   <Send className="w-4 h-4 mr-2" />
-                  {submittingResponse ? "Submitting..." : "Submit"}
+                  {submittingResponse
+                    ? "Submitting..."
+                    : takingSurvey?.viewerHasResponded
+                      ? "Resubmit"
+                      : "Submit"}
                 </Button>
               </div>
             </div>
