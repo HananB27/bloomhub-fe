@@ -70,6 +70,7 @@ export interface Survey {
   description: string;
   is_anonymous: boolean;
   status: SurveyStatus;
+  end_date: string | null;
   questions: SurveyQuestion[];
   created_at: string;
   created_by: number | null;
@@ -82,6 +83,7 @@ export interface CreateSurveyPayload {
   description?: string;
   is_anonymous: boolean;
   status?: SurveyStatus;
+  end_date?: string | null;
   questions: SurveyQuestion[];
 }
 
@@ -158,4 +160,95 @@ export async function addSurveyQuestion(
     }
   );
   return parseResponse<SurveyQuestion>(response);
+}
+
+// ── Response submission ────────────────────────────────────────────────────
+
+export interface SubmitAnswerPayload {
+  question_id: number;
+  value: string;
+}
+
+export interface SubmitResponseResult {
+  id: number;
+  survey: number;
+  submitted_at: string;
+}
+
+export async function submitSurveyResponse(
+  surveyId: number,
+  answers: SubmitAnswerPayload[],
+  token?: string
+): Promise<SubmitResponseResult> {
+  const response = await fetch(
+    buildApiUrl(`/api/surveys/${surveyId}/responses/`),
+    {
+      method: "POST",
+      headers: getAuthHeaders(token),
+      body: JSON.stringify({ answers }),
+    }
+  );
+  return parseResponse<SubmitResponseResult>(response);
+}
+
+// ── Analytics ─────────────────────────────────────────────────────────────
+
+export interface AnalyticsDistributionItem {
+  value: string;
+  count: number;
+}
+
+export interface AnalyticsQuestion {
+  question_id: number;
+  text: string;
+  type: SurveyQuestionType;
+  response_count: number;
+  // Only present for `scale`:
+  average?: number;
+  // Present for `choice` and `scale`:
+  distribution?: AnalyticsDistributionItem[];
+  // Only present for `text`:
+  samples?: string[];
+}
+
+export interface AnalyticsTrendPoint {
+  date: string;
+  count: number;
+}
+
+export interface SurveyAnalytics {
+  survey_id: number;
+  survey_title: string;
+  is_anonymous: boolean;
+  total_responses: number;
+  filters_applied: {
+    department: string | null;
+    start_date: string | null;
+    end_date: string | null;
+  };
+  questions: AnalyticsQuestion[];
+  responses_over_time: AnalyticsTrendPoint[];
+}
+
+export interface AnalyticsFilters {
+  department?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export async function fetchSurveyAnalytics(
+  surveyId: number,
+  filters: AnalyticsFilters = {},
+  token?: string
+): Promise<SurveyAnalytics> {
+  const params = new URLSearchParams();
+  if (filters.department) params.set("department", filters.department);
+  if (filters.startDate) params.set("start_date", filters.startDate);
+  if (filters.endDate) params.set("end_date", filters.endDate);
+  const qs = params.toString();
+  const url = buildApiUrl(
+    `/api/surveys/${surveyId}/analytics/${qs ? `?${qs}` : ""}`
+  );
+  const response = await fetch(url, { headers: getAuthHeaders(token) });
+  return parseResponse<SurveyAnalytics>(response);
 }
