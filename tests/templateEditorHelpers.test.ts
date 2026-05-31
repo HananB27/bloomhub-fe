@@ -7,6 +7,7 @@ import {
   nearestAlignableBlockContainer,
   nodeIsInsideEditorRoot,
   normalizeLinkUrl,
+  normalizeSemanticHeadings,
   normalizeTplFieldCaretAnchors,
   materializePlainPlaceholdersInEditor,
   plainTextToSanitizedHtml,
@@ -39,6 +40,37 @@ describe("sanitizePastedHtml", () => {
     const clean = sanitizePastedHtml(dirty);
     expect(clean).toContain('href="https://example.com"');
     expect(clean).not.toContain("javascript:");
+  });
+});
+
+describe("normalizeSemanticHeadings", () => {
+  it("preserves semantic h1-h3 tags", () => {
+    const html = normalizeSemanticHeadings(
+      '<h1 style="font-size: 14px;">Main heading</h1><h2 class="heading">Section heading</h2><h3>Subheading</h3>'
+    );
+    expect(html).toBe(
+      "<h1>Main heading</h1><h2>Section heading</h2><h3>Subheading</h3>"
+    );
+  });
+
+  it("converts heading classes to semantic heading tags", () => {
+    const html = normalizeSemanticHeadings(
+      '<p class="heading">Main heading</p><p class="heading-2">Section heading</p><p class="heading-3">Subheading</p>'
+    );
+    expect(html).toBe(
+      "<h1>Main heading</h1><h2>Section heading</h2><h3>Subheading</h3>"
+    );
+  });
+
+  it("converts font-size heading wrappers to semantic heading tags", () => {
+    const html = normalizeSemanticHeadings(
+      '<p><span style="font-size: 30px;">Main heading</span></p><span style="font-size: 22px;">Section heading</span><p style="font-size: 18px;">Subheading</p>'
+    );
+    expect(html).toBe(
+      "<h1>Main heading</h1><h2>Section heading</h2><h3>Subheading</h3>"
+    );
+    expect(html).not.toContain("font-size");
+    expect(html).not.toContain('class="heading"');
   });
 });
 

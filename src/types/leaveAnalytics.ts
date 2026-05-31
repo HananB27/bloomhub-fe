@@ -106,3 +106,36 @@ export interface LeaveHistoryParams {
   status?: LeaveStatus;
   limit?: number;
 }
+
+/** Single leave request row included in the per-employee composite history. */
+export interface LeaveRequestHistoryRow {
+  id: number;
+  employeeId: number;
+  employeeName: string;
+  leaveType: LeaveType;
+  leaveTypeDisplay: string;
+  startDate: string;
+  endDate: string;
+  days: number;
+  reason: string;
+  status: LeaveStatus;
+  statusDisplay: string;
+  submittedDate: string;
+}
+
+/** Composite payload returned by `/api/leave-analytics/employee-history/`. */
+export interface LeaveAnalyticsEmployeeHistory {
+  employeeId: number;
+  employeeName: string;
+  monthlyAggregates: LeaveMonthlyAggregate[];
+  balanceSnapshots: LeaveBalanceSnapshot[];
+  leaveRequests: LeaveRequestHistoryRow[];
+}
+
+/** Query params for the per-employee composite history endpoint. */
+export interface LeaveAnalyticsEmployeeHistoryParams {
+  employee: number;
+  yearFrom?: number;
+  yearTo?: number;
+  leaveType?: LeaveType;
+}

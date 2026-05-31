@@ -199,9 +199,10 @@ import type {
 function _normalizeByType(
   raw: Record<string, unknown> | undefined
 ): Record<LeaveType, number> {
-  const out = Object.fromEntries(
-    ALL_LEAVE_TYPES.map((t) => [t, 0])
-  ) as Record<LeaveType, number>;
+  const out = Object.fromEntries(ALL_LEAVE_TYPES.map((t) => [t, 0])) as Record<
+    LeaveType,
+    number
+  >;
   if (raw && typeof raw === "object") {
     for (const id of ALL_LEAVE_TYPES) {
       const value = (raw as Record<string, unknown>)[id];
@@ -350,4 +351,47 @@ export function transformLeaveBalanceSnapshotList(
   list: Record<string, unknown>[]
 ): LeaveBalanceSnapshot[] {
   return list.map(transformLeaveBalanceSnapshot);
+}
+
+export function transformLeaveRequestHistoryRow(
+  raw: Record<string, unknown>
+): import("@/types/leaveAnalytics").LeaveRequestHistoryRow {
+  return {
+    id: raw.id as number,
+    employeeId: (raw.employee_id as number) ?? 0,
+    employeeName: (raw.employee_name as string) || "",
+    leaveType: raw.leave_type as LeaveType,
+    leaveTypeDisplay: (raw.leave_type_display as string) || "",
+    startDate: (raw.start_date as string) || "",
+    endDate: (raw.end_date as string) || "",
+    days: (raw.days as number) ?? 0,
+    reason: (raw.reason as string) || "",
+    status: raw.status as import("@/types/vacations").LeaveStatus,
+    statusDisplay: (raw.status_display as string) || "",
+    submittedDate: (raw.submitted_date as string) || "",
+  };
+}
+
+export function transformLeaveRequestHistoryRowList(
+  list: Record<string, unknown>[]
+): import("@/types/leaveAnalytics").LeaveRequestHistoryRow[] {
+  return list.map(transformLeaveRequestHistoryRow);
+}
+
+export function transformLeaveAnalyticsEmployeeHistory(
+  raw: Record<string, unknown>
+): import("@/types/leaveAnalytics").LeaveAnalyticsEmployeeHistory {
+  return {
+    employeeId: (raw.employee_id as number) ?? 0,
+    employeeName: (raw.employee_name as string) || "",
+    monthlyAggregates: transformLeaveMonthlyAggregateList(
+      (raw.monthly_aggregates as Record<string, unknown>[]) ?? []
+    ),
+    balanceSnapshots: transformLeaveBalanceSnapshotList(
+      (raw.balance_snapshots as Record<string, unknown>[]) ?? []
+    ),
+    leaveRequests: transformLeaveRequestHistoryRowList(
+      (raw.leave_requests as Record<string, unknown>[]) ?? []
+    ),
+  };
 }

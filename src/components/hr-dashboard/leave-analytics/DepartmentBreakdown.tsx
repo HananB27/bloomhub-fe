@@ -33,9 +33,11 @@ export function DepartmentBreakdown({ rows, activeTypes }: Props) {
           className="grid grid-cols-[1.2fr_0.6fr_0.6fr_0.9fr_2.2fr] items-center gap-3.5 border-b border-gray-200 px-1 py-2.5 text-sm last:border-b-0"
         >
           <div className="font-semibold text-gray-900">{r.department}</div>
-          <div className="text-right font-mono">{r.headcount}</div>
-          <div className="text-right font-mono">{r.total}</div>
-          <div className="text-right font-mono">
+          <div className="text-right font-mono text-gray-900">
+            {r.headcount}
+          </div>
+          <div className="text-right font-mono text-gray-900">{r.total}</div>
+          <div className="text-right font-mono text-gray-900">
             {r.headcount > 0 ? (r.total / r.headcount).toFixed(1) : "0.0"}
           </div>
           <div className="flex h-2 overflow-hidden rounded bg-gray-100">

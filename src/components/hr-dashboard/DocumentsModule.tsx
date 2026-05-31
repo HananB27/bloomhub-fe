@@ -189,6 +189,59 @@ export function DocumentsModule() {
     }
   }, [docs]);
 
+  // Open a document template requested from another module (AI entity click).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const openTemplate = (id: number | string) => {
+      setModuleView("templates");
+      void templatesApi
+        .get(id)
+        .then((template) => {
+          setBuilderEditTemplate(template);
+          setBuilderOpen(true);
+          sessionStorage.removeItem("bh.openDocumentTemplateId");
+        })
+        .catch((error: Error) => {
+          notifyApiError(error);
+          sessionStorage.removeItem("bh.openDocumentTemplateId");
+        });
+    };
+
+    const pendingId = sessionStorage.getItem("bh.openDocumentTemplateId");
+    if (pendingId) openTemplate(pendingId);
+
+    const handler = (event: Event) => {
+      const detail = (event as CustomEvent<{ id: number | string }>).detail;
+      if (!detail) return;
+      openTemplate(detail.id);
+    };
+
+    window.addEventListener("bh:openDocumentTemplate", handler);
+    return () => window.removeEventListener("bh:openDocumentTemplate", handler);
+  }, []);
+
+  // Same intent, runtime event for when module is already mounted (AI chat
+  // entity click while user is already viewing the Documents module).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handler = (event: Event) => {
+      const detail = (event as CustomEvent<{ id: number | string }>).detail;
+      if (!detail) return;
+      const idStr = String(detail.id);
+      const numericId = Number(idStr);
+      const match = docs.find(
+        (d) => String(d.id) === idStr || d.id === numericId
+      );
+      if (match) {
+        setDrawerRow(buildUploadTableRow(match));
+        sessionStorage.removeItem("bh.openDocumentId");
+      }
+    };
+    window.addEventListener("bh:openDocument", handler);
+    return () => window.removeEventListener("bh:openDocument", handler);
+  }, [docs]);
+
   // ─── Mutation handlers ───────────────────────────────────────────────────────
 
   const refreshDocuments = useCallback(() => {

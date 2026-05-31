@@ -15,6 +15,7 @@ import {
   hrEmployeeProfileModalBundlePath,
   type ProfileModalBundleSection,
 } from "../../constants/hrEmployeeProfilesEndpoints";
+import { normalizeDepartmentNames } from "../departments";
 import type { EmployeeCVVersion } from "../employee-cvs";
 import { mapCvVersionRecord } from "../employee-cvs";
 import type { Manager } from "../managers";
@@ -143,15 +144,7 @@ function pickPermissionBitsForPageBundle(
 }
 
 function parseDepartmentList(raw: unknown): string[] {
-  if (Array.isArray(raw))
-    return raw.filter((x): x is string => typeof x === "string");
-  if (raw && typeof raw === "object") {
-    const o = raw as Record<string, unknown>;
-    const inner = o.departments ?? o.results ?? [];
-    if (Array.isArray(inner))
-      return inner.filter((x): x is string => typeof x === "string");
-  }
-  return [];
+  return normalizeDepartmentNames(raw);
 }
 
 function parseRoles(raw: unknown): { id: number; name: string }[] {

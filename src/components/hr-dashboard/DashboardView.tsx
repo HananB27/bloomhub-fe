@@ -39,6 +39,7 @@ interface DashboardViewProps {
   activeModule: string;
   addNotification?: AddNotification;
   onNavigate?: (moduleId: string) => void;
+  initialEmployeeId?: number | null;
 }
 
 // Dashboard Overview Component
@@ -387,6 +388,7 @@ export function DashboardView({
   activeModule,
   addNotification,
   onNavigate,
+  initialEmployeeId,
 }: DashboardViewProps) {
   switch (activeModule) {
     case "dashboard":
@@ -394,7 +396,12 @@ export function DashboardView({
     case "vacations":
       return <VacationsModule addNotification={addNotification} />;
     case "profiles":
-      return <ProfilesModule onNavigate={onNavigate} />;
+      return (
+        <ProfilesModule
+          onNavigate={onNavigate}
+          initialEmployeeId={initialEmployeeId}
+        />
+      );
     case "projects":
       return <ProjectsModule onNavigate={onNavigate} />;
     case "reviews":
@@ -418,7 +425,7 @@ export function DashboardView({
     case "orgchart":
       return <OrgChartModule onNavigate={onNavigate} />;
     case "analytics":
-      return <AnalyticsModule />;
+      return <AnalyticsModule onNavigate={onNavigate} />;
     case "announcements":
       return <AnnouncementsModule />;
     case "admin":

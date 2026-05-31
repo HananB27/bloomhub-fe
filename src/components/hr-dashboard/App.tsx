@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import {
   Search,
   Bell,
@@ -47,7 +47,15 @@ import { useRouter } from "next/navigation";
 import { getStoredUser, storeTokens } from "@/lib/api/tokens";
 import { useAdminAccess } from "@/hooks/useAdminAccess";
 
-export default function HRDashboardApp() {
+const OPEN_ANNOUNCEMENT_EVENT = "bloomhub:open-announcement";
+
+interface HRDashboardAppProps {
+  initialAnnouncementId?: number;
+}
+
+export default function HRDashboardApp({
+  initialAnnouncementId,
+}: HRDashboardAppProps = {}) {
   const { data: session, status } = useSession();
   const [mounted, setMounted] = useState(false);
   const [careerLevel, setCareerLevel] = useState<string | null>(null);
@@ -116,7 +124,13 @@ export default function HRDashboardApp() {
     }
   }, [session]);
 
-  const [activeModule, setActiveModule] = useState<HrModuleId>("dashboard");
+  const [activeModule, setActiveModule] = useState<HrModuleId>(() =>
+    initialAnnouncementId ? "announcements" : "dashboard"
+  );
+  const openedInitialAnnouncementRef = useRef(false);
+  const [pendingEmployeeId, setPendingEmployeeId] = useState<number | null>(
+    null
+  );
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -174,10 +188,43 @@ export default function HRDashboardApp() {
     setSearchQuery("");
   };
 
+  useEffect(() => {
+    if (
+      !initialAnnouncementId ||
+      openedInitialAnnouncementRef.current ||
+      activeModule !== "announcements"
+    ) {
+      return;
+    }
+
+    openedInitialAnnouncementRef.current = true;
+    window.setTimeout(() => {
+      window.dispatchEvent(
+        new CustomEvent(OPEN_ANNOUNCEMENT_EVENT, {
+          detail: { id: initialAnnouncementId },
+        })
+      );
+    }, 0);
+  }, [activeModule, initialAnnouncementId]);
+
   const handleNotificationClick = (notification: Notification) => {
+    const announcementMatch = notification.link?.match(
+      /^\/announcements\/(\d+)\/?$/
+    );
     setActiveModule(notification.module);
     void markAsRead(notification.id);
     setIsNotificationOpen(false);
+    if (notification.module === "announcements" && announcementMatch?.[1]) {
+      window.setTimeout(() => {
+        window.dispatchEvent(
+          new CustomEvent("bloomhub:open-announcement", {
+            detail: { id: Number(announcementMatch[1]) },
+          })
+        );
+      }, 0);
+    } else if (notification.link?.startsWith("/")) {
+      router.push(notification.link);
+    }
   };
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -271,7 +318,14 @@ export default function HRDashboardApp() {
 
             <AIAssistant
               activeModule={activeModule}
-              onModuleNavigate={(moduleId) => setActiveModule(moduleId)}
+              onModuleNavigate={(moduleId, entityId) => {
+                setActiveModule(moduleId);
+                if (moduleId === "profiles") {
+                  setPendingEmployeeId(entityId ?? null);
+                } else {
+                  setPendingEmployeeId(null);
+                }
+              }}
             />
 
             {mounted ? (
@@ -612,6 +666,7 @@ export default function HRDashboardApp() {
               activeModule={activeModule}
               addNotification={addNotification}
               onNavigate={(moduleId) => setActiveModule(moduleId as HrModuleId)}
+              initialEmployeeId={pendingEmployeeId}
             />
           </div>
         </div>

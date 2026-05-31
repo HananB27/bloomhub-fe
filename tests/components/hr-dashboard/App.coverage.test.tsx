@@ -104,8 +104,17 @@ vi.mock("@/lib/api/tokens", () => ({
   storeTokens: (...args: unknown[]) => mocks.storeTokens(...args),
 }));
 
+vi.mock("@/hooks/useAdminAccess", () => ({
+  useAdminAccess: () => ({
+    isAdmin: false,
+    isLoading: false,
+    error: null,
+  }),
+}));
+
 vi.mock("@/lib/config", () => ({
   getApiBaseUrl: () => mocks.apiBaseUrl,
+  API_BASE_URL: mocks.apiBaseUrl,
 }));
 
 vi.mock("@/utils", () => ({

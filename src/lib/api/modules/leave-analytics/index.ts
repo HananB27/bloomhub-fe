@@ -2,6 +2,8 @@ import { API_BASE_URL } from "@/lib/config";
 import type { LeaveType } from "@/types/vacations";
 import type {
   LeaveAnalyticsDepartmentRow,
+  LeaveAnalyticsEmployeeHistory,
+  LeaveAnalyticsEmployeeHistoryParams,
   LeaveAnalyticsEmployeeSummary,
   LeaveAnalyticsListParams,
   LeaveAnalyticsMonthRow,
@@ -14,6 +16,7 @@ import type {
 import {
   LEAVE_ANALYTICS_API_BASE,
   LEAVE_ANALYTICS_DEPARTMENTS_PATH,
+  LEAVE_ANALYTICS_EMPLOYEE_HISTORY_PATH,
   LEAVE_ANALYTICS_EMPLOYEES_PATH,
   LEAVE_ANALYTICS_MONTHLY_PATH,
   LEAVE_ANALYTICS_REFRESH_PATH,
@@ -28,6 +31,7 @@ import {
 } from "../../helpers/httpClient";
 import {
   transformLeaveAnalyticsDepartmentRowList,
+  transformLeaveAnalyticsEmployeeHistory,
   transformLeaveAnalyticsEmployeeSummaryList,
   transformLeaveAnalyticsMonthRowList,
   transformLeaveAnalyticsRefreshResponse,
@@ -76,9 +80,16 @@ export const leaveAnalyticsApi = {
   async monthly(params: {
     year: number;
     leaveType?: LeaveType;
+    department?: string;
+    month?: number;
   }): Promise<LeaveAnalyticsMonthRow[]> {
     const url = `${API_BASE_URL}${LEAVE_ANALYTICS_MONTHLY_PATH}${buildQueryString(
-      { year: params.year, leave_type: params.leaveType }
+      {
+        year: params.year,
+        leave_type: params.leaveType,
+        department: params.department,
+        month: params.month,
+      }
     )}`;
     const data = await get<Record<string, unknown>[]>(
       url,
@@ -89,9 +100,15 @@ export const leaveAnalyticsApi = {
 
   async yearlyTotals(params: {
     year: number;
+    department?: string;
+    month?: number;
   }): Promise<LeaveAnalyticsYearTotals> {
     const url = `${API_BASE_URL}${LEAVE_ANALYTICS_YEARLY_TOTALS_PATH}${buildQueryString(
-      { year: params.year }
+      {
+        year: params.year,
+        department: params.department,
+        month: params.month,
+      }
     )}`;
     const data = await get<Record<string, unknown>>(
       url,
@@ -102,9 +119,10 @@ export const leaveAnalyticsApi = {
 
   async departments(params: {
     year: number;
+    month?: number;
   }): Promise<LeaveAnalyticsDepartmentRow[]> {
     const url = `${API_BASE_URL}${LEAVE_ANALYTICS_DEPARTMENTS_PATH}${buildQueryString(
-      { year: params.year }
+      { year: params.year, month: params.month }
     )}`;
     const data = await get<Record<string, unknown>[]>(
       url,
@@ -115,9 +133,15 @@ export const leaveAnalyticsApi = {
 
   async employees(params: {
     year: number;
+    department?: string;
+    month?: number;
   }): Promise<LeaveAnalyticsEmployeeSummary[]> {
     const url = `${API_BASE_URL}${LEAVE_ANALYTICS_EMPLOYEES_PATH}${buildQueryString(
-      { year: params.year }
+      {
+        year: params.year,
+        department: params.department,
+        month: params.month,
+      }
     )}`;
     const data = await get<Record<string, unknown>[]>(
       url,
@@ -138,6 +162,24 @@ export const leaveAnalyticsApi = {
       "Failed to refresh leave analytics"
     );
     return transformLeaveAnalyticsRefreshResponse(raw);
+  },
+
+  async employeeHistory(
+    params: LeaveAnalyticsEmployeeHistoryParams
+  ): Promise<LeaveAnalyticsEmployeeHistory> {
+    const url = `${API_BASE_URL}${LEAVE_ANALYTICS_EMPLOYEE_HISTORY_PATH}${buildQueryString(
+      {
+        employee: params.employee,
+        year_from: params.yearFrom,
+        year_to: params.yearTo,
+        leave_type: params.leaveType,
+      }
+    )}`;
+    const raw = await get<Record<string, unknown>>(
+      url,
+      "Failed to fetch employee leave history"
+    );
+    return transformLeaveAnalyticsEmployeeHistory(raw);
   },
 
   async listSnapshots(params?: {
@@ -172,6 +214,8 @@ export const leaveAnalyticsApi = {
 
 export type {
   LeaveAnalyticsDepartmentRow,
+  LeaveAnalyticsEmployeeHistory,
+  LeaveAnalyticsEmployeeHistoryParams,
   LeaveAnalyticsEmployeeSummary,
   LeaveAnalyticsListParams,
   LeaveAnalyticsMonthRow,
@@ -179,4 +223,5 @@ export type {
   LeaveAnalyticsYearTotals,
   LeaveBalanceSnapshot,
   LeaveMonthlyAggregate,
+  LeaveRequestHistoryRow,
 } from "@/types/leaveAnalytics";

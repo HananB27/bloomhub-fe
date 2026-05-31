@@ -39,16 +39,37 @@ const handler = NextAuth({
         }
 
         const baseUrl = getApiBaseUrl();
-        const res = await fetch(`${baseUrl}/api/auth/login/`, {
-          method: "POST",
-          body: JSON.stringify(credentials),
-          headers: { "Content-Type": "application/json" },
-        });
+        let res: Response;
+        try {
+          res = await fetch(`${baseUrl}/api/auth/login/`, {
+            method: "POST",
+            body: JSON.stringify(credentials),
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+          });
+        } catch (e) {
+          console.error("[NextAuth] login fetch failed", e);
+          throw new Error("Auth service unreachable. Try again.");
+        }
 
-        const data = await res.json();
+        const contentType = res.headers.get("content-type") || "";
+        const isJson = contentType.includes("application/json");
 
-        if (res.ok && data) {
-          // data should contain { access, refresh, user }
+        if (!isJson) {
+          const text = await res.text().catch(() => "");
+          console.error(
+            `[NextAuth] non-JSON response from ${baseUrl}/api/auth/login/ status=${res.status} body=${text.slice(0, 200)}`
+          );
+          throw new Error(
+            `Auth service returned ${res.status}. Try again shortly.`
+          );
+        }
+
+        const data = await res.json().catch(() => null);
+
+        if (res.ok && data?.user) {
           return {
             id: data.user.id,
             email: data.user.email,
@@ -63,7 +84,9 @@ const handler = NextAuth({
           };
         }
 
-        throw new Error(data.error || "Invalid email or password");
+        throw new Error(
+          data?.error || data?.detail || "Invalid email or password"
+        );
       },
     }),
   ],

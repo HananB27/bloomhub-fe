@@ -142,6 +142,16 @@ const EMPLOYEE_EXPORT_COLUMN_LABELS: Record<string, string> = {
   emergency_contact: "Emergency contact",
 };
 
+function deriveJobTitlesFromEmployees(employees: EmployeeProfileData[]) {
+  return Array.from(
+    new Set(
+      employees
+        .map((employee) => employee.role?.name?.trim() ?? "")
+        .filter((title) => title.length > 0)
+    )
+  ).sort((a, b) => a.localeCompare(b));
+}
+
 function employeeExportValue(employee: EmployeeProfileData, column: string) {
   switch (column) {
     case "role":
@@ -540,11 +550,56 @@ function _profileHistoryValueText(field: string, value: unknown): string {
 
 interface ProfilesModuleProps {
   onNavigate?: (moduleId: string) => void;
+  initialEmployeeId?: number | null;
+}
+
+interface IntroAnnouncementDraft {
+  enabled: boolean;
+  title: string;
+  body: string;
+  scheduledDate: string;
+  scheduledTime: string;
+}
+
+const EMPTY_INTRO_DRAFT: IntroAnnouncementDraft = {
+  enabled: false,
+  title: "",
+  body: "",
+  scheduledDate: "",
+  scheduledTime: "",
+};
+
+function introDraftScheduleToIso(draft: IntroAnnouncementDraft) {
+  if (!draft.scheduledDate) return null;
+  const date = new Date(
+    `${draft.scheduledDate}T${draft.scheduledTime || "09:00"}`
+  );
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toISOString();
+}
+
+function normalizeIntroError(error: unknown) {
+  const message =
+    error instanceof Error ? error.message : "Failed to save employee";
+  const lower = message.toLowerCase();
+  if (lower.includes("intro") && lower.includes("already")) {
+    return "introduction announcement already exists.";
+  }
+  if (
+    lower.includes("permission") ||
+    lower.includes("not allowed") ||
+    message.includes("403")
+  ) {
+    return "Not allowed to schedule introduction announcement.";
+  }
+  return message;
 }
 
 export default function ProfilesModule({
   onNavigate,
+  initialEmployeeId,
 }: ProfilesModuleProps = {}) {
+  const appliedInitialIdRef = useRef<number | null>(null);
   const [employees, setEmployees] = useState<EmployeeProfileData[]>([]);
   const [selectedEmployee, setSelectedEmployee] =
     useState<EmployeeProfileData | null>(null);
@@ -591,7 +646,7 @@ export default function ProfilesModule({
   const [cvAddMode, setCvAddMode] = useState<"file" | "link">("file");
   const [cvLinkDraft, setCvLinkDraft] = useState("");
   const [isAddingCvLink, setIsAddingCvLink] = useState(false);
-  const [roles, setRoles] = useState<{ id: number; name: string }[]>([]);
+  const [jobTitles, setJobTitles] = useState<string[]>([]);
   const [projects, setProjects] = useState<
     { id: number; name: string; leaders?: { id: number; name: string }[] }[]
   >([]);
@@ -607,6 +662,20 @@ export default function ProfilesModule({
   const [_isLoadingEmployee, setIsLoadingEmployee] = useState(false);
   const [_saveError, setSaveError] = useState<string | null>(null);
   const [_saveSuccess, setSaveSuccess] = useState(false);
+  const [introDraft, setIntroDraft] =
+    useState<IntroAnnouncementDraft>(EMPTY_INTRO_DRAFT);
+
+  useEffect(() => {
+    if (initialEmployeeId == null) return;
+    if (appliedInitialIdRef.current === initialEmployeeId) return;
+    if (employees.length === 0) return;
+    const match = employees.find((e) => e.id === initialEmployeeId);
+    if (!match) return;
+    appliedInitialIdRef.current = initialEmployeeId;
+    setSelectedEmployee(match);
+    setViewMode("detail");
+    setEditMode(false);
+  }, [initialEmployeeId, employees]);
 
   useEffect(() => {
     let stale = false;
@@ -646,7 +715,11 @@ export default function ProfilesModule({
             technologyTagsApi.getAllTags(pageBundle.employees)
           );
           setDepartments(pageBundle.departments);
-          setRoles(pageBundle.roles);
+          setJobTitles(
+            deriveJobTitlesFromEmployees(pageBundle.employees).length > 0
+              ? deriveJobTitlesFromEmployees(pageBundle.employees)
+              : pageBundle.roles.map((role) => role.name).filter(Boolean)
+          );
           setProjects(pageBundle.projects);
           setManagers(pageBundle.managers);
           setCpfLevels(pageBundle.cpfLevels);
@@ -665,7 +738,11 @@ export default function ProfilesModule({
           setEmployees(snap.employees);
           setAllTechnologyTags(snap.allTechnologyTags);
           setDepartments(snap.departments);
-          setRoles(snap.roles);
+          setJobTitles(
+            deriveJobTitlesFromEmployees(snap.employees).length > 0
+              ? deriveJobTitlesFromEmployees(snap.employees)
+              : snap.roles.map((role) => role.name).filter(Boolean)
+          );
           setProjects(snap.projects);
           setCpfLevels(snap.cpfLevels);
           setManagers(snap.managers);
@@ -737,9 +814,13 @@ export default function ProfilesModule({
       setLoadingDropdowns(true);
       const refs = await fetchProfilesDropdownRefs();
       setDepartments(refs.departments);
-      setRoles(refs.roles);
       setProjects(refs.projects);
       setManagers(refs.managers);
+      setJobTitles((current) =>
+        current.length > 0
+          ? current
+          : refs.roles.map((role) => role.name).filter(Boolean)
+      );
     } catch {
     } finally {
       setLoadingDropdowns(false);
@@ -761,7 +842,6 @@ export default function ProfilesModule({
         setCvVersions(sortCvVersionsDesc(modalBundle.cvVersions));
         setSelectedEmployee(modalBundle.employee);
         setDepartments(modalBundle.departments);
-        setRoles(modalBundle.roles);
         setProjects(modalBundle.projects);
         setManagers(modalBundle.managers);
         setEditMode(mode === "edit");
@@ -1030,16 +1110,32 @@ export default function ProfilesModule({
 
   const handleSaveEmployee = async () => {
     if (!selectedEmployee) return;
+    if (introDraft.enabled && !introDraft.body.trim()) {
+      const message = "Add introduction announcement body before saving.";
+      setSaveError(message);
+      toast.error(message, { position: "bottom-right" });
+      return;
+    }
 
     try {
       setIsSaving(true);
       setSaveError(null);
       setSaveSuccess(false);
 
-      const updated = await employeeApi.updateEmployee(
-        selectedEmployee.id,
-        buildEmployeeUpdatePayload(selectedEmployee)
-      );
+      const updated = await employeeApi.updateEmployee(selectedEmployee.id, {
+        ...buildEmployeeUpdatePayload(selectedEmployee),
+        ...(introDraft.enabled
+          ? {
+              publish_intro_announcement: true,
+              intro_announcement_title:
+                introDraft.title.trim() ||
+                `Welcome ${selectedEmployee.first_name} ${selectedEmployee.last_name}`.trim(),
+              intro_announcement_body: introDraft.body.trim(),
+              intro_announcement_scheduled_at:
+                introDraftScheduleToIso(introDraft),
+            }
+          : {}),
+      });
 
       setEmployees(
         employees.map((emp) => (emp.id === updated.id ? updated : emp))
@@ -1067,9 +1163,9 @@ export default function ProfilesModule({
 
       setEditMode(false);
       setEditBaseline(null);
+      setIntroDraft(EMPTY_INTRO_DRAFT);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to save employee";
+      const errorMessage = normalizeIntroError(err);
       setSaveError(errorMessage);
       toast.error(errorMessage, { position: "bottom-right" });
       console.error("Error saving employee:", err);
@@ -1208,7 +1304,9 @@ export default function ProfilesModule({
           dirty={
             editMode &&
             editBaseline !== null &&
-            JSON.stringify(selectedEmployee) !== JSON.stringify(editBaseline)
+            (JSON.stringify(selectedEmployee) !==
+              JSON.stringify(editBaseline) ||
+              introDraft.enabled)
           }
           isSaving={isSaving}
           onEmployeeChange={setSelectedEmployee}
@@ -1235,17 +1333,22 @@ export default function ProfilesModule({
             setSelectedEmployee(null);
             setEditMode(false);
             setEditBaseline(null);
+            setIntroDraft(EMPTY_INTRO_DRAFT);
           }}
           onEnterEdit={() => {
             setEditMode(true);
             setEditBaseline(selectedEmployee);
+            setIntroDraft(EMPTY_INTRO_DRAFT);
           }}
           onCancelEdit={() => {
             if (editBaseline) setSelectedEmployee(editBaseline);
             setEditMode(false);
             setEditBaseline(null);
+            setIntroDraft(EMPTY_INTRO_DRAFT);
           }}
           onSave={handleSaveEmployee}
+          introDraft={introDraft}
+          onIntroDraftChange={setIntroDraft}
           canDelete={canEditAll}
           onExport={() => {
             handleOpenExport({
@@ -1277,7 +1380,6 @@ export default function ProfilesModule({
         open={addEmployeeOpen}
         onOpenChange={setAddEmployeeOpen}
         departments={departments}
-        roles={roles}
         projects={projects}
         managers={managers}
         existingEmails={employees.map((employee) => employee.email)}
@@ -1285,6 +1387,7 @@ export default function ProfilesModule({
         isSaving={isCreatingEmployee}
         onCheckEmail={handleCheckEmployeeEmail}
         onSubmit={handleCreateEmployee}
+        jobTitles={jobTitles}
       />
       <ExportEmployeesDialog
         open={exportEmployeesOpen}
