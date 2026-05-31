@@ -550,6 +550,7 @@ function _profileHistoryValueText(field: string, value: unknown): string {
 
 interface ProfilesModuleProps {
   onNavigate?: (moduleId: string) => void;
+  initialEmployeeId?: number | null;
 }
 
 interface IntroAnnouncementDraft {
@@ -596,7 +597,9 @@ function normalizeIntroError(error: unknown) {
 
 export default function ProfilesModule({
   onNavigate,
+  initialEmployeeId,
 }: ProfilesModuleProps = {}) {
+  const appliedInitialIdRef = useRef<number | null>(null);
   const [employees, setEmployees] = useState<EmployeeProfileData[]>([]);
   const [selectedEmployee, setSelectedEmployee] =
     useState<EmployeeProfileData | null>(null);
@@ -661,6 +664,18 @@ export default function ProfilesModule({
   const [_saveSuccess, setSaveSuccess] = useState(false);
   const [introDraft, setIntroDraft] =
     useState<IntroAnnouncementDraft>(EMPTY_INTRO_DRAFT);
+
+  useEffect(() => {
+    if (initialEmployeeId == null) return;
+    if (appliedInitialIdRef.current === initialEmployeeId) return;
+    if (employees.length === 0) return;
+    const match = employees.find((e) => e.id === initialEmployeeId);
+    if (!match) return;
+    appliedInitialIdRef.current = initialEmployeeId;
+    setSelectedEmployee(match);
+    setViewMode("detail");
+    setEditMode(false);
+  }, [initialEmployeeId, employees]);
 
   useEffect(() => {
     let stale = false;

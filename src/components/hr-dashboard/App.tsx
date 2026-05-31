@@ -128,6 +128,9 @@ export default function HRDashboardApp({
     initialAnnouncementId ? "announcements" : "dashboard"
   );
   const openedInitialAnnouncementRef = useRef(false);
+  const [pendingEmployeeId, setPendingEmployeeId] = useState<number | null>(
+    null
+  );
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -315,7 +318,14 @@ export default function HRDashboardApp({
 
             <AIAssistant
               activeModule={activeModule}
-              onModuleNavigate={(moduleId) => setActiveModule(moduleId)}
+              onModuleNavigate={(moduleId, entityId) => {
+                setActiveModule(moduleId);
+                if (moduleId === "profiles") {
+                  setPendingEmployeeId(entityId ?? null);
+                } else {
+                  setPendingEmployeeId(null);
+                }
+              }}
             />
 
             {mounted ? (
@@ -656,6 +666,7 @@ export default function HRDashboardApp({
               activeModule={activeModule}
               addNotification={addNotification}
               onNavigate={(moduleId) => setActiveModule(moduleId as HrModuleId)}
+              initialEmployeeId={pendingEmployeeId}
             />
           </div>
         </div>

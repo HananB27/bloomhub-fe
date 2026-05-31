@@ -144,7 +144,7 @@ const INITIAL_ASSETS: AssetData[] = [
   },
 ];
 
-const PERMISSIONS_LIST = [
+export const PERMISSIONS_LIST = [
   "read_profiles",
   "write_profiles",
   "delete_profiles",
