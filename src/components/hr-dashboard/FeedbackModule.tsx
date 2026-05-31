@@ -1,11 +1,23 @@
 import { useEffect, useState } from "react";
 import { getAccessToken } from "@/lib/api/tokens";
+import { fetchUserProfiles } from "@/lib/api/reviews";
 import {
   createSurvey,
+  fetchSurveyAnalytics,
   fetchSurveys,
+  submitSurveyResponse,
+  updateSurvey,
   type Survey as ApiSurvey,
+  type SurveyAnalytics,
   type SurveyQuestion as ApiSurveyQuestion,
 } from "@/lib/api/feedback";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
@@ -169,7 +181,7 @@ function EmojiRating({
 }
 
 type QuestionType = "text" | "multiple_choice" | "rating" | "yes_no";
-type SurveyStatus = "draft" | "active" | "closed" | "scheduled";
+type SurveyStatus = "draft" | "active" | "closed";
 type SuggestionCategory = "hr" | "tech" | "office";
 type SuggestionStatus = "open" | "in_review" | "implemented" | "rejected";
 
@@ -191,7 +203,9 @@ interface Survey {
   createdDate: string;
   endDate?: string;
   responseCount: number;
-  targetParticipants: number;
+  createdByName: string;
+  forbiddenUserIds: number[];
+  viewerHasResponded: boolean;
 }
 
 interface SurveyResponse {
@@ -226,12 +240,19 @@ interface PulseData {
 export function FeedbackModule() {
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("dashboard");
-  const roleSource =
-    (session?.user as { role?: string; career_level?: string } | undefined)
-      ?.role ||
-    (session?.user as { role?: string; career_level?: string } | undefined)
-      ?.career_level;
-  const isHRUser = isHrLikeRole(roleSource);
+  const sessionUser = session?.user as
+    | {
+        role?: string;
+        career_level?: string;
+        is_staff?: boolean;
+        is_superuser?: boolean;
+      }
+    | undefined;
+  const roleSource = sessionUser?.role || sessionUser?.career_level;
+  const isHRUser =
+    isHrLikeRole(roleSource) ||
+    !!sessionUser?.is_staff ||
+    !!sessionUser?.is_superuser;
 
   // Survey Builder State
   const [newSurvey, setNewSurvey] = useState({
@@ -240,13 +261,14 @@ export function FeedbackModule() {
     anonymous: false,
     questions: [] as Question[],
     endDate: "",
+    forbiddenUserIds: [] as number[],
   });
 
   const [newQuestion, setNewQuestion] = useState({
     type: "text" as QuestionType,
     question: "",
     options: [""],
-    required: false,
+    required: true,
   });
 
   // Suggestion State
@@ -265,199 +287,66 @@ export function FeedbackModule() {
     growth: 0,
   });
 
-  // Mock Data
-  const [surveys, setSurveys] = useState<Survey[]>([
-    {
-      id: 1,
-      title: "Q3 Employee Satisfaction Survey",
-      description:
-        "Quarterly survey to gauge employee satisfaction and engagement levels",
-      questions: [
-        {
-          id: 1,
-          type: "rating",
-          question: "How satisfied are you with your current role?",
-          required: true,
-        },
-        {
-          id: 2,
-          type: "multiple_choice",
-          question: "What motivates you most at work?",
-          options: [
-            "Recognition",
-            "Growth opportunities",
-            "Compensation",
-            "Work-life balance",
-          ],
-          required: true,
-        },
-        {
-          id: 3,
-          type: "text",
-          question: "What can we do to improve your work experience?",
-          required: false,
-        },
-      ],
-      anonymous: true,
-      status: "active",
-      createdDate: "2025-07-01",
-      endDate: "2025-08-31",
-      responseCount: 47,
-      targetParticipants: 85,
-    },
-    {
-      id: 2,
-      title: "Remote Work Feedback",
-      description: "Feedback on remote work policies and tools",
-      questions: [
-        {
-          id: 4,
-          type: "yes_no",
-          question: "Are you satisfied with the current remote work setup?",
-          required: true,
-        },
-        {
-          id: 5,
-          type: "text",
-          question: "What tools would help you be more productive?",
-          required: false,
-        },
-      ],
-      anonymous: false,
-      status: "closed",
-      createdDate: "2025-06-15",
-      endDate: "2025-07-15",
-      responseCount: 62,
-      targetParticipants: 70,
-    },
-  ]);
+  // Analytics State (BHB-453)
+  const [analyticsSurveyId, setAnalyticsSurveyId] = useState<number | null>(
+    null
+  );
+  const [analyticsFilters, setAnalyticsFilters] = useState<{
+    department: string;
+    startDate: string;
+    endDate: string;
+  }>({ department: "", startDate: "", endDate: "" });
+  const [analytics, setAnalytics] = useState<SurveyAnalytics | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [analyticsError, setAnalyticsError] = useState<string | null>(null);
 
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([
-    {
-      id: 1,
-      title: "Flexible Working Hours",
-      description:
-        "Implement more flexible working hours to improve work-life balance for all employees",
-      category: "hr",
-      status: "in_review",
-      submittedBy: "Sarah Johnson",
-      submittedDate: "2025-08-01",
-      votes: 23,
-      comments: 8,
-    },
-    {
-      id: 2,
-      title: "Upgrade Development Tools",
-      description:
-        "Invest in better IDEs and development tools to increase productivity",
-      category: "tech",
-      status: "implemented",
-      submittedBy: "Alex Chen",
-      submittedDate: "2025-07-20",
-      votes: 31,
-      comments: 12,
-    },
-    {
-      id: 3,
-      title: "Better Coffee Machine",
-      description:
-        "Replace the current coffee machine with a higher quality one",
-      category: "office",
-      status: "open",
-      submittedBy: "Anonymous",
-      submittedDate: "2025-08-05",
-      votes: 15,
-      comments: 5,
-    },
-  ]);
+  // Take-survey dialog state (BHB-453 — test-driving end-to-end)
+  const [takingSurvey, setTakingSurvey] = useState<Survey | null>(null);
+  const [takeDraft, setTakeDraft] = useState<Record<number, string>>({});
+  const [submittingResponse, setSubmittingResponse] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // Pulse check trend data
-  const pulseData: PulseData[] = [
-    {
-      date: "Jan 2025",
-      overallSatisfaction: 4.1,
-      workload: 3.8,
-      management: 4.2,
-      culture: 4.0,
-      growth: 3.9,
-    },
-    {
-      date: "Feb 2025",
-      overallSatisfaction: 4.0,
-      workload: 3.7,
-      management: 4.1,
-      culture: 4.1,
-      growth: 4.0,
-    },
-    {
-      date: "Mar 2025",
-      overallSatisfaction: 4.2,
-      workload: 3.9,
-      management: 4.3,
-      culture: 4.2,
-      growth: 4.1,
-    },
-    {
-      date: "Apr 2025",
-      overallSatisfaction: 4.1,
-      workload: 3.6,
-      management: 4.0,
-      culture: 4.0,
-      growth: 3.8,
-    },
-    {
-      date: "May 2025",
-      overallSatisfaction: 4.3,
-      workload: 4.0,
-      management: 4.4,
-      culture: 4.3,
-      growth: 4.2,
-    },
-    {
-      date: "Jun 2025",
-      overallSatisfaction: 4.2,
-      workload: 3.9,
-      management: 4.2,
-      culture: 4.1,
-      growth: 4.0,
-    },
-    {
-      date: "Jul 2025",
-      overallSatisfaction: 4.4,
-      workload: 4.1,
-      management: 4.3,
-      culture: 4.4,
-      growth: 4.3,
-    },
-    {
-      date: "Aug 2025",
-      overallSatisfaction: 4.3,
-      workload: 4.0,
-      management: 4.2,
-      culture: 4.2,
-      growth: 4.1,
-    },
-  ];
+  // Preview + Edit dialog state
+  const [previewSurvey, setPreviewSurvey] = useState<Survey | null>(null);
+  const [editingSurvey, setEditingSurvey] = useState<Survey | null>(null);
+  const [editDraft, setEditDraft] = useState<{
+    title: string;
+    description: string;
+    anonymous: boolean;
+    status: SurveyStatus;
+    endDate: string;
+    questions: Question[];
+    forbiddenUserIds: number[];
+  }>({
+    title: "",
+    description: "",
+    anonymous: false,
+    status: "draft",
+    endDate: "",
+    questions: [],
+    forbiddenUserIds: [],
+  });
+  const [editNewQuestion, setEditNewQuestion] = useState({
+    type: "text" as QuestionType,
+    question: "",
+    options: [""],
+    required: true,
+  });
+  const [savingEdit, setSavingEdit] = useState(false);
 
-  // Survey results data for charts
-  const satisfactionData = [
-    { name: "Very Satisfied", value: 35, count: 16, color: "#10b981" },
-    { name: "Satisfied", value: 43, count: 20, color: "#3b82f6" },
-    { name: "Neutral", value: 15, count: 7, color: "#f59e0b" },
-    { name: "Dissatisfied", value: 4, count: 2, color: "#ef4444" },
-    { name: "Very Dissatisfied", value: 3, count: 1, color: "#dc2626" },
-  ];
+  // Surveys + suggestions load from the API; start empty.
+  // `surveys`  = surveys created by the current user (management table)
+  // `availableSurveys` = all active surveys (Take Survey section)
+  const [surveys, setSurveys] = useState<Survey[]>([]);
+  const [availableSurveys, setAvailableSurveys] = useState<Survey[]>([]);
+  // Org user directory (for the visibility / forbidden-users picker).
+  const [orgUsers, setOrgUsers] = useState<{ id: number; name: string }[]>([]);
+  // Filter for the Available Surveys list on the Dashboard.
+  const [availableFilter, setAvailableFilter] = useState<
+    "all" | "todo" | "done" | "anonymous"
+  >("all");
 
-  const responseRateData = [
-    { month: "Jan", responses: 42, target: 50 },
-    { month: "Feb", responses: 38, target: 50 },
-    { month: "Mar", responses: 45, target: 50 },
-    { month: "Apr", responses: 41, target: 50 },
-    { month: "May", responses: 48, target: 50 },
-    { month: "Jun", responses: 47, target: 50 },
-    { month: "Jul", responses: 49, target: 50 },
-    { month: "Aug", responses: 44, target: 50 },
-  ];
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -529,7 +418,7 @@ export function FeedbackModule() {
       type: "text",
       question: "",
       options: [""],
-      required: false,
+      required: true,
     });
   };
 
@@ -565,19 +454,26 @@ export function FeedbackModule() {
 
   // Translate the FE-local question shape into the API question shape.
   const toApiQuestion = (q: Question): ApiSurveyQuestion => {
+    const base = { required: q.required };
     switch (q.type) {
       case "multiple_choice":
         return {
+          ...base,
           text: q.question,
           type: "choice",
           options: (q.options ?? []).filter((opt) => opt.trim() !== ""),
         };
       case "yes_no":
-        return { text: q.question, type: "choice", options: ["Yes", "No"] };
+        return {
+          ...base,
+          text: q.question,
+          type: "choice",
+          options: ["Yes", "No"],
+        };
       case "rating":
-        return { text: q.question, type: "scale" };
+        return { ...base, text: q.question, type: "scale" };
       default:
-        return { text: q.question, type: "text" };
+        return { ...base, text: q.question, type: "text" };
     }
   };
 
@@ -593,7 +489,7 @@ export function FeedbackModule() {
             : "text",
       question: q.text,
       options: q.options,
-      required: false,
+      required: q.required ?? true,
     }));
     return {
       id: s.id,
@@ -606,29 +502,70 @@ export function FeedbackModule() {
           ? s.status
           : "draft",
       createdDate: s.created_at?.split("T")[0] ?? "",
-      endDate: "",
+      endDate: s.end_date ?? "",
       responseCount: s.response_count,
-      targetParticipants: 50,
+      createdByName: s.created_by_name ?? "",
+      forbiddenUserIds: s.forbidden_user_ids ?? [],
+      viewerHasResponded: s.viewer_has_responded ?? false,
     };
   };
 
-  // Load real surveys on mount (best-effort — keep mock state on failure).
+  // Load surveys on mount: my own (for management) and all active (for Take).
   useEffect(() => {
     const token = getAccessToken();
     if (!token) return;
     let cancelled = false;
-    void fetchSurveys(token)
-      .then((apiSurveys) => {
-        if (cancelled) return;
-        setSurveys(apiSurveys.map(fromApiSurvey));
-      })
-      .catch(() => {
-        /* keep existing mock surveys on failure */
-      });
+    void Promise.all([
+      fetchSurveys(token, { mine: true }).catch(() => [] as ApiSurvey[]),
+      fetchSurveys(token).catch(() => [] as ApiSurvey[]),
+      fetchUserProfiles(token).catch(() => []),
+    ]).then(([mine, all, users]) => {
+      if (cancelled) return;
+      setSurveys(mine.map(fromApiSurvey));
+      setAvailableSurveys(all.map(fromApiSurvey));
+      setOrgUsers(users);
+    });
     return () => {
       cancelled = true;
     };
   }, []);
+
+  // Fetch analytics when the selected survey or filters change.
+  useEffect(() => {
+    if (analyticsSurveyId === null) {
+      setAnalytics(null);
+      return;
+    }
+    const token = getAccessToken();
+    if (!token) return;
+    let cancelled = false;
+    setAnalyticsLoading(true);
+    setAnalyticsError(null);
+    void fetchSurveyAnalytics(
+      analyticsSurveyId,
+      {
+        department: analyticsFilters.department || undefined,
+        startDate: analyticsFilters.startDate || undefined,
+        endDate: analyticsFilters.endDate || undefined,
+      },
+      token
+    )
+      .then((data) => {
+        if (cancelled) return;
+        setAnalytics(data);
+      })
+      .catch((err: Error) => {
+        if (cancelled) return;
+        setAnalyticsError(err.message || "Failed to load analytics.");
+        setAnalytics(null);
+      })
+      .finally(() => {
+        if (!cancelled) setAnalyticsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [analyticsSurveyId, analyticsFilters]);
 
   const saveSurvey = async () => {
     if (!newSurvey.title.trim() || newSurvey.questions.length === 0) return;
@@ -638,47 +575,38 @@ export function FeedbackModule() {
       title: newSurvey.title,
       description: newSurvey.description,
       is_anonymous: newSurvey.anonymous,
+      end_date: newSurvey.endDate || null,
+      forbidden_user_ids: newSurvey.forbiddenUserIds,
       questions: newSurvey.questions.map(toApiQuestion),
+    };
+
+    // eslint-disable-next-line react-hooks/purity
+    const tempId = Date.now();
+    const localFallback: Survey = {
+      id: tempId,
+      title: newSurvey.title,
+      description: newSurvey.description,
+      questions: newSurvey.questions,
+      anonymous: newSurvey.anonymous,
+      status: "draft",
+      createdDate: new Date().toISOString().split("T")[0],
+      endDate: newSurvey.endDate,
+      responseCount: 0,
+      createdByName: "",
+      forbiddenUserIds: newSurvey.forbiddenUserIds,
+      viewerHasResponded: false,
     };
 
     if (token) {
       try {
         const created = await createSurvey(payload, token);
         setSurveys((prev) => [fromApiSurvey(created), ...prev]);
+        await refreshAllSurveyLists(token);
       } catch {
-        // Fallback to local-only insert so the UI stays usable offline.
-        setSurveys((prev) => [
-          {
-            id: Date.now(),
-            title: newSurvey.title,
-            description: newSurvey.description,
-            questions: newSurvey.questions,
-            anonymous: newSurvey.anonymous,
-            status: "draft",
-            createdDate: new Date().toISOString().split("T")[0],
-            endDate: newSurvey.endDate,
-            responseCount: 0,
-            targetParticipants: 50,
-          },
-          ...prev,
-        ]);
+        setSurveys((prev) => [localFallback, ...prev]);
       }
     } else {
-      setSurveys((prev) => [
-        {
-          id: Date.now(),
-          title: newSurvey.title,
-          description: newSurvey.description,
-          questions: newSurvey.questions,
-          anonymous: newSurvey.anonymous,
-          status: "draft",
-          createdDate: new Date().toISOString().split("T")[0],
-          endDate: newSurvey.endDate,
-          responseCount: 0,
-          targetParticipants: 50,
-        },
-        ...prev,
-      ]);
+      setSurveys((prev) => [localFallback, ...prev]);
     }
 
     setNewSurvey({
@@ -687,6 +615,7 @@ export function FeedbackModule() {
       anonymous: false,
       questions: [],
       endDate: "",
+      forbiddenUserIds: [],
     });
   };
 
@@ -715,6 +644,132 @@ export function FeedbackModule() {
     });
   };
 
+  const isSurveyLocked = (survey: Survey): boolean => {
+    if (!survey.endDate) return false;
+    // Compare as YYYY-MM-DD so timezone doesn't matter.
+    const today = new Date().toISOString().split("T")[0];
+    return survey.endDate < today;
+  };
+
+  const openEditSurvey = (survey: Survey) => {
+    setEditingSurvey(survey);
+    setEditDraft({
+      title: survey.title,
+      description: survey.description,
+      anonymous: survey.anonymous,
+      status: survey.status,
+      endDate: survey.endDate ?? "",
+      forbiddenUserIds: [...survey.forbiddenUserIds],
+      // Deep-clone so edits don't mutate the original survey object.
+      questions: survey.questions.map((q) => ({
+        ...q,
+        options: q.options ? [...q.options] : undefined,
+      })),
+    });
+    setEditNewQuestion({
+      type: "text",
+      question: "",
+      options: [""],
+      required: true,
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingSurvey) return;
+    const token = getAccessToken();
+    if (!token) {
+      setEditingSurvey(null);
+      return;
+    }
+    setSavingEdit(true);
+    try {
+      await updateSurvey(
+        editingSurvey.id,
+        {
+          title: editDraft.title,
+          description: editDraft.description,
+          is_anonymous: editDraft.anonymous,
+          status: editDraft.status,
+          end_date: editDraft.endDate || null,
+          forbidden_user_ids: editDraft.forbiddenUserIds,
+          questions: editDraft.questions.map(toApiQuestion),
+        },
+        token
+      );
+      await refreshAllSurveyLists(token);
+      setEditingSurvey(null);
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const openResultsForSurvey = (surveyId: number) => {
+    setAnalyticsSurveyId(surveyId);
+    setAnalyticsFilters({ department: "", startDate: "", endDate: "" });
+    setActiveTab("results");
+  };
+
+  const refreshAllSurveyLists = async (token: string) => {
+    const [mine, all] = await Promise.all([
+      fetchSurveys(token, { mine: true }).catch(() => [] as ApiSurvey[]),
+      fetchSurveys(token).catch(() => [] as ApiSurvey[]),
+    ]);
+    setSurveys(mine.map(fromApiSurvey));
+    setAvailableSurveys(all.map(fromApiSurvey));
+  };
+
+  const handleStatusChange = async (surveyId: number, status: SurveyStatus) => {
+    const token = getAccessToken();
+    if (!token) return;
+    try {
+      await updateSurvey(surveyId, { status }, token);
+      await refreshAllSurveyLists(token);
+    } catch {
+      setSurveys((prev) =>
+        prev.map((s) => (s.id === surveyId ? { ...s, status } : s))
+      );
+    }
+  };
+
+  const handleSendOut = (surveyId: number) =>
+    handleStatusChange(surveyId, "active");
+
+  const handleRecall = (surveyId: number) =>
+    handleStatusChange(surveyId, "draft");
+
+  const openTakeSurvey = (survey: Survey) => {
+    setTakingSurvey(survey);
+    setTakeDraft({});
+    setSubmitError(null);
+  };
+
+  const handleSubmitResponse = async () => {
+    if (!takingSurvey) return;
+    const token = getAccessToken();
+    if (!token) {
+      setSubmitError("You need to be logged in to submit.");
+      return;
+    }
+    const answers = takingSurvey.questions.map((q) => ({
+      question_id: q.id,
+      value: (takeDraft[q.id] ?? "").toString(),
+    }));
+    setSubmittingResponse(true);
+    setSubmitError(null);
+    try {
+      await submitSurveyResponse(takingSurvey.id, answers, token);
+      await refreshAllSurveyLists(token);
+      setTakingSurvey(null);
+      setTakeDraft({});
+    } catch (err) {
+      const msg =
+        err instanceof Error ? err.message : "Failed to submit response.";
+      setSubmitError(msg);
+    } finally {
+      setSubmittingResponse(false);
+    }
+  };
+
   const submitPulseCheck = () => {
     // TODO: Submit pulse check to backend API
     setPulseRatings({
@@ -741,19 +796,9 @@ export function FeedbackModule() {
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
-            <Button variant="outline" size="sm">
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
-            {isHRUser && (
-              <Button variant="primary" size="sm">
-                <Plus className="w-4 h-4 mr-2" />
-                Create Survey
-              </Button>
-            )}
           </div>
         </div>
 
@@ -765,25 +810,31 @@ export function FeedbackModule() {
               <p className="text-sm text-gray-600">Active Surveys</p>
             </div>
             <p className="text-2xl font-bold text-gray-900">
-              {surveys.filter((s) => s.status === "active").length}
+              {availableSurveys.filter((s) => s.status === "active").length}
             </p>
             <p className="text-xs text-gray-500">Running now</p>
           </div>
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
               <Users className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">Response Rate</p>
+              <p className="text-sm text-gray-600">Total Responses</p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">87%</p>
-            <p className="text-xs text-gray-500">This month</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {availableSurveys.reduce(
+                (sum, s) => sum + (s.responseCount || 0),
+                0
+              )}
+            </p>
+            <p className="text-xs text-gray-500">Across all surveys</p>
           </div>
+          {/* TODO: wire to real pulse-check average once Pulse Check ticket lands. */}
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-4 h-4 text-gray-500" />
               <p className="text-sm text-gray-600">Avg Satisfaction</p>
             </div>
-            <p className="text-2xl font-bold text-gray-900">4.3</p>
-            <p className="text-xs text-gray-500">Out of 5.0</p>
+            <p className="text-2xl font-bold text-gray-400">—</p>
+            <p className="text-xs text-gray-500">Available after Pulse Check</p>
           </div>
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
@@ -798,9 +849,9 @@ export function FeedbackModule() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         {/* Main Content */}
-        <div className="lg:col-span-2">
+        <div>
           <Card className="border-gray-200">
             <Tabs
               value={activeTab}
@@ -810,9 +861,9 @@ export function FeedbackModule() {
               <CardHeader className="pb-3">
                 <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-                  <TabsTrigger value="surveys">Surveys</TabsTrigger>
-                  <TabsTrigger value="results">Results</TabsTrigger>
                   <TabsTrigger value="suggestions">Suggestions</TabsTrigger>
+                  <TabsTrigger value="surveys">Manage Surveys</TabsTrigger>
+                  <TabsTrigger value="results">Results</TabsTrigger>
                 </TabsList>
               </CardHeader>
 
@@ -902,117 +953,165 @@ export function FeedbackModule() {
                     </Card>
                   </div>
 
+                  {/* Available Surveys (anyone can take) */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="font-medium text-gray-900">
+                        Available Surveys
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <Filter className="w-4 h-4 text-gray-500" />
+                        <Select
+                          value={availableFilter}
+                          onValueChange={(v) =>
+                            setAvailableFilter(
+                              v as "all" | "todo" | "done" | "anonymous"
+                            )
+                          }
+                        >
+                          <SelectTrigger className="h-8 w-44 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All active</SelectItem>
+                            <SelectItem value="todo">Not yet taken</SelectItem>
+                            <SelectItem value="done">Already taken</SelectItem>
+                            <SelectItem value="anonymous">
+                              Anonymous only
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    {(() => {
+                      const active = availableSurveys
+                        .filter((s) => s.status === "active")
+                        .filter((s) => {
+                          switch (availableFilter) {
+                            case "todo":
+                              return !s.viewerHasResponded;
+                            case "done":
+                              return s.viewerHasResponded;
+                            case "anonymous":
+                              return s.anonymous;
+                            default:
+                              return true;
+                          }
+                        });
+                      if (active.length === 0) {
+                        return (
+                          <p className="text-sm text-gray-500 italic">
+                            No active surveys right now.
+                          </p>
+                        );
+                      }
+                      return (
+                        <div className="space-y-2">
+                          {active.map((survey) => (
+                            <div
+                              key={survey.id}
+                              className="flex items-center justify-between p-4 bg-blue-50 border border-blue-100 rounded-lg"
+                            >
+                              <div className="min-w-0 flex-1 pr-4">
+                                <div className="flex items-center gap-2">
+                                  <h4 className="font-medium text-gray-900 truncate">
+                                    {survey.title}
+                                  </h4>
+                                  {survey.anonymous && (
+                                    <Badge
+                                      variant="outline"
+                                      className="bg-white text-blue-700 border-blue-200"
+                                    >
+                                      Anonymous
+                                    </Badge>
+                                  )}
+                                </div>
+                                {survey.description && (
+                                  <p className="text-sm text-gray-600 mt-1 truncate">
+                                    {survey.description}
+                                  </p>
+                                )}
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="primary"
+                                onClick={() => openTakeSurvey(survey)}
+                                disabled={
+                                  survey.questions.length === 0 ||
+                                  isSurveyLocked(survey)
+                                }
+                                title={
+                                  isSurveyLocked(survey)
+                                    ? `Survey ended ${survey.endDate}`
+                                    : undefined
+                                }
+                              >
+                                <Send className="w-4 h-4 mr-2" />
+                                {survey.viewerHasResponded
+                                  ? "Retake Survey"
+                                  : "Take Survey"}
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
+
                   {/* Recent Survey Activity */}
                   <div className="space-y-4">
                     <h3 className="font-medium text-gray-900">
                       Recent Survey Activity
                     </h3>
-                    <div className="space-y-3">
-                      {surveys.slice(0, 3).map((survey) => (
-                        <div
-                          key={survey.id}
-                          className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                        >
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900">
-                              {survey.title}
-                            </h4>
-                            <p className="text-sm text-gray-600 mt-1">
-                              {survey.description}
-                            </p>
-                            <div className="flex items-center gap-4 mt-2">
-                              <div className="flex items-center gap-1">
-                                <Users className="w-3 h-3 text-gray-400" />
-                                <span className="text-xs text-gray-500">
-                                  {survey.responseCount}/
-                                  {survey.targetParticipants} responses
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                {survey.anonymous ? (
-                                  <Lock className="w-3 h-3 text-gray-400" />
-                                ) : (
-                                  <Globe className="w-3 h-3 text-gray-400" />
-                                )}
-                                <span className="text-xs text-gray-500">
-                                  {survey.anonymous ? "Anonymous" : "Named"}
-                                </span>
+                    {surveys.length === 0 ? (
+                      <p className="text-sm text-gray-500 italic">
+                        No surveys yet.
+                      </p>
+                    ) : (
+                      <div className="space-y-3">
+                        {surveys.slice(0, 3).map((survey) => (
+                          <div
+                            key={survey.id}
+                            className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                          >
+                            <div className="flex-1">
+                              <h4 className="font-medium text-gray-900">
+                                {survey.title}
+                              </h4>
+                              {survey.description && (
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {survey.description}
+                                </p>
+                              )}
+                              <div className="flex items-center gap-4 mt-2">
+                                <div className="flex items-center gap-1">
+                                  <Users className="w-3 h-3 text-gray-400" />
+                                  <span className="text-xs text-gray-500">
+                                    {survey.responseCount} responses
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  {survey.anonymous ? (
+                                    <Lock className="w-3 h-3 text-gray-400" />
+                                  ) : (
+                                    <Globe className="w-3 h-3 text-gray-400" />
+                                  )}
+                                  <span className="text-xs text-gray-500">
+                                    {survey.anonymous ? "Anonymous" : "Named"}
+                                  </span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                          <div className="flex items-center gap-3">
                             <Badge
                               variant="outline"
                               className={getStatusColor(survey.status)}
                             >
                               {survey.status}
                             </Badge>
-                            <Progress
-                              value={
-                                (survey.responseCount /
-                                  survey.targetParticipants) *
-                                100
-                              }
-                              className="w-16 h-2"
-                            />
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Trend Overview */}
-                  <div className="space-y-4">
-                    <h3 className="font-medium text-gray-900">
-                      Satisfaction Trends
-                    </h3>
-                    <div className="h-64">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart
-                          data={pulseData}
-                          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                        >
-                          <CartesianGrid
-                            strokeDasharray="3 3"
-                            stroke="#e2e8f0"
-                          />
-                          <XAxis
-                            dataKey="date"
-                            stroke="#64748b"
-                            fontSize={12}
-                            tick={{ fill: "#64748b" }}
-                          />
-                          <YAxis
-                            stroke="#64748b"
-                            fontSize={12}
-                            tick={{ fill: "#64748b" }}
-                            domain={[0, 5]}
-                          />
-                          <Tooltip content={<FeedbackTooltip />} />
-                          <Line
-                            type="monotone"
-                            dataKey="overallSatisfaction"
-                            stroke="#2563eb"
-                            strokeWidth={2}
-                            name="Overall Satisfaction"
-                          />
-                          <Line
-                            type="monotone"
-                            dataKey="management"
-                            stroke="#10b981"
-                            strokeWidth={2}
-                            name="Management"
-                          />
-                          <Line
-                            type="monotone"
-                            dataKey="culture"
-                            stroke="#f59e0b"
-                            strokeWidth={2}
-                            name="Culture"
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </TabsContent>
 
@@ -1107,6 +1206,59 @@ export function FeedbackModule() {
                               <Label htmlFor="anonymous-toggle">
                                 Anonymous Survey
                               </Label>
+                            </div>
+
+                            {/* Visibility — forbid specific users */}
+                            <div className="space-y-2">
+                              <Label className="text-sm">
+                                Forbid users from this survey (optional)
+                              </Label>
+                              <p className="text-xs text-gray-500">
+                                Selected users will not see or be able to take
+                                this survey.
+                              </p>
+                              <div className="border border-gray-200 rounded p-2 max-h-40 overflow-y-auto space-y-1">
+                                {orgUsers.length === 0 ? (
+                                  <p className="text-xs text-gray-500 italic">
+                                    No users loaded.
+                                  </p>
+                                ) : (
+                                  orgUsers.map((u) => {
+                                    const checked =
+                                      newSurvey.forbiddenUserIds.includes(u.id);
+                                    return (
+                                      <label
+                                        key={u.id}
+                                        className="flex items-center gap-2 text-sm cursor-pointer"
+                                      >
+                                        <Checkbox
+                                          checked={checked}
+                                          onCheckedChange={(v) =>
+                                            setNewSurvey((prev) => ({
+                                              ...prev,
+                                              forbiddenUserIds: v
+                                                ? [
+                                                    ...prev.forbiddenUserIds,
+                                                    u.id,
+                                                  ]
+                                                : prev.forbiddenUserIds.filter(
+                                                    (id) => id !== u.id
+                                                  ),
+                                            }))
+                                          }
+                                        />
+                                        <span>{u.name}</span>
+                                      </label>
+                                    );
+                                  })
+                                )}
+                              </div>
+                              {newSurvey.forbiddenUserIds.length > 0 && (
+                                <p className="text-xs text-amber-700">
+                                  {newSurvey.forbiddenUserIds.length} user(s)
+                                  forbidden.
+                                </p>
+                              )}
                             </div>
 
                             {/* Questions */}
@@ -1317,7 +1469,6 @@ export function FeedbackModule() {
                                 <Save className="w-4 h-4 mr-2" />
                                 Save Survey
                               </Button>
-                              <Button variant="outline">Preview</Button>
                             </div>
                           </CardContent>
                         </Card>
@@ -1347,19 +1498,28 @@ export function FeedbackModule() {
                                       <p className="font-medium text-gray-900">
                                         {survey.title}
                                       </p>
-                                      <p className="text-sm text-gray-500 mt-1">
-                                        {survey.description}
-                                      </p>
+                                      {survey.description && (
+                                        <p className="text-sm text-gray-500 mt-1">
+                                          {survey.description}
+                                        </p>
+                                      )}
                                       <div className="flex items-center gap-2 mt-1">
                                         {survey.anonymous ? (
                                           <Lock className="w-3 h-3 text-gray-400" />
                                         ) : (
-                                          <Globe className="w-3 h-3 text-gray-400" />
+                                          <Users className="w-3 h-3 text-gray-400" />
                                         )}
-                                        <span className="text-xs text-gray-500">
+                                        <span
+                                          className="text-xs text-gray-500"
+                                          title={
+                                            survey.anonymous
+                                              ? "Respondents are not stored"
+                                              : "Responses are linked to the respondent"
+                                          }
+                                        >
                                           {survey.anonymous
                                             ? "Anonymous"
-                                            : "Named"}
+                                            : "Not Anonymous"}
                                         </span>
                                       </div>
                                     </div>
@@ -1373,31 +1533,90 @@ export function FeedbackModule() {
                                     </Badge>
                                   </TableCell>
                                   <TableCell>
-                                    <div>
-                                      <p className="font-medium">
-                                        {survey.responseCount}/
-                                        {survey.targetParticipants}
-                                      </p>
-                                      <Progress
-                                        value={
-                                          (survey.responseCount /
-                                            survey.targetParticipants) *
-                                          100
-                                        }
-                                        className="w-16 h-2 mt-1"
-                                      />
-                                    </div>
+                                    <p className="font-medium">
+                                      {survey.responseCount}
+                                    </p>
                                   </TableCell>
-                                  <TableCell>{survey.createdDate}</TableCell>
                                   <TableCell>
-                                    <div className="flex gap-1">
-                                      <Button variant="ghost" size="sm">
+                                    <p>{survey.createdDate}</p>
+                                    {survey.createdByName && (
+                                      <p className="text-xs text-gray-500 mt-0.5">
+                                        by {survey.createdByName}
+                                      </p>
+                                    )}
+                                    {survey.endDate && (
+                                      <p className="text-xs text-gray-500 mt-0.5">
+                                        ends {survey.endDate}
+                                      </p>
+                                    )}
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="flex gap-1 items-center">
+                                      {isSurveyLocked(survey) && (
+                                        <Badge
+                                          variant="outline"
+                                          className="bg-gray-100 text-gray-700 border-gray-200 mr-1"
+                                          title={`Locked — ended ${survey.endDate}`}
+                                        >
+                                          <Lock className="w-3 h-3 mr-1" />
+                                          Locked
+                                        </Badge>
+                                      )}
+                                      {survey.status === "draft" &&
+                                        !isSurveyLocked(survey) && (
+                                          <Button
+                                            variant="primary"
+                                            size="sm"
+                                            onClick={() =>
+                                              void handleSendOut(survey.id)
+                                            }
+                                          >
+                                            <Send className="w-4 h-4 mr-1" />
+                                            Send Out
+                                          </Button>
+                                        )}
+                                      {survey.status === "active" &&
+                                        !isSurveyLocked(survey) && (
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() =>
+                                              void handleRecall(survey.id)
+                                            }
+                                            title="Stop accepting responses (sets back to draft)"
+                                          >
+                                            Recall
+                                          </Button>
+                                        )}
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        title="Preview as respondent"
+                                        onClick={() => setPreviewSurvey(survey)}
+                                      >
                                         <Eye className="w-4 h-4" />
                                       </Button>
-                                      <Button variant="ghost" size="sm">
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        title={
+                                          isSurveyLocked(survey)
+                                            ? "Survey ended — cannot edit"
+                                            : "Edit survey"
+                                        }
+                                        onClick={() => openEditSurvey(survey)}
+                                        disabled={isSurveyLocked(survey)}
+                                      >
                                         <Edit3 className="w-4 h-4" />
                                       </Button>
-                                      <Button variant="ghost" size="sm">
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        title="View results"
+                                        onClick={() =>
+                                          openResultsForSurvey(survey.id)
+                                        }
+                                      >
                                         <BarChart3 className="w-4 h-4" />
                                       </Button>
                                     </div>
@@ -1410,220 +1629,254 @@ export function FeedbackModule() {
                       </div>
                     </>
                   ) : (
-                    <div className="text-center py-8">
-                      <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <div className="text-center py-12">
+                      <Lock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                       <h3 className="text-lg font-medium text-gray-900 mb-2">
-                        Access Restricted
+                        HR-only view
                       </h3>
-                      <p className="text-gray-600">
-                        Survey creation and management is available to HR
-                        personnel only.
+                      <p className="text-sm text-gray-500">
+                        Survey creation and management is restricted to HR
+                        personnel.
                       </p>
                     </div>
                   )}
                 </TabsContent>
 
                 <TabsContent value="results" className="space-y-6 mt-0">
-                  <div className="space-y-6">
-                    <h3 className="font-medium text-gray-900">
-                      Survey Results Dashboard
-                    </h3>
-
-                    {/* Key Metrics */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="bg-green-50 rounded-lg p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                          <p className="text-sm font-medium text-green-900">
-                            Avg Response Rate
-                          </p>
-                        </div>
-                        <p className="text-2xl font-bold text-green-700">87%</p>
-                        <p className="text-xs text-green-600">
-                          Across all surveys
-                        </p>
-                      </div>
-                      <div className="bg-blue-50 rounded-lg p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Star className="w-4 h-4 text-blue-600" />
-                          <p className="text-sm font-medium text-blue-900">
-                            Satisfaction Score
-                          </p>
-                        </div>
-                        <p className="text-2xl font-bold text-blue-700">
-                          4.3/5.0
-                        </p>
-                        <p className="text-xs text-blue-600">Latest survey</p>
-                      </div>
-                      <div className="bg-amber-50 rounded-lg p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <TrendingUp className="w-4 h-4 text-amber-600" />
-                          <p className="text-sm font-medium text-amber-900">
-                            Engagement Trend
-                          </p>
-                        </div>
-                        <p className="text-2xl font-bold text-amber-700">
-                          ↗ 12%
-                        </p>
-                        <p className="text-xs text-amber-600">
-                          vs last quarter
-                        </p>
-                      </div>
+                  {!isHRUser ? (
+                    <div className="text-center py-12">
+                      <Lock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        HR-only view
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        Survey analytics are restricted to HR personnel.
+                      </p>
                     </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-medium text-gray-900">
+                          Survey Results Dashboard
+                        </h3>
+                      </div>
 
-                    {/* Charts */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {/* Satisfaction Distribution */}
+                      {/* Survey selector */}
                       <div>
-                        <h4 className="font-medium text-gray-900 mb-4">
-                          Satisfaction Distribution
-                        </h4>
-                        <div className="h-64">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                              <Pie
-                                data={satisfactionData}
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={80}
-                                dataKey="count"
-                                label={({ name, value }) => `${name}: ${value}`}
+                        <Label className="text-sm font-medium text-gray-700">
+                          Survey
+                        </Label>
+                        <Select
+                          value={
+                            analyticsSurveyId !== null
+                              ? String(analyticsSurveyId)
+                              : ""
+                          }
+                          onValueChange={(v) =>
+                            setAnalyticsSurveyId(v ? Number(v) : null)
+                          }
+                        >
+                          <SelectTrigger className="mt-1">
+                            <SelectValue placeholder="Select a survey..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {surveys.map((s) => (
+                              <SelectItem key={s.id} value={String(s.id)}>
+                                {s.title}
+                                {s.anonymous ? " (anonymous)" : ""}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {analyticsSurveyId === null ? (
+                        <div className="text-center py-12">
+                          <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                          <p className="text-sm text-gray-500">
+                            Pick a survey to view aggregated results.
+                          </p>
+                        </div>
+                      ) : analyticsLoading ? (
+                        <div className="text-center py-12 text-sm text-gray-500">
+                          Loading analytics...
+                        </div>
+                      ) : analyticsError ? (
+                        <div className="text-center py-12">
+                          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+                          <p className="text-sm text-red-700">
+                            {analyticsError}
+                          </p>
+                        </div>
+                      ) : !analytics ? null : (
+                        <>
+                          {/* Headline metrics */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="bg-blue-50 rounded-lg p-4">
+                              <p className="text-sm font-medium text-blue-900">
+                                Total Responses
+                              </p>
+                              <p className="text-2xl font-bold text-blue-700">
+                                {analytics.total_responses}
+                              </p>
+                              {analytics.is_anonymous && (
+                                <p className="text-xs text-blue-600 mt-1">
+                                  Anonymous survey
+                                </p>
+                              )}
+                            </div>
+                            <div className="bg-green-50 rounded-lg p-4">
+                              <p className="text-sm font-medium text-green-900">
+                                Questions
+                              </p>
+                              <p className="text-2xl font-bold text-green-700">
+                                {analytics.questions.length}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Per-question charts */}
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            {analytics.questions.map((q) => (
+                              <div
+                                key={q.question_id}
+                                className="border border-gray-200 rounded-lg p-4 bg-white"
                               >
-                                {satisfactionData.map((entry, index) => (
-                                  <Cell
-                                    key={`cell-${index}`}
-                                    fill={entry.color}
+                                <div className="flex items-start justify-between mb-2">
+                                  <div>
+                                    <Badge variant="outline" className="mb-2">
+                                      {q.type}
+                                    </Badge>
+                                    <h4 className="font-medium text-gray-900">
+                                      {q.text}
+                                    </h4>
+                                  </div>
+                                  <div className="text-right text-xs text-gray-500">
+                                    <p>{q.response_count} responses</p>
+                                    {q.type === "scale" &&
+                                      q.average !== undefined && (
+                                        <p className="font-bold text-base text-gray-900 mt-1">
+                                          avg {q.average.toFixed(2)}
+                                        </p>
+                                      )}
+                                  </div>
+                                </div>
+
+                                {q.type === "choice" && q.distribution && (
+                                  <div className="h-56">
+                                    <ResponsiveContainer
+                                      width="100%"
+                                      height="100%"
+                                    >
+                                      <PieChart>
+                                        <Pie
+                                          data={q.distribution}
+                                          dataKey="count"
+                                          nameKey="value"
+                                          cx="50%"
+                                          cy="50%"
+                                          outerRadius={70}
+                                          label={({ value, count }) =>
+                                            `${value}: ${count}`
+                                          }
+                                        >
+                                          {q.distribution.map((_, i) => (
+                                            <Cell
+                                              key={i}
+                                              fill={
+                                                [
+                                                  "#3b82f6",
+                                                  "#10b981",
+                                                  "#f59e0b",
+                                                  "#ef4444",
+                                                  "#8b5cf6",
+                                                  "#ec4899",
+                                                ][i % 6]
+                                              }
+                                            />
+                                          ))}
+                                        </Pie>
+                                        <Tooltip />
+                                      </PieChart>
+                                    </ResponsiveContainer>
+                                  </div>
+                                )}
+
+                                {q.type === "scale" && q.distribution && (
+                                  <div className="h-56">
+                                    <ResponsiveContainer
+                                      width="100%"
+                                      height="100%"
+                                    >
+                                      <BarChart data={q.distribution}>
+                                        <CartesianGrid
+                                          strokeDasharray="3 3"
+                                          opacity={0.3}
+                                        />
+                                        <XAxis dataKey="value" />
+                                        <YAxis allowDecimals={false} />
+                                        <Tooltip />
+                                        <Bar
+                                          dataKey="count"
+                                          fill="#3b82f6"
+                                          radius={[4, 4, 0, 0]}
+                                        />
+                                      </BarChart>
+                                    </ResponsiveContainer>
+                                  </div>
+                                )}
+
+                                {q.type === "text" && (
+                                  <div className="space-y-2 max-h-56 overflow-y-auto">
+                                    {(q.samples ?? []).length === 0 ? (
+                                      <p className="text-sm text-gray-500 italic">
+                                        No text responses yet.
+                                      </p>
+                                    ) : (
+                                      (q.samples ?? []).map((s, i) => (
+                                        <div
+                                          key={i}
+                                          className="text-sm bg-gray-50 rounded p-2 border border-gray-100"
+                                        >
+                                          {s}
+                                        </div>
+                                      ))
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Trend over time */}
+                          <div className="border border-gray-200 rounded-lg p-4 bg-white">
+                            <h4 className="font-medium text-gray-900 mb-4">
+                              Responses Over Time
+                            </h4>
+                            <div className="h-64">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={analytics.responses_over_time}>
+                                  <CartesianGrid
+                                    strokeDasharray="3 3"
+                                    opacity={0.3}
                                   />
-                                ))}
-                              </Pie>
-                              <Tooltip />
-                            </PieChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
-
-                      {/* Response Rate Trends */}
-                      <div>
-                        <h4 className="font-medium text-gray-900 mb-4">
-                          Response Rate Trends
-                        </h4>
-                        <div className="h-64">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                              data={responseRateData}
-                              margin={{
-                                top: 20,
-                                right: 30,
-                                left: 20,
-                                bottom: 5,
-                              }}
-                            >
-                              <CartesianGrid
-                                strokeDasharray="3 3"
-                                stroke="#e2e8f0"
-                              />
-                              <XAxis
-                                dataKey="month"
-                                stroke="#64748b"
-                                fontSize={12}
-                                tick={{ fill: "#64748b" }}
-                              />
-                              <YAxis
-                                stroke="#64748b"
-                                fontSize={12}
-                                tick={{ fill: "#64748b" }}
-                              />
-                              <Tooltip
-                                formatter={(value, name) => [
-                                  value,
-                                  name === "responses" ? "Responses" : "Target",
-                                ]}
-                                labelFormatter={(label) => `Month: ${label}`}
-                              />
-                              <Bar
-                                dataKey="responses"
-                                fill="#2563eb"
-                                radius={[4, 4, 0, 0]}
-                              />
-                              <Bar
-                                dataKey="target"
-                                fill="#e2e8f0"
-                                radius={[4, 4, 0, 0]}
-                              />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
+                                  <XAxis dataKey="date" />
+                                  <YAxis allowDecimals={false} />
+                                  <Tooltip />
+                                  <Line
+                                    type="monotone"
+                                    dataKey="count"
+                                    stroke="#3b82f6"
+                                    strokeWidth={2}
+                                  />
+                                </LineChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
-
-                    {/* Pulse Data Trends */}
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-4">
-                        Pulse Check Trends
-                      </h4>
-                      <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart
-                            data={pulseData}
-                            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                          >
-                            <CartesianGrid
-                              strokeDasharray="3 3"
-                              stroke="#e2e8f0"
-                            />
-                            <XAxis
-                              dataKey="date"
-                              stroke="#64748b"
-                              fontSize={12}
-                              tick={{ fill: "#64748b" }}
-                            />
-                            <YAxis
-                              stroke="#64748b"
-                              fontSize={12}
-                              tick={{ fill: "#64748b" }}
-                              domain={[0, 5]}
-                            />
-                            <Tooltip content={<FeedbackTooltip />} />
-                            <Line
-                              type="monotone"
-                              dataKey="overallSatisfaction"
-                              stroke="#2563eb"
-                              strokeWidth={2}
-                              name="Overall"
-                            />
-                            <Line
-                              type="monotone"
-                              dataKey="workload"
-                              stroke="#ef4444"
-                              strokeWidth={2}
-                              name="Workload"
-                            />
-                            <Line
-                              type="monotone"
-                              dataKey="management"
-                              stroke="#10b981"
-                              strokeWidth={2}
-                              name="Management"
-                            />
-                            <Line
-                              type="monotone"
-                              dataKey="culture"
-                              stroke="#f59e0b"
-                              strokeWidth={2}
-                              name="Culture"
-                            />
-                            <Line
-                              type="monotone"
-                              dataKey="growth"
-                              stroke="#8b5cf6"
-                              strokeWidth={2}
-                              name="Growth"
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </TabsContent>
 
                 <TabsContent value="suggestions" className="space-y-6 mt-0">
@@ -1872,110 +2125,760 @@ export function FeedbackModule() {
             </Tabs>
           </Card>
         </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Quick Actions */}
-          <Card className="border-gray-200">
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <QuickActionButton
-                label="Quick Pulse Check"
-                icon={Heart}
-                onClick={() => {}}
-                variant="primary"
-              />
-              {isHRUser && (
-                <>
-                  <QuickActionButton
-                    label="Create Survey"
-                    icon={Plus}
-                    onClick={() => {}}
-                  />
-                  <QuickActionButton
-                    label="View Results"
-                    icon={BarChart3}
-                    onClick={() => {}}
-                  />
-                </>
-              )}
-              <QuickActionButton
-                label="Submit Suggestion"
-                icon={Lightbulb}
-                onClick={() => {}}
-              />
-              <QuickActionButton
-                label="Export Report"
-                icon={Download}
-                onClick={() => {}}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Recent Activity */}
-          <Card className="border-gray-200">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="w-5 h-5" />
-                Recent Activity
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                  <div>
-                    <p className="text-sm text-gray-900">
-                      New suggestion submitted
-                    </p>
-                    <p className="text-xs text-gray-500">2 hours ago</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                  <div>
-                    <p className="text-sm text-gray-900">
-                      Pulse check completed
-                    </p>
-                    <p className="text-xs text-gray-500">4 hours ago</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-amber-500 rounded-full mt-2"></div>
-                  <div>
-                    <p className="text-sm text-gray-900">
-                      Survey response received
-                    </p>
-                    <p className="text-xs text-gray-500">6 hours ago</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Current Satisfaction */}
-          <Card className="border-green-200 bg-green-50">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <Star className="w-5 h-5 text-green-600 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-green-900">
-                    Team Satisfaction
-                  </p>
-                  <p className="text-xs text-green-700 mt-1">
-                    Current average: 4.3/5.0 based on recent pulse checks
-                  </p>
-                  <p className="text-xs text-green-600 mt-1">
-                    Trending up ↗ 12% from last month
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
       </div>
+
+      {/* Preview Dialog */}
+      <Dialog
+        open={previewSurvey !== null}
+        onOpenChange={(open) => !open && setPreviewSurvey(null)}
+      >
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {previewSurvey?.title ?? "Survey Preview"}
+            </DialogTitle>
+            <DialogDescription>
+              Read-only preview of how respondents will see this survey.
+            </DialogDescription>
+          </DialogHeader>
+          {previewSurvey && (
+            <div className="space-y-4 pt-2">
+              {previewSurvey.description && (
+                <p className="text-sm text-gray-600">
+                  {previewSurvey.description}
+                </p>
+              )}
+              <div className="flex flex-wrap gap-2 text-xs">
+                <Badge variant="outline">{previewSurvey.status}</Badge>
+                <Badge variant="outline">
+                  {previewSurvey.anonymous ? "Anonymous" : "Not Anonymous"}
+                </Badge>
+                {previewSurvey.createdByName && (
+                  <Badge variant="outline">
+                    by {previewSurvey.createdByName}
+                  </Badge>
+                )}
+                {previewSurvey.endDate && (
+                  <Badge variant="outline">ends {previewSurvey.endDate}</Badge>
+                )}
+              </div>
+              <div className="space-y-3 pt-2">
+                {previewSurvey.questions.length === 0 ? (
+                  <p className="text-sm text-gray-500 italic">
+                    This survey has no questions yet.
+                  </p>
+                ) : (
+                  previewSurvey.questions.map((q, idx) => (
+                    <div
+                      key={q.id}
+                      className="p-3 border border-gray-200 rounded-lg"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="font-medium text-gray-900">
+                          {idx + 1}. {q.question}
+                        </p>
+                        <Badge variant="outline" className="text-xs">
+                          {q.type}
+                        </Badge>
+                      </div>
+                      {q.type === "multiple_choice" && q.options && (
+                        <ul className="mt-2 ml-4 list-disc text-sm text-gray-600">
+                          {q.options.map((opt, i) => (
+                            <li key={i}>{opt}</li>
+                          ))}
+                        </ul>
+                      )}
+                      {q.type === "rating" && (
+                        <p className="mt-2 text-sm text-gray-500">Scale 1–5</p>
+                      )}
+                      {q.type === "yes_no" && (
+                        <p className="mt-2 text-sm text-gray-500">Yes / No</p>
+                      )}
+                      {q.type === "text" && (
+                        <p className="mt-2 text-sm text-gray-500">
+                          Free-text answer
+                        </p>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog
+        open={editingSurvey !== null}
+        onOpenChange={(open) => {
+          if (!open && !savingEdit) setEditingSurvey(null);
+        }}
+      >
+        <DialogContent className="max-w-3xl max-h-[88vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Survey</DialogTitle>
+            <DialogDescription>
+              Update settings, edit existing questions, or add and remove
+              questions.
+            </DialogDescription>
+          </DialogHeader>
+          {editingSurvey && (
+            <div className="space-y-4 pt-2">
+              <div className="space-y-1">
+                <Label htmlFor="edit-title">Title</Label>
+                <Input
+                  id="edit-title"
+                  value={editDraft.title}
+                  onChange={(e) =>
+                    setEditDraft((prev) => ({
+                      ...prev,
+                      title: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="edit-desc">Description</Label>
+                <Textarea
+                  id="edit-desc"
+                  rows={2}
+                  value={editDraft.description}
+                  onChange={(e) =>
+                    setEditDraft((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label>Status</Label>
+                  <Select
+                    value={editDraft.status}
+                    onValueChange={(v) =>
+                      setEditDraft((prev) => ({
+                        ...prev,
+                        status: v as SurveyStatus,
+                      }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="draft">draft</SelectItem>
+                      <SelectItem value="active">active</SelectItem>
+                      <SelectItem value="closed">closed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="edit-end">End date</Label>
+                  <Input
+                    id="edit-end"
+                    type="date"
+                    value={editDraft.endDate}
+                    onChange={(e) =>
+                      setEditDraft((prev) => ({
+                        ...prev,
+                        endDate: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="edit-anon"
+                  checked={editDraft.anonymous}
+                  onCheckedChange={(checked) =>
+                    setEditDraft((prev) => ({
+                      ...prev,
+                      anonymous: checked,
+                    }))
+                  }
+                />
+                <Label htmlFor="edit-anon">Anonymous</Label>
+              </div>
+
+              {/* Forbid specific users */}
+              <div className="space-y-2 pt-2 border-t border-gray-100">
+                <Label className="text-sm">Forbid users (optional)</Label>
+                <p className="text-xs text-gray-500">
+                  Selected users will not see or be able to take this survey.
+                </p>
+                <div className="border border-gray-200 rounded p-2 max-h-32 overflow-y-auto space-y-1">
+                  {orgUsers.length === 0 ? (
+                    <p className="text-xs text-gray-500 italic">
+                      No users loaded.
+                    </p>
+                  ) : (
+                    orgUsers.map((u) => {
+                      const checked = editDraft.forbiddenUserIds.includes(u.id);
+                      return (
+                        <label
+                          key={u.id}
+                          className="flex items-center gap-2 text-sm cursor-pointer"
+                        >
+                          <Checkbox
+                            checked={checked}
+                            onCheckedChange={(v) =>
+                              setEditDraft((prev) => ({
+                                ...prev,
+                                forbiddenUserIds: v
+                                  ? [...prev.forbiddenUserIds, u.id]
+                                  : prev.forbiddenUserIds.filter(
+                                      (id) => id !== u.id
+                                    ),
+                              }))
+                            }
+                          />
+                          <span>{u.name}</span>
+                        </label>
+                      );
+                    })
+                  )}
+                </div>
+                {editDraft.forbiddenUserIds.length > 0 && (
+                  <p className="text-xs text-amber-700">
+                    {editDraft.forbiddenUserIds.length} user(s) forbidden.
+                  </p>
+                )}
+              </div>
+
+              {/* Question editor */}
+              <div className="space-y-3 pt-2 border-t border-gray-100">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium text-gray-900">Questions</h4>
+                  <span className="text-xs text-gray-500">
+                    {editDraft.questions.length} total
+                  </span>
+                </div>
+
+                {editDraft.questions.length === 0 ? (
+                  <p className="text-sm text-gray-500 italic">
+                    No questions yet. Add one below.
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {editDraft.questions.map((q, idx) => (
+                      <div
+                        key={q.id}
+                        className="p-3 border border-gray-200 rounded-lg space-y-2"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <Select
+                            value={q.type}
+                            onValueChange={(v) =>
+                              setEditDraft((prev) => ({
+                                ...prev,
+                                questions: prev.questions.map((qq, i) => {
+                                  if (i !== idx) return qq;
+                                  const newType = v as QuestionType;
+                                  return {
+                                    ...qq,
+                                    type: newType,
+                                    options:
+                                      newType === "multiple_choice"
+                                        ? qq.options && qq.options.length > 0
+                                          ? qq.options
+                                          : ["", ""]
+                                        : undefined,
+                                  };
+                                }),
+                              }))
+                            }
+                          >
+                            <SelectTrigger className="w-44 h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="text">Text</SelectItem>
+                              <SelectItem value="rating">
+                                Rating (1–5)
+                              </SelectItem>
+                              <SelectItem value="multiple_choice">
+                                Multiple choice
+                              </SelectItem>
+                              <SelectItem value="yes_no">Yes / No</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              setEditDraft((prev) => ({
+                                ...prev,
+                                questions: prev.questions.filter(
+                                  (_, i) => i !== idx
+                                ),
+                              }))
+                            }
+                            title="Remove question"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-600" />
+                          </Button>
+                        </div>
+                        <Input
+                          value={q.question}
+                          onChange={(e) =>
+                            setEditDraft((prev) => ({
+                              ...prev,
+                              questions: prev.questions.map((qq, i) =>
+                                i === idx
+                                  ? { ...qq, question: e.target.value }
+                                  : qq
+                              ),
+                            }))
+                          }
+                          placeholder="Question text"
+                        />
+                        {q.type === "multiple_choice" && (
+                          <div className="space-y-2">
+                            <Label className="text-xs text-gray-500">
+                              Options
+                            </Label>
+                            {(q.options ?? []).map((opt, optIdx) => (
+                              <div
+                                key={optIdx}
+                                className="flex items-center gap-2"
+                              >
+                                <Input
+                                  value={opt}
+                                  onChange={(e) =>
+                                    setEditDraft((prev) => ({
+                                      ...prev,
+                                      questions: prev.questions.map((qq, i) =>
+                                        i === idx
+                                          ? {
+                                              ...qq,
+                                              options: (qq.options ?? []).map(
+                                                (o, j) =>
+                                                  j === optIdx
+                                                    ? e.target.value
+                                                    : o
+                                              ),
+                                            }
+                                          : qq
+                                      ),
+                                    }))
+                                  }
+                                  placeholder={`Option ${optIdx + 1}`}
+                                />
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() =>
+                                    setEditDraft((prev) => ({
+                                      ...prev,
+                                      questions: prev.questions.map((qq, i) =>
+                                        i === idx
+                                          ? {
+                                              ...qq,
+                                              options: (
+                                                qq.options ?? []
+                                              ).filter((_, j) => j !== optIdx),
+                                            }
+                                          : qq
+                                      ),
+                                    }))
+                                  }
+                                  disabled={(q.options ?? []).length <= 1}
+                                >
+                                  <Trash2 className="w-4 h-4 text-red-500" />
+                                </Button>
+                              </div>
+                            ))}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                setEditDraft((prev) => ({
+                                  ...prev,
+                                  questions: prev.questions.map((qq, i) =>
+                                    i === idx
+                                      ? {
+                                          ...qq,
+                                          options: [...(qq.options ?? []), ""],
+                                        }
+                                      : qq
+                                  ),
+                                }))
+                              }
+                            >
+                              <Plus className="w-3 h-3 mr-1" />
+                              Add option
+                            </Button>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            id={`req-${q.id}-${idx}`}
+                            checked={q.required}
+                            onCheckedChange={(checked) =>
+                              setEditDraft((prev) => ({
+                                ...prev,
+                                questions: prev.questions.map((qq, i) =>
+                                  i === idx ? { ...qq, required: checked } : qq
+                                ),
+                              }))
+                            }
+                          />
+                          <Label
+                            htmlFor={`req-${q.id}-${idx}`}
+                            className="text-sm"
+                          >
+                            Required
+                          </Label>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Add new question form */}
+                <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg space-y-2">
+                  <p className="text-sm font-medium text-gray-900">
+                    Add a question
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <Select
+                      value={editNewQuestion.type}
+                      onValueChange={(v) =>
+                        setEditNewQuestion((prev) => ({
+                          ...prev,
+                          type: v as QuestionType,
+                        }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="text">Text</SelectItem>
+                        <SelectItem value="rating">Rating (1–5)</SelectItem>
+                        <SelectItem value="multiple_choice">
+                          Multiple choice
+                        </SelectItem>
+                        <SelectItem value="yes_no">Yes / No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="md:col-span-2">
+                      <Input
+                        placeholder="Question text"
+                        value={editNewQuestion.question}
+                        onChange={(e) =>
+                          setEditNewQuestion((prev) => ({
+                            ...prev,
+                            question: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                  {editNewQuestion.type === "multiple_choice" && (
+                    <div className="space-y-1">
+                      {editNewQuestion.options.map((opt, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <Input
+                            placeholder={`Option ${i + 1}`}
+                            value={opt}
+                            onChange={(e) =>
+                              setEditNewQuestion((prev) => ({
+                                ...prev,
+                                options: prev.options.map((o, j) =>
+                                  j === i ? e.target.value : o
+                                ),
+                              }))
+                            }
+                          />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              setEditNewQuestion((prev) => ({
+                                ...prev,
+                                options: prev.options.filter((_, j) => j !== i),
+                              }))
+                            }
+                            disabled={editNewQuestion.options.length <= 1}
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setEditNewQuestion((prev) => ({
+                            ...prev,
+                            options: [...prev.options, ""],
+                          }))
+                        }
+                      >
+                        <Plus className="w-3 h-3 mr-1" />
+                        Add option
+                      </Button>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="edit-new-required"
+                        checked={editNewQuestion.required}
+                        onCheckedChange={(checked) =>
+                          setEditNewQuestion((prev) => ({
+                            ...prev,
+                            required: checked,
+                          }))
+                        }
+                      />
+                      <Label htmlFor="edit-new-required" className="text-sm">
+                        Required
+                      </Label>
+                    </div>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => {
+                        if (!editNewQuestion.question.trim()) return;
+                        if (
+                          editNewQuestion.type === "multiple_choice" &&
+                          editNewQuestion.options.filter((o) => o.trim())
+                            .length < 2
+                        )
+                          return;
+                        const newQ: Question = {
+                          id: Date.now(),
+                          type: editNewQuestion.type,
+                          question: editNewQuestion.question,
+                          options:
+                            editNewQuestion.type === "multiple_choice"
+                              ? editNewQuestion.options.filter((o) => o.trim())
+                              : undefined,
+                          required: editNewQuestion.required,
+                        };
+                        setEditDraft((prev) => ({
+                          ...prev,
+                          questions: [...prev.questions, newQ],
+                        }));
+                        setEditNewQuestion({
+                          type: "text",
+                          question: "",
+                          options: [""],
+                          required: true,
+                        });
+                      }}
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      Add
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
+                <Button
+                  variant="outline"
+                  onClick={() => setEditingSurvey(null)}
+                  disabled={savingEdit}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => void handleSaveEdit()}
+                  disabled={savingEdit}
+                >
+                  {savingEdit ? "Saving..." : "Save changes"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Take-Survey Dialog */}
+      <Dialog
+        open={takingSurvey !== null}
+        onOpenChange={(open) => {
+          if (!open && !submittingResponse) {
+            setTakingSurvey(null);
+            setTakeDraft({});
+            setSubmitError(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{takingSurvey?.title ?? "Survey"}</DialogTitle>
+            {takingSurvey?.description && (
+              <DialogDescription>{takingSurvey.description}</DialogDescription>
+            )}
+          </DialogHeader>
+
+          {takingSurvey && (
+            <div className="space-y-6 pt-2">
+              {takingSurvey.anonymous ? (
+                <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                  <Lock className="w-4 h-4 text-blue-700" />
+                  <p className="text-sm text-blue-900">
+                    This survey is anonymous — your identity will not be saved.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-100 rounded-lg">
+                  <AlertCircle className="w-4 h-4 text-amber-700" />
+                  <p className="text-sm text-amber-900">
+                    Submitting again will replace any previous answers you gave
+                    for this survey.
+                  </p>
+                </div>
+              )}
+
+              {takingSurvey.questions.map((q) => (
+                <div key={q.id} className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-900">
+                    {q.question}
+                  </Label>
+
+                  {q.type === "text" && (
+                    <Textarea
+                      rows={3}
+                      placeholder="Type your answer..."
+                      value={takeDraft[q.id] ?? ""}
+                      onChange={(e) =>
+                        setTakeDraft((prev) => ({
+                          ...prev,
+                          [q.id]: e.target.value,
+                        }))
+                      }
+                    />
+                  )}
+
+                  {q.type === "multiple_choice" && (
+                    <RadioGroup
+                      value={takeDraft[q.id] ?? ""}
+                      onValueChange={(value) =>
+                        setTakeDraft((prev) => ({
+                          ...prev,
+                          [q.id]: value,
+                        }))
+                      }
+                    >
+                      {(q.options ?? []).map((opt, idx) => (
+                        <div
+                          key={`${q.id}-${idx}`}
+                          className="flex items-center gap-2"
+                        >
+                          <RadioGroupItem
+                            value={opt}
+                            id={`q${q.id}-opt${idx}`}
+                          />
+                          <Label
+                            htmlFor={`q${q.id}-opt${idx}`}
+                            className="cursor-pointer font-normal"
+                          >
+                            {opt}
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  )}
+
+                  {q.type === "yes_no" && (
+                    <RadioGroup
+                      value={takeDraft[q.id] ?? ""}
+                      onValueChange={(value) =>
+                        setTakeDraft((prev) => ({
+                          ...prev,
+                          [q.id]: value,
+                        }))
+                      }
+                    >
+                      {["Yes", "No"].map((opt) => (
+                        <div
+                          key={`${q.id}-${opt}`}
+                          className="flex items-center gap-2"
+                        >
+                          <RadioGroupItem value={opt} id={`q${q.id}-${opt}`} />
+                          <Label
+                            htmlFor={`q${q.id}-${opt}`}
+                            className="cursor-pointer font-normal"
+                          >
+                            {opt}
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  )}
+
+                  {q.type === "rating" && (
+                    <div className="flex gap-2">
+                      {[1, 2, 3, 4, 5].map((n) => {
+                        const selected = takeDraft[q.id] === String(n);
+                        return (
+                          <Button
+                            key={n}
+                            type="button"
+                            variant={selected ? "primary" : "outline"}
+                            size="sm"
+                            onClick={() =>
+                              setTakeDraft((prev) => ({
+                                ...prev,
+                                [q.id]: String(n),
+                              }))
+                            }
+                            className="w-12"
+                          >
+                            {n}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {submitError && (
+                <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <AlertCircle className="w-4 h-4 text-red-600 mt-0.5" />
+                  <p className="text-sm text-red-700">{submitError}</p>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setTakingSurvey(null);
+                    setTakeDraft({});
+                    setSubmitError(null);
+                  }}
+                  disabled={submittingResponse}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => void handleSubmitResponse()}
+                  disabled={submittingResponse}
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  {submittingResponse
+                    ? "Submitting..."
+                    : takingSurvey?.viewerHasResponded
+                      ? "Resubmit"
+                      : "Submit"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
