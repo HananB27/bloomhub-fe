@@ -71,7 +71,11 @@ const ALL_TYPE_IDS = new Set<LeaveType>(ALL_LEAVE_TYPES);
 const TAB_TRIGGER_CLASSES =
   "gap-1.5 rounded-none border-b-2 border-transparent bg-transparent px-3.5 py-2.5 text-[13px] font-medium text-gray-500 shadow-none -mb-px data-[state=active]:border-gray-900 data-[state=active]:bg-transparent data-[state=active]:font-semibold data-[state=active]:text-gray-900 data-[state=active]:shadow-none hover:text-gray-900";
 
-export function AnalyticsModule() {
+interface AnalyticsModuleProps {
+  onNavigate?: (moduleId: string) => void;
+}
+
+export function AnalyticsModule({ onNavigate }: AnalyticsModuleProps = {}) {
   const currentYearAnchor = new Date().getFullYear();
   const [year, setYear] = useState(currentYearAnchor);
   const [activeTypes, setActiveTypes] = useState<Set<LeaveType>>(
@@ -567,7 +571,11 @@ export function AnalyticsModule() {
                 </h2>
               </div>
             </div>
-            <EmployeeHistoryTable year={year} rows={data.employees} />
+            <EmployeeHistoryTable
+              year={year}
+              rows={data.employees}
+              onNavigate={onNavigate}
+            />
           </section>
         </TabsContent>
       </Tabs>
