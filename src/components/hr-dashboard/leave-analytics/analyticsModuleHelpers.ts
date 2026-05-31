@@ -3,7 +3,12 @@ import {
   ALL_LEAVE_TYPES,
   ANNUAL_LEAVE_ALLOWANCE_DAYS,
   LEAVE_TYPE_CHART_COLORS,
+  LEAVE_TYPE_LABELS,
 } from "@/types/vacations";
+import type {
+  LeaveAnalyticsEmployeeHistory,
+  LeaveAnalyticsEmployeeSummary,
+} from "@/types/leaveAnalytics";
 
 const AVATAR_COLORS = ["green", "indigo", "rose", "orange", "gray"] as const;
 export type AvatarColor = (typeof AVATAR_COLORS)[number];
@@ -19,36 +24,83 @@ export interface AnalyticsEmployee {
 }
 
 const FIRST_NAMES = [
-  "Aida", "Emir", "Lana", "Tarik", "Selma", "Adnan", "Mirza", "Ena",
-  "Haris", "Amila", "Faruk", "Lejla", "Damir", "Maja", "Vedran", "Sanela",
-  "Kenan", "Ajla", "Rijad", "Mia", "Edin", "Nina", "Jasmin", "Hana",
+  "Aida",
+  "Emir",
+  "Lana",
+  "Tarik",
+  "Selma",
+  "Adnan",
+  "Mirza",
+  "Ena",
+  "Haris",
+  "Amila",
+  "Faruk",
+  "Lejla",
+  "Damir",
+  "Maja",
+  "Vedran",
+  "Sanela",
+  "Kenan",
+  "Ajla",
+  "Rijad",
+  "Mia",
+  "Edin",
+  "Nina",
+  "Jasmin",
+  "Hana",
 ];
 
 const LAST_NAMES = [
-  "Salihović", "Hodžić", "Kovač", "Begić", "Mehić", "Delić", "Imamović",
-  "Bašić", "Husić", "Mujić", "Kapidžić", "Tahirović", "Hadžić", "Šabić",
-  "Krupalija", "Pašić", "Demir", "Karić", "Pleho", "Spahić", "Rizvanović",
-  "Hasanović", "Suljić", "Vidović",
+  "Salihović",
+  "Hodžić",
+  "Kovač",
+  "Begić",
+  "Mehić",
+  "Delić",
+  "Imamović",
+  "Bašić",
+  "Husić",
+  "Mujić",
+  "Kapidžić",
+  "Tahirović",
+  "Hadžić",
+  "Šabić",
+  "Krupalija",
+  "Pašić",
+  "Demir",
+  "Karić",
+  "Pleho",
+  "Spahić",
+  "Rizvanović",
+  "Hasanović",
+  "Suljić",
+  "Vidović",
 ];
 
 const DEPARTMENTS: { name: string; roles: string[] }[] = [
-  { name: "Engineering", roles: ["Backend Dev", "Frontend Dev", "Platform Eng", "QA Eng", "DevOps"] },
-  { name: "Product",     roles: ["PM", "Senior PM", "Product Designer"] },
-  { name: "Design",      roles: ["UI Designer", "UX Designer", "Design Lead"] },
-  { name: "People",      roles: ["HR Generalist", "Talent Lead", "People Partner"] },
-  { name: "Finance",     roles: ["Accountant", "Finance Manager", "Controller"] },
-  { name: "Marketing",   roles: ["Content Lead", "Growth Marketer", "Brand Designer"] },
-  { name: "Operations",  roles: ["Ops Lead", "Office Manager", "IT Support"] },
+  {
+    name: "Engineering",
+    roles: ["Backend Dev", "Frontend Dev", "Platform Eng", "QA Eng", "DevOps"],
+  },
+  { name: "Product", roles: ["PM", "Senior PM", "Product Designer"] },
+  { name: "Design", roles: ["UI Designer", "UX Designer", "Design Lead"] },
+  { name: "People", roles: ["HR Generalist", "Talent Lead", "People Partner"] },
+  { name: "Finance", roles: ["Accountant", "Finance Manager", "Controller"] },
+  {
+    name: "Marketing",
+    roles: ["Content Lead", "Growth Marketer", "Brand Designer"],
+  },
+  { name: "Operations", roles: ["Ops Lead", "Office Manager", "IT Support"] },
 ];
 
 const TEAMS_BY_DEPT: Record<string, string[]> = {
   Engineering: ["Core Platform", "Cloud", "Web Apps", "Mobile"],
-  Product:     ["Growth", "Core", "Insights"],
-  Design:      ["Product Design", "Brand"],
-  People:      ["HR Ops", "Talent"],
-  Finance:     ["Controlling", "AP/AR"],
-  Marketing:   ["Content", "Growth"],
-  Operations:  ["Workplace", "IT"],
+  Product: ["Growth", "Core", "Insights"],
+  Design: ["Product Design", "Brand"],
+  People: ["HR Ops", "Talent"],
+  Finance: ["Controlling", "AP/AR"],
+  Marketing: ["Content", "Growth"],
+  Operations: ["Workplace", "IT"],
 };
 
 const mulberry32 = (seed: number) => {
@@ -68,11 +120,11 @@ const buildDirectory = (): AnalyticsEmployee[] => {
   const out: AnalyticsEmployee[] = [];
   for (let i = 0; i < total; i++) {
     const first = FIRST_NAMES[i % FIRST_NAMES.length];
-    const last  = LAST_NAMES[(i * 7) % LAST_NAMES.length];
-    const dept  = DEPARTMENTS[i % DEPARTMENTS.length];
-    const role  = dept.roles[Math.floor(rand() * dept.roles.length)];
+    const last = LAST_NAMES[(i * 7) % LAST_NAMES.length];
+    const dept = DEPARTMENTS[i % DEPARTMENTS.length];
+    const role = dept.roles[Math.floor(rand() * dept.roles.length)];
     const teams = TEAMS_BY_DEPT[dept.name] || ["General"];
-    const team  = teams[Math.floor(rand() * teams.length)];
+    const team = teams[Math.floor(rand() * teams.length)];
     const color = AVATAR_COLORS[Math.floor(rand() * AVATAR_COLORS.length)];
     out.push({
       id: i + 1,
@@ -130,13 +182,13 @@ const generateLeaves = (): LeaveEntry[] => {
   DIRECTORY.forEach((emp) => {
     const rand = mulberry32(emp.id * 13 + 7);
     const baseEvents: Record<LeaveType, number> = {
-      vacation:    5 + Math.floor(rand() * 3),
-      sick:        2 + Math.floor(rand() * 3),
-      wfh:         8 + Math.floor(rand() * 10),
-      personal:    1 + Math.floor(rand() * 2),
-      maternity:   rand() < 0.06 ? 1 : 0,
-      paternity:   rand() < 0.08 ? 1 : 0,
-      unpaid:      rand() < 0.1 ? 1 : 0,
+      vacation: 5 + Math.floor(rand() * 3),
+      sick: 2 + Math.floor(rand() * 3),
+      wfh: 8 + Math.floor(rand() * 10),
+      personal: 1 + Math.floor(rand() * 2),
+      maternity: rand() < 0.06 ? 1 : 0,
+      paternity: rand() < 0.08 ? 1 : 0,
+      unpaid: rand() < 0.1 ? 1 : 0,
       bereavement: rand() < 0.05 ? 1 : 0,
     };
 
@@ -198,7 +250,10 @@ export interface MonthRow {
 }
 
 const emptyByType = (): Record<LeaveType, number> =>
-  Object.fromEntries(ALL_LEAVE_TYPES.map((id) => [id, 0])) as Record<LeaveType, number>;
+  Object.fromEntries(ALL_LEAVE_TYPES.map((id) => [id, 0])) as Record<
+    LeaveType,
+    number
+  >;
 
 export const monthlyByType = (
   year: number,
@@ -207,7 +262,9 @@ export const monthlyByType = (
 ): MonthRow[] => {
   const rows: MonthRow[] = Array.from({ length: 12 }, (_, i) => ({
     monthIdx: i,
-    monthLabel: new Date(year, i, 1).toLocaleString("en-US", { month: "short" }),
+    monthLabel: new Date(year, i, 1).toLocaleString("en-US", {
+      month: "short",
+    }),
     total: 0,
     byType: emptyByType(),
   }));
@@ -228,7 +285,10 @@ export const monthlyByType = (
   return rows;
 };
 
-export const yearTotalsByType = (year: number, leaves: LeaveEntry[] = LEAVES) => {
+export const yearTotalsByType = (
+  year: number,
+  leaves: LeaveEntry[] = LEAVES
+) => {
   const out = emptyByType();
   leaves.forEach((lv) => {
     if (lv.status !== "approved") return;
@@ -314,7 +374,10 @@ export const employeeSummary = (year: number): EmployeeSummaryRow[] => {
       byType,
       total,
       vacationUsed: byType.vacation,
-      vacationRemaining: Math.max(ANNUAL_LEAVE_ALLOWANCE_DAYS - byType.vacation, 0),
+      vacationRemaining: Math.max(
+        ANNUAL_LEAVE_ALLOWANCE_DAYS - byType.vacation,
+        0
+      ),
       upcoming: empLeaves.filter(
         (l) => l.startDate > toISODate(ANCHOR_TODAY) && l.status !== "rejected"
       ).length,
@@ -333,7 +396,10 @@ export interface AvailDay {
   monthStart: boolean;
 }
 
-export const teamAvailability = (startDate: Date, numDays: number): AvailDay[] => {
+export const teamAvailability = (
+  startDate: Date,
+  numDays: number
+): AvailDay[] => {
   const days: AvailDay[] = [];
   for (let i = 0; i < numDays; i++) {
     const d = addDays(startDate, i);
@@ -351,7 +417,10 @@ export const teamAvailability = (startDate: Date, numDays: number): AvailDay[] =
   return days;
 };
 
-export const leaveOnDay = (employeeId: number, dateISO: string): LeaveEntry | undefined =>
+export const leaveOnDay = (
+  employeeId: number,
+  dateISO: string
+): LeaveEntry | undefined =>
   LEAVES.find(
     (lv) =>
       lv.employeeId === employeeId &&
@@ -389,17 +458,146 @@ export const periodKpis = (year: number): PeriodKpis => {
   const total = Object.values(totals).reduce((s, n) => s + n, 0);
   const headcount = DIRECTORY.length;
   const todayISO = toISODate(ANCHOR_TODAY);
-  const onLeaveToday = DIRECTORY.filter((emp) => leaveOnDay(emp.id, todayISO)).length;
+  const onLeaveToday = DIRECTORY.filter((emp) =>
+    leaveOnDay(emp.id, todayISO)
+  ).length;
   const sickRate = total ? totals.sick / total : 0;
   const avgPerEmployee = headcount ? total / headcount : 0;
   const pending = LEAVES.filter((l) => l.status === "pending").length;
   return { total, onLeaveToday, sickRate, avgPerEmployee, pending, headcount };
 };
 
-export const employeeRecentLeaves = (employeeId: number, limit = 12): LeaveEntry[] =>
+export const employeeRecentLeaves = (
+  employeeId: number,
+  limit = 12
+): LeaveEntry[] =>
   LEAVES.filter((l) => l.employeeId === employeeId)
     .sort((a, b) => b.startDate.localeCompare(a.startDate))
     .slice(0, limit);
 
 export { addDays, toISODate, isWeekend };
 export { LEAVE_TYPE_CHART_COLORS };
+
+// ----- CSV builders --------------------------------------------------------
+
+function escapeCsvCell(value: unknown): string {
+  const raw = value === null || value === undefined ? "" : String(value);
+  if (/[",\n\r]/.test(raw)) {
+    return `"${raw.replace(/"/g, '""')}"`;
+  }
+  return raw;
+}
+
+function rowsToCsv(headers: string[], rows: (string | number)[][]): string {
+  const lines = [headers.map(escapeCsvCell).join(",")];
+  for (const row of rows) {
+    lines.push(row.map(escapeCsvCell).join(","));
+  }
+  return lines.join("\n");
+}
+
+export function buildAllEmployeesCsv(
+  year: number,
+  rows: LeaveAnalyticsEmployeeSummary[]
+): string {
+  const headers = [
+    "Employee",
+    "Role",
+    "Department",
+    "Year",
+    ...ALL_LEAVE_TYPES.map((id) => LEAVE_TYPE_LABELS[id]),
+    "Total",
+    "Vacation used",
+    "Vacation remaining",
+  ];
+  const body = rows.map((r) => [
+    r.employeeName,
+    r.role ?? "",
+    r.department ?? "",
+    year,
+    ...ALL_LEAVE_TYPES.map((id) => r.byType[id] ?? 0),
+    r.total,
+    r.vacationUsed,
+    r.vacationRemaining,
+  ]);
+  return rowsToCsv(headers, body);
+}
+
+export function buildEmployeeHistoryCsv(
+  history: LeaveAnalyticsEmployeeHistory
+): string {
+  const sections: string[] = [];
+
+  sections.push(`Employee,${escapeCsvCell(history.employeeName)}`);
+  sections.push("");
+
+  sections.push("Monthly aggregates");
+  sections.push(
+    rowsToCsv(
+      [
+        "Leave type",
+        "Year",
+        "Month",
+        "Approved days",
+        "Pending days",
+        "Rejected days",
+        "Cancelled days",
+        "Requests",
+      ],
+      history.monthlyAggregates.map((b) => [
+        LEAVE_TYPE_LABELS[b.leaveType] ?? b.leaveType,
+        b.year,
+        String(b.month).padStart(2, "0"),
+        b.approvedDays,
+        b.pendingDays,
+        b.rejectedDays,
+        b.cancelledDays,
+        b.requestsCount,
+      ])
+    )
+  );
+  sections.push("");
+
+  sections.push("Balance snapshots");
+  sections.push(
+    rowsToCsv(
+      [
+        "Snapshot date",
+        "Leave type",
+        "Year",
+        "Allocated",
+        "Used",
+        "Carryover",
+        "Remaining",
+      ],
+      history.balanceSnapshots.map((s) => [
+        s.snapshotDate,
+        LEAVE_TYPE_LABELS[s.leaveType] ?? s.leaveType,
+        s.year,
+        s.allocated,
+        s.used,
+        s.carryover,
+        s.remaining,
+      ])
+    )
+  );
+  sections.push("");
+
+  sections.push("Leave requests");
+  sections.push(
+    rowsToCsv(
+      ["Submitted", "Leave type", "Start", "End", "Days", "Status", "Reason"],
+      history.leaveRequests.map((r) => [
+        r.submittedDate,
+        LEAVE_TYPE_LABELS[r.leaveType] ?? r.leaveType,
+        r.startDate,
+        r.endDate,
+        r.days,
+        r.statusDisplay || r.status,
+        r.reason,
+      ])
+    )
+  );
+
+  return sections.join("\n");
+}

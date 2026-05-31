@@ -1,10 +1,12 @@
 import type {
   LeaveAnalyticsDepartmentRow,
+  LeaveAnalyticsEmployeeHistory,
   LeaveAnalyticsEmployeeSummary,
   LeaveAnalyticsMonthRow,
   LeaveAnalyticsRefreshResponse,
   LeaveAnalyticsYearTotals,
 } from "@/types/leaveAnalytics";
+import type { LeaveType } from "@/types/vacations";
 import { leaveAnalyticsApi } from "@/lib/api/modules/leave-analytics";
 
 // Thin orchestration layer between the AnalyticsModule and the backend
@@ -63,4 +65,18 @@ export async function triggerAnalyticsRefresh(payload: {
   yearTo?: number;
 }): Promise<LeaveAnalyticsRefreshResponse> {
   return leaveAnalyticsApi.refresh(payload);
+}
+
+export async function loadEmployeeHistory(params: {
+  employeeId: number;
+  yearFrom?: number;
+  yearTo?: number;
+  leaveType?: LeaveType;
+}): Promise<LeaveAnalyticsEmployeeHistory> {
+  return leaveAnalyticsApi.employeeHistory({
+    employee: params.employeeId,
+    yearFrom: params.yearFrom,
+    yearTo: params.yearTo,
+    leaveType: params.leaveType,
+  });
 }

@@ -418,7 +418,7 @@ export function DashboardView({
     case "orgchart":
       return <OrgChartModule onNavigate={onNavigate} />;
     case "analytics":
-      return <AnalyticsModule />;
+      return <AnalyticsModule onNavigate={onNavigate} />;
     case "announcements":
       return <AnnouncementsModule />;
     case "admin":

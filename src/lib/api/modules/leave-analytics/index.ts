@@ -2,6 +2,8 @@ import { API_BASE_URL } from "@/lib/config";
 import type { LeaveType } from "@/types/vacations";
 import type {
   LeaveAnalyticsDepartmentRow,
+  LeaveAnalyticsEmployeeHistory,
+  LeaveAnalyticsEmployeeHistoryParams,
   LeaveAnalyticsEmployeeSummary,
   LeaveAnalyticsListParams,
   LeaveAnalyticsMonthRow,
@@ -14,6 +16,7 @@ import type {
 import {
   LEAVE_ANALYTICS_API_BASE,
   LEAVE_ANALYTICS_DEPARTMENTS_PATH,
+  LEAVE_ANALYTICS_EMPLOYEE_HISTORY_PATH,
   LEAVE_ANALYTICS_EMPLOYEES_PATH,
   LEAVE_ANALYTICS_MONTHLY_PATH,
   LEAVE_ANALYTICS_REFRESH_PATH,
@@ -28,6 +31,7 @@ import {
 } from "../../helpers/httpClient";
 import {
   transformLeaveAnalyticsDepartmentRowList,
+  transformLeaveAnalyticsEmployeeHistory,
   transformLeaveAnalyticsEmployeeSummaryList,
   transformLeaveAnalyticsMonthRowList,
   transformLeaveAnalyticsRefreshResponse,
@@ -160,6 +164,24 @@ export const leaveAnalyticsApi = {
     return transformLeaveAnalyticsRefreshResponse(raw);
   },
 
+  async employeeHistory(
+    params: LeaveAnalyticsEmployeeHistoryParams
+  ): Promise<LeaveAnalyticsEmployeeHistory> {
+    const url = `${API_BASE_URL}${LEAVE_ANALYTICS_EMPLOYEE_HISTORY_PATH}${buildQueryString(
+      {
+        employee: params.employee,
+        year_from: params.yearFrom,
+        year_to: params.yearTo,
+        leave_type: params.leaveType,
+      }
+    )}`;
+    const raw = await get<Record<string, unknown>>(
+      url,
+      "Failed to fetch employee leave history"
+    );
+    return transformLeaveAnalyticsEmployeeHistory(raw);
+  },
+
   async listSnapshots(params?: {
     employee?: number;
     leaveType?: LeaveType;
@@ -192,6 +214,8 @@ export const leaveAnalyticsApi = {
 
 export type {
   LeaveAnalyticsDepartmentRow,
+  LeaveAnalyticsEmployeeHistory,
+  LeaveAnalyticsEmployeeHistoryParams,
   LeaveAnalyticsEmployeeSummary,
   LeaveAnalyticsListParams,
   LeaveAnalyticsMonthRow,
@@ -199,4 +223,5 @@ export type {
   LeaveAnalyticsYearTotals,
   LeaveBalanceSnapshot,
   LeaveMonthlyAggregate,
+  LeaveRequestHistoryRow,
 } from "@/types/leaveAnalytics";
