@@ -24,7 +24,9 @@ import {
 import type { LeaveAnalyticsYearTotals } from "@/types/leaveAnalytics";
 import { useAdminAccess } from "@/hooks/useAdminAccess";
 import { useLeaveAnalyticsData } from "@/hooks/useLeaveAnalyticsData";
+import { useTeamAvailability } from "@/hooks/useTeamAvailability";
 import { leaveAnalyticsApi } from "@/lib/api/modules/leave-analytics";
+import { projectApi, type Project } from "@/lib/api/modules/projects";
 import {
   NotificationMessages,
   notifyApiError,
@@ -57,14 +59,32 @@ import {
   YearOverYearStrip,
 } from "./leave-analytics";
 import { triggerAnalyticsRefresh } from "./leave-analytics/analyticsModuleLoaders";
-import { ANCHOR_TODAY } from "./leave-analytics/analyticsModuleHelpers";
 
 const ALL_DEPARTMENTS_SENTINEL = "all";
 const ALL_MONTHS_SENTINEL = "all";
+const ALL_PROJECTS_SENTINEL = "all";
+const AVAILABILITY_WINDOW_DAYS = 35;
 const MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => ({
   value: String(i + 1),
   label: new Date(2000, i, 1).toLocaleString("en-US", { month: "long" }),
 }));
+
+function _toISODate(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function _availabilityWindow(): { startDate: string; endDate: string } {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const start = new Date(today);
+  start.setDate(start.getDate() - 3);
+  const end = new Date(start);
+  end.setDate(end.getDate() + AVAILABILITY_WINDOW_DAYS - 1);
+  return { startDate: _toISODate(start), endDate: _toISODate(end) };
+}
 
 const ALL_TYPE_IDS = new Set<LeaveType>(ALL_LEAVE_TYPES);
 
@@ -84,10 +104,14 @@ export function AnalyticsModule({ onNavigate }: AnalyticsModuleProps = {}) {
   const [tab, setTab] = useState<"overview" | "availability" | "history">(
     "overview"
   );
-  const [selectedDept, setSelectedDept] = useState<string>("All");
   const [deptFilter, setDeptFilter] = useState<string>(
     ALL_DEPARTMENTS_SENTINEL
   );
+  const [availabilityProject, setAvailabilityProject] = useState<string>(
+    ALL_PROJECTS_SENTINEL
+  );
+  const [projectOptions, setProjectOptions] = useState<Project[]>([]);
+  const availabilityWindow = useMemo(() => _availabilityWindow(), []);
   const [monthFilter, setMonthFilter] = useState<string>(ALL_MONTHS_SENTINEL);
   const [deptOptions, setDeptOptions] = useState<string[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -135,6 +159,24 @@ export function AnalyticsModule({ onNavigate }: AnalyticsModuleProps = {}) {
       setDeptFilter(ALL_DEPARTMENTS_SENTINEL);
     }
   }, [isAdmin, deptFilter]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    projectApi
+      .list({ page_size: 100 }, { signal: controller.signal })
+      .then((response) => setProjectOptions(response.results))
+      .catch(() => setProjectOptions([]));
+    return () => controller.abort();
+  }, []);
+
+  const availability = useTeamAvailability({
+    startDate: availabilityWindow.startDate,
+    endDate: availabilityWindow.endDate,
+    project:
+      availabilityProject === ALL_PROJECTS_SENTINEL
+        ? undefined
+        : Number(availabilityProject),
+  });
 
   const hasActiveFilter =
     deptFilter !== ALL_DEPARTMENTS_SENTINEL ||
@@ -212,8 +254,7 @@ export function AnalyticsModule({ onNavigate }: AnalyticsModuleProps = {}) {
     ? data.yearOverYear
     : [];
 
-  const fallbackAnchor = ANCHOR_TODAY.getFullYear();
-  const minYear = Math.min(fallbackAnchor - 2, currentYearAnchor - 2, 2024);
+  const minYear = Math.min(currentYearAnchor - 2, 2024);
   const headerCount = data.employees.length;
 
   return (
@@ -544,17 +585,38 @@ export function AnalyticsModule({ onNavigate }: AnalyticsModuleProps = {}) {
                 <h2 className="mt-1 text-base font-semibold tracking-tight text-gray-900">
                   Who&apos;s out — next 5 weeks
                 </h2>
+                <p className="mt-1 text-[12px] text-gray-500">
+                  {availabilityWindow.startDate} → {availabilityWindow.endDate}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-[12px] font-medium text-gray-700">
+                  Project
+                </label>
+                <Select
+                  value={availabilityProject}
+                  onValueChange={setAvailabilityProject}
+                >
+                  <SelectTrigger className="h-8 w-56 text-[12px]">
+                    <SelectValue placeholder="All projects" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={ALL_PROJECTS_SENTINEL}>
+                      All projects
+                    </SelectItem>
+                    {projectOptions.map((project) => (
+                      <SelectItem key={project.id} value={String(project.id)}>
+                        {project.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-            {/*
-              TODO(BHB-483): replace with a real `availability` endpoint that
-              returns per-day per-employee leave windows. Until then, the
-              heatmap renders against the deterministic mock data exported by
-              `analyticsModuleHelpers.ts`.
-            */}
             <TeamAvailabilityHeatmap
-              selectedDept={selectedDept}
-              onSelectDept={setSelectedDept}
+              data={availability.data}
+              isLoading={availability.isLoading}
+              error={availability.error}
             />
           </section>
         </TabsContent>

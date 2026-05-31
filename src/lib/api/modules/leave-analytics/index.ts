@@ -9,12 +9,15 @@ import type {
   LeaveAnalyticsMonthRow,
   LeaveAnalyticsRefreshResponse,
   LeaveAnalyticsYearTotals,
+  LeaveAvailabilityParams,
+  LeaveAvailabilityResponse,
   LeaveBalanceSnapshot,
   LeaveMonthlyAggregate,
 } from "@/types/leaveAnalytics";
 
 import {
   LEAVE_ANALYTICS_API_BASE,
+  LEAVE_ANALYTICS_AVAILABILITY_PATH,
   LEAVE_ANALYTICS_DEPARTMENTS_PATH,
   LEAVE_ANALYTICS_EMPLOYEE_HISTORY_PATH,
   LEAVE_ANALYTICS_EMPLOYEES_PATH,
@@ -36,6 +39,7 @@ import {
   transformLeaveAnalyticsMonthRowList,
   transformLeaveAnalyticsRefreshResponse,
   transformLeaveAnalyticsYearTotals,
+  transformLeaveAvailabilityResponse,
   transformLeaveBalanceSnapshotList,
   transformLeaveMonthlyAggregateList,
 } from "../../helpers/transformers";
@@ -182,6 +186,30 @@ export const leaveAnalyticsApi = {
     return transformLeaveAnalyticsEmployeeHistory(raw);
   },
 
+  async availability(
+    params: LeaveAvailabilityParams
+  ): Promise<LeaveAvailabilityResponse> {
+    const query: Record<string, string | number | undefined> = {
+      start_date: params.startDate,
+      end_date: params.endDate,
+      project: params.project,
+    };
+    if (params.leaveTypes && params.leaveTypes.length > 0) {
+      query.leave_type = params.leaveTypes.join(",");
+    }
+    if (params.statuses && params.statuses.length > 0) {
+      query.status = params.statuses.join(",");
+    }
+    const url = `${API_BASE_URL}${LEAVE_ANALYTICS_AVAILABILITY_PATH}${buildQueryString(
+      query
+    )}`;
+    const raw = await get<Record<string, unknown>>(
+      url,
+      "Failed to fetch team availability"
+    );
+    return transformLeaveAvailabilityResponse(raw);
+  },
+
   async listSnapshots(params?: {
     employee?: number;
     leaveType?: LeaveType;
@@ -221,6 +249,12 @@ export type {
   LeaveAnalyticsMonthRow,
   LeaveAnalyticsRefreshResponse,
   LeaveAnalyticsYearTotals,
+  LeaveAvailabilityDayCount,
+  LeaveAvailabilityEmployee,
+  LeaveAvailabilityEntry,
+  LeaveAvailabilityParams,
+  LeaveAvailabilityRange,
+  LeaveAvailabilityResponse,
   LeaveBalanceSnapshot,
   LeaveMonthlyAggregate,
   LeaveRequestHistoryRow,

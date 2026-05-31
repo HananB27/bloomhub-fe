@@ -139,3 +139,66 @@ export interface LeaveAnalyticsEmployeeHistoryParams {
   yearTo?: number;
   leaveType?: LeaveType;
 }
+
+// ─── Team availability (BHB-485) ─────────────────────────────────────────────
+
+/** Query params accepted by `leaveAnalyticsApi.availability()`. */
+export interface LeaveAvailabilityParams {
+  /** Inclusive window start (ISO date). */
+  startDate: string;
+  /** Inclusive window end (ISO date). May not exceed the backend cap (35d). */
+  endDate: string;
+  /** Optional project scope — limits to active ProjectAssignment members. */
+  project?: number;
+  /** Optional whitelist; defaults to all leave types except WFH. */
+  leaveTypes?: LeaveType[];
+  /** Optional whitelist; defaults to pending+lead_approved+approved. */
+  statuses?: LeaveStatus[];
+}
+
+/** Single intersecting leave window inside the availability response. */
+export interface LeaveAvailabilityEntry {
+  leaveType: LeaveType;
+  status: LeaveStatus;
+  startDate: string;
+  endDate: string;
+  /** Request start clamped to the requested window. */
+  windowStart: string;
+  /** Request end clamped to the requested window. */
+  windowEnd: string;
+}
+
+/** Per-employee row inside the availability heatmap. */
+export interface LeaveAvailabilityEmployee {
+  employeeId: number;
+  employeeName: string;
+  role: string | null;
+  department: string | null;
+  entries: LeaveAvailabilityEntry[];
+}
+
+/** Per-working-day rollup powering the heatmap header strip. */
+export interface LeaveAvailabilityDayCount {
+  date: string;
+  onLeaveCount: number;
+  byType: Record<LeaveType, number>;
+  isCritical: boolean;
+}
+
+/** Window metadata returned alongside the rows. */
+export interface LeaveAvailabilityRange {
+  startDate: string;
+  endDate: string;
+  workingDaysCount: number;
+  headcount: number;
+  projectId: number | null;
+  projectName: string | null;
+  criticalRatio: number;
+}
+
+/** Shape returned by `/api/leave-analytics/availability/`. */
+export interface LeaveAvailabilityResponse {
+  range: LeaveAvailabilityRange;
+  employees: LeaveAvailabilityEmployee[];
+  daily: LeaveAvailabilityDayCount[];
+}
