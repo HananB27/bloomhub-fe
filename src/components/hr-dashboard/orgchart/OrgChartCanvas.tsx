@@ -464,7 +464,7 @@ export function OrgChartCanvas({
       // of 40+ siblings on every pointermove.
       const wrap = nodeWrapRefs.current[id];
       if (wrap) {
-        wrap.style.transform = `translate3d(${nx}px, ${ny}px, 0)`;
+        wrap.style.transform = `translate(${nx}px, ${ny}px)`;
       }
       // Also update any edge whose endpoint is this node — write d attribute
       // directly so arrows follow the cursor in real time. React state would
@@ -579,7 +579,7 @@ export function OrgChartCanvas({
 
       <div
         ref={worldRef}
-        className="absolute left-0 top-0 origin-top-left will-change-transform"
+        className="absolute left-0 top-0 origin-top-left"
         style={{
           transform: `translate(${view.tx}px, ${view.ty}px) scale(${view.s})`,
           transition:
@@ -714,7 +714,7 @@ export function OrgChartCanvas({
                   style={{
                     width: n.w,
                     height: n.h,
-                    transform: `translate3d(${n.x}px, ${n.y}px, 0)`,
+                    transform: `translate(${n.x}px, ${n.y}px)`,
                     transition:
                       animations && dragNodeId !== n.id
                         ? "transform 360ms cubic-bezier(.4,0,.2,1)"
