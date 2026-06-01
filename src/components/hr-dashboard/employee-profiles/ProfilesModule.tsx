@@ -831,6 +831,12 @@ export default function ProfilesModule({
     employee: EmployeeProfileData,
     mode: "view" | "edit"
   ) => {
+    if (
+      typeof window !== "undefined" &&
+      window.location.pathname !== `/employee/${employee.id}`
+    ) {
+      window.history.pushState(null, "", `/employee/${employee.id}`);
+    }
     try {
       setIsLoadingEmployee(true);
       setCvVersions([]);
@@ -1099,6 +1105,12 @@ export default function ProfilesModule({
       setEditMode(false);
       setEditBaseline(null);
       setViewMode("list");
+      if (
+        typeof window !== "undefined" &&
+        window.location.pathname.startsWith("/employee/")
+      ) {
+        window.history.replaceState(null, "", "/");
+      }
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to delete employee";
@@ -1334,6 +1346,12 @@ export default function ProfilesModule({
             setEditMode(false);
             setEditBaseline(null);
             setIntroDraft(EMPTY_INTRO_DRAFT);
+            if (
+              typeof window !== "undefined" &&
+              window.location.pathname.startsWith("/employee/")
+            ) {
+              window.history.replaceState(null, "", "/");
+            }
           }}
           onEnterEdit={() => {
             setEditMode(true);

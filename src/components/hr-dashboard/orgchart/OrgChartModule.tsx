@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { requestOpenEmployee, requestProjectsSearch } from "./crossModuleNav";
+import { useRouter } from "next/navigation";
+import { requestProjectsSearch } from "./crossModuleNav";
 import { useAdminAccess } from "@/hooks/useAdminAccess";
 import { employeeApi } from "@/lib/api/modules/employees";
 import { invalidateOrgChartCache } from "./useOrgChartData";
@@ -45,6 +46,7 @@ interface OrgChartModuleProps {
 }
 
 export function OrgChartModule({ onNavigate }: OrgChartModuleProps = {}) {
+  const router = useRouter();
   const { employees, departments, projects, loading, error } =
     useOrgChartData();
   const canvasContainerRef = useRef<HTMLDivElement>(null);
@@ -356,8 +358,7 @@ export function OrgChartModule({ onNavigate }: OrgChartModuleProps = {}) {
                     showDeptPill={chartSettings.showDeptPill}
                     edgeOpacity={chartSettings.edgeOpacity}
                     onViewEmployee={(id) => {
-                      requestOpenEmployee(id);
-                      onNavigate?.("profiles");
+                      router.push(`/employee/${id}`);
                     }}
                     onViewProjects={(id) => {
                       const emp = employees.find((e) => e.id === id);
@@ -448,8 +449,7 @@ export function OrgChartModule({ onNavigate }: OrgChartModuleProps = {}) {
           onSelect={(id) => setSelectedId(id)}
           onCenterOn={(id) => api?.centerOn(id)}
           onNavigateProfile={(id) => {
-            requestOpenEmployee(id);
-            onNavigate?.("profiles");
+            router.push(`/employee/${id}`);
           }}
           onNavigateProjects={(id) => {
             const emp = employees.find((e) => e.id === id);
