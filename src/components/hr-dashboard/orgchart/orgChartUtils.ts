@@ -364,6 +364,14 @@ export function applyFilters(
   return { visible, highlighted };
 }
 
+const FALLBACK_DEPT: OrgDepartment = {
+  id: "",
+  name: "Unassigned",
+  color: "#94a3b8",
+  soft: "#f1f5f9",
+  count: 0,
+};
+
 export function deptOf(
   e: OrgEmployee,
   departments: OrgDepartment[]
@@ -371,7 +379,8 @@ export function deptOf(
   return (
     departments.find((d) => d.id === e.deptId) ??
     departments.find((d) => d.id === "exec") ??
-    departments[0]
+    departments[0] ??
+    FALLBACK_DEPT
   );
 }
 
