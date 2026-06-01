@@ -4,14 +4,20 @@ import { fetchUserProfiles } from "@/lib/api/reviews";
 import {
   createSurvey,
   fetchPulseSummary,
+  fetchSuggestions,
   fetchSurveyAnalytics,
   fetchSurveyIndividualResponses,
   fetchSurveys,
+  recallSurvey,
   submitPulseCheck,
+  submitSuggestion,
   submitSurveyResponse,
+  updateSuggestionStatus,
   updateSurvey,
   type PulseCategory,
   type PulseSummary,
+  type Suggestion as ApiSuggestion,
+  type SuggestionStatus as ApiSuggestionStatus,
   type Survey as ApiSurvey,
   type SurveyAnalytics,
   type SurveyIndividualResponsesPayload,
@@ -284,7 +290,65 @@ export function FeedbackModule() {
     title: "",
     description: "",
     category: "hr" as SuggestionCategory,
+    anonymous: false,
   });
+  const [suggestionSubmitting, setSuggestionSubmitting] = useState(false);
+  const [suggestionFeedback, setSuggestionFeedback] = useState<string | null>(
+    null
+  );
+  const [suggestionCategoryFilter, setSuggestionCategoryFilter] = useState<
+    "all" | SuggestionCategory
+  >("all");
+
+  // Map API <-> FE-local suggestion status values.
+  const apiToLocalSuggestionStatus = (
+    s: ApiSuggestionStatus
+  ): SuggestionStatus => {
+    switch (s) {
+      case "under_review":
+        return "in_review";
+      case "implemented":
+        return "implemented";
+      case "declined":
+        return "rejected";
+      default:
+        return "open"; // covers "new" and "planned"
+    }
+  };
+  const localToApiSuggestionStatus = (
+    s: SuggestionStatus
+  ): ApiSuggestionStatus => {
+    switch (s) {
+      case "in_review":
+        return "under_review";
+      case "implemented":
+        return "implemented";
+      case "rejected":
+        return "declined";
+      default:
+        return "new";
+    }
+  };
+  const fromApiSuggestion = (s: ApiSuggestion): Suggestion => {
+    const category: SuggestionCategory =
+      s.category === "tech" || s.category === "office" ? s.category : "hr";
+    // The submit form packs "title\n\ndescription" into a single `text`
+    // field on the BE; recover the title/description split for display.
+    const [titlePart, ...rest] = (s.text || "").split("\n\n");
+    const description = rest.join("\n\n").trim();
+    const title = description ? titlePart.trim() : "";
+    return {
+      id: s.id,
+      title,
+      description: description || titlePart,
+      category,
+      status: apiToLocalSuggestionStatus(s.status),
+      submittedBy: s.employee_name,
+      submittedDate: (s.created_at || "").split("T")[0] ?? "",
+      votes: 0,
+      comments: 0,
+    };
+  };
 
   // Pulse Check State (BHB-452)
   const [pulseRatings, setPulseRatings] = useState({
@@ -569,16 +633,19 @@ export function FeedbackModule() {
       fetchSurveys(token).catch(() => [] as ApiSurvey[]),
       fetchUserProfiles(token).catch(() => []),
       fetchPulseSummary(7, token).catch(() => null),
-    ]).then(([mine, all, users, summary]) => {
+      fetchSuggestions(token).catch(() => [] as ApiSuggestion[]),
+    ]).then(([mine, all, users, summary, sugs]) => {
       if (cancelled) return;
       setSurveys(mine.map(fromApiSurvey));
       setAvailableSurveys(all.map(fromApiSurvey));
       setOrgUsers(users);
       setPulseSummary(summary);
+      setSuggestions(sugs.map(fromApiSuggestion));
     });
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fetch analytics when the selected survey or filters change.
@@ -693,29 +760,64 @@ export function FeedbackModule() {
     });
   };
 
-  const submitSuggestion = () => {
+  const handleSubmitSuggestion = async () => {
     if (!newSuggestion.title.trim() || !newSuggestion.description.trim())
       return;
+    const token = getAccessToken();
+    if (!token) {
+      setSuggestionFeedback("You need to be logged in to submit.");
+      return;
+    }
+    setSuggestionSubmitting(true);
+    setSuggestionFeedback(null);
+    try {
+      const text = `${newSuggestion.title.trim()}\n\n${newSuggestion.description.trim()}`;
+      const created = await submitSuggestion(
+        {
+          category: newSuggestion.category,
+          text,
+          is_anonymous: newSuggestion.anonymous,
+        },
+        token
+      );
+      setSuggestions((prev) => [fromApiSuggestion(created), ...prev]);
+      setSuggestionFeedback("Thanks — your suggestion was submitted.");
+      setNewSuggestion({
+        title: "",
+        description: "",
+        category: "hr",
+        anonymous: false,
+      });
+    } catch (err) {
+      const msg =
+        err instanceof Error ? err.message : "Failed to submit suggestion.";
+      setSuggestionFeedback(msg);
+    } finally {
+      setSuggestionSubmitting(false);
+    }
+  };
 
-    const suggestion: Suggestion = {
-      id: Date.now(),
-      title: newSuggestion.title,
-      description: newSuggestion.description,
-      category: newSuggestion.category,
-      status: "open",
-      submittedBy: "John Doe", // Current user
-      submittedDate: new Date().toISOString().split("T")[0],
-      votes: 0,
-      comments: 0,
-    };
-
-    setSuggestions((prev) => [...prev, suggestion]);
-
-    setNewSuggestion({
-      title: "",
-      description: "",
-      category: "hr",
-    });
+  const handleSuggestionStatusChange = async (
+    id: number,
+    status: SuggestionStatus
+  ) => {
+    const token = getAccessToken();
+    if (!token) return;
+    try {
+      const updated = await updateSuggestionStatus(
+        id,
+        localToApiSuggestionStatus(status),
+        token
+      );
+      setSuggestions((prev) =>
+        prev.map((s) => (s.id === id ? fromApiSuggestion(updated) : s))
+      );
+    } catch {
+      // Optimistic local fallback.
+      setSuggestions((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, status } : s))
+      );
+    }
   };
 
   const isSurveyLocked = (survey: Survey): boolean => {
@@ -808,8 +910,22 @@ export function FeedbackModule() {
   const handleSendOut = (surveyId: number) =>
     handleStatusChange(surveyId, "active");
 
-  const handleRecall = (surveyId: number) =>
-    handleStatusChange(surveyId, "draft");
+  // Recall uses a dedicated endpoint so it works even when the survey is
+  // locked by an expired end_date (the action also clears the end_date).
+  const handleRecall = async (surveyId: number) => {
+    const token = getAccessToken();
+    if (!token) return;
+    try {
+      await recallSurvey(surveyId, token);
+      await refreshAllSurveyLists(token);
+    } catch {
+      setSurveys((prev) =>
+        prev.map((s) =>
+          s.id === surveyId ? { ...s, status: "draft", endDate: "" } : s
+        )
+      );
+    }
+  };
 
   const openTakeSurvey = (survey: Survey) => {
     setTakingSurvey(survey);
@@ -1714,19 +1830,23 @@ export function FeedbackModule() {
                                             Send Out
                                           </Button>
                                         )}
-                                      {survey.status === "active" &&
-                                        !isSurveyLocked(survey) && (
-                                          <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() =>
-                                              void handleRecall(survey.id)
-                                            }
-                                            title="Stop accepting responses (sets back to draft)"
-                                          >
-                                            Recall
-                                          </Button>
-                                        )}
+                                      {(survey.status === "active" ||
+                                        isSurveyLocked(survey)) && (
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() =>
+                                            void handleRecall(survey.id)
+                                          }
+                                          title={
+                                            isSurveyLocked(survey)
+                                              ? "Recall and clear the past end date so you can edit again"
+                                              : "Stop accepting responses (sets back to draft)"
+                                          }
+                                        >
+                                          Recall
+                                        </Button>
+                                      )}
                                       <Button
                                         variant="ghost"
                                         size="sm"
@@ -2224,114 +2344,157 @@ export function FeedbackModule() {
                           />
                         </div>
 
+                        {suggestionFeedback && (
+                          <p className="text-sm text-gray-700">
+                            {suggestionFeedback}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-3">
+                          <Switch
+                            id="suggestion-anonymous"
+                            checked={newSuggestion.anonymous}
+                            onCheckedChange={(checked) =>
+                              setNewSuggestion((prev) => ({
+                                ...prev,
+                                anonymous: checked,
+                              }))
+                            }
+                          />
+                          <Label
+                            htmlFor="suggestion-anonymous"
+                            className="text-sm"
+                          >
+                            Submit anonymously
+                          </Label>
+                        </div>
                         <div className="flex gap-2">
                           <Button
-                            onClick={submitSuggestion}
+                            onClick={() => void handleSubmitSuggestion()}
                             disabled={
                               !newSuggestion.title.trim() ||
-                              !newSuggestion.description.trim()
+                              !newSuggestion.description.trim() ||
+                              suggestionSubmitting
                             }
                             variant="primary"
                           >
                             <Send className="w-4 h-4 mr-2" />
-                            Submit Suggestion
+                            {suggestionSubmitting
+                              ? "Submitting..."
+                              : "Submit Suggestion"}
                           </Button>
-                          <Button variant="outline">Save Draft</Button>
                         </div>
                       </CardContent>
                     </Card>
 
-                    {/* Existing Suggestions */}
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-medium text-gray-900">
-                          All Suggestions
-                        </h4>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            <Filter className="w-4 h-4 mr-2" />
-                            Filter by Category
-                          </Button>
+                    {/* Existing Suggestions — HR-only */}
+                    {!isHRUser ? (
+                      <div className="text-center py-12 border border-gray-200 rounded-lg">
+                        <Lock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                          HR-only view
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          All suggestions are visible to HR only.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium text-gray-900">
+                            All Suggestions
+                          </h4>
+                          <div className="flex items-center gap-2">
+                            <Filter className="w-4 h-4 text-gray-500" />
+                            <Select
+                              value={suggestionCategoryFilter}
+                              onValueChange={(v) =>
+                                setSuggestionCategoryFilter(
+                                  v as "all" | SuggestionCategory
+                                )
+                              }
+                            >
+                              <SelectTrigger className="h-8 w-40 text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">
+                                  All categories
+                                </SelectItem>
+                                <SelectItem value="hr">HR</SelectItem>
+                                <SelectItem value="tech">Tech</SelectItem>
+                                <SelectItem value="office">Office</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          {suggestions
+                            .filter(
+                              (s) =>
+                                suggestionCategoryFilter === "all" ||
+                                s.category === suggestionCategoryFilter
+                            )
+                            .map((suggestion) => {
+                              const CategoryIcon = getCategoryIcon(
+                                suggestion.category
+                              );
+                              return (
+                                <Card
+                                  key={suggestion.id}
+                                  className="border-gray-200"
+                                >
+                                  <CardContent className="p-4">
+                                    <div className="flex items-start justify-between">
+                                      <div className="flex-1">
+                                        <div className="flex items-center gap-3 mb-2">
+                                          <CategoryIcon className="w-4 h-4 text-gray-500" />
+                                          <h4 className="font-medium text-gray-900">
+                                            {suggestion.title}
+                                          </h4>
+                                          <Badge
+                                            variant="outline"
+                                            className={getCategoryColor(
+                                              suggestion.category
+                                            )}
+                                          >
+                                            {suggestion.category.toUpperCase()}
+                                          </Badge>
+                                          <Badge
+                                            variant="outline"
+                                            className={getStatusColor(
+                                              suggestion.status
+                                            )}
+                                          >
+                                            {suggestion.status.replace(
+                                              "_",
+                                              " "
+                                            )}
+                                          </Badge>
+                                        </div>
+                                        <p className="text-sm text-gray-600 mb-3">
+                                          {suggestion.description}
+                                        </p>
+                                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                                          <span>
+                                            By:{" "}
+                                            {suggestion.submittedBy ||
+                                              "Anonymous"}
+                                          </span>
+                                          <span>
+                                            Submitted:{" "}
+                                            {suggestion.submittedDate}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              );
+                            })}
                         </div>
                       </div>
-
-                      <div className="space-y-3">
-                        {suggestions.map((suggestion) => {
-                          const CategoryIcon = getCategoryIcon(
-                            suggestion.category
-                          );
-                          return (
-                            <Card
-                              key={suggestion.id}
-                              className="border-gray-200"
-                            >
-                              <CardContent className="p-4">
-                                <div className="flex items-start justify-between">
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-3 mb-2">
-                                      <CategoryIcon className="w-4 h-4 text-gray-500" />
-                                      <h4 className="font-medium text-gray-900">
-                                        {suggestion.title}
-                                      </h4>
-                                      <Badge
-                                        variant="outline"
-                                        className={getCategoryColor(
-                                          suggestion.category
-                                        )}
-                                      >
-                                        {suggestion.category.toUpperCase()}
-                                      </Badge>
-                                      <Badge
-                                        variant="outline"
-                                        className={getStatusColor(
-                                          suggestion.status
-                                        )}
-                                      >
-                                        {suggestion.status.replace("_", " ")}
-                                      </Badge>
-                                    </div>
-                                    <p className="text-sm text-gray-600 mb-3">
-                                      {suggestion.description}
-                                    </p>
-                                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                                      <span>
-                                        By:{" "}
-                                        {suggestion.submittedBy || "Anonymous"}
-                                      </span>
-                                      <span>
-                                        Submitted: {suggestion.submittedDate}
-                                      </span>
-                                      <div className="flex items-center gap-1">
-                                        <ThumbsUp className="w-3 h-3" />
-                                        <span>{suggestion.votes} votes</span>
-                                      </div>
-                                      <div className="flex items-center gap-1">
-                                        <MessageSquare className="w-3 h-3" />
-                                        <span>
-                                          {suggestion.comments} comments
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="flex gap-2">
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="text-blue-600 hover:text-blue-700"
-                                    >
-                                      <ThumbsUp className="w-4 h-4" />
-                                    </Button>
-                                    <Button variant="ghost" size="sm">
-                                      <MessageSquare className="w-4 h-4" />
-                                    </Button>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
-                      </div>
-                    </div>
+                    )}
 
                     {/* Category Summary */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

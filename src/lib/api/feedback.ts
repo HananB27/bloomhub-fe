@@ -154,6 +154,17 @@ export async function closeSurvey(id: number, token?: string): Promise<Survey> {
   return parseResponse<Survey>(response);
 }
 
+export async function recallSurvey(
+  id: number,
+  token?: string
+): Promise<Survey> {
+  const response = await fetch(buildApiUrl(`/api/surveys/${id}/recall/`), {
+    method: "POST",
+    headers: getAuthHeaders(token),
+  });
+  return parseResponse<Survey>(response);
+}
+
 export async function addSurveyQuestion(
   surveyId: number,
   question: SurveyQuestion,
@@ -309,6 +320,63 @@ export async function fetchSurveyIndividualResponses(
     { headers: getAuthHeaders(token) }
   );
   return parseResponse<SurveyIndividualResponsesPayload>(response);
+}
+
+// ── Suggestion Box (BHB-454) ──────────────────────────────────────────────
+
+export type SuggestionStatus =
+  | "new"
+  | "under_review"
+  | "planned"
+  | "implemented"
+  | "declined";
+
+export interface Suggestion {
+  id: number;
+  employee: number | null;
+  employee_name: string;
+  category: string;
+  text: string;
+  status: SuggestionStatus;
+  created_at: string;
+}
+
+export interface CreateSuggestionPayload {
+  category?: string;
+  text: string;
+  is_anonymous?: boolean;
+}
+
+export async function submitSuggestion(
+  payload: CreateSuggestionPayload,
+  token?: string
+): Promise<Suggestion> {
+  const response = await fetch(buildApiUrl("/api/suggestions/"), {
+    method: "POST",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(payload),
+  });
+  return parseResponse<Suggestion>(response);
+}
+
+export async function fetchSuggestions(token?: string): Promise<Suggestion[]> {
+  const response = await fetch(buildApiUrl("/api/suggestions/"), {
+    headers: getAuthHeaders(token),
+  });
+  return parseResponse<Suggestion[]>(response);
+}
+
+export async function updateSuggestionStatus(
+  id: number,
+  status: SuggestionStatus,
+  token?: string
+): Promise<Suggestion> {
+  const response = await fetch(buildApiUrl(`/api/suggestions/${id}/`), {
+    method: "PATCH",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({ status }),
+  });
+  return parseResponse<Suggestion>(response);
 }
 
 export async function fetchPulseSummary(
