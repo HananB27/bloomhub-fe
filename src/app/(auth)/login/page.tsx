@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2, AtSign, Lock } from "lucide-react";
@@ -9,12 +9,17 @@ import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -68,6 +73,14 @@ export default function LoginPage() {
     await signIn(provider, { callbackUrl: "/" });
   };
 
+  if (!mounted) {
+    return (
+      <div className="w-full flex flex-col items-center justify-center py-10">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-gray-200 border-t-gray-900" />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full flex flex-col space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-in-out">
       <div className="flex flex-col space-y-2 text-center">
@@ -97,13 +110,17 @@ export default function LoginPage() {
               </div>
               <input
                 id="email"
+                name="email"
                 type="email"
                 placeholder="name@example.com"
+                autoComplete="email"
+                spellCheck={false}
                 value={formData.email || ""}
                 onChange={handleInputChange}
                 className="flex-1 bg-transparent py-2 pr-3 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-0 border-0 disabled:opacity-50"
                 required
                 disabled={isLoading}
+                suppressHydrationWarning
               />
             </div>
           </div>
@@ -132,13 +149,17 @@ export default function LoginPage() {
               </div>
               <input
                 id="password"
+                name="password"
                 type="password"
                 placeholder="password"
+                autoComplete="current-password"
+                spellCheck={false}
                 value={formData.password || ""}
                 onChange={handleInputChange}
                 className="flex-1 bg-transparent py-2 pr-3 text-sm text-gray-800 focus:outline-none focus:ring-0 border-0 disabled:opacity-50"
                 required
                 disabled={isLoading}
+                suppressHydrationWarning
               />
             </div>
           </div>

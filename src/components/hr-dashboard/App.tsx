@@ -43,7 +43,7 @@ import { formatRelativeTimestamp } from "@/utils";
 import { getApiBaseUrl } from "@/lib/config";
 import { logoutUser } from "@/lib/api/auth";
 import { useSession, signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getStoredUser, storeTokens } from "@/lib/api/tokens";
 import { useAdminAccess } from "@/hooks/useAdminAccess";
 
@@ -57,6 +57,7 @@ export default function HRDashboardApp({
   initialAnnouncementId,
 }: HRDashboardAppProps = {}) {
   const { data: session, status } = useSession();
+  const searchParams = useSearchParams();
   const [mounted, setMounted] = useState(false);
   const [careerLevel, setCareerLevel] = useState<string | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
@@ -65,6 +66,7 @@ export default function HRDashboardApp({
   );
 
   const router = useRouter();
+  const openAssistant = searchParams.get("assistant") === "1";
 
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 0);
@@ -255,7 +257,11 @@ export default function HRDashboardApp({
   }, [isAdmin, isAdminLoading, activeModule]);
 
   return (
-    <div className="h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
+    <div
+      data-testid="hr-dashboard-app"
+      data-hydrated={mounted ? "true" : "false"}
+      className="h-screen overflow-hidden bg-gray-50 dark:bg-gray-950"
+    >
       <CollapsibleSidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed((c) => !c)}
@@ -318,6 +324,7 @@ export default function HRDashboardApp({
 
             <AIAssistant
               activeModule={activeModule}
+              defaultOpen={openAssistant}
               onModuleNavigate={(moduleId, entityId) => {
                 setActiveModule(moduleId);
                 if (moduleId === "profiles") {

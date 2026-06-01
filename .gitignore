@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/test-results
 
 # next.js
 /.next/
@@ -52,3 +53,5 @@ gha-creds-*.json
 .github/workflows/gemini-*
 .claude
 .codex
+
+test-results/
