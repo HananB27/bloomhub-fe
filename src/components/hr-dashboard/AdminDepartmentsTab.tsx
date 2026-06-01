@@ -127,7 +127,7 @@ export function AdminDepartmentsTab() {
           <Building className="h-5 w-5" />
           Departments
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-gray-700">
           Create, rename, and delete departments. Changes propagate to the Org
           Chart and Employee Profiles automatically.
         </CardDescription>
@@ -161,7 +161,7 @@ export function AdminDepartmentsTab() {
 
         {/* List */}
         {loading ? (
-          <div className="flex items-center gap-2 py-6 text-sm text-gray-500">
+          <div className="flex items-center gap-2 py-6 text-sm text-gray-700">
             <Loader2 className="h-4 w-4 animate-spin" />
             Loading departments…
           </div>
@@ -170,7 +170,7 @@ export function AdminDepartmentsTab() {
             {error}
           </div>
         ) : departments.length === 0 ? (
-          <div className="rounded-md border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500">
+          <div className="rounded-md border border-dashed border-gray-300 bg-white p-6 text-center text-sm text-gray-700">
             No departments yet. Create one above to get started.
           </div>
         ) : (
@@ -178,7 +178,7 @@ export function AdminDepartmentsTab() {
             {departments.map((d) => (
               <li
                 key={d.id}
-                className="flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
+                className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2"
               >
                 {editingId === d.id ? (
                   <>
@@ -217,10 +217,10 @@ export function AdminDepartmentsTab() {
                   </>
                 ) : (
                   <>
-                    <span className="flex-1 text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <span className="flex-1 text-sm font-medium text-gray-900">
                       {d.name}
                     </span>
-                    <span className="font-mono text-[11px] text-gray-500">
+                    <span className="font-mono text-[11px] text-gray-700">
                       #{d.id}
                     </span>
                     <Button

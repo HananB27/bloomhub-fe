@@ -208,7 +208,7 @@ export function BenefitsCatalogSubTab() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <CardTitle>Benefits catalog</CardTitle>
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-gray-700">
                 Global benefit list. Every active entry applies to every
                 employee. Total monthly per employee:{" "}
                 <strong className="font-mono text-gray-900">
@@ -221,7 +221,7 @@ export function BenefitsCatalogSubTab() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="py-8 text-center text-sm text-gray-500">
+            <div className="py-8 text-center text-sm text-gray-700">
               Loading catalog…
             </div>
           ) : error ? (
@@ -229,7 +229,7 @@ export function BenefitsCatalogSubTab() {
               {error}
             </div>
           ) : entries.length === 0 ? (
-            <div className="rounded-md border border-dashed border-gray-200 bg-gray-50 px-3 py-6 text-center text-sm text-gray-500">
+            <div className="rounded-md border border-dashed border-gray-300 bg-white px-3 py-6 text-center text-sm text-gray-700">
               No benefits in catalog yet. Add the first one below.
             </div>
           ) : (
@@ -261,7 +261,7 @@ export function BenefitsCatalogSubTab() {
                           </span>
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-gray-600">
+                      <TableCell className="text-sm text-gray-800">
                         {e.benefit_type_display}
                       </TableCell>
                       <TableCell>
@@ -281,7 +281,7 @@ export function BenefitsCatalogSubTab() {
                           </span>
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-gray-600">
+                      <TableCell className="text-sm text-gray-800">
                         {e.effective_date}
                         {e.end_date ? ` → ${e.end_date}` : ""}
                       </TableCell>
@@ -297,7 +297,7 @@ export function BenefitsCatalogSubTab() {
                           <div className="flex justify-end gap-1">
                             <Button
                               size="icon"
-                              variant="ghost"
+                              variant="outline"
                               onClick={() => handleSaveEdit(e)}
                               aria-label="Save"
                             >
@@ -305,18 +305,18 @@ export function BenefitsCatalogSubTab() {
                             </Button>
                             <Button
                               size="icon"
-                              variant="ghost"
+                              variant="outline"
                               onClick={handleCancelEdit}
                               aria-label="Cancel"
                             >
-                              <X className="h-4 w-4 text-gray-500" />
+                              <X className="h-4 w-4 text-gray-700" />
                             </Button>
                           </div>
                         ) : (
                           <div className="flex justify-end gap-1">
                             <Button
                               size="icon"
-                              variant="ghost"
+                              variant="outline"
                               onClick={() => handleStartEdit(e)}
                               aria-label="Edit"
                             >
@@ -324,7 +324,8 @@ export function BenefitsCatalogSubTab() {
                             </Button>
                             <Button
                               size="icon"
-                              variant="ghost"
+                              variant="outline"
+                              className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
                               onClick={() => handleRemove(e)}
                               aria-label="Remove"
                             >
@@ -343,8 +344,8 @@ export function BenefitsCatalogSubTab() {
       </Card>
 
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div className="flex items-center gap-2 border-b border-gray-100 px-5 py-3">
-          <Plus className="h-4 w-4 text-gray-700" />
+        <div className="flex items-center gap-2 border-b border-gray-200 px-5 py-3">
+          <Plus className="h-4 w-4 text-gray-800" />
           <h3 className="text-sm font-semibold text-gray-900">Add benefit</h3>
         </div>
         <div className="px-5 py-4">
