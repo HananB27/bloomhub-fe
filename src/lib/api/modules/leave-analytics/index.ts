@@ -5,6 +5,8 @@ import type {
   LeaveAnalyticsEmployeeHistory,
   LeaveAnalyticsEmployeeHistoryParams,
   LeaveAnalyticsEmployeeSummary,
+  LeaveAnalyticsExportParams,
+  LeaveAnalyticsExportResult,
   LeaveAnalyticsListParams,
   LeaveAnalyticsMonthRow,
   LeaveAnalyticsRefreshResponse,
@@ -15,12 +17,14 @@ import type {
   LeaveMonthlyAggregate,
 } from "@/types/leaveAnalytics";
 
+import { fetchWithAuthRetry } from "../../refresh";
 import {
   LEAVE_ANALYTICS_API_BASE,
   LEAVE_ANALYTICS_AVAILABILITY_PATH,
   LEAVE_ANALYTICS_DEPARTMENTS_PATH,
   LEAVE_ANALYTICS_EMPLOYEE_HISTORY_PATH,
   LEAVE_ANALYTICS_EMPLOYEES_PATH,
+  LEAVE_ANALYTICS_EXPORT_PATH,
   LEAVE_ANALYTICS_MONTHLY_PATH,
   LEAVE_ANALYTICS_REFRESH_PATH,
   LEAVE_ANALYTICS_YEARLY_TOTALS_PATH,
@@ -47,6 +51,30 @@ import {
 interface RefreshPayload {
   yearFrom?: number;
   yearTo?: number;
+}
+
+function _parseContentDispositionFilename(value: string | null): string | null {
+  if (!value) return null;
+  const utf8Match = value.match(/filename\*=UTF-8''([^;]+)/i);
+  if (utf8Match?.[1]) {
+    try {
+      return decodeURIComponent(utf8Match[1].trim().replace(/^"|"$/g, ""));
+    } catch {
+      return utf8Match[1].trim().replace(/^"|"$/g, "");
+    }
+  }
+  const filenameMatch = value.match(/filename=([^;]+)/i);
+  return filenameMatch?.[1]?.trim().replace(/^"|"$/g, "") ?? null;
+}
+
+function _defaultExportFilename(params: LeaveAnalyticsExportParams): string {
+  const parts = ["leave-analytics", String(params.year)];
+  if (params.month !== undefined)
+    parts.push(String(params.month).padStart(2, "0"));
+  if (params.department) {
+    parts.push(params.department.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
+  }
+  return `${parts.join("-")}.${params.format}`;
 }
 
 function _toListQuery(params?: LeaveAnalyticsListParams) {
@@ -210,6 +238,44 @@ export const leaveAnalyticsApi = {
     return transformLeaveAvailabilityResponse(raw);
   },
 
+  async export(
+    params: LeaveAnalyticsExportParams
+  ): Promise<LeaveAnalyticsExportResult> {
+    const query = buildQueryString({
+      format: params.format,
+      year: params.year,
+      month: params.month,
+      department: params.department,
+    });
+    const acceptHeader =
+      params.format === "pdf" ? "application/pdf" : "text/csv";
+    const response = await fetchWithAuthRetry(
+      `${API_BASE_URL}${LEAVE_ANALYTICS_EXPORT_PATH}${query}`,
+      {
+        method: "GET",
+        headers: { Accept: acceptHeader },
+      }
+    );
+    if (!response.ok) {
+      const contentType = response.headers.get("content-type") || "";
+      const errorPayload = contentType.includes("application/json")
+        ? await response.json().catch(() => ({}))
+        : await response.text().catch(() => "");
+      const message =
+        errorPayload && typeof errorPayload === "object"
+          ? ((errorPayload as { detail?: string; message?: string }).detail ??
+            (errorPayload as { detail?: string; message?: string }).message)
+          : undefined;
+      throw new Error(message || "Failed to export leave analytics");
+    }
+    const blob = await response.blob();
+    const filename =
+      _parseContentDispositionFilename(
+        response.headers.get("content-disposition")
+      ) || _defaultExportFilename(params);
+    return { blob, filename };
+  },
+
   async listSnapshots(params?: {
     employee?: number;
     leaveType?: LeaveType;
@@ -245,6 +311,9 @@ export type {
   LeaveAnalyticsEmployeeHistory,
   LeaveAnalyticsEmployeeHistoryParams,
   LeaveAnalyticsEmployeeSummary,
+  LeaveAnalyticsExportFormat,
+  LeaveAnalyticsExportParams,
+  LeaveAnalyticsExportResult,
   LeaveAnalyticsListParams,
   LeaveAnalyticsMonthRow,
   LeaveAnalyticsRefreshResponse,

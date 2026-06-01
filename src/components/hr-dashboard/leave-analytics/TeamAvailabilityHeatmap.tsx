@@ -185,7 +185,7 @@ export function TeamAvailabilityHeatmap({ data, isLoading, error }: Props) {
           <div
             className="grid min-w-max"
             style={{
-              gridTemplateColumns: `220px repeat(${days.length}, 28px)`,
+              gridTemplateColumns: `220px repeat(${days.length}, minmax(28px, 1fr))`,
             }}
           >
             {/* Row 1 — daily out count bar */}
