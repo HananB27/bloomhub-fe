@@ -3,12 +3,18 @@ import { getAccessToken } from "@/lib/api/tokens";
 import { fetchUserProfiles } from "@/lib/api/reviews";
 import {
   createSurvey,
+  fetchPulseSummary,
   fetchSurveyAnalytics,
+  fetchSurveyIndividualResponses,
   fetchSurveys,
+  submitPulseCheck,
   submitSurveyResponse,
   updateSurvey,
+  type PulseCategory,
+  type PulseSummary,
   type Survey as ApiSurvey,
   type SurveyAnalytics,
+  type SurveyIndividualResponsesPayload,
   type SurveyQuestion as ApiSurveyQuestion,
 } from "@/lib/api/feedback";
 import {
@@ -18,6 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
@@ -94,6 +101,7 @@ import {
   Laugh,
   ThumbsUp,
   Heart,
+  ChevronDown,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { isHrLikeRole } from "@/lib/permissions/assets-permissions";
@@ -278,14 +286,16 @@ export function FeedbackModule() {
     category: "hr" as SuggestionCategory,
   });
 
-  // Pulse Check State
+  // Pulse Check State (BHB-452)
   const [pulseRatings, setPulseRatings] = useState({
-    overallSatisfaction: 0,
+    overall: 0,
     workload: 0,
     management: 0,
     culture: 0,
-    growth: 0,
   });
+  const [pulseSubmitting, setPulseSubmitting] = useState(false);
+  const [pulseFeedback, setPulseFeedback] = useState<string | null>(null);
+  const [pulseSummary, setPulseSummary] = useState<PulseSummary | null>(null);
 
   // Analytics State (BHB-453)
   const [analyticsSurveyId, setAnalyticsSurveyId] = useState<number | null>(
@@ -299,6 +309,44 @@ export function FeedbackModule() {
   const [analytics, setAnalytics] = useState<SurveyAnalytics | null>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [analyticsError, setAnalyticsError] = useState<string | null>(null);
+  const [individualResponses, setIndividualResponses] =
+    useState<SurveyIndividualResponsesPayload | null>(null);
+
+  // Local-only tracker of anonymous surveys the current browser has submitted.
+  // The BE deliberately doesn't know (anonymity), so this is per-device only.
+  const ANON_SUBMITTED_KEY = "bloomhub_submitted_anonymous_surveys";
+  const [anonSubmittedIds, setAnonSubmittedIds] = useState<Set<number>>(
+    () => new Set()
+  );
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(ANON_SUBMITTED_KEY);
+      const arr = raw ? (JSON.parse(raw) as number[]) : [];
+      setAnonSubmittedIds(new Set(arr.filter((n) => typeof n === "number")));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+  const markAnonSubmitted = (surveyId: number) => {
+    setAnonSubmittedIds((prev) => {
+      const next = new Set(prev);
+      next.add(surveyId);
+      try {
+        window.localStorage.setItem(
+          ANON_SUBMITTED_KEY,
+          JSON.stringify(Array.from(next))
+        );
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  };
+  const hasRespondedToSurvey = (survey: Survey): boolean => {
+    if (survey.viewerHasResponded) return true;
+    return survey.anonymous && anonSubmittedIds.has(survey.id);
+  };
 
   // Take-survey dialog state (BHB-453 — test-driving end-to-end)
   const [takingSurvey, setTakingSurvey] = useState<Survey | null>(null);
@@ -333,6 +381,7 @@ export function FeedbackModule() {
     required: true,
   });
   const [savingEdit, setSavingEdit] = useState(false);
+  const [editForbidOpen, setEditForbidOpen] = useState(false);
 
   // Surveys + suggestions load from the API; start empty.
   // `surveys`  = surveys created by the current user (management table)
@@ -519,11 +568,13 @@ export function FeedbackModule() {
       fetchSurveys(token, { mine: true }).catch(() => [] as ApiSurvey[]),
       fetchSurveys(token).catch(() => [] as ApiSurvey[]),
       fetchUserProfiles(token).catch(() => []),
-    ]).then(([mine, all, users]) => {
+      fetchPulseSummary(7, token).catch(() => null),
+    ]).then(([mine, all, users, summary]) => {
       if (cancelled) return;
       setSurveys(mine.map(fromApiSurvey));
       setAvailableSurveys(all.map(fromApiSurvey));
       setOrgUsers(users);
+      setPulseSummary(summary);
     });
     return () => {
       cancelled = true;
@@ -566,6 +617,29 @@ export function FeedbackModule() {
       cancelled = true;
     };
   }, [analyticsSurveyId, analyticsFilters]);
+
+  // Also fetch individual responses (HR view) for the selected survey.
+  useEffect(() => {
+    if (analyticsSurveyId === null) {
+      setIndividualResponses(null);
+      return;
+    }
+    const token = getAccessToken();
+    if (!token) return;
+    let cancelled = false;
+    void fetchSurveyIndividualResponses(analyticsSurveyId, token)
+      .then((data) => {
+        if (cancelled) return;
+        setIndividualResponses(data);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setIndividualResponses(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [analyticsSurveyId]);
 
   const saveSurvey = async () => {
     if (!newSurvey.title.trim() || newSurvey.questions.length === 0) return;
@@ -758,6 +832,9 @@ export function FeedbackModule() {
     setSubmitError(null);
     try {
       await submitSurveyResponse(takingSurvey.id, answers, token);
+      if (takingSurvey.anonymous) {
+        markAnonSubmitted(takingSurvey.id);
+      }
       await refreshAllSurveyLists(token);
       setTakingSurvey(null);
       setTakeDraft({});
@@ -770,15 +847,50 @@ export function FeedbackModule() {
     }
   };
 
-  const submitPulseCheck = () => {
-    // TODO: Submit pulse check to backend API
-    setPulseRatings({
-      overallSatisfaction: 0,
-      workload: 0,
-      management: 0,
-      culture: 0,
-      growth: 0,
-    });
+  const refreshPulseSummary = async (token: string) => {
+    try {
+      const summary = await fetchPulseSummary(7, token);
+      setPulseSummary(summary);
+    } catch {
+      // Non-HR users get 403 — that's expected, just ignore.
+      setPulseSummary(null);
+    }
+  };
+
+  const handleSubmitPulse = async () => {
+    const entries: { category: PulseCategory; value: number }[] = [
+      { category: "overall", value: pulseRatings.overall },
+      { category: "workload", value: pulseRatings.workload },
+      { category: "management", value: pulseRatings.management },
+      { category: "culture", value: pulseRatings.culture },
+    ].filter((e) => e.value > 0) as {
+      category: PulseCategory;
+      value: number;
+    }[];
+    if (entries.length === 0) return;
+    const token = getAccessToken();
+    if (!token) {
+      setPulseFeedback("You need to be logged in.");
+      return;
+    }
+    setPulseSubmitting(true);
+    setPulseFeedback(null);
+    try {
+      await Promise.all(
+        entries.map((e) => submitPulseCheck(e.value, e.category, token))
+      );
+      setPulseFeedback(
+        `Thanks for your pulse on ${entries.length} dimension(s)!`
+      );
+      setPulseRatings({ overall: 0, workload: 0, management: 0, culture: 0 });
+      void refreshPulseSummary(token);
+    } catch (err) {
+      const msg =
+        err instanceof Error ? err.message : "Failed to submit pulse.";
+      setPulseFeedback(msg);
+    } finally {
+      setPulseSubmitting(false);
+    }
   };
 
   return (
@@ -794,12 +906,7 @@ export function FeedbackModule() {
               Collect feedback, manage surveys, and track employee sentiment
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
-          </div>
+          <div className="flex gap-2" />
         </div>
 
         {/* Quick Stats */}
@@ -827,14 +934,31 @@ export function FeedbackModule() {
             </p>
             <p className="text-xs text-gray-500">Across all surveys</p>
           </div>
-          {/* TODO: wire to real pulse-check average once Pulse Check ticket lands. */}
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-4 h-4 text-gray-500" />
               <p className="text-sm text-gray-600">Avg Satisfaction</p>
             </div>
-            <p className="text-2xl font-bold text-gray-400">—</p>
-            <p className="text-xs text-gray-500">Available after Pulse Check</p>
+            {pulseSummary && pulseSummary.count > 0 ? (
+              <>
+                <p className="text-2xl font-bold text-gray-900">
+                  {pulseSummary.average.toFixed(1)}
+                </p>
+                <p className="text-xs text-gray-500">
+                  Last 7 days · {pulseSummary.count} pulse
+                  {pulseSummary.count === 1 ? "" : "s"}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-2xl font-bold text-gray-400">—</p>
+                <p className="text-xs text-gray-500">
+                  {pulseSummary
+                    ? "No pulse data yet"
+                    : "Available to HR / staff"}
+                </p>
+              </>
+            )}
           </div>
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
@@ -869,84 +993,80 @@ export function FeedbackModule() {
 
               <CardContent>
                 <TabsContent value="dashboard" className="space-y-6 mt-0">
-                  {/* Pulse Check Widget */}
+                  {/* Pulse Check Widget — 4 dimensions */}
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-gray-900">
-                        Quick Pulse Check
-                      </h3>
-                      <Badge
-                        variant="outline"
-                        className="bg-blue-50 text-blue-800"
-                      >
-                        Anonymous
-                      </Badge>
-                    </div>
-
+                    <h3 className="font-medium text-gray-900">
+                      Quick Pulse Check
+                    </h3>
                     <Card className="border-blue-200 bg-blue-50/50">
-                      <CardContent className="p-6 space-y-6">
+                      <CardContent className="p-6 space-y-5">
                         <div className="text-center">
-                          <h4 className="font-medium text-gray-900 mb-2">
+                          <h4 className="font-medium text-gray-900 mb-1">
                             How are you feeling today?
                           </h4>
                           <p className="text-sm text-gray-600">
-                            Help us understand your current work experience
+                            Tap any dimension you want to rate. Skip the rest.
                           </p>
                         </div>
-
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <EmojiRating
-                            value={pulseRatings.overallSatisfaction}
-                            onChange={(value) =>
+                            value={pulseRatings.overall}
+                            onChange={(v) =>
                               setPulseRatings((prev) => ({
                                 ...prev,
-                                overallSatisfaction: value,
+                                overall: v,
                               }))
                             }
                             label="Overall Satisfaction"
                           />
                           <EmojiRating
                             value={pulseRatings.workload}
-                            onChange={(value) =>
+                            onChange={(v) =>
                               setPulseRatings((prev) => ({
                                 ...prev,
-                                workload: value,
+                                workload: v,
                               }))
                             }
                             label="Workload Balance"
                           />
                           <EmojiRating
                             value={pulseRatings.management}
-                            onChange={(value) =>
+                            onChange={(v) =>
                               setPulseRatings((prev) => ({
                                 ...prev,
-                                management: value,
+                                management: v,
                               }))
                             }
                             label="Management Support"
                           />
                           <EmojiRating
                             value={pulseRatings.culture}
-                            onChange={(value) =>
+                            onChange={(v) =>
                               setPulseRatings((prev) => ({
                                 ...prev,
-                                culture: value,
+                                culture: v,
                               }))
                             }
                             label="Team Culture"
                           />
                         </div>
-
+                        {pulseFeedback && (
+                          <p className="text-sm text-center text-gray-700">
+                            {pulseFeedback}
+                          </p>
+                        )}
                         <div className="flex justify-center">
                           <Button
-                            onClick={submitPulseCheck}
-                            disabled={Object.values(pulseRatings).some(
-                              (rating) => rating === 0
-                            )}
+                            onClick={() => void handleSubmitPulse()}
+                            disabled={
+                              Object.values(pulseRatings).every(
+                                (v) => v === 0
+                              ) || pulseSubmitting
+                            }
                             variant="primary"
                           >
                             <Send className="w-4 h-4 mr-2" />
-                            Submit Pulse Check
+                            {pulseSubmitting ? "Submitting..." : "Submit Pulse"}
                           </Button>
                         </div>
                       </CardContent>
@@ -989,9 +1109,9 @@ export function FeedbackModule() {
                         .filter((s) => {
                           switch (availableFilter) {
                             case "todo":
-                              return !s.viewerHasResponded;
+                              return !hasRespondedToSurvey(s);
                             case "done":
-                              return s.viewerHasResponded;
+                              return hasRespondedToSurvey(s);
                             case "anonymous":
                               return s.anonymous;
                             default:
@@ -1047,7 +1167,7 @@ export function FeedbackModule() {
                                 }
                               >
                                 <Send className="w-4 h-4 mr-2" />
-                                {survey.viewerHasResponded
+                                {hasRespondedToSurvey(survey)
                                   ? "Retake Survey"
                                   : "Take Survey"}
                               </Button>
@@ -1097,7 +1217,9 @@ export function FeedbackModule() {
                                     <Globe className="w-3 h-3 text-gray-400" />
                                   )}
                                   <span className="text-xs text-gray-500">
-                                    {survey.anonymous ? "Anonymous" : "Named"}
+                                    {survey.anonymous
+                                      ? "Anonymous"
+                                      : "Not Anonymous"}
                                   </span>
                                 </div>
                               </div>
@@ -1217,48 +1339,65 @@ export function FeedbackModule() {
                                 Selected users will not see or be able to take
                                 this survey.
                               </p>
-                              <div className="border border-gray-200 rounded p-2 max-h-40 overflow-y-auto space-y-1">
-                                {orgUsers.length === 0 ? (
-                                  <p className="text-xs text-gray-500 italic">
-                                    No users loaded.
-                                  </p>
-                                ) : (
-                                  orgUsers.map((u) => {
-                                    const checked =
-                                      newSurvey.forbiddenUserIds.includes(u.id);
-                                    return (
-                                      <label
-                                        key={u.id}
-                                        className="flex items-center gap-2 text-sm cursor-pointer"
-                                      >
-                                        <Checkbox
-                                          checked={checked}
-                                          onCheckedChange={(v) =>
-                                            setNewSurvey((prev) => ({
-                                              ...prev,
-                                              forbiddenUserIds: v
-                                                ? [
-                                                    ...prev.forbiddenUserIds,
-                                                    u.id,
-                                                  ]
-                                                : prev.forbiddenUserIds.filter(
-                                                    (id) => id !== u.id
-                                                  ),
-                                            }))
-                                          }
-                                        />
-                                        <span>{u.name}</span>
-                                      </label>
-                                    );
-                                  })
-                                )}
-                              </div>
-                              {newSurvey.forbiddenUserIds.length > 0 && (
-                                <p className="text-xs text-amber-700">
-                                  {newSurvey.forbiddenUserIds.length} user(s)
-                                  forbidden.
-                                </p>
-                              )}
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="w-full justify-between"
+                                  >
+                                    <span>
+                                      {newSurvey.forbiddenUserIds.length === 0
+                                        ? "No users forbidden"
+                                        : `${newSurvey.forbiddenUserIds.length} user(s) forbidden`}
+                                    </span>
+                                    <ChevronDown className="w-4 h-4 opacity-50" />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent
+                                  className="w-80 p-0"
+                                  align="start"
+                                >
+                                  <div className="p-2 max-h-64 overflow-y-auto space-y-1">
+                                    {orgUsers.length === 0 ? (
+                                      <p className="text-xs text-gray-500 italic p-2">
+                                        No users loaded.
+                                      </p>
+                                    ) : (
+                                      orgUsers.map((u) => {
+                                        const checked =
+                                          newSurvey.forbiddenUserIds.includes(
+                                            u.id
+                                          );
+                                        return (
+                                          <label
+                                            key={u.id}
+                                            className="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 rounded px-2 py-1"
+                                          >
+                                            <Checkbox
+                                              checked={checked}
+                                              onCheckedChange={(v) =>
+                                                setNewSurvey((prev) => ({
+                                                  ...prev,
+                                                  forbiddenUserIds: v
+                                                    ? [
+                                                        ...prev.forbiddenUserIds,
+                                                        u.id,
+                                                      ]
+                                                    : prev.forbiddenUserIds.filter(
+                                                        (id) => id !== u.id
+                                                      ),
+                                                }))
+                                              }
+                                            />
+                                            <span>{u.name}</span>
+                                          </label>
+                                        );
+                                      })
+                                    )}
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
                             </div>
 
                             {/* Questions */}
@@ -1661,6 +1800,55 @@ export function FeedbackModule() {
                         </h3>
                       </div>
 
+                      {/* Pulse Check Summary — independent of survey selection */}
+                      <div className="border border-gray-200 rounded-lg p-4 bg-white">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-medium text-gray-900">
+                            Pulse Check — Last 7 Days
+                          </h4>
+                          <Badge variant="outline" className="text-xs">
+                            {pulseSummary
+                              ? `${pulseSummary.count} responses`
+                              : "no data"}
+                          </Badge>
+                        </div>
+                        {pulseSummary && pulseSummary.count > 0 ? (
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            {pulseSummary.by_category.map((row) => {
+                              const labels: Record<string, string> = {
+                                overall: "Overall Satisfaction",
+                                workload: "Workload Balance",
+                                management: "Management Support",
+                                culture: "Team Culture",
+                              };
+                              return (
+                                <div
+                                  key={row.category}
+                                  className="bg-blue-50 rounded-lg p-3"
+                                >
+                                  <p className="text-xs text-blue-900 font-medium">
+                                    {labels[row.category] ?? row.category}
+                                  </p>
+                                  <p className="text-2xl font-bold text-blue-700 mt-1">
+                                    {row.count > 0
+                                      ? row.average.toFixed(1)
+                                      : "—"}
+                                  </p>
+                                  <p className="text-xs text-blue-600">
+                                    {row.count} response
+                                    {row.count === 1 ? "" : "s"}
+                                  </p>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-500 italic">
+                            No pulse check data in the last 7 days yet.
+                          </p>
+                        )}
+                      </div>
+
                       {/* Survey selector */}
                       <div>
                         <Label className="text-sm font-medium text-gray-700">
@@ -1873,6 +2061,78 @@ export function FeedbackModule() {
                               </ResponsiveContainer>
                             </div>
                           </div>
+
+                          {/* Individual responses */}
+                          {individualResponses && (
+                            <div className="border border-gray-200 rounded-lg p-4 bg-white">
+                              <div className="flex items-center justify-between mb-4">
+                                <h4 className="font-medium text-gray-900">
+                                  Individual Responses
+                                </h4>
+                                <Badge variant="outline" className="text-xs">
+                                  {individualResponses.is_anonymous
+                                    ? "Anonymous — respondent names not stored"
+                                    : `${individualResponses.responses.length} response(s)`}
+                                </Badge>
+                              </div>
+                              {individualResponses.responses.length === 0 ? (
+                                <p className="text-sm text-gray-500 italic">
+                                  No responses yet.
+                                </p>
+                              ) : (
+                                <div className="overflow-x-auto">
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow>
+                                        <TableHead>Respondent</TableHead>
+                                        <TableHead>Submitted</TableHead>
+                                        {individualResponses.responses[0].answers.map(
+                                          (a) => (
+                                            <TableHead
+                                              key={a.question_id}
+                                              className="max-w-[200px] truncate"
+                                              title={a.question_text}
+                                            >
+                                              {a.question_text}
+                                            </TableHead>
+                                          )
+                                        )}
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {individualResponses.responses.map(
+                                        (r) => (
+                                          <TableRow key={r.response_id}>
+                                            <TableCell className="font-medium">
+                                              {r.respondent_name}
+                                            </TableCell>
+                                            <TableCell className="text-xs text-gray-500">
+                                              {new Date(
+                                                r.submitted_at
+                                              ).toLocaleString()}
+                                            </TableCell>
+                                            {r.answers.map((a) => (
+                                              <TableCell
+                                                key={a.question_id}
+                                                className="max-w-[200px] truncate"
+                                                title={a.value}
+                                              >
+                                                {a.value || (
+                                                  <span className="text-gray-400 italic">
+                                                    —
+                                                  </span>
+                                                )}
+                                              </TableCell>
+                                            ))}
+                                          </TableRow>
+                                        )
+                                      )}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </>
                       )}
                     </div>
@@ -2303,48 +2563,65 @@ export function FeedbackModule() {
                 <Label htmlFor="edit-anon">Anonymous</Label>
               </div>
 
-              {/* Forbid specific users */}
+              {/* Forbid specific users — inline collapsible (Popover portals
+                  conflict with the Dialog's focus trap). */}
               <div className="space-y-2 pt-2 border-t border-gray-100">
                 <Label className="text-sm">Forbid users (optional)</Label>
                 <p className="text-xs text-gray-500">
                   Selected users will not see or be able to take this survey.
                 </p>
-                <div className="border border-gray-200 rounded p-2 max-h-32 overflow-y-auto space-y-1">
-                  {orgUsers.length === 0 ? (
-                    <p className="text-xs text-gray-500 italic">
-                      No users loaded.
-                    </p>
-                  ) : (
-                    orgUsers.map((u) => {
-                      const checked = editDraft.forbiddenUserIds.includes(u.id);
-                      return (
-                        <label
-                          key={u.id}
-                          className="flex items-center gap-2 text-sm cursor-pointer"
-                        >
-                          <Checkbox
-                            checked={checked}
-                            onCheckedChange={(v) =>
-                              setEditDraft((prev) => ({
-                                ...prev,
-                                forbiddenUserIds: v
-                                  ? [...prev.forbiddenUserIds, u.id]
-                                  : prev.forbiddenUserIds.filter(
-                                      (id) => id !== u.id
-                                    ),
-                              }))
-                            }
-                          />
-                          <span>{u.name}</span>
-                        </label>
-                      );
-                    })
-                  )}
-                </div>
-                {editDraft.forbiddenUserIds.length > 0 && (
-                  <p className="text-xs text-amber-700">
-                    {editDraft.forbiddenUserIds.length} user(s) forbidden.
-                  </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-between"
+                  onClick={() => setEditForbidOpen((prev) => !prev)}
+                >
+                  <span>
+                    {editDraft.forbiddenUserIds.length === 0
+                      ? "No users forbidden"
+                      : `${editDraft.forbiddenUserIds.length} user(s) forbidden`}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 opacity-50 transition-transform ${
+                      editForbidOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </Button>
+                {editForbidOpen && (
+                  <div className="border border-gray-200 rounded-md max-h-64 overflow-y-auto p-2 space-y-1">
+                    {orgUsers.length === 0 ? (
+                      <p className="text-xs text-gray-500 italic p-2">
+                        No users loaded.
+                      </p>
+                    ) : (
+                      orgUsers.map((u) => {
+                        const checked = editDraft.forbiddenUserIds.includes(
+                          u.id
+                        );
+                        return (
+                          <label
+                            key={u.id}
+                            className="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 rounded px-2 py-1"
+                          >
+                            <Checkbox
+                              checked={checked}
+                              onCheckedChange={(v) =>
+                                setEditDraft((prev) => ({
+                                  ...prev,
+                                  forbiddenUserIds: v
+                                    ? [...prev.forbiddenUserIds, u.id]
+                                    : prev.forbiddenUserIds.filter(
+                                        (id) => id !== u.id
+                                      ),
+                                }))
+                              }
+                            />
+                            <span>{u.name}</span>
+                          </label>
+                        );
+                      })
+                    )}
+                  </div>
                 )}
               </div>
 
@@ -2722,19 +2999,20 @@ export function FeedbackModule() {
 
           {takingSurvey && (
             <div className="space-y-6 pt-2">
-              {takingSurvey.anonymous ? (
+              {takingSurvey.anonymous && (
                 <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-100 rounded-lg">
                   <Lock className="w-4 h-4 text-blue-700" />
                   <p className="text-sm text-blue-900">
                     This survey is anonymous — your identity will not be saved.
                   </p>
                 </div>
-              ) : (
+              )}
+              {hasRespondedToSurvey(takingSurvey) && (
                 <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-100 rounded-lg">
                   <AlertCircle className="w-4 h-4 text-amber-700" />
                   <p className="text-sm text-amber-900">
-                    Submitting again will replace any previous answers you gave
-                    for this survey.
+                    Submitting again will replace your previous answers for this
+                    survey.
                   </p>
                 </div>
               )}
@@ -2870,7 +3148,7 @@ export function FeedbackModule() {
                   <Send className="w-4 h-4 mr-2" />
                   {submittingResponse
                     ? "Submitting..."
-                    : takingSurvey?.viewerHasResponded
+                    : takingSurvey && hasRespondedToSurvey(takingSurvey)
                       ? "Resubmit"
                       : "Submit"}
                 </Button>
