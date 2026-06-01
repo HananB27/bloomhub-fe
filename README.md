@@ -1,3 +1,12 @@
+## Project Repositories
+
+This project is split across two repositories:
+
+- **Frontend**: [bloomhub-fe](https://github.com/HananB27/bloomhub-fe) (this repo)
+- **Backend**: [bloomhub-be](https://github.com/HananB27/bloomhub-be)
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Modules
@@ -29,7 +38,7 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 ## Backend Integration
 
-To connect frontend modules (including Admin bulk permission upload) to `bloomhub-be`, set:
+To connect frontend modules (including Admin bulk permission upload) to [`bloomhub-be`](https://github.com/HananB27/bloomhub-be), set:
 
 ```bash
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
