@@ -81,7 +81,12 @@ test.describe("core module journeys", () => {
     await expect
       .poll(
         () =>
-          backend.state.employees
+          (
+            backend.state.employees as Array<{
+              id: number;
+              tech_tags?: Array<{ name: string }>;
+            }>
+          )
             .find((emp) => emp.id === 1)
             ?.tech_tags?.some((tag: { name: string }) => tag.name === "Docker"),
         { timeout: 10_000 }

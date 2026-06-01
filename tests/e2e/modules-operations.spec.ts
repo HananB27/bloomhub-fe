@@ -203,8 +203,12 @@ test.describe("module operation journeys", () => {
     await expect
       .poll(
         () =>
-          backend.state.projectAssignments[backend.state.projects[0].id]?.[0]
-            ?.employee_name,
+          (
+            backend.state.projectAssignments as Record<
+              string,
+              Array<{ employee_name?: string }>
+            >
+          )[String(backend.state.projects[0].id)]?.[0]?.employee_name,
         { timeout: 10_000 }
       )
       .toBe("Sarah Johnson");

@@ -1468,6 +1468,7 @@ export function createMockBackend(role: Role = "employee") {
         const employee = state.employees.find(
           (item) => item.id === Number(body.user_profile_id)
         );
+        const allocationPercentage = Number(body.allocation_percentage ?? 100);
         const created = {
           id: state.nextIds.projectAssignment++,
           project_id: projectId,
@@ -1479,10 +1480,8 @@ export function createMockBackend(role: Role = "employee") {
             ? `${employee.first_name} ${employee.last_name}`
             : "Employee",
           role: body.role ?? "Contributor",
-          allocation_percentage: body.allocation_percentage ?? 100,
-          weekly_allocation_hours: String(
-            ((body.allocation_percentage ?? 100) / 100) * 40
-          ),
+          allocation_percentage: allocationPercentage,
+          weekly_allocation_hours: String((allocationPercentage / 100) * 40),
           active_projects_count: 1,
           start_date: body.start_date ?? isoDaysFromNow(0),
           end_date: body.end_date ?? null,
@@ -1495,9 +1494,22 @@ export function createMockBackend(role: Role = "employee") {
           created,
           ...(state.projectAssignments[projectId] ?? []),
         ];
-        const project = state.projects.find((item) => item.id === projectId);
+        const project = state.projects.find((item) => item.id === projectId) as
+          | (Record<string, unknown> & {
+              active_members?: Record<string, unknown>[];
+              active_members_count?: number;
+              assignment_summary?: {
+                total_assignments: number;
+                active_assignments: number;
+                active_members: number;
+              };
+            })
+          | undefined;
         if (project) {
-          project.active_members = [created, ...(project.active_members ?? [])];
+          const activeMembers = Array.isArray(project.active_members)
+            ? project.active_members
+            : [];
+          project.active_members = [created, ...activeMembers];
           project.active_members_count = project.active_members.length;
           project.assignment_summary = {
             total_assignments: project.active_members.length,
