@@ -1,4 +1,5 @@
 import { Fragment, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ChevronRight,
   Download,
@@ -15,7 +16,6 @@ import type { LeaveAnalyticsEmployeeSummary } from "@/types/leaveAnalytics";
 import { useEmployeeLeaveHistory } from "@/hooks/useEmployeeLeaveHistory";
 
 import { Button } from "../ui/button";
-import { requestOpenEmployee } from "../orgchart/crossModuleNav";
 import { EmployeeAvatar, TypeChip } from "./Atoms";
 import { getAvatarColorForEmployee } from "./avatarPalette";
 import { BalanceTrendChart } from "./BalanceTrendChart";
@@ -52,15 +52,15 @@ export function EmployeeHistoryTable({
   year,
   rows,
   isAdmin = true,
-  onNavigate,
+  onNavigate: _onNavigate,
 }: Props) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<number | null>(null);
   const [peekId, setPeekId] = useState<number | null>(null);
 
   const openEmployeeProfile = (employeeId: number) => {
-    requestOpenEmployee(employeeId);
-    onNavigate?.("profiles");
+    router.push(`/employee/${employeeId}`);
     setPeekId(null);
   };
 

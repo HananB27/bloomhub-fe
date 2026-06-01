@@ -51,10 +51,14 @@ const OPEN_ANNOUNCEMENT_EVENT = "bloomhub:open-announcement";
 
 interface HRDashboardAppProps {
   initialAnnouncementId?: number;
+  initialEmployeeId?: number;
+  initialModule?: HrModuleId;
 }
 
 export default function HRDashboardApp({
   initialAnnouncementId,
+  initialEmployeeId,
+  initialModule,
 }: HRDashboardAppProps = {}) {
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
@@ -126,12 +130,15 @@ export default function HRDashboardApp({
     }
   }, [session]);
 
-  const [activeModule, setActiveModule] = useState<HrModuleId>(() =>
-    initialAnnouncementId ? "announcements" : "dashboard"
-  );
+  const [activeModule, setActiveModule] = useState<HrModuleId>(() => {
+    if (initialModule) return initialModule;
+    if (initialEmployeeId != null) return "profiles";
+    if (initialAnnouncementId) return "announcements";
+    return "dashboard";
+  });
   const openedInitialAnnouncementRef = useRef(false);
   const [pendingEmployeeId, setPendingEmployeeId] = useState<number | null>(
-    null
+    initialEmployeeId ?? null
   );
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -188,6 +195,13 @@ export default function HRDashboardApp({
     setActiveModule(moduleId as HrModuleId);
     setIsSearchOpen(false);
     setSearchQuery("");
+    setPendingEmployeeId(null);
+    if (
+      typeof window !== "undefined" &&
+      window.location.pathname.startsWith("/employee/")
+    ) {
+      window.history.replaceState(null, "", "/");
+    }
   };
 
   useEffect(() => {
@@ -326,11 +340,21 @@ export default function HRDashboardApp({
               activeModule={activeModule}
               defaultOpen={openAssistant}
               onModuleNavigate={(moduleId, entityId) => {
+                if (moduleId === "profiles" && entityId != null) {
+                  setActiveModule("profiles");
+                  setPendingEmployeeId(entityId);
+                  if (typeof window !== "undefined") {
+                    window.history.pushState(null, "", `/employee/${entityId}`);
+                  }
+                  return;
+                }
                 setActiveModule(moduleId);
-                if (moduleId === "profiles") {
-                  setPendingEmployeeId(entityId ?? null);
-                } else {
-                  setPendingEmployeeId(null);
+                setPendingEmployeeId(null);
+                if (
+                  typeof window !== "undefined" &&
+                  window.location.pathname.startsWith("/employee/")
+                ) {
+                  window.history.replaceState(null, "", "/");
                 }
               }}
             />
