@@ -244,6 +244,84 @@ export interface AnalyticsFilters {
   endDate?: string;
 }
 
+// ── Pulse check (BHB-452) ─────────────────────────────────────────────────
+
+export type PulseCategory = "overall" | "workload" | "management" | "culture";
+
+export interface PulseCheck {
+  id: number;
+  employee: number | null;
+  category: PulseCategory;
+  value: number;
+  created_at: string;
+}
+
+export interface PulseSummary {
+  days: number;
+  count: number;
+  average: number;
+  by_day: { date: string; count: number; average: number }[];
+  distribution: { value: number; count: number }[];
+  by_category: { category: PulseCategory; count: number; average: number }[];
+}
+
+export async function submitPulseCheck(
+  value: number,
+  category: PulseCategory = "overall",
+  token?: string
+): Promise<PulseCheck> {
+  const response = await fetch(buildApiUrl("/api/pulse-checks/"), {
+    method: "POST",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({ value, category }),
+  });
+  return parseResponse<PulseCheck>(response);
+}
+
+export interface SurveyIndividualAnswer {
+  question_id: number;
+  question_text: string;
+  question_type: SurveyQuestionType;
+  value: string;
+}
+
+export interface SurveyIndividualResponse {
+  response_id: number;
+  respondent_id: number | null;
+  respondent_name: string;
+  submitted_at: string;
+  answers: SurveyIndividualAnswer[];
+}
+
+export interface SurveyIndividualResponsesPayload {
+  survey_id: number;
+  survey_title: string;
+  is_anonymous: boolean;
+  responses: SurveyIndividualResponse[];
+}
+
+export async function fetchSurveyIndividualResponses(
+  surveyId: number,
+  token?: string
+): Promise<SurveyIndividualResponsesPayload> {
+  const response = await fetch(
+    buildApiUrl(`/api/surveys/${surveyId}/individual-responses/`),
+    { headers: getAuthHeaders(token) }
+  );
+  return parseResponse<SurveyIndividualResponsesPayload>(response);
+}
+
+export async function fetchPulseSummary(
+  days = 7,
+  token?: string
+): Promise<PulseSummary> {
+  const response = await fetch(
+    buildApiUrl(`/api/pulse-checks/summary/?days=${days}`),
+    { headers: getAuthHeaders(token) }
+  );
+  return parseResponse<PulseSummary>(response);
+}
+
 export async function fetchSurveyAnalytics(
   surveyId: number,
   filters: AnalyticsFilters = {},
