@@ -378,6 +378,65 @@ export function transformLeaveRequestHistoryRowList(
   return list.map(transformLeaveRequestHistoryRow);
 }
 
+function _transformLeaveAvailabilityEntry(
+  raw: Record<string, unknown>
+): import("@/types/leaveAnalytics").LeaveAvailabilityEntry {
+  return {
+    leaveType: raw.leave_type as LeaveType,
+    status: raw.status as import("@/types/vacations").LeaveStatus,
+    startDate: (raw.start_date as string) || "",
+    endDate: (raw.end_date as string) || "",
+    windowStart: (raw.window_start as string) || "",
+    windowEnd: (raw.window_end as string) || "",
+  };
+}
+
+function _transformLeaveAvailabilityEmployee(
+  raw: Record<string, unknown>
+): import("@/types/leaveAnalytics").LeaveAvailabilityEmployee {
+  const entries = (raw.entries as Record<string, unknown>[] | undefined) ?? [];
+  return {
+    employeeId: (raw.employee_id as number) ?? 0,
+    employeeName: (raw.employee_name as string) || "",
+    role: (raw.role as string) || null,
+    department: (raw.department as string) || null,
+    entries: entries.map(_transformLeaveAvailabilityEntry),
+  };
+}
+
+function _transformLeaveAvailabilityDay(
+  raw: Record<string, unknown>
+): import("@/types/leaveAnalytics").LeaveAvailabilityDayCount {
+  return {
+    date: (raw.date as string) || "",
+    onLeaveCount: (raw.on_leave_count as number) ?? 0,
+    byType: _normalizeByType(raw.by_type as Record<string, unknown>),
+    isCritical: Boolean(raw.is_critical),
+  };
+}
+
+export function transformLeaveAvailabilityResponse(
+  raw: Record<string, unknown>
+): import("@/types/leaveAnalytics").LeaveAvailabilityResponse {
+  const range = (raw.range as Record<string, unknown> | undefined) ?? {};
+  const employees =
+    (raw.employees as Record<string, unknown>[] | undefined) ?? [];
+  const daily = (raw.daily as Record<string, unknown>[] | undefined) ?? [];
+  return {
+    range: {
+      startDate: (range.start_date as string) || "",
+      endDate: (range.end_date as string) || "",
+      workingDaysCount: (range.working_days_count as number) ?? 0,
+      headcount: (range.headcount as number) ?? 0,
+      projectId: (range.project_id as number | null) ?? null,
+      projectName: (range.project_name as string | null) ?? null,
+      criticalRatio: (range.critical_ratio as number) ?? 0,
+    },
+    employees: employees.map(_transformLeaveAvailabilityEmployee),
+    daily: daily.map(_transformLeaveAvailabilityDay),
+  };
+}
+
 export function transformLeaveAnalyticsEmployeeHistory(
   raw: Record<string, unknown>
 ): import("@/types/leaveAnalytics").LeaveAnalyticsEmployeeHistory {
