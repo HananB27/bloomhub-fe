@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type Dispatch,
   type ReactNode,
@@ -12,11 +13,17 @@ import {
   AlertCircle,
   Calendar,
   CheckCircle,
+  CheckSquare,
   ChevronLeft,
   ChevronRight,
   Clock,
   Edit3,
   Eye,
+  FileText,
+  Inbox,
+  LineChart,
+  ListChecks,
+  Plug,
   RefreshCw,
   Search,
   Trash2,
@@ -31,6 +38,7 @@ import {
   type JiraIssueMapping,
   type JiraMappingPayload,
   type JiraMappings,
+  type JiraOAuthStatus,
   type JiraProjectDiscoveryResult,
   type JiraProjectDiscoveryRow,
   type JiraProjectMapping,
@@ -45,6 +53,7 @@ import {
   type TempoImportFilters,
   type TempoImportPreview,
   type TempoMappings,
+  type TempoOAuthStatus,
   type TempoProjectMapping,
   type TempoSettings,
   type TempoTeamMapping,
@@ -99,6 +108,8 @@ import {
 } from "./ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Textarea } from "./ui/textarea";
+import { JiraConnectionCard } from "./time-tracking/JiraConnectionCard";
+import { TempoConnectionCard } from "./time-tracking/TempoConnectionCard";
 
 type EntryForm = {
   id?: number;
@@ -166,9 +177,9 @@ type JiraAssignedIssuesForm = {
 };
 
 type JiraDiscoveryForm = {
-  base_url: string;
-  auth_email: string;
-  api_token: string;
+  query: string;
+  employee_id: string;
+  project_id: string;
   date_from: string;
   date_to: string;
   limit: string;
@@ -539,10 +550,16 @@ function jiraIssueUrl(baseUrl: string | undefined, issueKey: string): string {
 
 function jiraDiscoveryPayload(form: JiraDiscoveryForm) {
   const limit = Number(form.limit);
+  const employeeId = Number(form.employee_id);
+  const projectId = Number(form.project_id);
   return {
-    ...(form.base_url.trim() ? { base_url: form.base_url.trim() } : {}),
-    ...(form.auth_email.trim() ? { auth_email: form.auth_email.trim() } : {}),
-    ...(form.api_token.trim() ? { api_token: form.api_token.trim() } : {}),
+    ...(form.query.trim() ? { query: form.query.trim() } : {}),
+    ...(Number.isFinite(employeeId) && employeeId > 0
+      ? { employee_id: employeeId }
+      : {}),
+    ...(Number.isFinite(projectId) && projectId > 0
+      ? { project_id: projectId }
+      : {}),
     ...(form.date_from ? { date_from: form.date_from } : {}),
     ...(form.date_to ? { date_to: form.date_to } : {}),
     ...(Number.isFinite(limit) && limit > 0 ? { limit } : {}),
@@ -825,9 +842,9 @@ const EMPTY_JIRA_ISSUE_MAPPING_FORM: JiraIssueMappingForm = {
 };
 
 const EMPTY_JIRA_DISCOVERY_FORM: JiraDiscoveryForm = {
-  base_url: "",
-  auth_email: "",
-  api_token: "",
+  query: "",
+  employee_id: "",
+  project_id: "",
   date_from: "",
   date_to: "",
   limit: "1000",
@@ -838,11 +855,45 @@ const EMPTY_JIRA_ASSIGNED_ISSUES_FORM: JiraAssignedIssuesForm = {
   max_results: "1000",
 };
 
+const EMPTY_JIRA_MAPPINGS: JiraMappings = {
+  users: [],
+  projects: [],
+  issues: [],
+};
+
+function normalizeJiraMappings(
+  mappings: Partial<JiraMappings> | null | undefined
+): JiraMappings {
+  return {
+    users: Array.isArray(mappings?.users) ? mappings.users : [],
+    projects: Array.isArray(mappings?.projects) ? mappings.projects : [],
+    issues: Array.isArray(mappings?.issues) ? mappings.issues : [],
+  };
+}
+
 const EMPTY_TEMPO_SETTINGS_FORM: TempoSettingsForm = {
   base_url: "https://api.tempo.io/4",
   api_token: "",
   enabled: false,
 };
+
+const EMPTY_TEMPO_MAPPINGS: TempoMappings = {
+  users: [],
+  accounts: [],
+  projects: [],
+  teams: [],
+};
+
+function normalizeTempoMappings(
+  mappings: Partial<TempoMappings> | null | undefined
+): TempoMappings {
+  return {
+    users: Array.isArray(mappings?.users) ? mappings.users : [],
+    accounts: Array.isArray(mappings?.accounts) ? mappings.accounts : [],
+    projects: Array.isArray(mappings?.projects) ? mappings.projects : [],
+    teams: Array.isArray(mappings?.teams) ? mappings.teams : [],
+  };
+}
 
 const EMPTY_TEMPO_MAPPING_FORM: TempoMappingForm = {
   mapping_type: "user",
@@ -960,14 +1011,13 @@ export function TimeTrackingModule() {
   const [isSummaryLoading, setIsSummaryLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [jiraSettings, setJiraSettings] = useState<JiraSettings | null>(null);
+  const [jiraOAuthStatus, setJiraOAuthStatus] =
+    useState<JiraOAuthStatus | null>(null);
   const [jiraSettingsForm, setJiraSettingsForm] = useState<JiraSettingsForm>(
     EMPTY_JIRA_SETTINGS_FORM
   );
-  const [jiraMappings, setJiraMappings] = useState<JiraMappings>({
-    users: [],
-    projects: [],
-    issues: [],
-  });
+  const [jiraMappings, setJiraMappings] =
+    useState<JiraMappings>(EMPTY_JIRA_MAPPINGS);
   const [jiraDiscoveryForm, setJiraDiscoveryForm] = useState<JiraDiscoveryForm>(
     EMPTY_JIRA_DISCOVERY_FORM
   );
@@ -1004,18 +1054,15 @@ export function TimeTrackingModule() {
   const [jiraMessage, setJiraMessage] = useState<string | null>(null);
   const [isJiraLoading, setIsJiraLoading] = useState(false);
   const [isJiraSaving, setIsJiraSaving] = useState(false);
+  const [isJiraSyncing, setIsJiraSyncing] = useState(false);
   const [tempoSettings, setTempoSettings] = useState<TempoSettings | null>(
     null
   );
   const [tempoSettingsForm, setTempoSettingsForm] = useState<TempoSettingsForm>(
     EMPTY_TEMPO_SETTINGS_FORM
   );
-  const [tempoMappings, setTempoMappings] = useState<TempoMappings>({
-    users: [],
-    accounts: [],
-    projects: [],
-    teams: [],
-  });
+  const [tempoMappings, setTempoMappings] =
+    useState<TempoMappings>(EMPTY_TEMPO_MAPPINGS);
   const [tempoMappingForm, setTempoMappingForm] = useState<TempoMappingForm>(
     EMPTY_TEMPO_MAPPING_FORM
   );
@@ -1045,6 +1092,7 @@ export function TimeTrackingModule() {
   const [tempoMessage, setTempoMessage] = useState<string | null>(null);
   const [isTempoLoading, setIsTempoLoading] = useState(false);
   const [isTempoSaving, setIsTempoSaving] = useState(false);
+  const [isTempoSyncing, setIsTempoSyncing] = useState(false);
   const [documentBatch, setDocumentBatch] = useState<TimeImportBatch | null>(
     null
   );
@@ -1302,18 +1350,23 @@ export function TimeTrackingModule() {
       ]);
       setJiraSettings(settings);
       setJiraSettingsForm(jiraSettingsToForm(settings));
-      setJiraDiscoveryForm((prev) => ({
-        ...prev,
-        base_url: settings.base_url || prev.base_url,
-        auth_email: settings.auth_email || prev.auth_email,
-      }));
-      setJiraMappings(mappings);
+      setJiraMappings(normalizeJiraMappings(mappings));
     } catch (loadError) {
       setJiraError(
         getErrorMessage(loadError, "Failed to load Jira integration.")
       );
     } finally {
       setIsJiraLoading(false);
+    }
+  }, [canManageTime]);
+
+  const loadJiraOAuthStatus = useCallback(async () => {
+    if (!canManageTime) return;
+
+    try {
+      setJiraOAuthStatus(await timeTrackingApi.getJiraOAuthStatus());
+    } catch {
+      setJiraOAuthStatus(null);
     }
   }, [canManageTime]);
 
@@ -1332,7 +1385,7 @@ export function TimeTrackingModule() {
         ...prev,
         base_url: settings.base_url || prev.base_url,
       }));
-      setTempoMappings(mappings);
+      setTempoMappings(normalizeTempoMappings(mappings));
     } catch (loadError) {
       setTempoError(
         getErrorMessage(loadError, "Failed to load Tempo integration.")
@@ -1341,6 +1394,26 @@ export function TimeTrackingModule() {
       setIsTempoLoading(false);
     }
   }, [canManageTime]);
+
+  const syncTempoFromRemote = async () => {
+    setIsTempoSyncing(true);
+    setTempoError(null);
+    setTempoMessage(null);
+
+    try {
+      const updated = normalizeTempoMappings(
+        await timeTrackingApi.syncTempoMappings()
+      );
+      setTempoMappings(updated);
+      setTempoMessage(
+        `Synced from Tempo — ${updated.users.length} users, ${updated.accounts.length} accounts, ${updated.projects.length} projects, ${updated.teams.length} teams.`
+      );
+    } catch (syncError) {
+      setTempoError(getErrorMessage(syncError, "Failed to sync from Tempo."));
+    } finally {
+      setIsTempoSyncing(false);
+    }
+  };
 
   const loadReports = useCallback(async () => {
     setIsReportsLoading(true);
@@ -1465,6 +1538,12 @@ export function TimeTrackingModule() {
   useEffect(() => {
     if (activeTab === "jira") void loadJiraIntegration();
   }, [activeTab, loadJiraIntegration]);
+
+  useEffect(() => {
+    if (activeTab === "jira" || activeTab === "tempo") {
+      void loadJiraOAuthStatus();
+    }
+  }, [activeTab, loadJiraOAuthStatus]);
 
   useEffect(() => {
     if (activeTab === "tempo") void loadTempoIntegration();
@@ -1882,6 +1961,25 @@ export function TimeTrackingModule() {
     }
   };
 
+  const syncJiraFromRemote = async () => {
+    setIsJiraSyncing(true);
+    setJiraError(null);
+    setJiraMessage(null);
+    try {
+      const updated = normalizeJiraMappings(
+        await timeTrackingApi.syncJiraMappings()
+      );
+      setJiraMappings(updated);
+      setJiraMessage(
+        `Synced from Jira — ${updated.users.length} users, ${updated.projects.length} projects, ${updated.issues.length} issues.`
+      );
+    } catch (syncError) {
+      setJiraError(getErrorMessage(syncError, "Failed to sync from Jira."));
+    } finally {
+      setIsJiraSyncing(false);
+    }
+  };
+
   const saveJiraUserMapping = async () => {
     if (!jiraUserForm.jira_account_id.trim() || !jiraUserForm.employee_id) {
       setJiraError("Jira account ID and employee are required.");
@@ -1907,7 +2005,7 @@ export function TimeTrackingModule() {
         await timeTrackingApi.createJiraMapping(payload);
       }
       const mappings = await timeTrackingApi.getJiraMappings();
-      setJiraMappings(mappings);
+      setJiraMappings(normalizeJiraMappings(mappings));
       setJiraUserForm(EMPTY_JIRA_USER_MAPPING_FORM);
       setJiraMessage("User mapping saved.");
     } catch (saveError) {
@@ -1945,7 +2043,7 @@ export function TimeTrackingModule() {
         await timeTrackingApi.createJiraMapping(payload);
       }
       const mappings = await timeTrackingApi.getJiraMappings();
-      setJiraMappings(mappings);
+      setJiraMappings(normalizeJiraMappings(mappings));
       setJiraProjectForm(EMPTY_JIRA_PROJECT_MAPPING_FORM);
       setJiraMessage("Project mapping saved.");
     } catch (saveError) {
@@ -1982,7 +2080,7 @@ export function TimeTrackingModule() {
         await timeTrackingApi.createJiraMapping(payload);
       }
       const mappings = await timeTrackingApi.getJiraMappings();
-      setJiraMappings(mappings);
+      setJiraMappings(normalizeJiraMappings(mappings));
       setJiraIssueForm(EMPTY_JIRA_ISSUE_MAPPING_FORM);
       setJiraMessage("Issue mapping saved.");
     } catch (saveError) {
@@ -2034,7 +2132,9 @@ export function TimeTrackingModule() {
       } else {
         await timeTrackingApi.createJiraMapping(payload);
       }
-      setJiraMappings(await timeTrackingApi.getJiraMappings());
+      setJiraMappings(
+        normalizeJiraMappings(await timeTrackingApi.getJiraMappings())
+      );
       setJiraMessage("Jira mapping created or updated.");
     } catch (saveError) {
       setJiraError(
@@ -2197,7 +2297,9 @@ export function TimeTrackingModule() {
       } else {
         await timeTrackingApi.createTempoMapping(payload);
       }
-      setTempoMappings(await timeTrackingApi.getTempoMappings());
+      setTempoMappings(
+        normalizeTempoMappings(await timeTrackingApi.getTempoMappings())
+      );
       setTempoMappingForm(EMPTY_TEMPO_MAPPING_FORM);
       setTempoMessage("Tempo mapping saved.");
     } catch (saveError) {
@@ -2245,7 +2347,9 @@ export function TimeTrackingModule() {
     try {
       const payload = tempoDiscoveryMappingPayload(type, row, projectId);
       await timeTrackingApi.createTempoMapping(payload);
-      setTempoMappings(await timeTrackingApi.getTempoMappings());
+      setTempoMappings(
+        normalizeTempoMappings(await timeTrackingApi.getTempoMappings())
+      );
       setTempoMessage("Tempo mapping created or updated.");
     } catch (saveError) {
       setTempoError(
@@ -2681,42 +2785,83 @@ export function TimeTrackingModule() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList
-            className={`h-auto rounded-xl border border-gray-200 bg-white p-1 shadow-sm ${canManageTime ? "grid w-full grid-cols-2 gap-1 md:grid-cols-4 xl:grid-cols-8" : "grid w-full grid-cols-2 gap-1"}`}
+            aria-label="Time Tracking sections"
+            className={`h-auto flex-wrap rounded-xl border border-gray-200 bg-white p-1.5 shadow-sm ${canManageTime ? "grid w-full grid-cols-2 gap-1.5 sm:grid-cols-4 xl:grid-cols-8" : "grid w-full grid-cols-2 gap-1.5"}`}
           >
-            <TabsTrigger className="rounded-lg" value="week">
-              Weekly Timesheet
+            <TabsTrigger
+              className="flex h-10 items-center justify-center gap-2 rounded-lg px-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-1 data-[state=active]:bg-gray-950 data-[state=active]:text-white"
+              value="week"
+              aria-label="Weekly Timesheet"
+            >
+              <Calendar className="h-4 w-4" aria-hidden="true" />
+              <span>Timesheet</span>
             </TabsTrigger>
-            <TabsTrigger className="rounded-lg" value="reports">
-              Reports
+            <TabsTrigger
+              className="flex h-10 items-center justify-center gap-2 rounded-lg px-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-1 data-[state=active]:bg-gray-950 data-[state=active]:text-white"
+              value="reports"
+              aria-label="Reports"
+            >
+              <LineChart className="h-4 w-4" aria-hidden="true" />
+              <span>Reports</span>
             </TabsTrigger>
             {canManageTime && (
-              <TabsTrigger className="rounded-lg" value="tasks">
-                Tasks
+              <TabsTrigger
+                className="flex h-10 items-center justify-center gap-2 rounded-lg px-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-1 data-[state=active]:bg-gray-950 data-[state=active]:text-white"
+                value="tasks"
+                aria-label="Tasks"
+              >
+                <ListChecks className="h-4 w-4" aria-hidden="true" />
+                <span>Tasks</span>
               </TabsTrigger>
             )}
             {canManageTime && (
-              <TabsTrigger className="rounded-lg" value="jira">
-                Jira
+              <TabsTrigger
+                className="flex h-10 items-center justify-center gap-2 rounded-lg px-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-1 data-[state=active]:bg-gray-950 data-[state=active]:text-white"
+                value="jira"
+                aria-label="Jira integration"
+              >
+                <Plug className="h-4 w-4" aria-hidden="true" />
+                <span>Jira</span>
               </TabsTrigger>
             )}
             {canManageTime && (
-              <TabsTrigger className="rounded-lg" value="tempo">
-                Tempo
+              <TabsTrigger
+                className="flex h-10 items-center justify-center gap-2 rounded-lg px-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-1 data-[state=active]:bg-gray-950 data-[state=active]:text-white"
+                value="tempo"
+                aria-label="Tempo integration"
+              >
+                <Clock className="h-4 w-4" aria-hidden="true" />
+                <span>Tempo</span>
               </TabsTrigger>
             )}
             {canManageTime && (
-              <TabsTrigger className="rounded-lg" value="documents">
-                Documents
+              <TabsTrigger
+                className="flex h-10 items-center justify-center gap-2 rounded-lg px-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-1 data-[state=active]:bg-gray-950 data-[state=active]:text-white"
+                value="documents"
+                aria-label="Documents"
+              >
+                <FileText className="h-4 w-4" aria-hidden="true" />
+                <span>Documents</span>
               </TabsTrigger>
             )}
             {canManageTime && (
-              <TabsTrigger className="rounded-lg" value="observability">
-                Imports
+              <TabsTrigger
+                className="flex h-10 items-center justify-center gap-2 rounded-lg px-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-1 data-[state=active]:bg-gray-950 data-[state=active]:text-white"
+                value="observability"
+                aria-label="Imports"
+              >
+                <Inbox className="h-4 w-4" aria-hidden="true" />
+                <span>Imports</span>
               </TabsTrigger>
             )}
             {canManageTime && (
-              <TabsTrigger className="rounded-lg" value="approvals">
-                Approvals
+              <TabsTrigger
+                className="flex h-10 items-center justify-center gap-2 rounded-lg px-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-1 data-[state=active]:bg-gray-950 data-[state=active]:text-white"
+                value="approvals"
+                aria-label="Approvals"
+              >
+                <CheckSquare className="h-4 w-4" aria-hidden="true" />
+                <span>Approvals</span>
               </TabsTrigger>
             )}
           </TabsList>
@@ -3223,6 +3368,9 @@ export function TimeTrackingModule() {
                   void loadWeek();
                   void loadWeeklySummary();
                 }}
+                canConnect={jiraOAuthStatus?.connected === true}
+                onSyncAll={syncTempoFromRemote}
+                isSyncing={isTempoSyncing}
               />
             </TabsContent>
           )}
@@ -3272,6 +3420,10 @@ export function TimeTrackingModule() {
                   void loadWeek();
                   void loadWeeklySummary();
                 }}
+                onSyncAll={syncJiraFromRemote}
+                isSyncing={isJiraSyncing}
+                jiraOAuth={jiraOAuthStatus}
+                onJiraOAuthChange={setJiraOAuthStatus}
               />
             </TabsContent>
           )}
@@ -3853,11 +4005,19 @@ function JiraIntegrationPanel({
   onRunAssignedIssuesImport,
   onRefresh,
   onRefreshEntries,
+  onSyncAll,
+  isSyncing,
+  jiraOAuth,
+  onJiraOAuthChange,
 }: {
   settings: JiraSettings | null;
   settingsForm: JiraSettingsForm;
   setSettingsForm: Dispatch<SetStateAction<JiraSettingsForm>>;
   mappings: JiraMappings;
+  onSyncAll: () => void;
+  isSyncing: boolean;
+  jiraOAuth: JiraOAuthStatus | null;
+  onJiraOAuthChange: (status: JiraOAuthStatus | null) => void;
   userForm: JiraUserMappingForm;
   setUserForm: Dispatch<SetStateAction<JiraUserMappingForm>>;
   projectForm: JiraProjectMappingForm;
@@ -3898,6 +4058,16 @@ function JiraIntegrationPanel({
   onRefresh: () => void;
   onRefreshEntries: () => void;
 }) {
+  const autoSyncedRef = useRef(false);
+  useEffect(() => {
+    if (jiraOAuth?.connected && !autoSyncedRef.current && !isSyncing) {
+      autoSyncedRef.current = true;
+      onSyncAll();
+    }
+    if (!jiraOAuth?.connected) {
+      autoSyncedRef.current = false;
+    }
+  }, [jiraOAuth?.connected, isSyncing, onSyncAll]);
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -3910,10 +4080,18 @@ function JiraIntegrationPanel({
             Time Tracking.
           </p>
         </div>
-        <Button variant="outline" onClick={onRefresh} disabled={isLoading}>
-          <RefreshCw className="mr-2 h-4 w-4" />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          {isSyncing && (
+            <span className="inline-flex items-center gap-1 text-xs text-gray-500">
+              <RefreshCw className="h-3 w-3 animate-spin" />
+              Syncing from Jira…
+            </span>
+          )}
+          <Button variant="outline" onClick={onRefresh} disabled={isLoading}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {(error || message) && (
@@ -3931,197 +4109,86 @@ function JiraIntegrationPanel({
         </div>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Connection Settings</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-            <Field label="Base URL">
-              <Input
-                value={settingsForm.base_url}
-                onChange={(event) =>
-                  setSettingsForm((prev) => ({
-                    ...prev,
-                    base_url: event.target.value,
-                  }))
-                }
-                placeholder="https://company.atlassian.net"
-              />
-            </Field>
-            <Field label="Auth Email">
-              <Input
-                type="email"
-                value={settingsForm.auth_email}
-                onChange={(event) =>
-                  setSettingsForm((prev) => ({
-                    ...prev,
-                    auth_email: event.target.value,
-                  }))
-                }
-              />
-            </Field>
-            <Field label="API Token">
-              <Input
-                type="password"
-                value={settingsForm.api_token}
-                onChange={(event) =>
-                  setSettingsForm((prev) => ({
-                    ...prev,
-                    api_token: event.target.value,
-                  }))
-                }
-                placeholder={
-                  settings?.has_api_token ? "Token saved" : "Paste token"
-                }
-              />
-            </Field>
-            <Field label="Enabled">
-              <div className="flex h-10 items-center gap-2">
-                <Checkbox
-                  checked={settingsForm.enabled}
-                  onCheckedChange={(checked) =>
-                    setSettingsForm((prev) => ({
-                      ...prev,
-                      enabled: checked === true,
-                    }))
-                  }
-                />
-                <span className="text-sm">Allow Jira imports</span>
-              </div>
-            </Field>
-          </div>
+      <JiraConnectionCard onStatusChange={onJiraOAuthChange} />
 
-          <div className="grid grid-cols-1 gap-3 rounded-md border border-gray-200 bg-gray-50 p-3 text-sm md:grid-cols-4">
-            <Detail
-              label="Token"
-              value={settings?.has_api_token ? "Saved" : "Not saved"}
+      {!jiraOAuth?.connected ? (
+        <Card>
+          <CardContent className="px-5 py-6 text-sm text-gray-600">
+            Connect your Jira account above to view mappings, run discovery, and
+            import worklogs.
+          </CardContent>
+        </Card>
+      ) : (
+        <Tabs defaultValue="users">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6">
+            <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="projects">Projects</TabsTrigger>
+            <TabsTrigger value="issues">Issues</TabsTrigger>
+            <TabsTrigger value="discovery">Discovery</TabsTrigger>
+            <TabsTrigger value="import">Import</TabsTrigger>
+            <TabsTrigger value="assigned-issues">Assigned Issues</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="users" className="mt-4">
+            <JiraUserMappingsPanel mappings={mappings.users} />
+          </TabsContent>
+
+          <TabsContent value="projects" className="mt-4">
+            <JiraProjectMappingsPanel mappings={mappings.projects} />
+          </TabsContent>
+
+          <TabsContent value="issues" className="mt-4">
+            <JiraIssueMappingsPanel
+              mappings={mappings.issues}
+              jiraBaseUrl={settings?.base_url}
             />
-            <Detail
-              label="Last Test"
-              value={settings?.last_test_status || "--"}
+          </TabsContent>
+
+          <TabsContent value="discovery" className="mt-4">
+            <JiraProjectDiscoveryPanel
+              form={discoveryForm}
+              setForm={setDiscoveryForm}
+              discovery={discovery}
+              mappings={mappings}
+              employees={employees}
+              projects={projects}
+              tasks={tasks}
+              jiraBaseUrl={settings?.base_url}
+              isSaving={isSaving}
+              onDiscover={onDiscover}
+              onSaveMapping={onSaveDiscoveryMapping}
             />
-            <Detail
-              label="Message"
-              value={settings?.last_test_message || "--"}
+          </TabsContent>
+
+          <TabsContent value="import" className="mt-4">
+            <JiraImportPanel
+              filters={importFilters}
+              setFilters={setImportFilters}
+              preview={preview}
+              commitResult={commitResult}
+              jiraBaseUrl={settings?.base_url}
+              employees={employees}
+              projects={projects}
+              isSaving={isSaving}
+              onPreview={onPreview}
+              onCommit={onCommit}
+              onRefreshEntries={onRefreshEntries}
             />
-            <Detail label="Tested At" value={settings?.last_test_at || "--"} />
-          </div>
-          {settings?.last_test_metadata &&
-            Object.keys(settings.last_test_metadata).length > 0 && (
-              <Detail
-                label="Last Test Metadata"
-                value={JSON.stringify(settings.last_test_metadata, null, 2)}
-              />
-            )}
+          </TabsContent>
 
-          <div className="flex gap-2">
-            <Button
-              variant="primary"
-              onClick={onSaveSettings}
-              disabled={isSaving}
-            >
-              Save settings
-            </Button>
-            <Button
-              variant="outline"
-              onClick={onTestConnection}
-              disabled={isSaving}
-            >
-              Test connection
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Tabs defaultValue="users">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-6">
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="projects">Projects</TabsTrigger>
-          <TabsTrigger value="issues">Issues</TabsTrigger>
-          <TabsTrigger value="discovery">Discovery</TabsTrigger>
-          <TabsTrigger value="import">Import</TabsTrigger>
-          <TabsTrigger value="assigned-issues">Assigned Issues</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="users" className="mt-4">
-          <JiraUserMappingsPanel
-            mappings={mappings.users}
-            form={userForm}
-            setForm={setUserForm}
-            employees={employees}
-            isSaving={isSaving}
-            onSave={onSaveUserMapping}
-          />
-        </TabsContent>
-
-        <TabsContent value="projects" className="mt-4">
-          <JiraProjectMappingsPanel
-            mappings={mappings.projects}
-            form={projectForm}
-            setForm={setProjectForm}
-            projects={projects}
-            isSaving={isSaving}
-            onSave={onSaveProjectMapping}
-          />
-        </TabsContent>
-
-        <TabsContent value="issues" className="mt-4">
-          <JiraIssueMappingsPanel
-            mappings={mappings.issues}
-            form={issueForm}
-            setForm={setIssueForm}
-            tasks={tasks}
-            jiraBaseUrl={settings?.base_url}
-            isSaving={isSaving}
-            onSave={onSaveIssueMapping}
-          />
-        </TabsContent>
-
-        <TabsContent value="discovery" className="mt-4">
-          <JiraProjectDiscoveryPanel
-            form={discoveryForm}
-            setForm={setDiscoveryForm}
-            discovery={discovery}
-            mappings={mappings}
-            employees={employees}
-            projects={projects}
-            tasks={tasks}
-            jiraBaseUrl={settings?.base_url}
-            isSaving={isSaving}
-            onDiscover={onDiscover}
-            onSaveMapping={onSaveDiscoveryMapping}
-          />
-        </TabsContent>
-
-        <TabsContent value="import" className="mt-4">
-          <JiraImportPanel
-            filters={importFilters}
-            setFilters={setImportFilters}
-            preview={preview}
-            commitResult={commitResult}
-            jiraBaseUrl={settings?.base_url}
-            employees={employees}
-            projects={projects}
-            isSaving={isSaving}
-            onPreview={onPreview}
-            onCommit={onCommit}
-            onRefreshEntries={onRefreshEntries}
-          />
-        </TabsContent>
-
-        <TabsContent value="assigned-issues" className="mt-4">
-          <JiraAssignedIssuesImportPanel
-            form={assignedIssuesForm}
-            setForm={setAssignedIssuesForm}
-            result={assignedIssuesResult}
-            jiraBaseUrl={settings?.base_url}
-            employees={employees}
-            isSaving={isSaving}
-            onRun={onRunAssignedIssuesImport}
-          />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="assigned-issues" className="mt-4">
+            <JiraAssignedIssuesImportPanel
+              form={assignedIssuesForm}
+              setForm={setAssignedIssuesForm}
+              result={assignedIssuesResult}
+              jiraBaseUrl={settings?.base_url}
+              employees={employees}
+              isSaving={isSaving}
+              onRun={onRunAssignedIssuesImport}
+            />
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   );
 }
@@ -4166,41 +4233,65 @@ function JiraProjectDiscoveryPanel({
           <CardTitle>Jira Project Discovery</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <p className="text-xs text-gray-500">
+            Search synced Jira data. Filter by free-text, employee, project, or
+            date range. HR can preview any employee’s synced Jira data.
+          </p>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-6">
-            <Field label="Base URL">
+            <Field label="Search">
               <Input
-                value={form.base_url}
+                value={form.query}
                 onChange={(event) =>
-                  setForm((prev) => ({ ...prev, base_url: event.target.value }))
+                  setForm((prev) => ({ ...prev, query: event.target.value }))
                 }
-                placeholder="Use saved URL if blank"
+                placeholder="Issue key, name, email…"
               />
             </Field>
-            <Field label="Auth Email">
-              <Input
-                type="email"
-                value={form.auth_email}
-                onChange={(event) =>
+            <Field label="Employee">
+              <Select
+                value={form.employee_id || "all"}
+                onValueChange={(value) =>
                   setForm((prev) => ({
                     ...prev,
-                    auth_email: event.target.value,
+                    employee_id: value === "all" ? "" : value,
                   }))
                 }
-                placeholder="Use saved email if blank"
-              />
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="All employees" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All employees</SelectItem>
+                  {employees.map((employee) => (
+                    <SelectItem key={employee.id} value={String(employee.id)}>
+                      {employeeDisplayName(employee)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </Field>
-            <Field label="API Token">
-              <Input
-                type="password"
-                value={form.api_token}
-                onChange={(event) =>
+            <Field label="Project">
+              <Select
+                value={form.project_id || "all"}
+                onValueChange={(value) =>
                   setForm((prev) => ({
                     ...prev,
-                    api_token: event.target.value,
+                    project_id: value === "all" ? "" : value,
                   }))
                 }
-                placeholder="Use saved token if blank"
-              />
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="All projects" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All projects</SelectItem>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={String(project.id)}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </Field>
             <Field label="Date From">
               <DatePicker
@@ -4233,10 +4324,28 @@ function JiraProjectDiscoveryPanel({
               />
             </Field>
           </div>
-          <Button variant="primary" onClick={onDiscover} disabled={isSaving}>
-            <Search className="mr-2 h-4 w-4" />
-            Discover
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="primary" onClick={onDiscover} disabled={isSaving}>
+              <Search className="mr-2 h-4 w-4" />
+              Search
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() =>
+                setForm({
+                  query: "",
+                  employee_id: "",
+                  project_id: "",
+                  date_from: "",
+                  date_to: "",
+                  limit: "1000",
+                })
+              }
+              disabled={isSaving}
+            >
+              Clear
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
@@ -4281,7 +4390,8 @@ function JiraProjectDiscoveryPanel({
       ) : (
         <Card>
           <CardContent className="py-6 text-sm text-gray-500">
-            Run discovery to load Jira users, projects, and issues.
+            Search synced Jira data above to preview users, projects, and
+            issues.
           </CardContent>
         </Card>
       )}
@@ -4648,134 +4758,48 @@ function jiraDiscoveryMappingPayload(
   };
 }
 
-function JiraUserMappingsPanel({
-  mappings,
-  form,
-  setForm,
-  employees,
-  isSaving,
-  onSave,
-}: {
-  mappings: JiraUserMapping[];
-  form: JiraUserMappingForm;
-  setForm: Dispatch<SetStateAction<JiraUserMappingForm>>;
-  employees: EmployeeProfileData[];
-  isSaving: boolean;
-  onSave: () => void;
-}) {
+function JiraUserMappingsPanel({ mappings }: { mappings: JiraUserMapping[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>User Mappings</CardTitle>
+        <CardTitle>Users (auto-synced from Jira)</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          <Field label="Jira Account ID">
-            <Input
-              value={form.jira_account_id}
-              onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  jira_account_id: event.target.value,
-                }))
-              }
-            />
-          </Field>
-          <Field label="Display Name">
-            <Input
-              value={form.jira_display_name}
-              onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  jira_display_name: event.target.value,
-                }))
-              }
-            />
-          </Field>
-          <Field label="Employee">
-            <Select
-              value={form.employee_id}
-              onValueChange={(value) =>
-                setForm((prev) => ({ ...prev, employee_id: value }))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select employee" />
-              </SelectTrigger>
-              <SelectContent>
-                {employees.map((employee) => (
-                  <SelectItem key={employee.id} value={String(employee.id)}>
-                    {employeeDisplayName(employee)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Active">
-            <div className="flex h-10 items-center gap-2">
-              <Checkbox
-                checked={form.is_active}
-                onCheckedChange={(checked) =>
-                  setForm((prev) => ({ ...prev, is_active: checked === true }))
-                }
-              />
-              <Button variant="primary" onClick={onSave} disabled={isSaving}>
-                {form.id ? "Update" : "Create"}
-              </Button>
-              {form.id && (
-                <Button
-                  variant="outline"
-                  onClick={() => setForm(EMPTY_JIRA_USER_MAPPING_FORM)}
-                >
-                  Cancel
-                </Button>
-              )}
-            </div>
-          </Field>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Jira User</TableHead>
-              <TableHead>Employee</TableHead>
-              <TableHead>Active</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {mappings.map((mapping) => (
-              <TableRow key={mapping.id}>
-                <TableCell>
-                  <p className="font-medium">{mapping.jira_display_name}</p>
-                  <p className="text-xs text-gray-500">
-                    {mapping.jira_account_id}
-                  </p>
-                </TableCell>
-                <TableCell>{mapping.employee_name}</TableCell>
-                <TableCell>
-                  {mapping.is_active ? "Active" : "Inactive"}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      setForm({
-                        id: mapping.id,
-                        jira_account_id: mapping.jira_account_id,
-                        jira_display_name: mapping.jira_display_name,
-                        employee_id: String(mapping.employee_id),
-                        is_active: mapping.is_active,
-                      })
-                    }
-                  >
-                    <Edit3 className="h-4 w-4" />
-                  </Button>
-                </TableCell>
+      <CardContent className="space-y-3">
+        <p className="text-xs text-gray-500">
+          Users sync automatically from Jira and match BloomHub employees by
+          email.
+        </p>
+        {mappings.length === 0 ? (
+          <p className="text-sm text-gray-500">
+            No users synced yet. Sync runs automatically when Jira is connected.
+          </p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Jira User</TableHead>
+                <TableHead>Employee</TableHead>
+                <TableHead>Active</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {mappings.map((mapping) => (
+                <TableRow key={mapping.id}>
+                  <TableCell>
+                    <p className="font-medium">{mapping.jira_display_name}</p>
+                    <p className="text-xs text-gray-500">
+                      {mapping.jira_account_id}
+                    </p>
+                  </TableCell>
+                  <TableCell>{mapping.employee_name}</TableCell>
+                  <TableCell>
+                    {mapping.is_active ? "Active" : "Inactive"}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );
@@ -4783,132 +4807,51 @@ function JiraUserMappingsPanel({
 
 function JiraProjectMappingsPanel({
   mappings,
-  form,
-  setForm,
-  projects,
-  isSaving,
-  onSave,
 }: {
   mappings: JiraProjectMapping[];
-  form: JiraProjectMappingForm;
-  setForm: Dispatch<SetStateAction<JiraProjectMappingForm>>;
-  projects: Project[];
-  isSaving: boolean;
-  onSave: () => void;
 }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Project Mappings</CardTitle>
+        <CardTitle>Projects (auto-synced from Jira)</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          <Field label="Jira Project Key">
-            <Input
-              value={form.jira_project_key}
-              onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  jira_project_key: event.target.value,
-                }))
-              }
-            />
-          </Field>
-          <Field label="Jira Project Name">
-            <Input
-              value={form.jira_project_name}
-              onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  jira_project_name: event.target.value,
-                }))
-              }
-            />
-          </Field>
-          <Field label="BloomHub Project">
-            <Select
-              value={form.project_id}
-              onValueChange={(value) =>
-                setForm((prev) => ({ ...prev, project_id: value }))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select project" />
-              </SelectTrigger>
-              <SelectContent>
-                {projects.map((project) => (
-                  <SelectItem key={project.id} value={String(project.id)}>
-                    {project.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Active">
-            <div className="flex h-10 items-center gap-2">
-              <Checkbox
-                checked={form.is_active}
-                onCheckedChange={(checked) =>
-                  setForm((prev) => ({ ...prev, is_active: checked === true }))
-                }
-              />
-              <Button variant="primary" onClick={onSave} disabled={isSaving}>
-                {form.id ? "Update" : "Create"}
-              </Button>
-              {form.id && (
-                <Button
-                  variant="outline"
-                  onClick={() => setForm(EMPTY_JIRA_PROJECT_MAPPING_FORM)}
-                >
-                  Cancel
-                </Button>
-              )}
-            </div>
-          </Field>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Jira Project</TableHead>
-              <TableHead>BloomHub Project</TableHead>
-              <TableHead>Active</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {mappings.map((mapping) => (
-              <TableRow key={mapping.id}>
-                <TableCell>
-                  <p className="font-medium">{mapping.jira_project_key}</p>
-                  <p className="text-xs text-gray-500">
-                    {mapping.jira_project_name}
-                  </p>
-                </TableCell>
-                <TableCell>{mapping.project_name}</TableCell>
-                <TableCell>
-                  {mapping.is_active ? "Active" : "Inactive"}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      setForm({
-                        id: mapping.id,
-                        jira_project_key: mapping.jira_project_key,
-                        jira_project_name: mapping.jira_project_name,
-                        project_id: String(mapping.project_id),
-                        is_active: mapping.is_active,
-                      })
-                    }
-                  >
-                    <Edit3 className="h-4 w-4" />
-                  </Button>
-                </TableCell>
+      <CardContent className="space-y-3">
+        <p className="text-xs text-gray-500">
+          Projects sync automatically from Jira and match BloomHub projects by
+          name or key.
+        </p>
+        {mappings.length === 0 ? (
+          <p className="text-sm text-gray-500">
+            No projects synced yet. Sync runs automatically when Jira is
+            connected.
+          </p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Jira Project</TableHead>
+                <TableHead>BloomHub Project</TableHead>
+                <TableHead>Active</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {mappings.map((mapping) => (
+                <TableRow key={mapping.id}>
+                  <TableCell>
+                    <p className="font-medium">{mapping.jira_project_key}</p>
+                    <p className="text-xs text-gray-500">
+                      {mapping.jira_project_name}
+                    </p>
+                  </TableCell>
+                  <TableCell>{mapping.project_name}</TableCell>
+                  <TableCell>
+                    {mapping.is_active ? "Active" : "Inactive"}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );
@@ -4916,145 +4859,63 @@ function JiraProjectMappingsPanel({
 
 function JiraIssueMappingsPanel({
   mappings,
-  form,
-  setForm,
-  tasks,
   jiraBaseUrl,
-  isSaving,
-  onSave,
 }: {
   mappings: JiraIssueMapping[];
-  form: JiraIssueMappingForm;
-  setForm: Dispatch<SetStateAction<JiraIssueMappingForm>>;
-  tasks: TimeTask[];
   jiraBaseUrl?: string;
-  isSaving: boolean;
-  onSave: () => void;
 }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Issue Mappings</CardTitle>
+        <CardTitle>Issues (auto-synced from Jira)</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          <Field label="Jira Issue Key">
-            <Input
-              value={form.jira_issue_key}
-              onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  jira_issue_key: event.target.value,
-                }))
-              }
-            />
-          </Field>
-          <Field label="Jira Issue ID">
-            <Input
-              value={form.jira_issue_id}
-              onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  jira_issue_id: event.target.value,
-                }))
-              }
-            />
-          </Field>
-          <Field label="BloomHub Task">
-            <Select
-              value={form.task_id}
-              onValueChange={(value) =>
-                setForm((prev) => ({ ...prev, task_id: value }))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select task" />
-              </SelectTrigger>
-              <SelectContent>
-                {tasks.map((task) => (
-                  <SelectItem key={task.id} value={String(task.id)}>
-                    {task.project_name} · {task.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Active">
-            <div className="flex h-10 items-center gap-2">
-              <Checkbox
-                checked={form.is_active}
-                onCheckedChange={(checked) =>
-                  setForm((prev) => ({ ...prev, is_active: checked === true }))
-                }
-              />
-              <Button variant="primary" onClick={onSave} disabled={isSaving}>
-                {form.id ? "Update" : "Create"}
-              </Button>
-              {form.id && (
-                <Button
-                  variant="outline"
-                  onClick={() => setForm(EMPTY_JIRA_ISSUE_MAPPING_FORM)}
-                >
-                  Cancel
-                </Button>
-              )}
-            </div>
-          </Field>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Jira Issue</TableHead>
-              <TableHead>BloomHub Task</TableHead>
-              <TableHead>Project</TableHead>
-              <TableHead>Active</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {mappings.map((mapping) => {
-              const issueUrl = jiraIssueUrl(
-                jiraBaseUrl,
-                mapping.jira_issue_key
-              );
-              return (
-                <TableRow key={mapping.id}>
-                  <TableCell>
-                    <JiraIssueLink
-                      issueKey={mapping.jira_issue_key}
-                      issueUrl={issueUrl}
-                    />
-                    <p className="text-xs text-gray-500">
-                      {mapping.jira_issue_id}
-                    </p>
-                  </TableCell>
-                  <TableCell>{mapping.task_name}</TableCell>
-                  <TableCell>{mapping.project_name}</TableCell>
-                  <TableCell>
-                    {mapping.is_active ? "Active" : "Inactive"}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() =>
-                        setForm({
-                          id: mapping.id,
-                          jira_issue_key: mapping.jira_issue_key,
-                          jira_issue_id: mapping.jira_issue_id,
-                          task_id: String(mapping.task_id),
-                          is_active: mapping.is_active,
-                        })
-                      }
-                    >
-                      <Edit3 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+      <CardContent className="space-y-3">
+        <p className="text-xs text-gray-500">
+          Issues sync automatically from Jira and link to BloomHub tasks.
+        </p>
+        {mappings.length === 0 ? (
+          <p className="text-sm text-gray-500">
+            No issues synced yet. Sync runs automatically when Jira is
+            connected.
+          </p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Jira Issue</TableHead>
+                <TableHead>BloomHub Task</TableHead>
+                <TableHead>Project</TableHead>
+                <TableHead>Active</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {mappings.map((mapping) => {
+                const issueUrl = jiraIssueUrl(
+                  jiraBaseUrl,
+                  mapping.jira_issue_key
+                );
+                return (
+                  <TableRow key={mapping.id}>
+                    <TableCell>
+                      <JiraIssueLink
+                        issueKey={mapping.jira_issue_key}
+                        issueUrl={issueUrl}
+                      />
+                      <p className="text-xs text-gray-500">
+                        {mapping.jira_issue_id}
+                      </p>
+                    </TableCell>
+                    <TableCell>{mapping.task_name}</TableCell>
+                    <TableCell>{mapping.project_name}</TableCell>
+                    <TableCell>
+                      {mapping.is_active ? "Active" : "Inactive"}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );
@@ -5736,6 +5597,9 @@ function TempoIntegrationPanel({
   onCommit,
   onRefresh,
   onRefreshEntries,
+  canConnect,
+  onSyncAll,
+  isSyncing,
 }: {
   settings: TempoSettings | null;
   settingsForm: TempoSettingsForm;
@@ -5769,7 +5633,21 @@ function TempoIntegrationPanel({
   onCommit: () => void;
   onRefresh: () => void;
   onRefreshEntries: () => void;
+  canConnect: boolean;
+  onSyncAll: () => void;
+  isSyncing: boolean;
 }) {
+  const [tempoOAuth, setTempoOAuth] = useState<TempoOAuthStatus | null>(null);
+  const autoSyncedRef = useRef(false);
+  useEffect(() => {
+    if (tempoOAuth?.connected && !autoSyncedRef.current && !isSyncing) {
+      autoSyncedRef.current = true;
+      onSyncAll();
+    }
+    if (!tempoOAuth?.connected) {
+      autoSyncedRef.current = false;
+    }
+  }, [tempoOAuth?.connected, isSyncing, onSyncAll]);
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -5802,138 +5680,65 @@ function TempoIntegrationPanel({
         </div>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Connection Settings</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <Field label="Base URL">
-              <Input
-                value={settingsForm.base_url}
-                onChange={(event) =>
-                  setSettingsForm((prev) => ({
-                    ...prev,
-                    base_url: event.target.value,
-                  }))
-                }
-              />
-            </Field>
-            <Field label="API Token">
-              <Input
-                type="password"
-                value={settingsForm.api_token}
-                onChange={(event) =>
-                  setSettingsForm((prev) => ({
-                    ...prev,
-                    api_token: event.target.value,
-                  }))
-                }
-                placeholder={
-                  settings?.has_api_token ? "Token saved" : "Paste token"
-                }
-              />
-            </Field>
-            <Field label="Enabled">
-              <div className="flex h-10 items-center gap-2">
-                <Checkbox
-                  checked={settingsForm.enabled}
-                  onCheckedChange={(checked) =>
-                    setSettingsForm((prev) => ({
-                      ...prev,
-                      enabled: checked === true,
-                    }))
-                  }
-                />
-                <span className="text-sm">Allow Tempo imports</span>
-              </div>
-            </Field>
-          </div>
-          <div className="grid grid-cols-1 gap-3 rounded-md border border-gray-200 bg-gray-50 p-3 text-sm md:grid-cols-4">
-            <Detail
-              label="Token"
-              value={settings?.has_api_token ? "Saved" : "Not saved"}
-            />
-            <Detail
-              label="Last Test"
-              value={settings?.last_test_status || "--"}
-            />
-            <Detail
-              label="Message"
-              value={settings?.last_test_message || "--"}
-            />
-            <Detail label="Tested At" value={settings?.last_test_at || "--"} />
-          </div>
-          {settings?.last_test_metadata &&
-            Object.keys(settings.last_test_metadata).length > 0 && (
-              <Detail
-                label="Last Test Metadata"
-                value={JSON.stringify(settings.last_test_metadata, null, 2)}
-              />
-            )}
-          <div className="flex gap-2">
-            <Button
-              variant="primary"
-              onClick={onSaveSettings}
-              disabled={isSaving}
-            >
-              Save settings
-            </Button>
-            <Button
-              variant="outline"
-              onClick={onTestConnection}
-              disabled={isSaving}
-            >
-              Test connection
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <TempoConnectionCard
+        canConnect={canConnect}
+        connectDisabledReason="Connect Jira before Tempo so BloomHub can use the Jira board URL for Tempo."
+        onStatusChange={setTempoOAuth}
+      />
 
-      <Tabs defaultValue="mappings">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="mappings">Mappings</TabsTrigger>
-          <TabsTrigger value="discovery">Discovery</TabsTrigger>
-          <TabsTrigger value="import">Import</TabsTrigger>
-        </TabsList>
-        <TabsContent value="mappings" className="mt-4">
-          <TempoMappingsPanel
-            mappings={mappings}
-            form={mappingForm}
-            setForm={setMappingForm}
-            employees={employees}
-            projects={projects}
-            isSaving={isSaving}
-            onSave={onSaveMapping}
-          />
-        </TabsContent>
-        <TabsContent value="discovery" className="mt-4">
-          <TempoProjectDiscoveryPanel
-            form={discoveryForm}
-            setForm={setDiscoveryForm}
-            discovery={discovery}
-            mappings={mappings}
-            projects={projects}
-            isSaving={isSaving}
-            onDiscover={onDiscover}
-            onSaveMapping={onSaveDiscoveryMapping}
-          />
-        </TabsContent>
-        <TabsContent value="import" className="mt-4">
-          <TempoImportPanel
-            filters={importFilters}
-            setFilters={setImportFilters}
-            preview={preview}
-            commitResult={commitResult}
-            employees={employees}
-            projects={projects}
-            isSaving={isSaving}
-            onPreview={onPreview}
-            onCommit={onCommit}
-            onRefreshEntries={onRefreshEntries}
-          />
-        </TabsContent>
-      </Tabs>
+      {!tempoOAuth?.connected ? (
+        <Card>
+          <CardContent className="px-5 py-6 text-sm text-gray-600">
+            Connect your Tempo account above to view mappings, run discovery,
+            and import worklogs.
+          </CardContent>
+        </Card>
+      ) : (
+        <Tabs defaultValue="mappings">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="mappings">Mappings</TabsTrigger>
+            <TabsTrigger value="discovery">Discovery</TabsTrigger>
+            <TabsTrigger value="import">Import</TabsTrigger>
+          </TabsList>
+          <TabsContent value="mappings" className="mt-4">
+            <TempoMappingsPanel
+              mappings={mappings}
+              form={mappingForm}
+              setForm={setMappingForm}
+              employees={employees}
+              projects={projects}
+              isSaving={isSaving}
+              onSave={onSaveMapping}
+            />
+          </TabsContent>
+          <TabsContent value="discovery" className="mt-4">
+            <TempoProjectDiscoveryPanel
+              form={discoveryForm}
+              setForm={setDiscoveryForm}
+              discovery={discovery}
+              mappings={mappings}
+              projects={projects}
+              isSaving={isSaving}
+              onDiscover={onDiscover}
+              onSaveMapping={onSaveDiscoveryMapping}
+            />
+          </TabsContent>
+          <TabsContent value="import" className="mt-4">
+            <TempoImportPanel
+              filters={importFilters}
+              setFilters={setImportFilters}
+              preview={preview}
+              commitResult={commitResult}
+              employees={employees}
+              projects={projects}
+              isSaving={isSaving}
+              onPreview={onPreview}
+              onCommit={onCommit}
+              onRefreshEntries={onRefreshEntries}
+            />
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   );
 }

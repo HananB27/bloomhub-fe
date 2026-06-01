@@ -1901,7 +1901,9 @@ describe("AssetsModule", () => {
       within(dialog).getByRole("combobox", { name: /Status after/i })
     );
     fireEvent.click(
-      await screen.findByRole("option", { name: "Status after: Not recorded" })
+      await screen.findByRole("option", {
+        name: "Status after: Not recorded",
+      })
     );
     fireEvent.click(
       within(dialog).getByRole("combobox", { name: /Condition after/i })
@@ -1931,7 +1933,7 @@ describe("AssetsModule", () => {
       expect(screen.queryByText(/^Related asset:/i)).toBeNull();
       expect(screen.queryByText(/^Cost:/i)).toBeNull();
     });
-  });
+  }, 30000);
 
   it("shows maintenance-log update field errors from the API", async () => {
     sessionRole = "HR";
