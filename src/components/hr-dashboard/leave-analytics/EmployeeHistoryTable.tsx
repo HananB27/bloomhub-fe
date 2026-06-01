@@ -28,6 +28,7 @@ import {
 interface Props {
   year: number;
   rows: LeaveAnalyticsEmployeeSummary[];
+  isAdmin?: boolean;
   onNavigate?: (moduleId: string) => void;
 }
 
@@ -47,7 +48,12 @@ const GRID_COLUMNS =
   "minmax(60px,0.7fr) minmax(60px,0.7fr) minmax(60px,0.7fr) " +
   "minmax(60px,0.7fr) minmax(80px,0.9fr) 100px";
 
-export function EmployeeHistoryTable({ year, rows, onNavigate }: Props) {
+export function EmployeeHistoryTable({
+  year,
+  rows,
+  isAdmin = true,
+  onNavigate,
+}: Props) {
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<number | null>(null);
   const [peekId, setPeekId] = useState<number | null>(null);
@@ -356,7 +362,9 @@ export function EmployeeHistoryTable({ year, rows, onNavigate }: Props) {
             <div className="px-3 py-10 text-center text-sm text-gray-500">
               {search
                 ? `No employees match "${search}"`
-                : "No employees have leave records for this year yet."}
+                : isAdmin
+                  ? "No employees have leave records for this year yet."
+                  : `No leave records on file for ${year}.`}
             </div>
           )}
         </div>

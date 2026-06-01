@@ -53,6 +53,7 @@ import {
   Copy,
   ChevronDown,
   AlertCircle,
+  Lock,
 } from "lucide-react";
 import { employeeApi } from "@/lib/api/modules/employees";
 import type { EmployeeProfileData } from "@/lib/api/modules/employees";
@@ -542,11 +543,15 @@ export function OnboardingModule({
     ?.accessToken;
   const accessToken =
     typeof rawAccessToken === "string" ? rawAccessToken : undefined;
-  const isHrOrStaff =
-    sessionUser?.is_staff === true || sessionUser?.role?.toLowerCase() === "hr";
+  // Strict gate: only Django staff/superuser users get HR-level access here.
+  // Role names alone are not enough — the Onboarding write tabs require it.
+  const sessionIsSuperuser =
+    (sessionUser as { is_superuser?: boolean } | undefined)?.is_superuser ===
+    true;
+  const isHrOrStaff = sessionUser?.is_staff === true || sessionIsSuperuser;
   const isManager = sessionUser?.role?.toLowerCase() === "manager";
   const canAccessTracker = isHrOrStaff || isManager;
-  const [activeTab, setActiveTab] = useState("tracker");
+  const [activeTab, setActiveTab] = useState("my-tasks");
   const [selectedEmployee, setSelectedEmployee] = useState<string>(
     () =>
       (typeof window !== "undefined" &&
@@ -1140,15 +1145,21 @@ export function OnboardingModule({
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList className="mb-4">
-          <TabsTrigger value="tracker">Tracker</TabsTrigger>
           <TabsTrigger value="my-tasks">My Tasks</TabsTrigger>
+          <TabsTrigger value="tracker">Tracker</TabsTrigger>
           <TabsTrigger value="templates">Manage Templates</TabsTrigger>
         </TabsList>
 
         <TabsContent value="tracker">
-          {!canAccessTracker ? (
-            <div className="rounded-lg border border-dashed border-gray-300 p-10 text-center text-gray-500">
-              The Tracker is available to HR and Managers only.
+          {!isHrOrStaff ? (
+            <div className="rounded-lg border border-gray-200 p-12 text-center">
+              <Lock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                HR-only view
+              </h3>
+              <p className="text-sm text-gray-500">
+                The Tracker is restricted to HR personnel.
+              </p>
             </div>
           ) : (
             <>
@@ -1734,9 +1745,7 @@ export function OnboardingModule({
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">My Tasks</h2>
-                  <p className="text-gray-600 mt-1">
-                    Tasks you supervise on behalf of other employees.
-                  </p>
+                  <p className="text-gray-600 mt-1">Tasks you supervise.</p>
                 </div>
                 <Button
                   variant="outline"
@@ -1747,49 +1756,53 @@ export function OnboardingModule({
                 </Button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-                <div className="space-y-2">
-                  <Label htmlFor="employee-filter">Filter by employee</Label>
-                  <Select
-                    value={selectedEmployeeFilter}
-                    onValueChange={setSelectedEmployeeFilter}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All employees</SelectItem>
-                      {employeeOptions.map((employee) => (
-                        <SelectItem
-                          key={employee.id}
-                          value={String(employee.id)}
-                        >
-                          {employee.user.first_name} {employee.user.last_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              {isHrOrStaff && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="employee-filter">Filter by employee</Label>
+                    <Select
+                      value={selectedEmployeeFilter}
+                      onValueChange={setSelectedEmployeeFilter}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All employees</SelectItem>
+                        {employeeOptions.map((employee) => (
+                          <SelectItem
+                            key={employee.id}
+                            value={String(employee.id)}
+                          >
+                            {employee.user.first_name} {employee.user.last_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="checklist-filter">
+                      Filter by checklist
+                    </Label>
+                    <Select
+                      value={selectedChecklistFilter}
+                      onValueChange={setSelectedChecklistFilter}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All checklists</SelectItem>
+                        {checklistOptions.map((name) => (
+                          <SelectItem key={name} value={name}>
+                            {name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="checklist-filter">Filter by checklist</Label>
-                  <Select
-                    value={selectedChecklistFilter}
-                    onValueChange={setSelectedChecklistFilter}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All checklists</SelectItem>
-                      {checklistOptions.map((name) => (
-                        <SelectItem key={name} value={name}>
-                          {name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              )}
             </div>
 
             {myTasksError && (
@@ -1823,385 +1836,403 @@ export function OnboardingModule({
 
         {/* Templates Tab */}
         <TabsContent value="templates">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">
-                Checklist Templates
-              </h2>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => {
-                  setEditingTemplate(null);
-                  setTemplateForm({
-                    name: "",
-                    type: "onboarding",
-                    role_responsible: "HR",
-                    task_templates: [],
-                  });
-                  setShowTemplateForm(true);
-                }}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                New Template
-              </Button>
+          {!isHrOrStaff ? (
+            <div className="rounded-lg border border-gray-200 p-12 text-center">
+              <Lock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                HR-only view
+              </h3>
+              <p className="text-sm text-gray-500">
+                Template management is restricted to HR personnel.
+              </p>
             </div>
-
-            {templatesError && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
-                {templatesError}
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-900">
+                  Checklist Templates
+                </h2>
+                {isHrOrStaff && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => {
+                      setEditingTemplate(null);
+                      setTemplateForm({
+                        name: "",
+                        type: "onboarding",
+                        role_responsible: "HR",
+                        task_templates: [],
+                      });
+                      setShowTemplateForm(true);
+                    }}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Template
+                  </Button>
+                )}
               </div>
-            )}
 
-            {templatesLoading && (
-              <p className="text-gray-500 text-sm">Loading templates...</p>
-            )}
+              {templatesError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+                  {templatesError}
+                </div>
+              )}
 
-            {/* Template Form */}
-            {showTemplateForm && (
-              <Card className="border-gray-200">
-                <CardHeader>
-                  <CardTitle>
-                    {editingTemplate ? "Edit Template" : "New Template"}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Template Name</Label>
-                    <Input
-                      value={templateForm.name}
-                      onChange={(e) =>
-                        setTemplateForm((prev) => ({
-                          ...prev,
-                          name: e.target.value,
-                        }))
-                      }
-                      placeholder="e.g. Standard IT Onboarding"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Type</Label>
-                    <Select
-                      value={templateForm.type}
-                      onValueChange={(val: "onboarding" | "offboarding") =>
-                        setTemplateForm((prev) => ({ ...prev, type: val }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="onboarding">Onboarding</SelectItem>
-                        <SelectItem value="offboarding">Offboarding</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+              {templatesLoading && (
+                <p className="text-gray-500 text-sm">Loading templates...</p>
+              )}
 
-                  <div className="space-y-2">
-                    <Label>Responsible Team</Label>
-                    <Select
-                      value={templateForm.role_responsible}
-                      onValueChange={(val: TemplateRole) =>
-                        setTemplateForm((prev) => ({
-                          ...prev,
-                          role_responsible: val,
-                        }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="HR">HR</SelectItem>
-                        <SelectItem value="IT">IT</SelectItem>
-                        <SelectItem value="Manager">Manager</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Tasks */}
-                  <div className="space-y-2">
-                    <Label>Tasks</Label>
-                    {templateForm.task_templates.map((task, idx) => (
-                      <div
-                        key={task.id ?? `${task.order}-${task.title}`}
-                        className="flex items-center justify-between p-2 bg-gray-50 rounded border text-sm"
-                      >
-                        <span>{task.title}</span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleRemoveTask(idx)}
-                          aria-label="Remove task"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
-                      </div>
-                    ))}
-                    <div className="flex gap-2 mt-2">
-                      <Input
-                        placeholder="Task title"
-                        value={newTaskTitle}
-                        onChange={(e) => setNewTaskTitle(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleAddTask()}
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleAddTask}
-                        aria-label="Add task"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2 justify-end">
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowTemplateForm(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button variant="primary" onClick={handleCreateOrUpdate}>
-                      {editingTemplate ? "Save Changes" : "Create Template"}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Template List */}
-            {templates.map((template) => (
-              <Card key={template.id} className="border-gray-200">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <CardTitle className="text-base">
-                        {template.name}
-                      </CardTitle>
-                      <Badge
-                        variant={
-                          template.type === "onboarding"
-                            ? "default"
-                            : "destructive"
-                        }
-                      >
-                        {template.type}
-                      </Badge>
-                      <Badge variant="outline">
-                        {template.role_responsible}
-                      </Badge>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={() => {
-                          setAssignModalTemplate(template);
-                          setAssignTargetEmployee(null);
-                          setAssignError(null);
-                        }}
-                      >
-                        <UserPlus className="w-4 h-4 mr-1" />
-                        Assign
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEditTemplate(template)}
-                        aria-label="Edit template"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleClone(template.id)}
-                        aria-label="Clone template"
-                      >
-                        <Copy className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(template.id)}
-                        aria-label="Delete template"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-500 mb-2">
-                    {template.task_templates.length} tasks
-                  </p>
-                  {(() => {
-                    const assigned = allInstances.filter(
-                      (i) => i.template?.id === template.id
-                    );
-                    return (
-                      <div className="mb-3">
-                        <p className="text-xs font-medium text-gray-700 mb-1">
-                          Assigned to ({assigned.length}):
-                        </p>
-                        {assigned.length === 0 ? (
-                          <p className="text-xs text-gray-500 italic">
-                            Not assigned to any employee
-                          </p>
-                        ) : (
-                          <div className="flex flex-wrap gap-1">
-                            {assigned.map((inst) => {
-                              const u = inst.employee.user;
-                              const full =
-                                `${u.first_name} ${u.last_name}`.trim();
-                              const label =
-                                full ||
-                                u.username ||
-                                `Employee #${inst.employee.id}`;
-                              return (
-                                <Badge
-                                  key={inst.id}
-                                  variant="outline"
-                                  className="text-xs"
-                                >
-                                  {label}
-                                </Badge>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
-                  <div className="space-y-1">
-                    {template.task_templates.map((task) => (
-                      <div
-                        key={`${template.id}-${task.title}-${task.order}`}
-                        className="text-sm p-2 bg-gray-50 rounded"
-                      >
-                        {task.title}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-
-            {/* Assign to Employee Modal */}
-            {assignModalTemplate && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                <Card className="w-full max-w-md mx-4">
+              {/* Template Form */}
+              {showTemplateForm && (
+                <Card className="border-gray-200">
                   <CardHeader>
-                    <CardTitle>Assign Template to Employee</CardTitle>
-                    <p className="text-sm text-gray-500 mt-1">
-                      {assignModalTemplate.name}
-                    </p>
+                    <CardTitle>
+                      {editingTemplate ? "Edit Template" : "New Template"}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label>Employee</Label>
+                      <Label>Template Name</Label>
+                      <Input
+                        value={templateForm.name}
+                        onChange={(e) =>
+                          setTemplateForm((prev) => ({
+                            ...prev,
+                            name: e.target.value,
+                          }))
+                        }
+                        placeholder="e.g. Standard IT Onboarding"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Type</Label>
                       <Select
-                        value={assignTargetEmployee ?? ""}
-                        onValueChange={(val) => setAssignTargetEmployee(val)}
+                        value={templateForm.type}
+                        onValueChange={(val: "onboarding" | "offboarding") =>
+                          setTemplateForm((prev) => ({ ...prev, type: val }))
+                        }
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select an employee..." />
+                          <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {allEmployees.map((emp) => (
-                            <SelectItem key={emp.id} value={String(emp.id)}>
-                              {employeeDisplayName(emp)}
-                            </SelectItem>
-                          ))}
+                          <SelectItem value="onboarding">Onboarding</SelectItem>
+                          <SelectItem value="offboarding">
+                            Offboarding
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
+
                     <div className="space-y-2">
-                      <Label>Due Date (all tasks)</Label>
-                      <Input
-                        type="date"
-                        value={assignDueDate}
-                        onChange={(e) => setAssignDueDate(e.target.value)}
-                      />
-                      <p className="text-xs text-gray-500">
-                        Applied to every task unless overridden below.
-                      </p>
+                      <Label>Responsible Team</Label>
+                      <Select
+                        value={templateForm.role_responsible}
+                        onValueChange={(val: TemplateRole) =>
+                          setTemplateForm((prev) => ({
+                            ...prev,
+                            role_responsible: val,
+                          }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="HR">HR</SelectItem>
+                          <SelectItem value="IT">IT</SelectItem>
+                          <SelectItem value="Manager">Manager</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    {assignModalTemplate.task_templates.length > 0 && (
-                      <div className="space-y-2">
-                        <Label>Individual Task Due Dates (optional)</Label>
-                        <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                          {assignModalTemplate.task_templates.map((task) => (
-                            <div
-                              key={task.id}
-                              className="flex items-center gap-2 text-sm"
-                            >
-                              <span className="flex-1 text-gray-700 truncate">
-                                {task.title}
-                              </span>
-                              <Input
-                                type="date"
-                                className="w-36 text-xs"
-                                value={
-                                  task.id !== undefined
-                                    ? (taskDueDates[task.id] ?? "")
-                                    : ""
-                                }
-                                onChange={(e) => {
-                                  if (task.id === undefined) return;
-                                  const val = e.target.value;
-                                  setTaskDueDates((prev) => {
-                                    const next = { ...prev };
-                                    if (val) next[task.id!] = val;
-                                    else delete next[task.id!];
-                                    return next;
-                                  });
-                                }}
-                              />
-                            </div>
-                          ))}
+
+                    {/* Tasks */}
+                    <div className="space-y-2">
+                      <Label>Tasks</Label>
+                      {templateForm.task_templates.map((task, idx) => (
+                        <div
+                          key={task.id ?? `${task.order}-${task.title}`}
+                          className="flex items-center justify-between p-2 bg-gray-50 rounded border text-sm"
+                        >
+                          <span>{task.title}</span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleRemoveTask(idx)}
+                            aria-label="Remove task"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
                         </div>
+                      ))}
+                      <div className="flex gap-2 mt-2">
+                        <Input
+                          placeholder="Task title"
+                          value={newTaskTitle}
+                          onChange={(e) => setNewTaskTitle(e.target.value)}
+                          onKeyDown={(e) =>
+                            e.key === "Enter" && handleAddTask()
+                          }
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleAddTask}
+                          aria-label="Add task"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
                       </div>
-                    )}
-                    {assignError && (
-                      <p className="text-sm text-red-600">{assignError}</p>
-                    )}
+                    </div>
+
                     <div className="flex gap-2 justify-end">
                       <Button
                         variant="outline"
-                        onClick={() => {
-                          setAssignModalTemplate(null);
-                          setAssignDueDate("");
-                          setTaskDueDates({});
-                        }}
-                        disabled={assignLoading}
+                        onClick={() => setShowTemplateForm(false)}
                       >
                         Cancel
                       </Button>
-                      <Button
-                        variant="primary"
-                        onClick={() => void handleAssignTemplate()}
-                        disabled={!assignTargetEmployee || assignLoading}
-                      >
-                        {assignLoading ? "Assigning..." : "Assign"}
+                      <Button variant="primary" onClick={handleCreateOrUpdate}>
+                        {editingTemplate ? "Save Changes" : "Create Template"}
                       </Button>
                     </div>
                   </CardContent>
                 </Card>
-              </div>
-            )}
+              )}
 
-            {!templatesLoading &&
-              templates.length === 0 &&
-              !showTemplateForm && (
-                <div className="text-center py-12 text-gray-500">
-                  <FileText className="w-10 h-10 mx-auto mb-3 text-gray-300" />
-                  <p>No templates yet. Create your first template!</p>
+              {/* Template List */}
+              {templates.map((template) => (
+                <Card key={template.id} className="border-gray-200">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <CardTitle className="text-base">
+                          {template.name}
+                        </CardTitle>
+                        <Badge
+                          variant={
+                            template.type === "onboarding"
+                              ? "default"
+                              : "destructive"
+                          }
+                        >
+                          {template.type}
+                        </Badge>
+                        <Badge variant="outline">
+                          {template.role_responsible}
+                        </Badge>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={() => {
+                            setAssignModalTemplate(template);
+                            setAssignTargetEmployee(null);
+                            setAssignError(null);
+                          }}
+                        >
+                          <UserPlus className="w-4 h-4 mr-1" />
+                          Assign
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditTemplate(template)}
+                          aria-label="Edit template"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleClone(template.id)}
+                          aria-label="Clone template"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDelete(template.id)}
+                          aria-label="Delete template"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-500 mb-2">
+                      {template.task_templates.length} tasks
+                    </p>
+                    {(() => {
+                      const assigned = allInstances.filter(
+                        (i) => i.template?.id === template.id
+                      );
+                      return (
+                        <div className="mb-3">
+                          <p className="text-xs font-medium text-gray-700 mb-1">
+                            Assigned to ({assigned.length}):
+                          </p>
+                          {assigned.length === 0 ? (
+                            <p className="text-xs text-gray-500 italic">
+                              Not assigned to any employee
+                            </p>
+                          ) : (
+                            <div className="flex flex-wrap gap-1">
+                              {assigned.map((inst) => {
+                                const u = inst.employee.user;
+                                const full =
+                                  `${u.first_name} ${u.last_name}`.trim();
+                                const label =
+                                  full ||
+                                  u.username ||
+                                  `Employee #${inst.employee.id}`;
+                                return (
+                                  <Badge
+                                    key={inst.id}
+                                    variant="outline"
+                                    className="text-xs"
+                                  >
+                                    {label}
+                                  </Badge>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+                    <div className="space-y-1">
+                      {template.task_templates.map((task) => (
+                        <div
+                          key={`${template.id}-${task.title}-${task.order}`}
+                          className="text-sm p-2 bg-gray-50 rounded"
+                        >
+                          {task.title}
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+
+              {/* Assign to Employee Modal */}
+              {assignModalTemplate && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                  <Card className="w-full max-w-md mx-4">
+                    <CardHeader>
+                      <CardTitle>Assign Template to Employee</CardTitle>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {assignModalTemplate.name}
+                      </p>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Employee</Label>
+                        <Select
+                          value={assignTargetEmployee ?? ""}
+                          onValueChange={(val) => setAssignTargetEmployee(val)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select an employee..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {allEmployees.map((emp) => (
+                              <SelectItem key={emp.id} value={String(emp.id)}>
+                                {employeeDisplayName(emp)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Due Date (all tasks)</Label>
+                        <Input
+                          type="date"
+                          value={assignDueDate}
+                          onChange={(e) => setAssignDueDate(e.target.value)}
+                        />
+                        <p className="text-xs text-gray-500">
+                          Applied to every task unless overridden below.
+                        </p>
+                      </div>
+                      {assignModalTemplate.task_templates.length > 0 && (
+                        <div className="space-y-2">
+                          <Label>Individual Task Due Dates (optional)</Label>
+                          <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                            {assignModalTemplate.task_templates.map((task) => (
+                              <div
+                                key={task.id}
+                                className="flex items-center gap-2 text-sm"
+                              >
+                                <span className="flex-1 text-gray-700 truncate">
+                                  {task.title}
+                                </span>
+                                <Input
+                                  type="date"
+                                  className="w-36 text-xs"
+                                  value={
+                                    task.id !== undefined
+                                      ? (taskDueDates[task.id] ?? "")
+                                      : ""
+                                  }
+                                  onChange={(e) => {
+                                    if (task.id === undefined) return;
+                                    const val = e.target.value;
+                                    setTaskDueDates((prev) => {
+                                      const next = { ...prev };
+                                      if (val) next[task.id!] = val;
+                                      else delete next[task.id!];
+                                      return next;
+                                    });
+                                  }}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {assignError && (
+                        <p className="text-sm text-red-600">{assignError}</p>
+                      )}
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setAssignModalTemplate(null);
+                            setAssignDueDate("");
+                            setTaskDueDates({});
+                          }}
+                          disabled={assignLoading}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          variant="primary"
+                          onClick={() => void handleAssignTemplate()}
+                          disabled={!assignTargetEmployee || assignLoading}
+                        >
+                          {assignLoading ? "Assigning..." : "Assign"}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               )}
-          </div>
+
+              {!templatesLoading &&
+                templates.length === 0 &&
+                !showTemplateForm && (
+                  <div className="text-center py-12 text-gray-500">
+                    <FileText className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+                    <p>No templates yet. Create your first template!</p>
+                  </div>
+                )}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 

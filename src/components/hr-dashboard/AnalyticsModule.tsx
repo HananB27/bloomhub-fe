@@ -7,7 +7,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
-  FileSpreadsheet,
   FileText,
   History,
   Loader2,
@@ -21,10 +20,15 @@ import {
   LEAVE_TYPE_LABELS,
   type LeaveType,
 } from "@/types/vacations";
-import type { LeaveAnalyticsYearTotals } from "@/types/leaveAnalytics";
+import type {
+  LeaveAnalyticsExportFormat,
+  LeaveAnalyticsYearTotals,
+} from "@/types/leaveAnalytics";
 import { useAdminAccess } from "@/hooks/useAdminAccess";
 import { useLeaveAnalyticsData } from "@/hooks/useLeaveAnalyticsData";
+import { useTeamAvailability } from "@/hooks/useTeamAvailability";
 import { leaveAnalyticsApi } from "@/lib/api/modules/leave-analytics";
+import { projectApi, type Project } from "@/lib/api/modules/projects";
 import {
   NotificationMessages,
   notifyApiError,
@@ -57,14 +61,52 @@ import {
   YearOverYearStrip,
 } from "./leave-analytics";
 import { triggerAnalyticsRefresh } from "./leave-analytics/analyticsModuleLoaders";
-import { ANCHOR_TODAY } from "./leave-analytics/analyticsModuleHelpers";
 
 const ALL_DEPARTMENTS_SENTINEL = "all";
 const ALL_MONTHS_SENTINEL = "all";
+const ALL_PROJECTS_SENTINEL = "all";
+const AVAILABILITY_WINDOW_DAYS = 35;
 const MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => ({
   value: String(i + 1),
   label: new Date(2000, i, 1).toLocaleString("en-US", { month: "long" }),
 }));
+
+function _toISODate(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function _isPermissionError(message: string): boolean {
+  const lowered = message.toLowerCase();
+  return (
+    lowered.includes("permission") ||
+    lowered.includes("not allowed") ||
+    lowered.includes("forbidden")
+  );
+}
+
+function _triggerBlobDownload(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+function _availabilityWindow(): { startDate: string; endDate: string } {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const start = new Date(today);
+  start.setDate(start.getDate() - 3);
+  const end = new Date(start);
+  end.setDate(end.getDate() + AVAILABILITY_WINDOW_DAYS - 1);
+  return { startDate: _toISODate(start), endDate: _toISODate(end) };
+}
 
 const ALL_TYPE_IDS = new Set<LeaveType>(ALL_LEAVE_TYPES);
 
@@ -84,13 +126,19 @@ export function AnalyticsModule({ onNavigate }: AnalyticsModuleProps = {}) {
   const [tab, setTab] = useState<"overview" | "availability" | "history">(
     "overview"
   );
-  const [selectedDept, setSelectedDept] = useState<string>("All");
   const [deptFilter, setDeptFilter] = useState<string>(
     ALL_DEPARTMENTS_SENTINEL
   );
+  const [availabilityProject, setAvailabilityProject] = useState<string>(
+    ALL_PROJECTS_SENTINEL
+  );
+  const [projectOptions, setProjectOptions] = useState<Project[]>([]);
+  const availabilityWindow = useMemo(() => _availabilityWindow(), []);
   const [monthFilter, setMonthFilter] = useState<string>(ALL_MONTHS_SENTINEL);
   const [deptOptions, setDeptOptions] = useState<string[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [exportingFormat, setExportingFormat] =
+    useState<LeaveAnalyticsExportFormat | null>(null);
 
   const scope = useMemo(
     () => ({
@@ -136,6 +184,28 @@ export function AnalyticsModule({ onNavigate }: AnalyticsModuleProps = {}) {
     }
   }, [isAdmin, deptFilter]);
 
+  useEffect(() => {
+    if (!isAdmin) {
+      setProjectOptions([]);
+      return;
+    }
+    const controller = new AbortController();
+    projectApi
+      .list({ page_size: 100 }, { signal: controller.signal })
+      .then((response) => setProjectOptions(response.results))
+      .catch(() => setProjectOptions([]));
+    return () => controller.abort();
+  }, [isAdmin]);
+
+  const availability = useTeamAvailability({
+    startDate: isAdmin ? availabilityWindow.startDate : "",
+    endDate: isAdmin ? availabilityWindow.endDate : "",
+    project:
+      availabilityProject === ALL_PROJECTS_SENTINEL
+        ? undefined
+        : Number(availabilityProject),
+  });
+
   const hasActiveFilter =
     deptFilter !== ALL_DEPARTMENTS_SENTINEL ||
     monthFilter !== ALL_MONTHS_SENTINEL;
@@ -146,7 +216,9 @@ export function AnalyticsModule({ onNavigate }: AnalyticsModuleProps = {}) {
   };
 
   useEffect(() => {
-    if (data.error) notifyApiError(new Error(data.error));
+    if (!data.error) return;
+    if (_isPermissionError(data.error)) return;
+    notifyApiError(new Error(data.error));
   }, [data.error]);
 
   const toggleType = (id: LeaveType) => {
@@ -176,44 +248,59 @@ export function AnalyticsModule({ onNavigate }: AnalyticsModuleProps = {}) {
     }
   };
 
+  const handleExport = async (format: LeaveAnalyticsExportFormat) => {
+    if (exportingFormat) return;
+    setExportingFormat(format);
+    try {
+      const result = await withNotification(
+        leaveAnalyticsApi.export({
+          format,
+          year,
+          month: scope.month,
+          department: scope.department,
+        }),
+        NotificationMessages.PROCESSING,
+        NotificationMessages.DOWNLOADED_SUCCESS,
+        NotificationMessages.DOWNLOADED_ERROR
+      );
+      _triggerBlobDownload(result.blob, result.filename);
+    } catch {
+      // toast already shown by withNotification
+    } finally {
+      setExportingFormat(null);
+    }
+  };
+
   const exportItems: {
-    id: string;
+    id: LeaveAnalyticsExportFormat;
     icon: ReactNode;
     title: string;
     subtitle: string;
-  }[] = [
-    {
-      id: "csv",
-      icon: <FileText className="h-3.5 w-3.5" />,
-      title: `Leave_Analytics_${year}.csv`,
-      subtitle: "All leave entries, raw rows",
-    },
-    {
-      id: "pdf",
-      icon: <FileText className="h-3.5 w-3.5" />,
-      title: `Workforce_Report_${year}.pdf`,
-      subtitle: "Formatted report with charts",
-    },
-    {
-      id: "xlsx",
-      icon: <FileSpreadsheet className="h-3.5 w-3.5" />,
-      title: `By_Employee_${year}.xlsx`,
-      subtitle: "Per-employee breakdown",
-    },
-    {
-      id: "ical",
-      icon: <CalendarIcon className="h-3.5 w-3.5" />,
-      title: "Team_availability.ics",
-      subtitle: "Approved leave as calendar feed",
-    },
-  ];
+  }[] = useMemo(() => {
+    const stem = scope.department
+      ? `Leave_Analytics_${year}_${scope.department}`
+      : `Leave_Analytics_${year}`;
+    return [
+      {
+        id: "csv",
+        icon: <FileText className="h-3.5 w-3.5" />,
+        title: `${stem}.csv`,
+        subtitle: "Raw monthly aggregate rows",
+      },
+      {
+        id: "pdf",
+        icon: <FileText className="h-3.5 w-3.5" />,
+        title: `${stem}.pdf`,
+        subtitle: "Formatted report with summary tables",
+      },
+    ];
+  }, [year, scope.department]);
 
   const yoy: LeaveAnalyticsYearTotals[] = data.yearOverYear.length
     ? data.yearOverYear
     : [];
 
-  const fallbackAnchor = ANCHOR_TODAY.getFullYear();
-  const minYear = Math.min(fallbackAnchor - 2, currentYearAnchor - 2, 2024);
+  const minYear = Math.min(currentYearAnchor - 2, 2024);
   const headerCount = data.employees.length;
 
   return (
@@ -280,8 +367,16 @@ export function AnalyticsModule({ onNavigate }: AnalyticsModuleProps = {}) {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="h-9 rounded-lg text-[13px]">
-                <Download className="h-3.5 w-3.5" />
+              <Button
+                variant="outline"
+                className="h-9 rounded-lg text-[13px]"
+                disabled={exportingFormat !== null}
+              >
+                {exportingFormat ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Download className="h-3.5 w-3.5" />
+                )}
                 Export
               </Button>
             </DropdownMenuTrigger>
@@ -293,6 +388,11 @@ export function AnalyticsModule({ onNavigate }: AnalyticsModuleProps = {}) {
               {exportItems.map((i) => (
                 <DropdownMenuItem
                   key={i.id}
+                  disabled={exportingFormat !== null}
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    void handleExport(i.id);
+                  }}
                   className="flex items-center gap-2.5 rounded-lg px-2.5 py-2.5 focus:bg-gray-100"
                 >
                   <span className="grid h-7 w-7 shrink-0 place-items-center rounded bg-gray-100 text-gray-600">
@@ -306,15 +406,20 @@ export function AnalyticsModule({ onNavigate }: AnalyticsModuleProps = {}) {
                       {i.subtitle}
                     </span>
                   </span>
-                  <Download className="h-3 w-3 text-gray-400" />
+                  {exportingFormat === i.id ? (
+                    <Loader2 className="h-3 w-3 animate-spin text-gray-500" />
+                  ) : (
+                    <Download className="h-3 w-3 text-gray-400" />
+                  )}
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
               <div className="flex items-center gap-1.5 px-2.5 py-2 text-[11px] text-gray-500">
                 <Shield className="h-3 w-3" />
                 <span>
-                  HR-only exports include salary-linked leave (parental,
-                  unpaid).
+                  {isAdmin
+                    ? "Exports honor the active department and month filters."
+                    : "Exports are scoped to your own leave records."}
                 </span>
               </div>
             </DropdownMenuContent>
@@ -424,10 +529,12 @@ export function AnalyticsModule({ onNavigate }: AnalyticsModuleProps = {}) {
               <BarChart3 className="h-3.5 w-3.5" />
               Overview
             </TabsTrigger>
-            <TabsTrigger value="availability" className={TAB_TRIGGER_CLASSES}>
-              <CalendarIcon className="h-3.5 w-3.5" />
-              Team availability
-            </TabsTrigger>
+            {isAdmin && (
+              <TabsTrigger value="availability" className={TAB_TRIGGER_CLASSES}>
+                <CalendarIcon className="h-3.5 w-3.5" />
+                Team availability
+              </TabsTrigger>
+            )}
             <TabsTrigger value="history" className={TAB_TRIGGER_CLASSES}>
               <History className="h-3.5 w-3.5" />
               {isAdmin ? "Per-employee history" : "My leave history"}
@@ -521,8 +628,14 @@ export function AnalyticsModule({ onNavigate }: AnalyticsModuleProps = {}) {
                   variant="ghost"
                   size="sm"
                   className="h-auto px-2 py-1 text-xs font-semibold text-gray-900 hover:text-gray-900"
+                  disabled={exportingFormat !== null}
+                  onClick={() => void handleExport("csv")}
                 >
-                  <Download className="h-3 w-3 text-gray-900" />
+                  {exportingFormat === "csv" ? (
+                    <Loader2 className="h-3 w-3 animate-spin text-gray-900" />
+                  ) : (
+                    <Download className="h-3 w-3 text-gray-900" />
+                  )}
                   CSV
                 </Button>
               </div>
@@ -534,30 +647,54 @@ export function AnalyticsModule({ onNavigate }: AnalyticsModuleProps = {}) {
           )}
         </TabsContent>
 
-        <TabsContent value="availability" className="mt-0">
-          <section className="rounded-xl border border-gray-200 bg-white p-5">
-            <div className="mb-4 flex items-start justify-between gap-4 border-b border-gray-200 pb-4">
-              <div>
-                <div className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
-                  Team availability
+        {isAdmin && (
+          <TabsContent value="availability" className="mt-0">
+            <section className="rounded-xl border border-gray-200 bg-white p-5">
+              <div className="mb-4 flex items-start justify-between gap-4 border-b border-gray-200 pb-4">
+                <div>
+                  <div className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
+                    Team availability
+                  </div>
+                  <h2 className="mt-1 text-base font-semibold tracking-tight text-gray-900">
+                    Who&apos;s out — next 5 weeks
+                  </h2>
+                  <p className="mt-1 text-[12px] text-gray-500">
+                    {availabilityWindow.startDate} →{" "}
+                    {availabilityWindow.endDate}
+                  </p>
                 </div>
-                <h2 className="mt-1 text-base font-semibold tracking-tight text-gray-900">
-                  Who&apos;s out — next 5 weeks
-                </h2>
+                <div className="flex items-center gap-2">
+                  <label className="text-[12px] font-medium text-gray-700">
+                    Project
+                  </label>
+                  <Select
+                    value={availabilityProject}
+                    onValueChange={setAvailabilityProject}
+                  >
+                    <SelectTrigger className="h-8 w-56 text-[12px]">
+                      <SelectValue placeholder="All projects" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={ALL_PROJECTS_SENTINEL}>
+                        All projects
+                      </SelectItem>
+                      {projectOptions.map((project) => (
+                        <SelectItem key={project.id} value={String(project.id)}>
+                          {project.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-            </div>
-            {/*
-              TODO(BHB-483): replace with a real `availability` endpoint that
-              returns per-day per-employee leave windows. Until then, the
-              heatmap renders against the deterministic mock data exported by
-              `analyticsModuleHelpers.ts`.
-            */}
-            <TeamAvailabilityHeatmap
-              selectedDept={selectedDept}
-              onSelectDept={setSelectedDept}
-            />
-          </section>
-        </TabsContent>
+              <TeamAvailabilityHeatmap
+                data={availability.data}
+                isLoading={availability.isLoading}
+                error={availability.error}
+              />
+            </section>
+          </TabsContent>
+        )}
 
         <TabsContent value="history" className="mt-0">
           <section className="rounded-xl border border-gray-200 bg-white p-5">
@@ -574,6 +711,7 @@ export function AnalyticsModule({ onNavigate }: AnalyticsModuleProps = {}) {
             <EmployeeHistoryTable
               year={year}
               rows={data.employees}
+              isAdmin={isAdmin}
               onNavigate={onNavigate}
             />
           </section>
