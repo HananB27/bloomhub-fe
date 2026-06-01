@@ -10,7 +10,6 @@ import {
   ChevronDown,
   ChevronRight,
   Clock,
-  Command,
   FileText,
   Laptop,
   Loader2,
@@ -92,6 +91,7 @@ interface ChatMessage {
 interface AIAssistantProps {
   activeModule: HrModuleId;
   onModuleNavigate: (moduleId: HrModuleId, entityId?: number) => void;
+  defaultOpen?: boolean;
 }
 
 const welcomeMessage: ChatMessage = {
@@ -1194,12 +1194,14 @@ function UiActionCard({
   action,
   disabled,
   busy,
+  topLevelError,
   onConfirm,
   onCancel,
 }: {
   action: AiUiAction;
   disabled: boolean;
   busy: boolean;
+  topLevelError?: string | null;
   onConfirm: () => void;
   onCancel: () => void;
 }) {
@@ -1248,6 +1250,11 @@ function UiActionCard({
       </div>
       {action.help && (
         <p className="mt-2 text-xs text-amber-900">{action.help}</p>
+      )}
+      {topLevelError && (
+        <div className="mt-3 rounded border border-red-200 bg-red-50 p-2 text-xs text-red-800">
+          {topLevelError}
+        </div>
       )}
       {entries.length > 0 && (
         <div className="mt-3 overflow-hidden rounded border border-amber-200 bg-white">
@@ -1298,10 +1305,13 @@ function UiActionCard({
   );
 }
 
-export function AIAssistant({ onModuleNavigate }: AIAssistantProps) {
+export function AIAssistant({
+  onModuleNavigate,
+  defaultOpen = false,
+}: AIAssistantProps) {
   const { data: session } = useSession();
   const [mounted, setMounted] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
   const [messages, setMessages] = useState<ChatMessage[]>([welcomeMessage]);
   const [inputValue, setInputValue] = useState("");
   const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
@@ -1318,6 +1328,7 @@ export function AIAssistant({ onModuleNavigate }: AIAssistantProps) {
   >({});
   const [hasLoadedSessions, setHasLoadedSessions] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const idCounterRef = useRef(0);
   const accessToken = (session as { accessToken?: string } | null)?.accessToken;
 
@@ -1375,6 +1386,12 @@ export function AIAssistant({ onModuleNavigate }: AIAssistantProps) {
     return `${prefix}-${idCounterRef.current}`;
   };
 
+  const focusInput = () => {
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
+  };
+
   const refreshSessions = async () => {
     setIsLoadingSessions(true);
     setErrorMessage(null);
@@ -1393,6 +1410,7 @@ export function AIAssistant({ onModuleNavigate }: AIAssistantProps) {
     setMessages([welcomeMessage]);
     setInputValue("");
     setErrorMessage(null);
+    focusInput();
   };
 
   const loadSession = async (sessionId: number) => {
@@ -1512,6 +1530,29 @@ export function AIAssistant({ onModuleNavigate }: AIAssistantProps) {
               : m
           )
         );
+      } else if (opts.targetMessageId) {
+        const errorText = formatError(error);
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === opts.targetMessageId
+              ? {
+                  ...m,
+                  fieldErrors: undefined,
+                  confirmError: errorText,
+                }
+              : m
+          )
+        );
+        setErrorMessage(errorText);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: createMessageId("assistant-error"),
+            role: "assistant",
+            content: errorText,
+            timestamp: new Date(),
+          },
+        ]);
       } else {
         setErrorMessage(formatError(error));
         setMessages((prev) => [
@@ -1527,6 +1568,7 @@ export function AIAssistant({ onModuleNavigate }: AIAssistantProps) {
     } finally {
       setIsSending(false);
       if (!opts.confirm && !opts.suppressUserBubble) setInputValue("");
+      focusInput();
     }
   };
 
@@ -1698,10 +1740,12 @@ export function AIAssistant({ onModuleNavigate }: AIAssistantProps) {
     return (
       <Button
         variant="ghost"
-        size="icon"
-        className="h-11 w-11 rounded-xl border border-gray-200 transition-colors hover:bg-gray-100"
+        className="inline-flex h-12 items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 text-gray-900 shadow-sm transition-all hover:-translate-y-0.5 hover:border-gray-300 hover:bg-gray-50 hover:shadow-md"
       >
-        <Command className="h-5 w-5 text-gray-600" />
+        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gray-900 shadow-sm">
+          <Bot className="h-5 w-5 text-white" />
+        </div>
+        <span className="text-sm font-semibold tracking-tight">BloomAI</span>
       </Button>
     );
   }
@@ -1711,11 +1755,13 @@ export function AIAssistant({ onModuleNavigate }: AIAssistantProps) {
       <DialogTrigger asChild>
         <Button
           variant="ghost"
-          size="icon"
-          className="h-11 w-11 rounded-xl border border-gray-200 transition-colors hover:bg-gray-100"
-          aria-label="Open AI assistant"
+          className="inline-flex h-12 items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 text-gray-900 shadow-sm transition-all hover:-translate-y-0.5 hover:border-gray-300 hover:bg-gray-50 hover:shadow-md"
+          aria-label="Open BloomAI assistant"
         >
-          <Command className="h-5 w-5 text-gray-600" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gray-900 shadow-sm">
+            <Bot className="h-5 w-5 text-white" />
+          </div>
+          <span className="text-sm font-semibold tracking-tight">BloomAI</span>
         </Button>
       </DialogTrigger>
 
@@ -1800,21 +1846,21 @@ export function AIAssistant({ onModuleNavigate }: AIAssistantProps) {
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <DialogHeader className="shrink-0 border-b border-gray-200 bg-linear-to-r from-gray-50 to-gray-100 px-6 py-4 dark:border-gray-700 dark:from-gray-900 dark:to-gray-800">
+          <DialogHeader className="shrink-0 border-b border-gray-200 bg-linear-to-r from-gray-50 to-gray-100 px-6 py-4 pr-14 dark:border-gray-700 dark:from-gray-900 dark:to-gray-800">
             <DialogTitle className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-800">
-                <Bot className="h-5 w-5 text-white" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-900 shadow-md ring-1 ring-gray-800/20">
+                <Bot className="h-6 w-6 text-white" />
               </div>
               <div className="min-w-0">
                 <span className="block text-lg text-gray-900 dark:text-gray-100">
-                  BloomHub AI Assistant
+                  BloomAI
                 </span>
                 <span className="flex items-center gap-2 text-sm font-normal text-gray-500 dark:text-gray-400">
                   <Sparkles className="h-4 w-4" />
                   {activeSessionId ? `Session #${activeSessionId}` : "New chat"}
                 </span>
               </div>
-              <div className="ml-auto flex items-center gap-2">
+              <div className="ml-auto mr-4 flex items-center gap-2">
                 <Button
                   size="sm"
                   variant="outline"
@@ -1948,6 +1994,7 @@ export function AIAssistant({ onModuleNavigate }: AIAssistantProps) {
                                 action={message.uiAction}
                                 disabled={isSending}
                                 busy={quickActionMessageId === message.id}
+                                topLevelError={message.confirmError}
                                 onConfirm={() =>
                                   confirmPendingForMessage(message.id, {})
                                 }
@@ -2078,6 +2125,7 @@ export function AIAssistant({ onModuleNavigate }: AIAssistantProps) {
 
                 <div className="flex items-end gap-3">
                   <Textarea
+                    ref={inputRef}
                     value={inputValue}
                     onChange={(event) => setInputValue(event.target.value)}
                     onKeyDown={(event) => {
@@ -2091,6 +2139,7 @@ export function AIAssistant({ onModuleNavigate }: AIAssistantProps) {
                     disabled={isSending}
                   />
                   <Button
+                    aria-label="Send"
                     variant="primary"
                     className="h-12 rounded-xl px-5"
                     onClick={() => void submitInput()}

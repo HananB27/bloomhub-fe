@@ -2,6 +2,8 @@
 node_modules
 .next
 out
+graphify-out
+test-results
 
 # Ignore package lock (optional, remove if you want to format it)
 # package-lock.json
