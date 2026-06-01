@@ -26,8 +26,9 @@ interface Series {
 }
 
 const CHART_WIDTH = 720;
-const CHART_HEIGHT = 240;
-const CHART_PADDING = { top: 16, right: 16, bottom: 32, left: 36 };
+const CHART_HEIGHT = 260;
+const CHART_PADDING = { top: 16, right: 16, bottom: 44, left: 52 };
+const AXIS_LABEL_FONT_SIZE = 15;
 
 export function BalanceTrendChart({ snapshots, activeTypes }: Props) {
   const series = useMemo(
@@ -80,9 +81,9 @@ export function BalanceTrendChart({ snapshots, activeTypes }: Props) {
               />
               <text
                 x={CHART_PADDING.left - 8}
-                y={y + 3}
+                y={y + AXIS_LABEL_FONT_SIZE / 3}
                 textAnchor="end"
-                fontSize={10}
+                fontSize={AXIS_LABEL_FONT_SIZE}
                 fill="#6b7280"
                 fontFamily="ui-monospace, monospace"
               >
@@ -99,9 +100,9 @@ export function BalanceTrendChart({ snapshots, activeTypes }: Props) {
             <text
               key={d}
               x={xFor(i)}
-              y={CHART_HEIGHT - 12}
+              y={CHART_HEIGHT - 14}
               textAnchor="middle"
-              fontSize={10}
+              fontSize={AXIS_LABEL_FONT_SIZE}
               fill="#6b7280"
               fontFamily="ui-monospace, monospace"
             >
@@ -138,8 +139,10 @@ export function BalanceTrendChart({ snapshots, activeTypes }: Props) {
                     key={`${s.leaveType}-${p.date}`}
                     cx={xFor(idx)}
                     cy={yFor(p.remaining)}
-                    r={hover && hover.index === idx ? 4 : 2.5}
+                    r={hover && hover.index === idx ? 6 : 4}
                     fill={s.color}
+                    stroke="#ffffff"
+                    strokeWidth={1}
                   />
                 );
               })}
@@ -161,7 +164,7 @@ export function BalanceTrendChart({ snapshots, activeTypes }: Props) {
         ))}
       </svg>
 
-      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1.5 px-2 text-[11.5px] text-gray-700">
+      <div className="relative mt-2 flex flex-wrap gap-x-4 gap-y-1.5 px-2 text-[11.5px] text-gray-700">
         {series.map((s) => (
           <span key={s.leaveType} className="flex items-center gap-1.5">
             <span
@@ -171,41 +174,36 @@ export function BalanceTrendChart({ snapshots, activeTypes }: Props) {
             {s.label}
           </span>
         ))}
-      </div>
 
-      {hover && (
-        <div
-          className="pointer-events-none absolute top-2.5 z-[5] w-[176px] rounded-lg border border-gray-300 bg-white px-3 py-2.5 shadow-[0_6px_16px_-8px_rgba(0,0,0,0.18)]"
-          style={{
-            left: `calc(${(hover.x / CHART_WIDTH) * 100}% - 88px)`,
-          }}
-        >
-          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
-            {formatLongDate(dateRange[hover.index])}
+        {hover && (
+          <div className="pointer-events-none absolute left-1/2 top-0 z-[5] w-[260px] -translate-x-1/2 rounded-lg border border-gray-300 bg-white px-3 py-2.5 shadow-[0_8px_20px_-8px_rgba(0,0,0,0.25)]">
+            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+              {formatLongDate(dateRange[hover.index])}
+            </div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-[3px]">
+              {series.map((s) => {
+                const point = s.points.find(
+                  (p) => p.date === dateRange[hover.index]
+                );
+                if (!point) return null;
+                return (
+                  <div
+                    key={s.leaveType}
+                    className="flex items-center gap-1.5 text-[11.5px] text-gray-900"
+                  >
+                    <span
+                      className="h-2 w-2 shrink-0 rounded-sm"
+                      style={{ background: s.color }}
+                    />
+                    <span className="flex-1 truncate">{s.label}</span>
+                    <span className="font-mono">{point.remaining}d</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <div className="flex flex-col gap-[3px]">
-            {series.map((s) => {
-              const point = s.points.find(
-                (p) => p.date === dateRange[hover.index]
-              );
-              if (!point) return null;
-              return (
-                <div
-                  key={s.leaveType}
-                  className="flex items-center gap-1.5 text-[11.5px] text-gray-900"
-                >
-                  <span
-                    className="h-2 w-2 shrink-0 rounded-sm"
-                    style={{ background: s.color }}
-                  />
-                  <span className="flex-1">{s.label}</span>
-                  <span className="font-mono">{point.remaining}d</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

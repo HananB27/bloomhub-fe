@@ -202,3 +202,32 @@ export interface LeaveAvailabilityResponse {
   employees: LeaveAvailabilityEmployee[];
   daily: LeaveAvailabilityDayCount[];
 }
+
+// ─── Export (BHB-486) ────────────────────────────────────────────────────────
+
+export type LeaveAnalyticsExportFormat = "csv" | "pdf";
+
+export const ALL_LEAVE_ANALYTICS_EXPORT_FORMATS: LeaveAnalyticsExportFormat[] =
+  ["csv", "pdf"];
+
+export const LEAVE_ANALYTICS_EXPORT_FORMAT_LABELS: Record<
+  LeaveAnalyticsExportFormat,
+  string
+> = {
+  csv: "CSV",
+  pdf: "PDF",
+};
+
+/** Query params accepted by `leaveAnalyticsApi.export()`. */
+export interface LeaveAnalyticsExportParams {
+  format: LeaveAnalyticsExportFormat;
+  year: number;
+  month?: number;
+  department?: string;
+}
+
+/** Result of `leaveAnalyticsApi.export()` — blob + server-provided filename. */
+export interface LeaveAnalyticsExportResult {
+  blob: Blob;
+  filename: string;
+}

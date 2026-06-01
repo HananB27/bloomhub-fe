@@ -218,38 +218,38 @@ export const ALL_LEAVE_TYPES: LeaveType[] = [
 
 // Hex colors used by analytics SVG charts (raw fill values, no Tailwind class).
 export const LEAVE_TYPE_CHART_COLORS: Record<LeaveType, string> = {
-  vacation:    "#4338ca",
-  sick:        "#b45309",
-  wfh:         "#0f766e",
-  personal:    "#7c3aed",
-  maternity:   "#be185d",
-  paternity:   "#9d174d",
-  bereavement: "#1d4ed8",
-  unpaid:      "#525252",
+  vacation: "#4338ca",
+  sick: "#b45309",
+  wfh: "#0f766e",
+  personal: "#7c3aed",
+  maternity: "#be185d",
+  paternity: "#9d174d",
+  bereavement: "#0f172a",
+  unpaid: "#525252",
 };
 
 // Soft tinted backgrounds used by type chips.
 export const LEAVE_TYPE_CHIP_BG: Record<LeaveType, string> = {
-  vacation:    "#eef2ff",
-  sick:        "#fef3c7",
-  wfh:         "#ccfbf1",
-  personal:    "#f3e8ff",
-  maternity:   "#fce7f3",
-  paternity:   "#fce7f3",
+  vacation: "#eef2ff",
+  sick: "#fef3c7",
+  wfh: "#ccfbf1",
+  personal: "#f3e8ff",
+  maternity: "#fce7f3",
+  paternity: "#fce7f3",
   bereavement: "#dbeafe",
-  unpaid:      "#f3f4f6",
+  unpaid: "#f3f4f6",
 };
 
 // Single-letter labels used inside heatmap cells.
 export const LEAVE_TYPE_SHORT_LABELS: Record<LeaveType, string> = {
-  vacation:    "V",
-  sick:        "S",
-  wfh:         "W",
-  personal:    "P",
-  maternity:   "M",
-  paternity:   "T",
-  bereavement: "X",
-  unpaid:      "U",
+  vacation: "V",
+  sick: "S",
+  wfh: "W",
+  personal: "P",
+  maternity: "M",
+  paternity: "T",
+  bereavement: "B",
+  unpaid: "U",
 };
 
 // Statutory annual vacation allowance (working days). Policy constant.
