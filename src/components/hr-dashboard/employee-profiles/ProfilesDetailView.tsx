@@ -4,6 +4,9 @@ import type {
   EmployeeProfileChangeHistoryItem,
 } from "@/lib/api/employees";
 import type { EmployeeCVVersion } from "@/lib/api/modules/employee-cvs";
+import type { CPFLevel } from "@/lib/api/modules/cpf-levels";
+import type { CompensationPolicy } from "@/lib/api/compensation";
+import type { Manager } from "@/lib/api/managers";
 import type { TechnologyTag } from "@/types/technology-tags";
 import { ProfileDetailShell } from "./ProfileDetailShell";
 import { getViewerAccess } from "./sectionPermissions";
@@ -27,6 +30,12 @@ import { DatePicker } from "../DatePicker";
 interface ProfilesDetailViewProps {
   profile: EmployeeProfileData;
   cpfLevels: string[];
+  cpfLevelObjects: CPFLevel[];
+  onCpfLevelsChange: () => Promise<CPFLevel[]> | void;
+  rolesList: { id: number; name: string }[];
+  departments: string[];
+  managersList: Manager[];
+  compensationPolicies: CompensationPolicy[];
   allTechnologyTags: TechnologyTag[];
   canEditAll: boolean;
   currentUserId: number | null;
@@ -102,6 +111,12 @@ function resolveViewerRole(
 export function ProfilesDetailView({
   profile,
   cpfLevels,
+  cpfLevelObjects,
+  onCpfLevelsChange,
+  rolesList,
+  departments,
+  managersList,
+  compensationPolicies,
   allTechnologyTags,
   canEditAll,
   currentUserId,
@@ -207,7 +222,15 @@ export function ProfilesDetailView({
         onEmployeeChange={onEmployeeChange}
         access={access}
       />
-      <ProfileEmploymentSection profile={profile} />
+      <ProfileEmploymentSection
+        profile={profile}
+        editMode={editMode}
+        canEditAll={canEditAll}
+        rolesList={rolesList}
+        departments={departments}
+        managersList={managersList}
+        onEmployeeChange={onEmployeeChange}
+      />
       {editMode && canEditAll && introDraft && onIntroDraftChange ? (
         <ProfileSection
           id="intro-announcement"
@@ -319,9 +342,15 @@ export function ProfilesDetailView({
         editMode={editMode}
         canEditAll={canEditAll}
         cpfLevels={cpfLevels}
+        cpfLevelObjects={cpfLevelObjects}
+        onCpfLevelsChange={onCpfLevelsChange}
         onEmployeeChange={onEmployeeChange}
       />
-      <ProfileCompensationSection profile={profile} access={access} />
+      <ProfileCompensationSection
+        profile={profile}
+        access={access}
+        compensationPolicies={compensationPolicies}
+      />
       <ProfileTechnologySection
         selectedEmployee={profile}
         allTechnologyTags={allTechnologyTags}

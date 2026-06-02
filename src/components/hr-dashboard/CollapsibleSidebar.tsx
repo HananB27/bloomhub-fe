@@ -24,6 +24,8 @@ interface CollapsibleSidebarProps {
   activeId: string;
   onSelect: (id: HrModuleId) => void;
   notificationCounts?: Record<string, number>;
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
 export function CollapsibleSidebar({
@@ -33,7 +35,13 @@ export function CollapsibleSidebar({
   activeId,
   onSelect,
   notificationCounts = {},
+  mobileOpen = false,
+  onMobileClose,
 }: CollapsibleSidebarProps) {
+  const handleSelect = (id: HrModuleId) => {
+    onSelect(id);
+    if (onMobileClose) onMobileClose();
+  };
   const [tooltip, setTooltip] = useState<{
     label: string;
     anchorRect: DOMRect;
@@ -65,8 +73,17 @@ export function CollapsibleSidebar({
 
   return (
     <>
+      {mobileOpen ? (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+          onClick={onMobileClose}
+          aria-hidden
+        />
+      ) : null}
       <aside
-        className="fixed left-0 top-0 z-20 flex h-screen flex-col overflow-hidden border-y border-r border-[#262626] bg-[#171717] transition-[width] duration-300 ease-out"
+        className={`fixed left-0 top-0 z-40 flex h-screen flex-col overflow-hidden border-y border-r border-[#262626] bg-[#171717] transition-[width,transform] duration-300 ease-out ${
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0 lg:z-20`}
         style={{
           width: collapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH,
         }}
@@ -139,7 +156,7 @@ export function CollapsibleSidebar({
                 <li key={item.id} className="relative">
                   <button
                     type="button"
-                    onClick={() => onSelect(item.id as HrModuleId)}
+                    onClick={() => handleSelect(item.id as HrModuleId)}
                     onMouseEnter={
                       collapsed ? (e) => showTooltip(item.label, e) : undefined
                     }
@@ -185,7 +202,7 @@ export function CollapsibleSidebar({
                   {item.id === "logout" ? (
                     <Button
                       variant="ghost"
-                      onClick={() => onSelect(item.id as HrModuleId)}
+                      onClick={() => handleSelect(item.id as HrModuleId)}
                       onMouseEnter={
                         collapsed
                           ? (e) => showTooltip(item.label, e)
@@ -206,7 +223,7 @@ export function CollapsibleSidebar({
                   ) : (
                     <button
                       type="button"
-                      onClick={() => onSelect(item.id as HrModuleId)}
+                      onClick={() => handleSelect(item.id as HrModuleId)}
                       onMouseEnter={
                         collapsed
                           ? (e) => showTooltip(item.label, e)

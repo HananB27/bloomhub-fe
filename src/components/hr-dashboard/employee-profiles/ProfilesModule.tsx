@@ -109,6 +109,8 @@ import {
   fetchLegacyProfilesPageSnapshot,
   fetchProfilesDropdownRefs,
 } from "./profilesModuleLoaders";
+import { cpfLevelsApi, type CPFLevel } from "@/lib/api/modules/cpf-levels";
+import { policyApi, type CompensationPolicy } from "@/lib/api/compensation";
 import { EmployeesListPage } from "./EmployeesListPage";
 import type { EmployeesExportContext } from "./EmployeesListPage";
 import { ProfilesDetailView } from "./ProfilesDetailView";
@@ -123,7 +125,22 @@ import {
   pdf as renderPdf,
 } from "@react-pdf/renderer";
 
-const TRACKED_HISTORY_FIELDS = new Set(["role", "salary", "cpf", "cpf_level"]);
+const TRACKED_HISTORY_FIELDS = new Set([
+  "role",
+  "salary",
+  "cpf",
+  "cpf_level",
+  "career_level",
+  "department",
+  "manager_ids",
+  "managers",
+  "employment_status",
+  "is_active",
+  "start_date",
+  "employee_id",
+  "currency",
+  "display_name",
+]);
 
 const EMPLOYEE_EXPORT_COLUMN_LABELS: Record<string, string> = {
   first_name: "First name",
@@ -647,6 +664,9 @@ export default function ProfilesModule({
   const [cvLinkDraft, setCvLinkDraft] = useState("");
   const [isAddingCvLink, setIsAddingCvLink] = useState(false);
   const [jobTitles, setJobTitles] = useState<string[]>([]);
+  const [rolesList, setRolesList] = useState<{ id: number; name: string }[]>(
+    []
+  );
   const [projects, setProjects] = useState<
     { id: number; name: string; leaders?: { id: number; name: string }[] }[]
   >([]);
@@ -659,6 +679,42 @@ export default function ProfilesModule({
     []
   );
   const [cpfLevels, setCpfLevels] = useState<string[]>([]);
+  const [cpfLevelObjects, setCpfLevelObjects] = useState<CPFLevel[]>([]);
+
+  const refreshCpfLevels = useCallback(async () => {
+    try {
+      const objects = await cpfLevelsApi.list();
+      setCpfLevelObjects(objects);
+      setCpfLevels(objects.map((level) => level.code));
+      return objects;
+    } catch (err) {
+      console.error("Failed to refresh CPF levels:", err);
+      return [];
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshCpfLevels();
+  }, [refreshCpfLevels]);
+
+  const [compensationPolicies, setCompensationPolicies] = useState<
+    CompensationPolicy[]
+  >([]);
+
+  const refreshCompensationPolicies = useCallback(async () => {
+    try {
+      const data = await policyApi.list();
+      setCompensationPolicies(data);
+      return data;
+    } catch (err) {
+      console.error("Failed to refresh compensation policies:", err);
+      return [];
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshCompensationPolicies();
+  }, [refreshCompensationPolicies]);
   const [_isLoadingEmployee, setIsLoadingEmployee] = useState(false);
   const [_saveError, setSaveError] = useState<string | null>(null);
   const [_saveSuccess, setSaveSuccess] = useState(false);
@@ -720,6 +776,7 @@ export default function ProfilesModule({
               ? deriveJobTitlesFromEmployees(pageBundle.employees)
               : pageBundle.roles.map((role) => role.name).filter(Boolean)
           );
+          setRolesList(pageBundle.roles);
           setProjects(pageBundle.projects);
           setManagers(pageBundle.managers);
           setCpfLevels(pageBundle.cpfLevels);
@@ -743,8 +800,10 @@ export default function ProfilesModule({
               ? deriveJobTitlesFromEmployees(snap.employees)
               : snap.roles.map((role) => role.name).filter(Boolean)
           );
+          setRolesList(snap.roles);
           setProjects(snap.projects);
           setCpfLevels(snap.cpfLevels);
+          setCpfLevelObjects(snap.cpfLevelObjects);
           setManagers(snap.managers);
         } finally {
           setLoadingDropdowns(false);
@@ -821,6 +880,7 @@ export default function ProfilesModule({
           ? current
           : refs.roles.map((role) => role.name).filter(Boolean)
       );
+      setRolesList(refs.roles);
     } catch {
     } finally {
       setLoadingDropdowns(false);
@@ -1309,6 +1369,12 @@ export default function ProfilesModule({
         <ProfilesDetailView
           profile={selectedEmployee}
           cpfLevels={cpfLevels}
+          cpfLevelObjects={cpfLevelObjects}
+          onCpfLevelsChange={refreshCpfLevels}
+          rolesList={rolesList}
+          departments={departments}
+          managersList={managers}
+          compensationPolicies={compensationPolicies}
           allTechnologyTags={allTechnologyTags}
           canEditAll={canEditAll}
           currentUserId={currentUserId}

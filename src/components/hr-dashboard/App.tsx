@@ -13,6 +13,7 @@ import {
   Shield,
   HelpCircle,
   Loader2,
+  Menu,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -249,6 +250,7 @@ export default function HRDashboardApp({
   };
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   useEffect(() => {
     const width = sidebarCollapsed
       ? SIDEBAR_COLLAPSED_OFFSET
@@ -288,32 +290,45 @@ export default function HRDashboardApp({
         activeId={activeModule}
         onSelect={handleModuleSelect as (moduleId: HrModuleId) => void}
         notificationCounts={notificationCounts}
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
       />
 
       <main
-        className="flex h-screen flex-col transition-[margin] duration-300 ease-out"
+        className="flex h-screen flex-col transition-[margin] duration-300 ease-out lg:!ml-[var(--ws-sidebar-w)]"
         style={{
-          marginLeft: sidebarCollapsed
-            ? SIDEBAR_COLLAPSED_OFFSET
-            : SIDEBAR_EXPANDED_OFFSET,
+          marginLeft: 0,
+          ["--ws-sidebar-w" as string]: `${
+            sidebarCollapsed
+              ? SIDEBAR_COLLAPSED_OFFSET
+              : SIDEBAR_EXPANDED_OFFSET
+          }px`,
         }}
       >
-        <header className="flex h-16 shrink-0 items-center justify-between border-b border-gray-200 bg-white pl-6 pr-6 dark:border-gray-800 dark:bg-gray-900">
-          <div className="flex items-center gap-6">
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <header className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-gray-200 bg-white px-3 sm:px-6 dark:border-gray-800 dark:bg-gray-900">
+          <div className="flex min-w-0 items-center gap-3 sm:gap-6">
+            <button
+              type="button"
+              onClick={() => setMobileSidebarOpen(true)}
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 lg:hidden"
+              aria-label="Open menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <h1 className="truncate text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
               {getModuleById(activeModule)?.label || "Dashboard"}
             </h1>
           </div>
 
-          <div className="flex items-center gap-4 pr-1">
-            <div className="relative">
+          <div className="flex items-center gap-2 pr-1 sm:gap-4">
+            <div className="relative hidden md:block">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                 <Input
                   placeholder="Search modules..."
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
-                  className="h-11 w-[480px] rounded-2xl border-gray-300 bg-white pl-12 pr-4 text-base text-gray-900 focus:border-gray-400"
+                  className="h-11 w-[280px] rounded-2xl border-gray-300 bg-white pl-12 pr-4 text-base text-gray-900 focus:border-gray-400 lg:w-[480px]"
                 />
               </div>
 

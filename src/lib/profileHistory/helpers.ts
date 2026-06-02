@@ -12,6 +12,10 @@ export enum ProfileHistoryField {
   EmploymentStatus = "employment_status",
   CareerLevel = "career_level",
   StartDate = "start_date",
+  EmployeeId = "employee_id",
+  IsActive = "is_active",
+  Currency = "currency",
+  DisplayName = "display_name",
 }
 
 const PROFILE_HISTORY_FIELD_LABELS: Record<string, string> = {
@@ -25,6 +29,10 @@ const PROFILE_HISTORY_FIELD_LABELS: Record<string, string> = {
   [ProfileHistoryField.CareerLevel]: "Career Level",
   [ProfileHistoryField.StartDate]: "Start Date",
   [ProfileHistoryField.Department]: "Department",
+  [ProfileHistoryField.EmployeeId]: "Employee ID",
+  [ProfileHistoryField.IsActive]: "Status",
+  [ProfileHistoryField.Currency]: "Currency",
+  [ProfileHistoryField.DisplayName]: "Display Name",
 };
 
 export const TRACKED_PROFILE_HISTORY_FIELDS = new Set<string>(
@@ -52,6 +60,11 @@ export function profileHistoryValueText(
   if (field === ProfileHistoryField.Salary) {
     const amount = typeof value === "number" ? value : Number(value);
     if (Number.isFinite(amount)) return formatCurrency(amount, currency);
+  }
+  if (field === ProfileHistoryField.IsActive) {
+    if (typeof value === "boolean") return value ? "Active" : "Inactive";
+    if (value === "true" || value === 1) return "Active";
+    if (value === "false" || value === 0) return "Inactive";
   }
   if (typeof value === "object") {
     const valueRecord = value as Record<string, unknown>;

@@ -4,6 +4,7 @@ import {
   employeeCVApi,
   type EmployeeCVVersion,
 } from "@/lib/api/modules/employee-cvs";
+import { cpfLevelsApi, type CPFLevel } from "@/lib/api/modules/cpf-levels";
 import { managersApi, type Manager } from "@/lib/api/managers";
 import { getUserPermissions } from "@/lib/api/permissions";
 import { getStoredUser } from "@/lib/api/tokens";
@@ -27,6 +28,7 @@ export interface LegacyProfilesPageSnapshot {
   }[];
   managers: Manager[];
   cpfLevels: string[];
+  cpfLevelObjects: CPFLevel[];
 }
 
 export async function fetchLegacyProfilesPageSnapshot(): Promise<LegacyProfilesPageSnapshot> {
@@ -56,6 +58,7 @@ export async function fetchLegacyProfilesPageSnapshot(): Promise<LegacyProfilesP
   let roles: { id: number; name: string }[] = [];
   let projects: LegacyProfilesPageSnapshot["projects"] = [];
   let cpfLevels: string[] = [];
+  let cpfLevelObjects: CPFLevel[] = [];
   let managers: Manager[] = [];
 
   try {
@@ -71,9 +74,20 @@ export async function fetchLegacyProfilesPageSnapshot(): Promise<LegacyProfilesP
   }
 
   try {
-    cpfLevels = await employeeApi.getCPFLevels();
+    cpfLevelObjects = await cpfLevelsApi.list();
+    cpfLevels = cpfLevelObjects.map((level) => level.code);
   } catch {
-    cpfLevels = [];
+    try {
+      cpfLevels = await employeeApi.getCPFLevels();
+      cpfLevelObjects = cpfLevels.map((code) => ({
+        code,
+        display_name: null,
+        career_level: null,
+      }));
+    } catch {
+      cpfLevels = [];
+      cpfLevelObjects = [];
+    }
   }
 
   try {
@@ -92,6 +106,7 @@ export async function fetchLegacyProfilesPageSnapshot(): Promise<LegacyProfilesP
     projects,
     managers,
     cpfLevels,
+    cpfLevelObjects,
   };
 }
 
