@@ -109,6 +109,7 @@ export function TrainingBudgetList({
                       size="sm"
                       onClick={() => onEdit(budget)}
                       aria-label="Edit budget"
+                      className="text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                     >
                       <Edit3 className="h-3.5 w-3.5" />
                     </Button>

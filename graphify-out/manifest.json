@@ -35,82 +35,82 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/.husky/_/applypatch-msg": {
-    "mtime": 1780300881.9754252,
+    "mtime": 1780384537.945552,
     "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/.husky/_/commit-msg": {
-    "mtime": 1780300881.9744253,
+    "mtime": 1780384537.945552,
     "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/.husky/_/h": {
-    "mtime": 1780300881.9739456,
+    "mtime": 1780384537.9445517,
     "ast_hash": "15239a01c5554e56ff745570fb583a91",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/.husky/_/husky.sh": {
-    "mtime": 1780300881.9775348,
+    "mtime": 1780384537.945552,
     "ast_hash": "13871d2ab13e8423790ecb2c01c78c18",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/.husky/_/post-applypatch": {
-    "mtime": 1780300881.9754252,
+    "mtime": 1780384537.945552,
     "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/.husky/_/post-checkout": {
-    "mtime": 1780300881.9775348,
+    "mtime": 1780384537.945552,
     "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/.husky/_/post-commit": {
-    "mtime": 1780300881.9744253,
+    "mtime": 1780384537.945552,
     "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/.husky/_/post-merge": {
-    "mtime": 1780300881.9775348,
+    "mtime": 1780384537.945552,
     "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/.husky/_/post-rewrite": {
-    "mtime": 1780300881.976425,
+    "mtime": 1780384537.945552,
     "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/.husky/_/pre-applypatch": {
-    "mtime": 1780300881.9754252,
+    "mtime": 1780384537.945552,
     "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/.husky/_/pre-auto-gc": {
-    "mtime": 1780300881.9775348,
+    "mtime": 1780384537.945552,
     "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/.husky/_/pre-commit": {
-    "mtime": 1780300881.9739456,
+    "mtime": 1780384537.9445517,
     "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/.husky/_/pre-merge-commit": {
-    "mtime": 1780300881.9744253,
+    "mtime": 1780384537.9445517,
     "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/.husky/_/pre-push": {
-    "mtime": 1780300881.9775348,
+    "mtime": 1780384537.945552,
     "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/.husky/_/pre-rebase": {
-    "mtime": 1780300881.9754252,
+    "mtime": 1780384537.945552,
     "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/.husky/_/prepare-commit-msg": {
-    "mtime": 1780300881.9744253,
+    "mtime": 1780384537.9445517,
     "ast_hash": "0b71c2e7d39daa010985d529f1320b37",
     "semantic_hash": ""
   },
@@ -194,9 +194,24 @@
     "ast_hash": "5b016cf40467c7d5b7516bf5b0ace335",
     "semantic_hash": ""
   },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/app/oauth/jira/callback/page.tsx": {
+    "mtime": 1780357045.7673953,
+    "ast_hash": "7c9dd76f4fc9369309d73eeb4e50f7c6",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/app/oauth/tempo/callback/page.tsx": {
+    "mtime": 1780357045.7675598,
+    "ast_hash": "b940cadff44de39e6c3b4c4937c15871",
+    "semantic_hash": ""
+  },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/app/page.tsx": {
     "mtime": 1780335392.514111,
     "ast_hash": "86452861859dfffb96dc12aa9546ea15",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/app/projects/page.tsx": {
+    "mtime": 1780384494.2956152,
+    "ast_hash": "49c5765eec80413fdf210a0cc768f6e8",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/Providers.tsx": {
@@ -210,12 +225,12 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/AdminDepartmentsTab.tsx": {
-    "mtime": 1780358544.280049,
+    "mtime": 1780384494.2956152,
     "ast_hash": "c78743d3f9dd16353aa17df1bb5e3269",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/AdminModule.tsx": {
-    "mtime": 1780358544.280049,
+    "mtime": 1780384494.2956152,
     "ast_hash": "b3e43752dfbfdbb64a50f94e73a57721",
     "semantic_hash": ""
   },
@@ -225,17 +240,17 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/AnnouncementsModule.tsx": {
-    "mtime": 1780358544.2810493,
+    "mtime": 1780384494.2968795,
     "ast_hash": "76791dfd976aaa3d4478037a89174e73",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/App.tsx": {
-    "mtime": 1780358555.3600187,
+    "mtime": 1780384494.2972484,
     "ast_hash": "544117a50920c837eca30edf46de394c",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/AssetsModule.tsx": {
-    "mtime": 1780358544.2820492,
+    "mtime": 1780384494.2986164,
     "ast_hash": "e4db507f5552f7fb8a3d11a870d68956",
     "semantic_hash": ""
   },
@@ -245,8 +260,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/DashboardView.tsx": {
-    "mtime": 1780358555.3600187,
-    "ast_hash": "d6a1059984235ee7f717d7b8f273b952",
+    "mtime": 1780385764.3578131,
+    "ast_hash": "07c8f9f9bb8344755d186676b13acf22",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/DatePicker.tsx": {
@@ -260,8 +275,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/FeedbackModule.tsx": {
-    "mtime": 1780300828.966073,
-    "ast_hash": "7d5fd4e5970610b47eef48f1da129211",
+    "mtime": 1780384494.2996168,
+    "ast_hash": "bb090eba21aeb17db8a1894d54f30eb4",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/FormComponents.tsx": {
@@ -275,8 +290,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/OnboardingModule.tsx": {
-    "mtime": 1780360061.0048985,
-    "ast_hash": "06452ce14efc34e64d4fab577cfa69d3",
+    "mtime": 1780384494.300313,
+    "ast_hash": "84500706448a2f9f275ead79a61eee95",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/OrgChartModule.tsx": {
@@ -300,8 +315,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/TimeTrackingModule.tsx": {
-    "mtime": 1780360271.5027802,
-    "ast_hash": "e55df8557056a95edb0427cc35b48cb3",
+    "mtime": 1780384494.3016176,
+    "ast_hash": "b44ba3c21452d7d282afaf82c724e34b",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/TrainingModule.tsx": {
@@ -310,8 +325,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/VacationsModule.tsx": {
-    "mtime": 1780359836.0716376,
-    "ast_hash": "75724d318e3b7eabb670c24590cf7704",
+    "mtime": 1780384494.303197,
+    "ast_hash": "19d95f89267a4ceaa6dc35cdf4311901",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/admin/AdminCompensationTab.tsx": {
@@ -320,17 +335,17 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/admin/BenefitsCatalogSubTab.tsx": {
-    "mtime": 1780358544.2820492,
+    "mtime": 1780384494.3034518,
     "ast_hash": "7aaf23c8956d4c0c4a25e9a6fca55a3f",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/admin/DiscordAnnouncementChannelsTab.tsx": {
-    "mtime": 1780358544.283049,
+    "mtime": 1780384494.3036711,
     "ast_hash": "3baef9edcdce1267cf0347e9abe663d9",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/admin/PoliciesSubTab.tsx": {
-    "mtime": 1780358544.283049,
+    "mtime": 1780384494.30394,
     "ast_hash": "b53eb556fbd911eb9cf23a588b9216aa",
     "semantic_hash": ""
   },
@@ -400,8 +415,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/compensation/SalaryDistributionPanel.tsx": {
-    "mtime": 1779839296.8788238,
-    "ast_hash": "0ceee1e1f98c1ee86fddc98a374c0d83",
+    "mtime": 1780386774.5343573,
+    "ast_hash": "162f7c19562bd629cd65059f4190c6aa",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/compensation/StatCard.tsx": {
@@ -427,6 +442,116 @@
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/compensation/salaryBands.ts": {
     "mtime": 1779839296.8788238,
     "ast_hash": "e28f7fd30cdb39c9255c692ba0f6563f",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/DashboardModule.tsx": {
+    "mtime": 1780385764.359334,
+    "ast_hash": "bb522de508017f950fdf7a5dca91094a",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/dashboardModuleHelpers.ts": {
+    "mtime": 1780385764.3595665,
+    "ast_hash": "0aa1d8fe4efa905132ac535e58e66cf2",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/dashboardModuleLoaders.ts": {
+    "mtime": 1780385764.3595665,
+    "ast_hash": "866aed7605a71c055d6455ff41234444",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/index.ts": {
+    "mtime": 1780385764.3595665,
+    "ast_hash": "e932178745e3bdd24d3fbef66816ca38",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/AnnouncementsWidget.tsx": {
+    "mtime": 1780385764.3595665,
+    "ast_hash": "1979a72de3cc73e571f52f8d3ad6b9d0",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/ApprovalQueueWidget.tsx": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "82e77989f0d0a27fc4c69be2fc1af117",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/CelebrationsWidget.tsx": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "484861b193ba270d9d6979ecbe0e32b8",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/DashboardCard.tsx": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "505fb41aaed172c7b63576dd9b2a9f6e",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/HeadcountChartWidget.tsx": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "6d76410c1221b001462771d00ff84170",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/InitialsAvatar.tsx": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "8c3b2e82e725e26b4169ab67040d2db9",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/KpiCard.tsx": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "3d18f55ccd66b8b579887e496adeac31",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/LeaveTypeTag.tsx": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "6795e893d2b9baf22df3e8ad04247102",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/MyProjectsWidget.tsx": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "2b8e2b76779f0c91cce22b6111b91fb4",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/MyTimeOffWidget.tsx": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "8507482794efdf1e8666641f5d3b5b0d",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/MyTrainingWidget.tsx": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "eba71f4fa740d7173ea6b93b0fecae57",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/OnboardingTrackerWidget.tsx": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "7cc938978f58d6c0051a10d3d9298746",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/OpenRolesWidget.tsx": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "715c1d5b224985652c83e3f90c1d6585",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/OutTodayWidget.tsx": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "26c74294d07fea692d5cad16e6457ede",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/ProgressBar.tsx": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "b60c36d231fbd6af8b418f73d5f0ca21",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/ReviewsDueWidget.tsx": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "968a44f6f681ccf747783dd569b4e9eb",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/TeamTimeWidget.tsx": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "6b9cd0758069e987c5bcde3dd8429848",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/index.ts": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "802249ca90acbb54eb54a1a39ae337ef",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/documents/DocumentAttentionStrips.tsx": {
@@ -1015,7 +1140,7 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx": {
-    "mtime": 1780358555.361019,
+    "mtime": 1780384494.3042622,
     "ast_hash": "e93ffa63eb254136282832e3a965db71",
     "semantic_hash": ""
   },
@@ -1264,6 +1389,16 @@
     "ast_hash": "953f7995dcfec8761d1c3150188be5ec",
     "semantic_hash": ""
   },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/time-tracking/JiraConnectionCard.tsx": {
+    "mtime": 1780357045.769335,
+    "ast_hash": "f972b6f1dff839b1cba108ca0113ddc3",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/time-tracking/TempoConnectionCard.tsx": {
+    "mtime": 1780357045.770529,
+    "ast_hash": "a1fa69b7c354ebd6c7a1558d2b314a5d",
+    "semantic_hash": ""
+  },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/training/CertificateList.tsx": {
     "mtime": 1778669574.3847804,
     "ast_hash": "644ee5c49fbd31ec35c5b4c343b744b8",
@@ -1285,8 +1420,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationList.tsx": {
-    "mtime": 1778669574.3847804,
-    "ast_hash": "095c0ba7c32f5df96f3f91ff807d9bb6",
+    "mtime": 1780386773.9015918,
+    "ast_hash": "b9d26b1498101031d19e5eb2a42c0b61",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/training/ConferenceCourseRegistrationSection.tsx": {
@@ -1305,8 +1440,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/training/PeerSessionList.tsx": {
-    "mtime": 1778755142.4297245,
-    "ast_hash": "8f9e859dab617bed83b527ca1a904b16",
+    "mtime": 1780386773.9023595,
+    "ast_hash": "4bd9caa176c033137f26cf588b468821",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/training/PeerSessionSection.tsx": {
@@ -1320,8 +1455,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/training/TrainingBudgetList.tsx": {
-    "mtime": 1779214401.9201415,
-    "ast_hash": "ce5d93bfe0d6d8ae3f85e12a2ad752c3",
+    "mtime": 1780386773.902465,
+    "ast_hash": "e51962990d7400dd8c0dc0e78c56605d",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/training/TrainingBudgetSection.tsx": {
@@ -1335,8 +1470,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/training/TrainingEntryList.tsx": {
-    "mtime": 1778065168.7037468,
-    "ast_hash": "10f092b75a374c0d77297dd96f3f454d",
+    "mtime": 1780386773.9025567,
+    "ast_hash": "aba455c57276c9ce4faec49decd55c5e",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/training/TrainingFilters.tsx": {
@@ -1365,8 +1500,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/ui/alert-dialog.tsx": {
-    "mtime": 1778224787.0279098,
-    "ast_hash": "6325aba8b2da7e60fd7fb6dfd86bff32",
+    "mtime": 1780386773.9025567,
+    "ast_hash": "12ffc12ac28564e1aacd3a91d0486768",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/ui/alert.tsx": {
@@ -1614,6 +1749,11 @@
     "ast_hash": "b623cc381192c64f2ca18dad1d485df2",
     "semantic_hash": ""
   },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/hooks/useDashboardData.ts": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "8d1e25374a3158ff0091e5cbbe4e1457",
+    "semantic_hash": ""
+  },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/hooks/useEmployeeLeaveHistory.ts": {
     "mtime": 1780300828.969073,
     "ast_hash": "37a4a5307c7d9d65d610d79610acd094",
@@ -1632,6 +1772,11 @@
   "/home/macatop/WebstormProjects/bloomhub-fe/src/hooks/useTeamAvailability.ts": {
     "mtime": 1780300828.969073,
     "ast_hash": "06c1129c060bfa4d69e4cf6c40fab454",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/hooks/useUserRole.ts": {
+    "mtime": 1780385764.3598409,
+    "ast_hash": "a541b390f1b204a20fd7619919fa52a8",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/lib/ai/entities.ts": {
@@ -1740,8 +1885,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/lib/api/feedback.ts": {
-    "mtime": 1780300828.9693954,
-    "ast_hash": "9beecf9540fa0d0dd1e345d2ef5ccb2b",
+    "mtime": 1780384494.3044994,
+    "ast_hash": "a4b0bc2d7ce6b4611681b5aa4c8e7860",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/lib/api/helpers.ts": {
@@ -1750,7 +1895,7 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/lib/api/helpers/httpClient.ts": {
-    "mtime": 1780359662.2694483,
+    "mtime": 1780384494.3046715,
     "ast_hash": "5e1c4b56bcd20258a9db8a7c8334f16e",
     "semantic_hash": ""
   },
@@ -1765,8 +1910,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/lib/api/helpers/transformers.ts": {
-    "mtime": 1780343676.755561,
-    "ast_hash": "9d2bcabb34560562f664fd4832296995",
+    "mtime": 1780385764.3609197,
+    "ast_hash": "fa9297f6993f2bf7f881556a5b6dc775",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/lib/api/managers.ts": {
@@ -1890,7 +2035,7 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/lib/api/timeTracking.ts": {
-    "mtime": 1780359671.3770387,
+    "mtime": 1780384494.3049374,
     "ast_hash": "213b9689673a757a77eeecada5c430ff",
     "semantic_hash": ""
   },
@@ -1979,6 +2124,11 @@
     "ast_hash": "07d49b7336975d124d4da30e9a978fe1",
     "semantic_hash": ""
   },
+  "/home/macatop/WebstormProjects/bloomhub-fe/src/types/dashboard.ts": {
+    "mtime": 1780385764.3609197,
+    "ast_hash": "65b08ad17a90d8d1dde9e7afbd41364e",
+    "semantic_hash": ""
+  },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/types/documents.ts": {
     "mtime": 1778669574.3877807,
     "ast_hash": "71bf57b7b03834111cbee871d56df35a",
@@ -2030,7 +2180,7 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/types/vacations.ts": {
-    "mtime": 1780359674.8440669,
+    "mtime": 1780384494.3049374,
     "ast_hash": "91a07d5c88c4945473e8554d6097e5ef",
     "semantic_hash": ""
   },
@@ -2040,8 +2190,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/utils/date.ts": {
-    "mtime": 1779831659.8775887,
-    "ast_hash": "e20b7e8ba7c2e9de206524f90ec7015e",
+    "mtime": 1780385764.3609197,
+    "ast_hash": "ac8be9c2fd0cac46ab5924677a26b32e",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/utils/filters.ts": {
@@ -2055,8 +2205,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/utils/index.ts": {
-    "mtime": 1779831659.8775887,
-    "ast_hash": "dba0dbcc2d2547e9409c57d3308ab5c6",
+    "mtime": 1780385764.3609197,
+    "ast_hash": "06956cce6fe893056fe44e228e9a7b3d",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/utils/notificationHelpers.ts": {
@@ -2067,11 +2217,6 @@
   "/home/macatop/WebstormProjects/bloomhub-fe/src/utils/validators.ts": {
     "mtime": 1777214812.0,
     "ast_hash": "e176fcba4e246bcdeff117e48e533b14",
-    "semantic_hash": ""
-  },
-  "/home/macatop/WebstormProjects/bloomhub-fe/test-results/.last-run.json": {
-    "mtime": 1780318029.2756648,
-    "ast_hash": "52a939bf09fd9b1b54a5474ed07a93cb",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/tests/app/page.test.tsx": {
@@ -2090,13 +2235,18 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/tests/components/hr-dashboard/AssetsModule.test.tsx": {
-    "mtime": 1780358544.283049,
+    "mtime": 1780384494.3056192,
     "ast_hash": "c1f6a0fc269bdfe15e978b9bbe9040b2",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/tests/components/hr-dashboard/CollapsibleSidebar.test.tsx": {
     "mtime": 1779831936.2479012,
     "ast_hash": "6540775323a6f9b1ba683126f105a52c",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/tests/components/hr-dashboard/DashboardModule.test.tsx": {
+    "mtime": 1780385764.3609197,
+    "ast_hash": "4b544d04c54ddfb4b272faf6ea33e146",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/tests/components/hr-dashboard/TimeTrackingModule.test.tsx": {
@@ -2117,6 +2267,11 @@
   "/home/macatop/WebstormProjects/bloomhub-fe/tests/components/hr-dashboard/TrainingFilters.test.tsx": {
     "mtime": 1777997957.651096,
     "ast_hash": "8d0d0e35a5f422d217e6d3f75a992da8",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/tests/components/hr-dashboard/dashboardModuleHelpers.test.ts": {
+    "mtime": 1780385764.3609197,
+    "ast_hash": "fb8fce49db3aac49c0bb747776b8be7f",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/tests/components/hr-dashboard/documents/signature-components.test.tsx": {
@@ -2447,31 +2602,6 @@
   "/home/macatop/WebstormProjects/bloomhub-fe/public/window.svg": {
     "mtime": 1775069670.0,
     "ast_hash": "a2760511c65806022ad20adf74370ff3",
-    "semantic_hash": ""
-  },
-  "/home/macatop/WebstormProjects/bloomhub-fe/src/app/oauth/jira/callback/page.tsx": {
-    "mtime": 1780357045.7673953,
-    "ast_hash": "7c9dd76f4fc9369309d73eeb4e50f7c6",
-    "semantic_hash": ""
-  },
-  "/home/macatop/WebstormProjects/bloomhub-fe/src/app/oauth/tempo/callback/page.tsx": {
-    "mtime": 1780357045.7675598,
-    "ast_hash": "b940cadff44de39e6c3b4c4937c15871",
-    "semantic_hash": ""
-  },
-  "/home/macatop/WebstormProjects/bloomhub-fe/src/app/projects/page.tsx": {
-    "mtime": 1780359055.4831393,
-    "ast_hash": "49c5765eec80413fdf210a0cc768f6e8",
-    "semantic_hash": ""
-  },
-  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/time-tracking/JiraConnectionCard.tsx": {
-    "mtime": 1780357045.769335,
-    "ast_hash": "f972b6f1dff839b1cba108ca0113ddc3",
-    "semantic_hash": ""
-  },
-  "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/time-tracking/TempoConnectionCard.tsx": {
-    "mtime": 1780357045.770529,
-    "ast_hash": "a1fa69b7c354ebd6c7a1558d2b314a5d",
     "semantic_hash": ""
   }
 }

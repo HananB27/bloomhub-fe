@@ -82,3 +82,33 @@ export function formatDateShort(iso: string): string {
     day: "numeric",
   });
 }
+
+/**
+ * Format a date range as "Jun 16" (single day) or "Jun 16 – Jun 27".
+ */
+export function formatDateRange(startIso: string, endIso?: string): string {
+  if (!endIso || startIso === endIso) return formatDateShort(startIso);
+  return `${formatDateShort(startIso)} – ${formatDateShort(endIso)}`;
+}
+
+/**
+ * Greeting word for the current local hour.
+ */
+export function greetingForHour(hour: number): string {
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+
+/**
+ * Format a date as full weekday + month + day + year
+ * (e.g. "Monday, June 1, 2026").
+ */
+export function formatLongDate(date: Date): string {
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}

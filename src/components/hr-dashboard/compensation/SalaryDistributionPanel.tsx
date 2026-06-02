@@ -47,7 +47,7 @@ export function SalaryDistributionPanel({
             : 0;
           return (
             <div
-              key={band.label}
+              key={`${band.label}-${i}`}
               className="grid items-center gap-3.5"
               style={{ gridTemplateColumns: "110px 1fr 100px" }}
             >

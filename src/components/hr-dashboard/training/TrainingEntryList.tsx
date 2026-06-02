@@ -277,7 +277,7 @@ export function TrainingEntryList({
                     size="sm"
                     variant="ghost"
                     onClick={() => onEdit(entry)}
-                    className="h-7 w-7 p-0 text-gray-400 hover:text-gray-700"
+                    className="h-7 w-7 p-0 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                     title="Edit"
                   >
                     <Edit className="h-3.5 w-3.5" />
