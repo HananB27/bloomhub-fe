@@ -592,6 +592,37 @@ export interface TempoSettingsPayload {
   enabled?: boolean;
 }
 
+export interface TempoAbsenceSyncSettings {
+  enabled: boolean;
+  default_jira_issue_key: string | null;
+  daily_hours: string;
+  default_start_time: string;
+  leave_type_issue_keys: Record<string, string>;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface TempoAbsenceSyncSettingsPayload {
+  enabled?: boolean;
+  default_jira_issue_key?: string | null;
+  daily_hours?: string;
+  default_start_time?: string;
+  leave_type_issue_keys?: Record<string, string>;
+}
+
+export interface TempoAbsenceSyncFailure {
+  employee_name: string;
+  leave_request_id: number;
+  work_date: string;
+  leave_type: string;
+  jira_issue_key: string | null;
+  error_code: string;
+  last_error: string;
+  retry_count: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface TempoUserMapping {
   id: number;
   tempo_user_id: string;
@@ -1316,6 +1347,14 @@ export const timeTrackingApi = {
     );
   },
 
+  async syncTempo(payload: Record<string, never> = {}): Promise<unknown> {
+    return post<unknown>(
+      `${base}/time-integrations/tempo/sync/`,
+      payload,
+      "Failed to sync Tempo data"
+    );
+  },
+
   async getTempoSettings(): Promise<TempoSettings> {
     return get<TempoSettings>(
       `${base}/time-integrations/tempo/settings/`,
@@ -1373,6 +1412,38 @@ export const timeTrackingApi = {
       `${base}/time-integrations/tempo/mappings/`,
       payload,
       "Failed to update Tempo mapping"
+    );
+  },
+
+  async getTempoAbsenceSyncSettings(): Promise<TempoAbsenceSyncSettings> {
+    return get<TempoAbsenceSyncSettings>(
+      `${base}/time-integrations/tempo/absence-sync/settings/`,
+      "Failed to load Tempo absence sync settings"
+    );
+  },
+
+  async updateTempoAbsenceSyncSettings(
+    payload: TempoAbsenceSyncSettingsPayload
+  ): Promise<TempoAbsenceSyncSettings> {
+    return patch<TempoAbsenceSyncSettings>(
+      `${base}/time-integrations/tempo/absence-sync/settings/`,
+      payload,
+      "Failed to save Tempo absence sync settings"
+    );
+  },
+
+  async getTempoAbsenceSyncFailures(): Promise<TempoAbsenceSyncFailure[]> {
+    return get<TempoAbsenceSyncFailure[]>(
+      `${base}/time-integrations/tempo/absence-sync/failures/`,
+      "Failed to load Tempo absence sync failures"
+    );
+  },
+
+  async retryTempoAbsenceSync(leaveRequestId: number): Promise<unknown> {
+    return post<unknown>(
+      `${base}/time-integrations/tempo/absence-sync/${leaveRequestId}/retry/`,
+      {},
+      "Failed to retry Tempo absence sync"
     );
   },
 

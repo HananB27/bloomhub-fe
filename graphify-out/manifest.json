@@ -210,12 +210,12 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/AdminDepartmentsTab.tsx": {
-    "mtime": 1780357038.579324,
+    "mtime": 1780358544.280049,
     "ast_hash": "c78743d3f9dd16353aa17df1bb5e3269",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/AdminModule.tsx": {
-    "mtime": 1780357038.579324,
+    "mtime": 1780358544.280049,
     "ast_hash": "b3e43752dfbfdbb64a50f94e73a57721",
     "semantic_hash": ""
   },
@@ -225,17 +225,17 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/AnnouncementsModule.tsx": {
-    "mtime": 1780357038.580324,
+    "mtime": 1780358544.2810493,
     "ast_hash": "76791dfd976aaa3d4478037a89174e73",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/App.tsx": {
-    "mtime": 1780357680.1360793,
+    "mtime": 1780358555.3600187,
     "ast_hash": "544117a50920c837eca30edf46de394c",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/AssetsModule.tsx": {
-    "mtime": 1780357038.582324,
+    "mtime": 1780358544.2820492,
     "ast_hash": "e4db507f5552f7fb8a3d11a870d68956",
     "semantic_hash": ""
   },
@@ -245,7 +245,7 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/DashboardView.tsx": {
-    "mtime": 1780357687.4670668,
+    "mtime": 1780358555.3600187,
     "ast_hash": "d6a1059984235ee7f717d7b8f273b952",
     "semantic_hash": ""
   },
@@ -275,8 +275,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/OnboardingModule.tsx": {
-    "mtime": 1780300828.967073,
-    "ast_hash": "ce9d1e27d53f26728f133e06b603550d",
+    "mtime": 1780360061.0048985,
+    "ast_hash": "06452ce14efc34e64d4fab577cfa69d3",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/OrgChartModule.tsx": {
@@ -300,8 +300,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/TimeTrackingModule.tsx": {
-    "mtime": 1780357045.768335,
-    "ast_hash": "3cbb1184c1fc73b9449f7f305d6e1e59",
+    "mtime": 1780360271.5027802,
+    "ast_hash": "e55df8557056a95edb0427cc35b48cb3",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/TrainingModule.tsx": {
@@ -310,8 +310,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/VacationsModule.tsx": {
-    "mtime": 1778669574.3797798,
-    "ast_hash": "010dd202b731020becd058d5dc423239",
+    "mtime": 1780359836.0716376,
+    "ast_hash": "75724d318e3b7eabb670c24590cf7704",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/admin/AdminCompensationTab.tsx": {
@@ -320,17 +320,17 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/admin/BenefitsCatalogSubTab.tsx": {
-    "mtime": 1780357038.584324,
+    "mtime": 1780358544.2820492,
     "ast_hash": "7aaf23c8956d4c0c4a25e9a6fca55a3f",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/admin/DiscordAnnouncementChannelsTab.tsx": {
-    "mtime": 1780357038.5860517,
+    "mtime": 1780358544.283049,
     "ast_hash": "3baef9edcdce1267cf0347e9abe663d9",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/admin/PoliciesSubTab.tsx": {
-    "mtime": 1780357038.5864322,
+    "mtime": 1780358544.283049,
     "ast_hash": "b53eb556fbd911eb9cf23a588b9216aa",
     "semantic_hash": ""
   },
@@ -1015,7 +1015,7 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/projects/ProjectsModule.tsx": {
-    "mtime": 1780357694.961054,
+    "mtime": 1780358555.361019,
     "ast_hash": "e93ffa63eb254136282832e3a965db71",
     "semantic_hash": ""
   },
@@ -1750,8 +1750,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/lib/api/helpers/httpClient.ts": {
-    "mtime": 1780300828.9693954,
-    "ast_hash": "78ad9d388a9b882ee1a939a5ca4458eb",
+    "mtime": 1780359662.2694483,
+    "ast_hash": "5e1c4b56bcd20258a9db8a7c8334f16e",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/lib/api/helpers/index.ts": {
@@ -1890,8 +1890,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/lib/api/timeTracking.ts": {
-    "mtime": 1780357045.770529,
-    "ast_hash": "4299c1d52d08c1489498d30ed8dfb340",
+    "mtime": 1780359671.3770387,
+    "ast_hash": "213b9689673a757a77eeecada5c430ff",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/lib/api/training.ts": {
@@ -2030,8 +2030,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/types/vacations.ts": {
-    "mtime": 1780324379.3090422,
-    "ast_hash": "2f59336a08eabb6d08639b5498c6414b",
+    "mtime": 1780359674.8440669,
+    "ast_hash": "91a07d5c88c4945473e8554d6097e5ef",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/utils/api.ts": {
@@ -2090,7 +2090,7 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/tests/components/hr-dashboard/AssetsModule.test.tsx": {
-    "mtime": 1780357045.770529,
+    "mtime": 1780358544.283049,
     "ast_hash": "c1f6a0fc269bdfe15e978b9bbe9040b2",
     "semantic_hash": ""
   },
@@ -2460,8 +2460,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/app/projects/page.tsx": {
-    "mtime": 1780357700.5800445,
-    "ast_hash": "5692b2feface25dbd0b79fe3b605cfdc",
+    "mtime": 1780359055.4831393,
+    "ast_hash": "49c5765eec80413fdf210a0cc768f6e8",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/time-tracking/JiraConnectionCard.tsx": {
