@@ -1807,42 +1807,26 @@ export function FeedbackModule() {
                                   </TableCell>
                                   <TableCell>
                                     <div className="flex gap-1 items-center">
-                                      {isSurveyLocked(survey) && (
-                                        <Badge
-                                          variant="outline"
-                                          className="bg-gray-100 text-gray-700 border-gray-200 mr-1"
-                                          title={`Locked — ended ${survey.endDate}`}
+                                      {survey.status === "draft" && (
+                                        <Button
+                                          variant="primary"
+                                          size="sm"
+                                          onClick={() =>
+                                            void handleSendOut(survey.id)
+                                          }
                                         >
-                                          <Lock className="w-3 h-3 mr-1" />
-                                          Locked
-                                        </Badge>
+                                          <Send className="w-4 h-4 mr-1" />
+                                          Send Out
+                                        </Button>
                                       )}
-                                      {survey.status === "draft" &&
-                                        !isSurveyLocked(survey) && (
-                                          <Button
-                                            variant="primary"
-                                            size="sm"
-                                            onClick={() =>
-                                              void handleSendOut(survey.id)
-                                            }
-                                          >
-                                            <Send className="w-4 h-4 mr-1" />
-                                            Send Out
-                                          </Button>
-                                        )}
-                                      {(survey.status === "active" ||
-                                        isSurveyLocked(survey)) && (
+                                      {survey.status !== "draft" && (
                                         <Button
                                           variant="outline"
                                           size="sm"
                                           onClick={() =>
                                             void handleRecall(survey.id)
                                           }
-                                          title={
-                                            isSurveyLocked(survey)
-                                              ? "Recall and clear the past end date so you can edit again"
-                                              : "Stop accepting responses (sets back to draft)"
-                                          }
+                                          title="Set back to draft (also clears past end date)"
                                         >
                                           Recall
                                         </Button>
@@ -1858,13 +1842,8 @@ export function FeedbackModule() {
                                       <Button
                                         variant="ghost"
                                         size="sm"
-                                        title={
-                                          isSurveyLocked(survey)
-                                            ? "Survey ended — cannot edit"
-                                            : "Edit survey"
-                                        }
+                                        title="Edit survey"
                                         onClick={() => openEditSurvey(survey)}
-                                        disabled={isSurveyLocked(survey)}
                                       >
                                         <Edit3 className="w-4 h-4" />
                                       </Button>
@@ -2280,12 +2259,13 @@ export function FeedbackModule() {
                               id="suggestion-title"
                               placeholder="Brief title for your suggestion"
                               value={newSuggestion.title}
-                              onChange={(e) =>
+                              onChange={(e) => {
                                 setNewSuggestion((prev) => ({
                                   ...prev,
                                   title: e.target.value,
-                                }))
-                              }
+                                }));
+                                setSuggestionFeedback(null);
+                              }}
                             />
                           </div>
                           <div className="space-y-2">
@@ -2334,12 +2314,13 @@ export function FeedbackModule() {
                             id="suggestion-description"
                             placeholder="Provide details about your suggestion and how it could improve our workplace..."
                             value={newSuggestion.description}
-                            onChange={(e) =>
+                            onChange={(e) => {
                               setNewSuggestion((prev) => ({
                                 ...prev,
                                 description: e.target.value,
-                              }))
-                            }
+                              }));
+                              setSuggestionFeedback(null);
+                            }}
                             rows={4}
                           />
                         </div>
