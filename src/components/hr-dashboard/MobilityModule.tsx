@@ -4,6 +4,14 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./ui/table";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -35,6 +43,7 @@ import {
   Sparkles,
   TrendingUp,
   ArrowRight,
+  ArrowUpRight,
   Pencil,
   Trash2,
 } from "lucide-react";
@@ -59,11 +68,13 @@ import type {
   JobApplication,
   JobListing,
   JobListingDetail,
+  JobListingStatus,
   ListingTone,
 } from "@/types/jobListing";
 import {
   APPLICATION_STATUS_BADGE_COLORS,
   APPLICATION_STATUS_LABELS,
+  JOB_LISTING_STATUS_LABELS,
   isTerminalApplicationStatus,
   LISTING_TONE_PILLS,
 } from "@/types/jobListing";
@@ -83,22 +94,108 @@ import {
 } from "@/types/cpf";
 
 const DEPARTMENT_FILTER_ALL = "all";
+const LISTING_ROLE_NONE = "__none";
 
 function applicationStatusStyle(status: ApplicationStatus) {
   return APPLICATION_STATUS_BADGE_COLORS[status];
 }
 
 function listingTone(listing: JobListing): ListingTone {
-  if (listing.status === "closed" || listing.status === "cancelled")
-    return "closed";
+  if (listing.status === "draft") return "draft";
+  if (listing.status === "cancelled") return "cancelled";
+  if (listing.status === "closed") return "closed";
+  const openAt = new Date(listing.openAt).getTime();
+  const closeAt = new Date(listing.closeAt).getTime();
+  const now = Date.now();
+  if (Number.isNaN(openAt) || Number.isNaN(closeAt)) return "open";
+  if (openAt > now) return "upcoming";
+  if (closeAt < now) return "expired";
   const days = daysUntil(listing.closeAt);
-  if (days < 0) return "closed";
   if (days <= 7) return "closing-soon";
   return "open";
 }
 
 function listingStatusPill(tone: ListingTone) {
   return LISTING_TONE_PILLS[tone];
+}
+
+function isListingActiveNow(listing: JobListing): boolean {
+  if (listing.status !== "open") return false;
+  const openAt = new Date(listing.openAt).getTime();
+  const closeAt = new Date(listing.closeAt).getTime();
+  const now = Date.now();
+  if (Number.isNaN(openAt) || Number.isNaN(closeAt)) return true;
+  return openAt <= now && closeAt >= now;
+}
+
+function formatDateTimeInput(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const offsetMs = date.getTimezoneOffset() * 60_000;
+  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
+}
+
+function parseDateTimeInput(value: string): string {
+  return new Date(value).toISOString();
+}
+
+type ListingFormErrors = Partial<
+  Record<
+    | "title"
+    | "description"
+    | "departmentId"
+    | "openAt"
+    | "closeAt"
+    | "status"
+    | "general",
+    string
+  >
+>;
+
+function extractListingFormErrors(message: string): ListingFormErrors {
+  const errors: ListingFormErrors = { general: message };
+  const fields = [
+    ["title", "title"],
+    ["description", "description"],
+    ["department_id", "departmentId"],
+    ["open_at", "openAt"],
+    ["close_at", "closeAt"],
+    ["status", "status"],
+  ] as const;
+
+  for (const [rawField, field] of fields) {
+    const match = message.match(new RegExp(`${rawField}:\\s*([^;]+)`, "i"));
+    if (match?.[1]) {
+      errors[field] = match[1].trim();
+      delete errors.general;
+    }
+  }
+
+  return errors;
+}
+
+function getListingActionError(
+  err: unknown,
+  fallback: string
+): string | ListingFormErrors {
+  if (!(err instanceof Error)) return fallback;
+  const status = (err as { status?: number }).status;
+  if (status === 403) return "You do not have permission to manage listings.";
+  if (status === 404) return "Listing unavailable or outside your scope.";
+  if (status === 400) return extractListingFormErrors(err.message);
+  return err.message || fallback;
+}
+
+function isFormErrors(
+  value: string | ListingFormErrors
+): value is ListingFormErrors {
+  return typeof value !== "string";
+}
+
+function formatListingFormErrors(errors: ListingFormErrors): string {
+  const entries = Object.entries(errors).filter(([, value]) => Boolean(value));
+  if (entries.length === 0) return "Failed to update listing.";
+  return entries.map(([field, value]) => `${field}: ${value}`).join("; ");
 }
 
 function Pill({ label, bg, dot }: { label: string; bg: string; dot: string }) {
@@ -151,6 +248,13 @@ export function MobilityModule() {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const [isPostDialogOpen, setIsPostDialogOpen] = useState(false);
+  const [editingListing, setEditingListing] = useState<JobListingDetail | null>(
+    null
+  );
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [listingActionError, setListingActionError] = useState<string | null>(
+    null
+  );
 
   const [promotions, setPromotions] = useState<PromotionRecord[]>([]);
   const [promotionsLoading, setPromotionsLoading] = useState(true);
@@ -200,7 +304,7 @@ export function MobilityModule() {
     setListingsLoading(true);
     setListingsError(null);
     try {
-      const rows = await jobListingsApi.listActiveListings({
+      const rows = await jobListingsApi.listListings({
         department:
           departmentFilter === DEPARTMENT_FILTER_ALL
             ? undefined
@@ -278,9 +382,38 @@ export function MobilityModule() {
     [myApplications]
   );
 
+  const refreshAfterListingMutation = useCallback(
+    async (listingId: number, action: "updated" | "published" | "deleted") => {
+      await Promise.all([
+        loadListings(),
+        loadAllApplications(),
+        loadMyApplications(),
+      ]);
+
+      if (selectedListing?.id === listingId) {
+        if (action === "deleted") {
+          setIsApplicationDialogOpen(false);
+          setSelectedListing(null);
+          setDrawerApplications([]);
+          return;
+        }
+
+        try {
+          const detail = await jobListingsApi.getListing(listingId);
+          setSelectedListing(detail);
+        } catch {
+          setSelectedListing(null);
+          setIsApplicationDialogOpen(false);
+        }
+      }
+    },
+    [loadListings, loadAllApplications, loadMyApplications, selectedListing]
+  );
+
   const openRoleDrawer = async (listing: JobListing) => {
     setDetailLoading(true);
     setSubmitError(null);
+    setListingActionError(null);
     setCoverNote("");
     setDrawerTab("overview");
     setDrawerApplications([]);
@@ -297,27 +430,17 @@ export function MobilityModule() {
           .finally(() => setDrawerAppsLoading(false));
       }
     } catch (err) {
-      setSubmitError(
-        err instanceof Error ? err.message : "Failed to load listing details."
+      const message = getListingActionError(
+        err,
+        "Failed to load listing details."
+      );
+      setListingActionError(
+        typeof message === "string" ? message : formatListingFormErrors(message)
       );
     } finally {
       setDetailLoading(false);
     }
   };
-
-  const refreshAfterMutation = useCallback(async () => {
-    if (selectedListing) {
-      const rows = await jobListingsApi.listApplicationsForListing(
-        selectedListing.id
-      );
-      setDrawerApplications(rows);
-    }
-    await Promise.all([
-      loadListings(),
-      loadAllApplications(),
-      loadMyApplications(),
-    ]);
-  }, [selectedListing, loadListings, loadAllApplications, loadMyApplications]);
 
   const handleApplicationStatusChange = useCallback(
     async (
@@ -329,9 +452,19 @@ export function MobilityModule() {
         status: nextStatus,
         decisionNote,
       });
-      await refreshAfterMutation();
+      if (selectedListing) {
+        const rows = await jobListingsApi.listApplicationsForListing(
+          selectedListing.id
+        );
+        setDrawerApplications(rows);
+      }
+      await Promise.all([
+        loadListings(),
+        loadAllApplications(),
+        loadMyApplications(),
+      ]);
     },
-    [refreshAfterMutation]
+    [selectedListing, loadListings, loadAllApplications, loadMyApplications]
   );
 
   const handleApplicationWithdraw = useCallback(
@@ -339,9 +472,19 @@ export function MobilityModule() {
       await jobListingsApi.withdrawApplication(applicationId, {
         decisionNote,
       });
-      await refreshAfterMutation();
+      if (selectedListing) {
+        const rows = await jobListingsApi.listApplicationsForListing(
+          selectedListing.id
+        );
+        setDrawerApplications(rows);
+      }
+      await Promise.all([
+        loadListings(),
+        loadAllApplications(),
+        loadMyApplications(),
+      ]);
     },
-    [refreshAfterMutation]
+    [selectedListing, loadListings, loadAllApplications, loadMyApplications]
   );
 
   const submitApplication = async () => {
@@ -366,20 +509,27 @@ export function MobilityModule() {
     }
   };
 
+  const activeListings = useMemo(
+    () => listings.filter(isListingActiveNow),
+    [listings]
+  );
+
   const departmentBreakdown = useMemo(() => {
     const counts = new Map<string, number>();
-    for (const listing of listings) {
+    for (const listing of activeListings) {
       const name = listing.departmentName || "Unspecified";
       counts.set(name, (counts.get(name) ?? 0) + 1);
     }
     return Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
-  }, [listings]);
+  }, [activeListings]);
 
   const visibleListings = isHRUser
     ? listings
     : listings.filter((l) => !appliedListingIds.has(l.id));
 
-  const closingSoonCount = visibleListings.filter((l) => {
+  const visibleActiveListings = visibleListings.filter(isListingActiveNow);
+
+  const closingSoonCount = visibleActiveListings.filter((l) => {
     const d = daysUntil(l.closeAt);
     return d >= 0 && d <= 7;
   }).length;
@@ -400,7 +550,7 @@ export function MobilityModule() {
   ).length;
 
   const tabCounts = {
-    jobs: visibleListings.length,
+    jobs: isHRUser ? listings.length : visibleListings.length,
     applications: applicationsForStrip.length,
     history: historyCount,
     promotions: promotions.length,
@@ -410,6 +560,55 @@ export function MobilityModule() {
     setIsPostDialogOpen(false);
     await loadListings();
   };
+
+  const openListingEditor = async (listing: JobListing) => {
+    setListingActionError(null);
+    try {
+      const detail =
+        selectedListing?.id === listing.id
+          ? selectedListing
+          : await jobListingsApi.getListing(listing.id);
+      setEditingListing(detail);
+      setIsEditDialogOpen(true);
+    } catch (err) {
+      const message = getListingActionError(
+        err,
+        "Failed to load listing for editing."
+      );
+      setListingActionError(
+        typeof message === "string" ? message : formatListingFormErrors(message)
+      );
+    }
+  };
+
+  const handleListingMutated = useCallback(
+    async (listingId: number, action: "updated" | "published" | "deleted") => {
+      setListingActionError(null);
+      await refreshAfterListingMutation(listingId, action);
+    },
+    [refreshAfterListingMutation]
+  );
+
+  const handleListingPublish = useCallback(
+    async (listing: JobListing) => {
+      setListingActionError(null);
+      try {
+        await jobListingsApi.patchListing(listing.id, { status: "open" });
+        await handleListingMutated(listing.id, "published");
+      } catch (err) {
+        const message = getListingActionError(
+          err,
+          "Failed to publish listing."
+        );
+        setListingActionError(
+          typeof message === "string"
+            ? message
+            : formatListingFormErrors(message)
+        );
+      }
+    },
+    [handleListingMutated]
+  );
 
   const handlePromotionSaved = async () => {
     setIsPromotionDialogOpen(false);
@@ -474,7 +673,7 @@ export function MobilityModule() {
         <div className="grid grid-cols-2 md:grid-cols-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg mb-4 overflow-hidden">
           <StripCell
             label="Open roles"
-            value={visibleListings.length}
+            value={visibleActiveListings.length}
             trend={`${closingSoonCount} closing in < 7d`}
           />
           <StripCell
@@ -529,6 +728,12 @@ export function MobilityModule() {
         </nav>
       </header>
 
+      {listingActionError && (
+        <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          {listingActionError}
+        </div>
+      )}
+
       {/* Tab body */}
       <div className="pt-2">
         {activeTab === "jobs" && (
@@ -545,6 +750,8 @@ export function MobilityModule() {
             onOpen={openRoleDrawer}
             isHRUser={isHRUser}
             onPost={() => setIsPostDialogOpen(true)}
+            onEdit={openListingEditor}
+            onPublish={handleListingPublish}
           />
         )}
         {activeTab === "applications" && (
@@ -603,6 +810,8 @@ export function MobilityModule() {
           submitting={submitting}
           submitError={submitError}
           onSubmit={submitApplication}
+          onEditListing={() => void openListingEditor(selectedListing!)}
+          onPublishListing={() => void handleListingPublish(selectedListing!)}
           onClose={() => {
             setIsApplicationDialogOpen(false);
             setSelectedListing(null);
@@ -627,6 +836,19 @@ export function MobilityModule() {
           onOpenChange={setIsPostDialogOpen}
           departments={departments}
           onCreated={handleListingCreated}
+        />
+      )}
+
+      {isHRUser && (
+        <ListingEditDialog
+          open={isEditDialogOpen}
+          listing={editingListing}
+          departments={departments}
+          onOpenChange={(v) => {
+            setIsEditDialogOpen(v);
+            if (!v) setEditingListing(null);
+          }}
+          onSaved={handleListingMutated}
         />
       )}
 
@@ -769,6 +991,8 @@ function JobsTab({
   onOpen,
   isHRUser,
   onPost,
+  onEdit,
+  onPublish,
 }: {
   listings: JobListing[];
   loading: boolean;
@@ -782,6 +1006,8 @@ function JobsTab({
   onOpen: (l: JobListing) => void;
   isHRUser: boolean;
   onPost: () => void;
+  onEdit: (l: JobListing) => void;
+  onPublish: (l: JobListing) => void;
 }) {
   // Employees never see roles they already applied to in the Open roles tab.
   const visible = isHRUser
@@ -848,8 +1074,18 @@ function JobsTab({
 
       <section>
         <SectionHead
-          title={spotlight ? "All open roles" : "Currently hiring"}
-          sub={`${rest.length} open · sorted by closing date`}
+          title={
+            isHRUser
+              ? "All role listings"
+              : spotlight
+                ? "All open roles"
+                : "Currently hiring"
+          }
+          sub={
+            isHRUser
+              ? `${rest.length} listings · drafts, active, closed, cancelled`
+              : `${rest.length} open · sorted by closing date`
+          }
         />
         {loading ? (
           <div className="text-center py-8 text-sm text-gray-500 dark:text-gray-400">
@@ -857,7 +1093,11 @@ function JobsTab({
           </div>
         ) : rest.length === 0 ? (
           <div className="bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg py-10 px-6 text-center text-sm text-gray-500">
-            <p className="mb-3">No positions match your filters.</p>
+            <p className="mb-3">
+              {isHRUser
+                ? "No listings match your filters."
+                : "No positions match your filters."}
+            </p>
             {isHRUser && (
               <Button variant="primary" onClick={onPost}>
                 <Plus className="w-3.5 h-3.5" />
@@ -865,6 +1105,13 @@ function JobsTab({
               </Button>
             )}
           </div>
+        ) : isHRUser ? (
+          <ManagementListingsTable
+            listings={rest}
+            onOpen={onOpen}
+            onEdit={onEdit}
+            onPublish={onPublish}
+          />
         ) : (
           <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-3">
             {rest.map((l) => (
@@ -1022,6 +1269,105 @@ function JobCard({
               : `Closes ${fmtDateShort(listing.closeAt)}`}
         </span>
       </div>
+    </div>
+  );
+}
+
+function ManagementListingsTable({
+  listings,
+  onOpen,
+  onEdit,
+  onPublish,
+}: {
+  listings: JobListing[];
+  onOpen: (listing: JobListing) => void;
+  onEdit: (listing: JobListing) => void;
+  onPublish: (listing: JobListing) => void;
+}) {
+  return (
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-gray-50 dark:bg-gray-900/40 hover:bg-gray-50 dark:hover:bg-gray-900/40">
+            <TableHead>Role</TableHead>
+            <TableHead>Department</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Opens</TableHead>
+            <TableHead>Closes</TableHead>
+            <TableHead className="text-right">Applicants</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {listings.map((listing) => {
+            const tone = listingTone(listing);
+            const pill = listingStatusPill(tone);
+            return (
+              <TableRow
+                key={listing.id}
+                className="cursor-pointer"
+                onClick={() => onOpen(listing)}
+              >
+                <TableCell className="max-w-[320px]">
+                  <div className="min-w-0">
+                    <div className="font-medium truncate">{listing.title}</div>
+                    <div className="text-[11px] text-gray-500 mt-0.5 font-mono">
+                      #{listing.id}
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="max-w-[180px]">
+                  <span className="truncate block">
+                    {listing.departmentName || "Unspecified"}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <Pill {...pill} />
+                </TableCell>
+                <TableCell className="text-xs text-gray-500">
+                  {formatDate(listing.openAt)}
+                </TableCell>
+                <TableCell className="text-xs text-gray-500">
+                  {formatDate(listing.closeAt)}
+                </TableCell>
+                <TableCell className="text-right tabular-nums text-sm text-gray-600">
+                  {listing.applicationCount}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="inline-flex items-center gap-1.5">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 px-2.5 text-[12px]"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit(listing);
+                      }}
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                      Edit
+                    </Button>
+                    {tone === "draft" && (
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        className="h-8 px-2.5 text-[12px]"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onPublish(listing);
+                        }}
+                      >
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                        Publish
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
     </div>
   );
 }
@@ -1509,6 +1855,8 @@ function RoleDrawer({
   submitting,
   submitError,
   onSubmit,
+  onEditListing,
+  onPublishListing,
   onClose,
 }: {
   listing: JobListingDetail;
@@ -1527,6 +1875,8 @@ function RoleDrawer({
   submitting: boolean;
   submitError: string | null;
   onSubmit: () => void;
+  onEditListing: () => void;
+  onPublishListing: () => void;
   onClose: () => void;
 }) {
   const tone = listingTone(listing);
@@ -1696,6 +2046,20 @@ function RoleDrawer({
 
         {/* Foot */}
         <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex items-center gap-2">
+          {isHRUser && (
+            <>
+              <Button variant="outline" onClick={onEditListing}>
+                <Pencil className="w-3.5 h-3.5" />
+                Edit listing
+              </Button>
+              {listing.status === "draft" && (
+                <Button variant="primary" onClick={onPublishListing}>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                  Publish
+                </Button>
+              )}
+            </>
+          )}
           <Button variant="ghost" onClick={onClose}>
             Close
           </Button>
@@ -1735,6 +2099,365 @@ function RoleDrawer({
         )}
       </div>
     </div>
+  );
+}
+
+/* ============ Listing Edit Dialog (HR) ============ */
+function ListingEditDialog({
+  open,
+  listing,
+  departments,
+  onOpenChange,
+  onSaved,
+}: {
+  open: boolean;
+  listing: JobListingDetail | null;
+  departments: Department[];
+  onOpenChange: (v: boolean) => void;
+  onSaved: (
+    listingId: number,
+    action: "updated" | "published" | "deleted"
+  ) => Promise<void> | void;
+}) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [departmentId, setDepartmentId] = useState<string>(LISTING_ROLE_NONE);
+  const [openAt, setOpenAt] = useState("");
+  const [closeAt, setCloseAt] = useState("");
+  const [status, setStatus] = useState<JobListingStatus>("draft");
+  const [errors, setErrors] = useState<ListingFormErrors>({});
+  const [saving, setSaving] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open || !listing) return;
+    setTitle(listing.title);
+    setDescription(listing.description || "");
+    setDepartmentId(
+      listing.departmentId !== null
+        ? String(listing.departmentId)
+        : LISTING_ROLE_NONE
+    );
+    setOpenAt(formatDateTimeInput(listing.openAt));
+    setCloseAt(formatDateTimeInput(listing.closeAt));
+    setStatus(listing.status);
+    setErrors({});
+    setDeleteConfirmOpen(false);
+    setDeleteError(null);
+  }, [open, listing]);
+
+  const resetAndClose = () => {
+    if (saving || publishing || deleting) return;
+    onOpenChange(false);
+    setDeleteConfirmOpen(false);
+    setDeleteError(null);
+    setErrors({});
+  };
+
+  const validate = (): ListingFormErrors => {
+    const next: ListingFormErrors = {};
+    const trimmedTitle = title.trim();
+
+    if (!trimmedTitle) next.title = "Title is required.";
+    if (!openAt) next.openAt = "Open date is required.";
+    if (!closeAt) next.closeAt = "Close date is required.";
+    if (openAt && closeAt) {
+      const start = new Date(openAt).getTime();
+      const end = new Date(closeAt).getTime();
+      if (Number.isNaN(start)) next.openAt = "Open date is invalid.";
+      if (Number.isNaN(end)) next.closeAt = "Close date is invalid.";
+      if (!Number.isNaN(start) && !Number.isNaN(end) && end <= start) {
+        next.closeAt = "Close date must be after the open date.";
+      }
+    }
+
+    return next;
+  };
+
+  const saveListing = async () => {
+    if (!listing) return;
+    const nextErrors = validate();
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
+    setSaving(true);
+    setErrors({});
+    try {
+      await jobListingsApi.updateListing(listing.id, {
+        title: title.trim(),
+        description: description.trim(),
+        departmentId:
+          departmentId !== LISTING_ROLE_NONE ? Number(departmentId) : null,
+        openAt: parseDateTimeInput(openAt),
+        closeAt: parseDateTimeInput(closeAt),
+        status,
+      });
+      await onSaved(listing.id, "updated");
+      onOpenChange(false);
+    } catch (err) {
+      const message = getListingActionError(err, "Failed to update listing.");
+      if (isFormErrors(message)) {
+        setErrors(message);
+      } else {
+        setErrors({ general: message });
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const publishListing = async () => {
+    if (!listing) return;
+    setPublishing(true);
+    setErrors({});
+    try {
+      await jobListingsApi.patchListing(listing.id, { status: "open" });
+      await onSaved(listing.id, "published");
+      onOpenChange(false);
+    } catch (err) {
+      const message = getListingActionError(err, "Failed to publish listing.");
+      if (isFormErrors(message)) {
+        setErrors(message);
+      } else {
+        setErrors({ general: message });
+      }
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const deleteListing = async () => {
+    if (!listing) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await jobListingsApi.deleteListing(listing.id);
+      await onSaved(listing.id, "deleted");
+      onOpenChange(false);
+      setDeleteConfirmOpen(false);
+    } catch (err) {
+      const message = getListingActionError(err, "Failed to delete listing.");
+      setDeleteError(
+        typeof message === "string"
+          ? message
+          : message.general || "Failed to delete listing."
+      );
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <>
+      <Dialog
+        open={open && listing !== null}
+        onOpenChange={(v) => {
+          if (!v) resetAndClose();
+        }}
+      >
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit role listing</DialogTitle>
+            <DialogDescription>
+              Update the role details, dates, and lifecycle status.
+            </DialogDescription>
+          </DialogHeader>
+
+          {listing && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="listing-title">Title</Label>
+                  <Input
+                    id="listing-title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    aria-invalid={Boolean(errors.title)}
+                  />
+                  {errors.title && (
+                    <p className="text-xs text-red-700">{errors.title}</p>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="listing-description">Description</Label>
+                  <Textarea
+                    id="listing-description"
+                    rows={6}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    aria-invalid={Boolean(errors.description)}
+                  />
+                  {errors.description && (
+                    <p className="text-xs text-red-700">{errors.description}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>Department</Label>
+                  <Select value={departmentId} onValueChange={setDepartmentId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={LISTING_ROLE_NONE}>
+                        Unspecified
+                      </SelectItem>
+                      {departments.map((d) => (
+                        <SelectItem key={d.id} value={String(d.id)}>
+                          {d.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.departmentId && (
+                    <p className="text-xs text-red-700">
+                      {errors.departmentId}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Status</Label>
+                  <Select
+                    value={status}
+                    onValueChange={(v) => setStatus(v as JobListingStatus)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {["draft", "open", "closed", "cancelled"].map((value) => (
+                        <SelectItem key={value} value={value}>
+                          {JOB_LISTING_STATUS_LABELS[value as JobListingStatus]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.status && (
+                    <p className="text-xs text-red-700">{errors.status}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="listing-open-at">Open date</Label>
+                  <Input
+                    id="listing-open-at"
+                    type="datetime-local"
+                    value={openAt}
+                    onChange={(e) => setOpenAt(e.target.value)}
+                    aria-invalid={Boolean(errors.openAt)}
+                  />
+                  {errors.openAt && (
+                    <p className="text-xs text-red-700">{errors.openAt}</p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="listing-close-at">Close date</Label>
+                  <Input
+                    id="listing-close-at"
+                    type="datetime-local"
+                    value={closeAt}
+                    onChange={(e) => setCloseAt(e.target.value)}
+                    aria-invalid={Boolean(errors.closeAt)}
+                  />
+                  {errors.closeAt && (
+                    <p className="text-xs text-red-700">{errors.closeAt}</p>
+                  )}
+                </div>
+              </div>
+
+              {errors.general && (
+                <div className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+                  <AlertCircle className="w-3.5 h-3.5 inline mr-1.5" />
+                  {errors.general}
+                </div>
+              )}
+
+              <div className="flex items-center justify-between gap-3 pt-2 border-t border-gray-200 dark:border-gray-700">
+                <Button
+                  variant="ghost"
+                  onClick={resetAndClose}
+                  disabled={saving || publishing}
+                >
+                  Close
+                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={publishListing}
+                    disabled={saving || publishing || status === "open"}
+                  >
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                    {publishing ? "Publishing…" : "Publish"}
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => setDeleteConfirmOpen(true)}
+                    disabled={saving || publishing}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Delete
+                  </Button>
+                  <Button onClick={saveListing} disabled={saving || publishing}>
+                    <Pencil className="w-3.5 h-3.5" />
+                    {saving ? "Saving…" : "Save changes"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={deleteConfirmOpen}
+        onOpenChange={(v) => {
+          if (!v && !deleting) setDeleteConfirmOpen(false);
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete role listing</DialogTitle>
+            <DialogDescription>
+              {listing
+                ? `Delete "${listing.title}"? This cannot be undone.`
+                : "Delete this listing? This cannot be undone."}
+            </DialogDescription>
+          </DialogHeader>
+
+          {deleteError && (
+            <div className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+              <AlertCircle className="w-3.5 h-3.5 inline mr-1.5" />
+              {deleteError}
+            </div>
+          )}
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+            <Button
+              variant="ghost"
+              onClick={() => setDeleteConfirmOpen(false)}
+              disabled={deleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={deleteListing}
+              disabled={deleting}
+            >
+              {deleting ? "Deleting…" : "Delete"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

@@ -1,10 +1,12 @@
 import { API_BASE_URL } from "@/lib/config";
 import {
   buildQueryString,
+  del,
   get,
   handleListResponse,
   patch,
   post,
+  put,
 } from "../../helpers/httpClient";
 import type {
   ApplicationStatus,
@@ -15,6 +17,7 @@ import type {
   JobListingDetail,
   JobListingFilters,
   JobListingStatus,
+  UpdateListingPayload,
   UpdateApplicationStatusPayload,
   WithdrawApplicationPayload,
 } from "@/types/jobListing";
@@ -110,8 +113,25 @@ function transformApplication(raw: ApiJobApplication): JobApplication {
   };
 }
 
+function buildListingBody(
+  payload: CreateListingPayload | UpdateListingPayload
+): Record<string, unknown> {
+  const body: Record<string, unknown> = {};
+
+  if (payload.title !== undefined) body.title = payload.title;
+  if (payload.description !== undefined) body.description = payload.description;
+  if (payload.departmentId !== undefined) {
+    body.department_id = payload.departmentId;
+  }
+  if (payload.openAt !== undefined) body.open_at = payload.openAt;
+  if (payload.closeAt !== undefined) body.close_at = payload.closeAt;
+  if (payload.status !== undefined) body.status = payload.status;
+
+  return body;
+}
+
 export const jobListingsApi = {
-  async listActiveListings(filters?: JobListingFilters): Promise<JobListing[]> {
+  async listListings(filters?: JobListingFilters): Promise<JobListing[]> {
     const qs = buildQueryString({
       department: filters?.department,
       search: filters?.search,
@@ -121,6 +141,10 @@ export const jobListingsApi = {
       ApiJobListing[] | { results?: ApiJobListing[]; count?: number }
     >(`${BASE}/${qs}`, "Failed to fetch job listings");
     return handleListResponse(data).results.map(transformListing);
+  },
+
+  async listActiveListings(filters?: JobListingFilters): Promise<JobListing[]> {
+    return jobListingsApi.listListings(filters);
   },
 
   async getListing(id: number): Promise<JobListingDetail> {
@@ -163,20 +187,44 @@ export const jobListingsApi = {
   },
 
   async createListing(payload: CreateListingPayload): Promise<JobListing> {
-    const body = {
-      title: payload.title,
-      description: payload.description,
-      department_id: payload.departmentId ?? null,
-      open_at: payload.openAt,
-      close_at: payload.closeAt,
+    const body = buildListingBody({
+      ...payload,
       status: payload.status ?? "open",
-    };
+    });
     const data = await post<ApiJobListing>(
       `${BASE}/`,
       body,
       "Failed to post role"
     );
     return transformListing(data);
+  },
+
+  async updateListing(
+    id: number,
+    payload: UpdateListingPayload
+  ): Promise<JobListingDetail> {
+    const data = await put<ApiJobListingDetail>(
+      `${BASE}/${id}/`,
+      buildListingBody(payload),
+      "Failed to update job listing"
+    );
+    return transformListingDetail(data);
+  },
+
+  async patchListing(
+    id: number,
+    payload: UpdateListingPayload
+  ): Promise<JobListingDetail> {
+    const data = await patch<ApiJobListingDetail>(
+      `${BASE}/${id}/`,
+      buildListingBody(payload),
+      "Failed to update job listing"
+    );
+    return transformListingDetail(data);
+  },
+
+  async deleteListing(id: number): Promise<void> {
+    await del(`${BASE}/${id}/`, "Failed to delete job listing");
   },
 
   async listAllApplications(filters?: {
