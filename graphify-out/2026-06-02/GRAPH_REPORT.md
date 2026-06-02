@@ -1,11 +1,11 @@
 # Graph Report - bloomhub-fe  (2026-06-02)
 
 ## Corpus Check
-- 483 files · ~317,437 words
+- 483 files · ~317,461 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4615 nodes · 14893 edges · 287 communities (190 shown, 97 thin omitted)
+- 4615 nodes · 14893 edges · 288 communities (191 shown, 97 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 53 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
@@ -179,6 +179,7 @@
 - [[_COMMUNITY_Cluster readme|Cluster: readme]]
 - [[_COMMUNITY_Cluster readme|Cluster: readme]]
 - [[_COMMUNITY_Cluster readme|Cluster: readme]]
+- [[_COMMUNITY_Community 164|Community 164]]
 - [[_COMMUNITY_Cluster documentsendpoints|Cluster: documentsendpoints]]
 - [[_COMMUNITY_Cluster agents|Cluster: agents]]
 - [[_COMMUNITY_Cluster component|Cluster: component]]
@@ -365,7 +366,7 @@
 - **Performance review domain model** — types_reviews_PerformanceReview, types_reviews_PerformanceReviewNote, types_reviews_PerformanceReviewActionPoint [INFERRED 0.95]
 - **Generic collection filter/sort toolkit** — utils_filters_filterItems, utils_filters_sortItems, utils_filters_searchItems, utils_filters_filterByExpiration, utils_filters_filterByStatus [INFERRED 0.85]
 
-## Communities (287 total, 97 thin omitted)
+## Communities (288 total, 97 thin omitted)
 
 ### Community 0 - "Project Member Avatars"
 Cohesion: 0.14
@@ -421,7 +422,7 @@ Nodes (24): UseLeaveAnalyticsDataResult, AnalyticsScope, loadDepartmentBreakdown
 
 ### Community 13 - "Documents Helpers"
 Cohesion: 0.12
-Nodes (38): DOCUMENT_ACCESS_ROLE_DESCRIPTIONS, DOCUMENT_ACCESS_ROLE_LABELS, DocumentAccessRole, DocumentCategory, parseDocumentTags(), DEFAULT_UPLOAD_VISIBILITY, DocumentUploadModal(), EMPTY_UPLOAD_FORM (+30 more)
+Nodes (37): DOCUMENT_ACCESS_ROLE_DESCRIPTIONS, DOCUMENT_ACCESS_ROLE_LABELS, DocumentAccessRole, DocumentCategory, parseDocumentTags(), DEFAULT_UPLOAD_VISIBILITY, DocumentUploadModal(), EMPTY_UPLOAD_FORM (+29 more)
 
 ### Community 14 - "Project Drawer Helpers"
 Cohesion: 0.29
@@ -460,8 +461,8 @@ Cohesion: 0.10
 Nodes (30): COLUMNS, DEFAULT_COLUMNS, ExportFormat, ExportProjectsDialog(), ExportProjectsDialogProps, ExportProjectsValues, ExportScope, FormatTile() (+22 more)
 
 ### Community 23 - "Peer Sessions API"
-Cohesion: 0.08
-Nodes (35): ProfileSection(), ProfileSectionProps, RestrictedBlock(), RestrictedBlockProps, DEFAULT_OPTIONS, PROFILE_VIEWER_ROLE_LABELS, ProfileViewerRole, RoleSwitch() (+27 more)
+Cohesion: 0.13
+Nodes (21): DEFAULT_OPTIONS, PROFILE_VIEWER_ROLE_LABELS, ProfileViewerRole, RoleSwitch(), RoleSwitchProps, ProfileEmergencyContactSection(), ProfileEmergencyContactSectionProps, ACCESS_MAP (+13 more)
 
 ### Community 24 - "Review Detail Drawer"
 Cohesion: 0.13
@@ -469,7 +470,7 @@ Nodes (28): ACTION_STATUS_OPTIONS, ActionsPanel(), ActionsPanelProps, AgendaPane
 
 ### Community 25 - "Documents Endpoints"
 Cohesion: 0.16
-Nodes (27): jsonResponse(), documentArchivePath(), documentDownloadPath(), documentPreviewPath(), documentReminderPath(), documentResetSignaturesPath(), documentSignaturePath(), documentSignaturesPath() (+19 more)
+Nodes (28): jsonResponse(), documentArchivePath(), documentDownloadPath(), documentPreviewPath(), documentReminderPath(), documentResetSignaturesPath(), documentSignaturePath(), documentSignaturesPath() (+20 more)
 
 ### Community 26 - "Export Projects Dialog"
 Cohesion: 0.19
@@ -480,8 +481,8 @@ Cohesion: 0.07
 Nodes (30): CountBadge, EditModePill, EmptyState, FieldInput, FilterChip, atoms barrel, MemberAvatar, MemberStack (+22 more)
 
 ### Community 28 - "Confirm Dialogs"
-Cohesion: 0.18
-Nodes (23): buildEmployeeDisplayName(), SelectedSigner, SignatureRequestDialogProps, SignerAvatar(), toSelectedSigner(), TechnologyTagInputProps, Alert(), AlertDescription() (+15 more)
+Cohesion: 0.16
+Nodes (24): buildEmployeeDisplayName(), SelectedSigner, SignatureRequestDialogProps, SignerAvatar(), toSelectedSigner(), TechnologyTagInputProps, Alert(), AlertDescription() (+16 more)
 
 ### Community 29 - "Employees API"
 Cohesion: 0.15
@@ -504,8 +505,8 @@ Cohesion: 0.16
 Nodes (9): LoginCredentials, loginWithEmail(), logoutUser(), registerUser(), RegistrationPayload, cpfLevelsApi, resolveApiMediaUrl(), API_BASE_URL (+1 more)
 
 ### Community 34 - "Cluster: employeespage"
-Cohesion: 0.22
-Nodes (16): API_STATUS_TO_UI, CODE_STOP_WORDS, consonants(), CreateProjectDrawer(), CreateProjectDrawerProps, CreateProjectFormValues, deriveProjectCode(), EMPTY (+8 more)
+Cohesion: 0.16
+Nodes (15): ProfileTechnologySection(), ProfileTechnologySectionProps, DEFAULT_CONFIG, getTechIconConfig(), TECH_ICON_MAP, TechIcon(), TechIconConfig, TechnologyTagInput() (+7 more)
 
 ### Community 35 - "Cluster: options"
 Cohesion: 0.02
@@ -520,8 +521,8 @@ Cohesion: 0.12
 Nodes (17): AnnouncementDetail, AnnouncementListItem, ANNOUNCEMENT_TYPES, AnnouncementsModule(), applyReactionToggle(), EMPTY_FORM, engagementFor(), formatDateTime() (+9 more)
 
 ### Community 38 - "Cluster: buildemployeedisplayname"
-Cohesion: 0.07
-Nodes (53): addPermission(), EMPLOYEE_PERMISSIONS, getBitValue(), getPermissionBits(), getPermissionNames(), hasAllPermissions(), hasAnyPermission(), hasPermission() (+45 more)
+Cohesion: 0.08
+Nodes (52): addPermission(), EMPLOYEE_PERMISSIONS, getBitValue(), getPermissionBits(), getPermissionNames(), getUserPermissions(), hasAllPermissions(), hasAnyPermission() (+44 more)
 
 ### Community 39 - "Cluster: tsx"
 Cohesion: 0.17
@@ -545,7 +546,7 @@ Nodes (14): CUSTOM_PRESET_HELPER_TEXT, DOCUMENT_VISIBILITY_DIALOG_DESCRIPTION_FA
 
 ### Community 44 - "Cluster: jsonresponse"
 Cohesion: 0.09
-Nodes (42): announcementApi, AnnouncementComment, AnnouncementDiscordChannel, announcementDiscordChannelApi, AnnouncementDiscordChannelListParams, AnnouncementDiscordChannelPayload, AnnouncementListParams, AnnouncementPayload (+34 more)
+Nodes (43): announcementApi, AnnouncementComment, AnnouncementDiscordChannel, announcementDiscordChannelApi, AnnouncementDiscordChannelListParams, AnnouncementDiscordChannelPayload, AnnouncementListParams, AnnouncementPayload (+35 more)
 
 ### Community 45 - "Cluster: url"
 Cohesion: 0.15
@@ -596,8 +597,8 @@ Cohesion: 0.21
 Nodes (16): documentVisibilityHelpers, documentVisibilityPresets, documentsHelpers, allActions, allowed, expected, expectedByRole, AssetPermissionAction (+8 more)
 
 ### Community 57 - "Cluster: ts"
-Cohesion: 0.10
-Nodes (33): getUserPermissions(), CreateCVLinkPayload, cvEndpoint(), employeeCVApi, EmployeeCVDownloadResponse, EmployeeCVVersion, parseResponseError(), CV_ADD_MODE_OPTIONS (+25 more)
+Cohesion: 0.14
+Nodes (25): CreateCVLinkPayload, cvEndpoint(), employeeCVApi, EmployeeCVDownloadResponse, EmployeeCVVersion, parseResponseError(), CV_ADD_MODE_OPTIONS, CvAddMode (+17 more)
 
 ### Community 58 - "Cluster: ts"
 Cohesion: 0.20
@@ -681,7 +682,7 @@ Nodes (7): cancelButton, costInput, editingEntry, mockOnCancel, mockOnSuccess, s
 
 ### Community 78 - "Cluster: text"
 Cohesion: 0.11
-Nodes (33): ConfirmActionDialog(), EditAssignmentDialog(), EditProjectDialog(), EndAssignmentDialog(), StatusEditorDialog(), StatusEditorDialogProps, StatusEditResult, ProjectCard() (+25 more)
+Nodes (32): ConfirmActionDialog(), EditAssignmentDialog(), EditProjectDialog(), EndAssignmentDialog(), StatusEditorDialog(), StatusEditResult, ProjectCard(), ProjectCardProps (+24 more)
 
 ### Community 79 - "Cluster: url"
 Cohesion: 0.15
@@ -696,8 +697,8 @@ Cohesion: 0.17
 Nodes (20): ALL_LEAVE_STATUSES, ALL_LEAVE_TYPES, ApprovalWorkflowStatus, ApproveLeaveRequestPayload, CreateLeaveRequestPayload, DEFAULT_VACATION_CAPABILITIES, HrApproveLeaveRequestPayload, LEAVE_STATUS_BADGE_COLORS (+12 more)
 
 ### Community 82 - "Cluster: columngroup"
-Cohesion: 0.12
-Nodes (28): AVATAR_PALETTE, EmployeeAvatar(), EmployeeAvatarProps, pickPalette(), SaveFooter(), SaveFooterProps, StatusPill(), EmployeeCard() (+20 more)
+Cohesion: 0.13
+Nodes (27): AVATAR_PALETTE, EmployeeAvatar(), EmployeeAvatarProps, pickPalette(), SaveFooter(), SaveFooterProps, StatusPill(), EmployeeCard() (+19 more)
 
 ### Community 83 - "Cluster: tsx"
 Cohesion: 0.29
@@ -801,7 +802,7 @@ Nodes (6): getApiBaseUrl(), LoginPage, getRoleNameFromUser(), handler, RegisterP
 
 ### Community 108 - "Cluster: field"
 Cohesion: 0.06
-Nodes (37): AddChip(), AddChipProps, Chip(), CHIP_VARIANT_CLASSES, ChipProps, ChipVariant, CountBadge(), CountBadgeProps (+29 more)
+Nodes (39): AddChip(), AddChipProps, Chip(), CHIP_VARIANT_CLASSES, ChipProps, ChipVariant, CountBadge(), CountBadgeProps (+31 more)
 
 ### Community 109 - "Cluster: formatDate"
 Cohesion: 0.25
@@ -840,8 +841,8 @@ Cohesion: 0.43
 Nodes (7): tests/components/hr-dashboard/notifications.test.ts, src/utils/notificationHelpers.ts, notifyApiError, notifyError, notifySuccess, replaceNotification, withNotification
 
 ### Community 118 - "Cluster: consumeopenemployeereques"
-Cohesion: 0.11
-Nodes (30): ProgressBar(), ProgressBarProps, StageChip(), StageChipProps, PROJECT_ACTIVITY, PROJECT_DOCUMENTS, SEED_PROJECTS, STAGE_BY_ID (+22 more)
+Cohesion: 0.08
+Nodes (46): ProgressBar(), ProgressBarProps, StageChip(), StageChipProps, API_STATUS_TO_UI, CODE_STOP_WORDS, consonants(), CreateProjectDrawer() (+38 more)
 
 ### Community 119 - "Cluster: timetrackingmodule"
 Cohesion: 0.22
@@ -972,8 +973,8 @@ Cohesion: 0.67
 Nodes (3): orgchart/mockData, orgChartUtils, useOrgChartData
 
 ### Community 152 - "Cluster: filterchip"
-Cohesion: 0.17
-Nodes (16): notificationMarkReadPath(), buildQueryString(), isHrModuleId(), KNOWN_MODULE_IDS, mapApiNotificationToLocal(), Notification, NotificationType, mockNotifications (+8 more)
+Cohesion: 0.18
+Nodes (15): notificationMarkReadPath(), isHrModuleId(), KNOWN_MODULE_IDS, mapApiNotificationToLocal(), Notification, NotificationType, mockNotifications, { result } (+7 more)
 
 ### Community 153 - "Cluster: profilesection"
 Cohesion: 0.17
@@ -1010,6 +1011,10 @@ Nodes (9): caveman-review, Example output, How to invoke, See also, What it does
 ### Community 163 - "Cluster: readme"
 Cohesion: 0.29
 Nodes (5): caveman-stats, Example output, How to invoke, See also, What it does
+
+### Community 164 - "Community 164"
+Cohesion: 0.50
+Nodes (7): consumeOpenEmployeeRequest(), consumeOpenProjectRequest(), consumeProjectsSearchRequest(), requestOpenEmployee(), requestOpenProject(), requestProjectsSearch(), safeStorage()
 
 ### Community 165 - "Cluster: documentsendpoints"
 Cohesion: 0.20
@@ -1087,11 +1092,11 @@ Nodes (15): API Helpers Directory Structure, Authentication, Benefits Summary, C
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `cn()` connect `Project Atoms` to `Project Member Avatars`, `Add Member Dialog`, `Community 130`, `Community 131`, `Community 132`, `Sidebar & Sheet UI`, `Documents Helpers`, `Cluster: projecticon`, `Status Pill Atom`, `Documents Display`, `Peer Sessions API`, `Confirm Dialogs`, `Community 157`, `Cluster: editmodepill`, `Cluster: bonus`, `Cluster: employeespage`, `Cluster: buildemployeedisplayname`, `Cluster: employeestablesection`, `Cluster: collapsiblesidebar`, `Cluster: getuserpermissions`, `Community 184`, `Cluster: certificatesapi`, `Cluster: signaturestatus`, `Cluster: tsx`, `Cluster: savefooter`, `Cluster: text`, `Cluster: columngroup`, `Cluster: tsx`, `Cluster: tsx`, `Cluster: tsx`, `Community 93`, `Community 96`, `Cluster: field`, `Community 241`, `Cluster: addchip`, `Cluster: consumeopenemployeereques`, `Community 124`?**
+- **Why does `cn()` connect `Project Atoms` to `Project Member Avatars`, `Add Member Dialog`, `Community 130`, `Community 131`, `Community 132`, `Sidebar & Sheet UI`, `Documents Helpers`, `Cluster: projecticon`, `Status Pill Atom`, `Documents Display`, `Peer Sessions API`, `Confirm Dialogs`, `Community 157`, `Cluster: editmodepill`, `Cluster: bonus`, `Cluster: buildemployeedisplayname`, `Cluster: employeestablesection`, `Cluster: collapsiblesidebar`, `Cluster: getuserpermissions`, `Community 184`, `Cluster: certificatesapi`, `Cluster: signaturestatus`, `Cluster: tsx`, `Cluster: savefooter`, `Cluster: text`, `Cluster: columngroup`, `Cluster: tsx`, `Cluster: tsx`, `Cluster: tsx`, `Community 93`, `Community 96`, `Cluster: field`, `Community 241`, `Cluster: addchip`, `Cluster: consumeopenemployeereques`, `Community 124`?**
   _High betweenness centrality (0.092) - this node is a cross-community bridge._
-- **Why does `Button` connect `Cluster: editmodepill` to `Project Member Avatars`, `Add Member Dialog`, `Assets Module`, `Onboarding API`, `Sidebar & Sheet UI`, `Admin Module Seed Data`, `Community 146`, `Status Pill Atom`, `Documents Display`, `Review Detail Drawer`, `Export Projects Dialog`, `Confirm Dialogs`, `Employees API`, `Cluster: bonus`, `Cluster: employeespage`, `Cluster: options`, `Cluster: announcementsmodule`, `Cluster: buildemployeedisplayname`, `Cluster: tsx`, `Cluster: fetchleavebalances`, `Cluster: employeestablesection`, `Cluster: applicationstab`, `Cluster: collapsiblesidebar`, `Cluster: employeeavatar`, `Cluster: getuserpermissions`, `Community 184`, `Cluster: ts`, `Cluster: downloadassetqrcode`, `Cluster: signaturestatus`, `Cluster: deletebuttons`, `Cluster: tsx`, `Cluster: styles`, `Cluster: text`, `Cluster: columngroup`, `Cluster: tsx`, `Cluster: path`, `Community 93`, `Cluster: filters`, `Community 241`, `Community 113`, `Cluster: consumeopenemployeereques`, `Cluster: timetrackingmodule`?**
+- **Why does `Button` connect `Cluster: editmodepill` to `Project Member Avatars`, `Add Member Dialog`, `Assets Module`, `Onboarding API`, `Sidebar & Sheet UI`, `Admin Module Seed Data`, `Community 146`, `Status Pill Atom`, `Documents Display`, `Review Detail Drawer`, `Export Projects Dialog`, `Confirm Dialogs`, `Employees API`, `Cluster: bonus`, `Cluster: options`, `Cluster: announcementsmodule`, `Cluster: buildemployeedisplayname`, `Cluster: tsx`, `Cluster: fetchleavebalances`, `Cluster: employeestablesection`, `Cluster: applicationstab`, `Cluster: collapsiblesidebar`, `Cluster: employeeavatar`, `Cluster: getuserpermissions`, `Community 184`, `Cluster: ts`, `Cluster: downloadassetqrcode`, `Cluster: signaturestatus`, `Cluster: deletebuttons`, `Cluster: tsx`, `Cluster: styles`, `Cluster: text`, `Cluster: columngroup`, `Cluster: tsx`, `Cluster: path`, `Community 93`, `Cluster: filters`, `Community 241`, `Community 113`, `Cluster: consumeopenemployeereques`, `Cluster: timetrackingmodule`?**
   _High betweenness centrality (0.067) - this node is a cross-community bridge._
-- **Why does `SelectTrigger()` connect `Add Member Dialog` to `Project Member Avatars`, `Project Atoms`, `Assets Module`, `Onboarding API`, `Cluster: skeletoncard`, `Documents Helpers`, `Admin Module Seed Data`, `Status Pill Atom`, `Template Snippets Storage`, `Documents Display`, `Review Detail Drawer`, `Confirm Dialogs`, `Cluster: editmodepill`, `Cluster: bonus`, `Cluster: documentattentionstrips`, `Cluster: employeespage`, `Cluster: options`, `Cluster: announcementsmodule`, `Cluster: buildemployeedisplayname`, `Cluster: applicationstab`, `Community 184`, `Cluster: tsx`, `Cluster: tsx`, `Cluster: url`, `Cluster: cancelbutton`, `Cluster: field`, `Community 241`?**
+- **Why does `SelectTrigger()` connect `Add Member Dialog` to `Project Member Avatars`, `Project Atoms`, `Assets Module`, `Onboarding API`, `Cluster: skeletoncard`, `Documents Helpers`, `Admin Module Seed Data`, `Status Pill Atom`, `Template Snippets Storage`, `Documents Display`, `Review Detail Drawer`, `Confirm Dialogs`, `Cluster: editmodepill`, `Cluster: bonus`, `Cluster: documentattentionstrips`, `Cluster: options`, `Cluster: announcementsmodule`, `Cluster: buildemployeedisplayname`, `Cluster: applicationstab`, `Community 184`, `Cluster: tsx`, `Cluster: tsx`, `Cluster: url`, `Cluster: cancelbutton`, `Cluster: field`, `Community 241`, `Cluster: consumeopenemployeereques`?**
   _High betweenness centrality (0.018) - this node is a cross-community bridge._
 - **Are the 4 inferred relationships involving `cn()` (e.g. with `EmptyState()` and `StatusPill()`) actually correct?**
   _`cn()` has 4 INFERRED edges - model-reasoned connections that need verification._
