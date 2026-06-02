@@ -352,8 +352,8 @@ export function AdminModule() {
     return (
       <div className="flex h-full w-full items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-          <p className="text-sm text-gray-500">Checking admin access...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-gray-900" />
+          <p className="text-sm text-gray-800">Checking admin access...</p>
         </div>
       </div>
     );
@@ -366,7 +366,7 @@ export function AdminModule() {
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-center">Access Denied</CardTitle>
-            <CardDescription className="text-center">
+            <CardDescription className="text-center text-gray-800">
               You do not have permission to access the Admin Panel.
             </CardDescription>
           </CardHeader>
@@ -381,13 +381,13 @@ export function AdminModule() {
   }
 
   return (
-    <div className="flex h-full w-full flex-col gap-4 overflow-auto p-1">
+    <div className="flex h-full w-full flex-col gap-4 overflow-auto p-1 text-gray-900">
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
             Admin Panel
           </h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-800">
             Manage your organization&apos;s users, roles, and settings.
           </p>
         </div>
@@ -455,18 +455,20 @@ export function AdminModule() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>User Management</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-gray-900">
+                    User Management
+                  </CardTitle>
+                  <CardDescription className="text-gray-800">
                     Total {users.length} users in the system
                   </CardDescription>
                 </div>
                 <div className="relative w-64">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-900" />
                   <Input
                     placeholder="Search users..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9"
+                    className="pl-9 text-gray-950 placeholder:text-gray-800"
                   />
                 </div>
               </div>
@@ -474,7 +476,7 @@ export function AdminModule() {
             <CardContent>
               {isLoadingEmployees ? (
                 <div className="flex items-center justify-center py-10">
-                  <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                  <Loader2 className="h-6 w-6 animate-spin text-gray-900" />
                 </div>
               ) : employeesError ? (
                 <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -500,7 +502,7 @@ export function AdminModule() {
                         </TableCell>
                         <TableCell>{user.email}</TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="font-normal">
+                          <Badge variant="default" className="font-semibold">
                             {user.role}
                           </Badge>
                         </TableCell>
@@ -518,16 +520,16 @@ export function AdminModule() {
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
                             <Button
-                              variant="ghost"
+                              variant="outline"
                               size="icon"
                               onClick={() => handleEditUser(user)}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button
-                              variant="ghost"
+                              variant="outline"
                               size="icon"
-                              className="text-red-500"
+                              className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -549,9 +551,9 @@ export function AdminModule() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{role.name}</CardTitle>
-                    <Shield className="h-5 w-5 text-gray-400" />
+                    <Shield className="h-5 w-5 text-gray-900" />
                   </div>
-                  <CardDescription>
+                  <CardDescription className="text-gray-800">
                     {role.userCount} users assigned
                   </CardDescription>
                 </CardHeader>
@@ -579,10 +581,12 @@ export function AdminModule() {
                 </CardContent>
               </Card>
             ))}
-            <Card className="flex cursor-pointer items-center justify-center border-dashed border-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900">
+            <Card className="flex cursor-pointer items-center justify-center border-2 border-dashed border-gray-300 bg-white hover:bg-gray-50">
               <div className="text-center p-6">
-                <Plus className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                <p className="text-sm font-medium">Create New Role</p>
+                <Plus className="mx-auto mb-2 h-8 w-8 text-gray-900" />
+                <p className="text-sm font-medium text-gray-900">
+                  Create New Role
+                </p>
               </div>
             </Card>
           </div>
@@ -592,7 +596,7 @@ export function AdminModule() {
           <Card>
             <CardHeader>
               <CardTitle>Asset Inventory</CardTitle>
-              <CardDescription>
+              <CardDescription className="text-gray-800">
                 Manage company equipment and assignments
               </CardDescription>
             </CardHeader>
@@ -658,7 +662,7 @@ export function AdminModule() {
             <Card>
               <CardHeader>
                 <CardTitle>Security Settings</CardTitle>
-                <CardDescription>
+                <CardDescription className="text-gray-800">
                   Configure authentication and access control
                 </CardDescription>
               </CardHeader>
@@ -666,7 +670,7 @@ export function AdminModule() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Two-Factor Authentication</Label>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-800">
                       Require 2FA for all admin users
                     </p>
                   </div>
@@ -676,7 +680,7 @@ export function AdminModule() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Session Timeout</Label>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-800">
                       Auto logout after inactivity
                     </p>
                   </div>
@@ -697,7 +701,7 @@ export function AdminModule() {
             <Card>
               <CardHeader>
                 <CardTitle>API Access Token</CardTitle>
-                <CardDescription>
+                <CardDescription className="text-gray-800">
                   Paste a backend JWT access token used for role permission CSV
                   uploads.
                 </CardDescription>
@@ -724,7 +728,7 @@ export function AdminModule() {
                     Clear Token
                   </Button>
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-800">
                   The token is stored in this browser and sent as{" "}
                   <code>Authorization: Bearer ...</code> during upload.
                 </p>
@@ -734,7 +738,7 @@ export function AdminModule() {
             <Card>
               <CardHeader>
                 <CardTitle>System Notifications</CardTitle>
-                <CardDescription>
+                <CardDescription className="text-gray-800">
                   Manage how admins receive system alerts
                 </CardDescription>
               </CardHeader>
@@ -742,7 +746,7 @@ export function AdminModule() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Email Alerts</Label>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-800">
                       Critical system events
                     </p>
                   </div>
@@ -752,7 +756,7 @@ export function AdminModule() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Audit Logging</Label>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-800">
                       Log all administrative actions
                     </p>
                   </div>
@@ -920,7 +924,7 @@ function ProjectsAdminTab() {
       <Card>
         <CardHeader>
           <CardTitle>Project Clients</CardTitle>
-          <CardDescription>
+          <CardDescription className="text-gray-800">
             Manage the client list shown in the project create dialog.
           </CardDescription>
         </CardHeader>
@@ -947,9 +951,9 @@ function ProjectsAdminTab() {
           </div>
           <Separator />
           {clients.length === 0 ? (
-            <p className="text-sm text-gray-500">No clients yet.</p>
+            <p className="text-sm text-gray-800">No clients yet.</p>
           ) : (
-            <ul className="divide-y divide-gray-100 rounded-lg border border-gray-200">
+            <ul className="divide-y divide-gray-200 rounded-lg border border-gray-200">
               {clients.map((name) => (
                 <li
                   key={name}
@@ -1014,7 +1018,7 @@ function ProjectsAdminTab() {
       <Card>
         <CardHeader>
           <CardTitle>Project Defaults</CardTitle>
-          <CardDescription>
+          <CardDescription className="text-gray-800">
             Defaults applied when creating a new project.
           </CardDescription>
         </CardHeader>
@@ -1022,7 +1026,7 @@ function ProjectsAdminTab() {
           <div className="flex items-center justify-between gap-3">
             <div className="space-y-0.5">
               <Label>Default status</Label>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-800">
                 Starting status for new projects
               </p>
             </div>
@@ -1050,7 +1054,7 @@ function ProjectsAdminTab() {
           <div className="flex items-center justify-between gap-3">
             <div className="space-y-0.5">
               <Label>Default project type</Label>
-              <p className="text-sm text-gray-500">Client or Internal</p>
+              <p className="text-sm text-gray-800">Client or Internal</p>
             </div>
             <Select
               value={defaults.default_project_type}
@@ -1073,7 +1077,7 @@ function ProjectsAdminTab() {
           <Separator />
           <div className="space-y-1.5">
             <Label htmlFor="admin-default-stack">Default app stack</Label>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-800">
               Pre-fills the technologies field on new projects (comma
               separated).
             </p>
@@ -1096,7 +1100,7 @@ function ProjectsAdminTab() {
           <div className="flex items-center justify-between gap-3">
             <div className="space-y-0.5">
               <Label>Require project lead</Label>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-800">
                 Block project creation unless a lead is selected
               </p>
             </div>

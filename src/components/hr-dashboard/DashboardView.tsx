@@ -40,6 +40,7 @@ interface DashboardViewProps {
   addNotification?: AddNotification;
   onNavigate?: (moduleId: string) => void;
   initialEmployeeId?: number | null;
+  initialProjectId?: string | null;
 }
 
 // Dashboard Overview Component
@@ -389,6 +390,7 @@ export function DashboardView({
   addNotification,
   onNavigate,
   initialEmployeeId,
+  initialProjectId,
 }: DashboardViewProps) {
   switch (activeModule) {
     case "dashboard":
@@ -403,7 +405,12 @@ export function DashboardView({
         />
       );
     case "projects":
-      return <ProjectsModule onNavigate={onNavigate} />;
+      return (
+        <ProjectsModule
+          onNavigate={onNavigate}
+          initialProjectId={initialProjectId}
+        />
+      );
     case "reviews":
       return <ReviewsModule />;
     case "onboarding":

@@ -183,7 +183,7 @@ export function PoliciesSubTab() {
         <CardHeader className="pb-3">
           <div>
             <CardTitle>NET Salary policies</CardTitle>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-gray-700">
               One NET salary per CPF level. All employees at the same level
               receive the same NET. Changing a policy retroactively affects
               everyone at that level.
@@ -192,7 +192,7 @@ export function PoliciesSubTab() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="py-8 text-center text-sm text-gray-500">
+            <div className="py-8 text-center text-sm text-gray-700">
               Loading policies…
             </div>
           ) : error ? (
@@ -200,7 +200,7 @@ export function PoliciesSubTab() {
               {error}
             </div>
           ) : policies.length === 0 ? (
-            <div className="rounded-md border border-dashed border-gray-200 bg-gray-50 px-3 py-6 text-center text-sm text-gray-500">
+            <div className="rounded-md border border-dashed border-gray-300 bg-white px-3 py-6 text-center text-sm text-gray-700">
               No policies yet. Add the first one below.
             </div>
           ) : (
@@ -247,7 +247,7 @@ export function PoliciesSubTab() {
                             onChange={(d) => setEditDate(d)}
                           />
                         ) : (
-                          <span className="text-sm text-gray-600">
+                          <span className="text-sm text-gray-800">
                             {p.effective_date}
                           </span>
                         )}
@@ -260,7 +260,7 @@ export function PoliciesSubTab() {
                           <div className="flex justify-end gap-1">
                             <Button
                               size="icon"
-                              variant="ghost"
+                              variant="outline"
                               onClick={() => handleSaveEdit(p)}
                               aria-label="Save"
                             >
@@ -268,18 +268,18 @@ export function PoliciesSubTab() {
                             </Button>
                             <Button
                               size="icon"
-                              variant="ghost"
+                              variant="outline"
                               onClick={handleCancelEdit}
                               aria-label="Cancel"
                             >
-                              <X className="h-4 w-4 text-gray-500" />
+                              <X className="h-4 w-4 text-gray-700" />
                             </Button>
                           </div>
                         ) : (
                           <div className="flex justify-end gap-1">
                             <Button
                               size="icon"
-                              variant="ghost"
+                              variant="outline"
                               onClick={() => handleStartEdit(p)}
                               aria-label="Edit"
                             >
@@ -287,7 +287,8 @@ export function PoliciesSubTab() {
                             </Button>
                             <Button
                               size="icon"
-                              variant="ghost"
+                              variant="outline"
+                              className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
                               onClick={() => handleRemove(p)}
                               aria-label="Remove"
                             >
@@ -306,9 +307,9 @@ export function PoliciesSubTab() {
       </Card>
 
       <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-5 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 px-5 py-4">
           <h3 className="text-base font-semibold text-gray-900">Add policy</h3>
-          <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+          <span className="rounded-full bg-gray-200 px-2.5 py-1 text-xs font-medium text-gray-800">
             {availableLevels.length} CPF level
             {availableLevels.length === 1 ? "" : "s"} without a policy
           </span>

@@ -31,6 +31,9 @@ import {
 import {
   timeTrackingApi,
   type ActiveAllocations,
+  type TempoAbsenceSyncFailure,
+  type TempoAbsenceSyncSettings,
+  type TempoAbsenceSyncSettingsPayload,
   type JiraAssignedIssuesImportResult,
   type JiraImportCommitResult,
   type JiraImportFilters,
@@ -74,6 +77,7 @@ import {
   type EmployeeProfileData,
 } from "@/lib/api/modules/employees";
 import { projectApi, type Project } from "@/lib/api/modules/projects";
+import { ALL_LEAVE_TYPES, LEAVE_TYPE_LABELS } from "@/types/vacations";
 import { formatDateWithWeekday } from "@/utils";
 import { DatePicker } from "./DatePicker";
 import { Badge } from "./ui/badge";
@@ -110,6 +114,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Textarea } from "./ui/textarea";
 import { JiraConnectionCard } from "./time-tracking/JiraConnectionCard";
 import { TempoConnectionCard } from "./time-tracking/TempoConnectionCard";
+import { Switch } from "./ui/switch";
 
 type EntryForm = {
   id?: number;
@@ -189,6 +194,14 @@ type TempoSettingsForm = {
   base_url: string;
   api_token: string;
   enabled: boolean;
+};
+
+type TempoAbsenceSyncForm = {
+  enabled: boolean;
+  default_jira_issue_key: string;
+  daily_hours: string;
+  default_start_time: string;
+  leave_type_issue_keys: Record<string, string>;
 };
 
 type TempoMappingForm = {
@@ -877,6 +890,16 @@ const EMPTY_TEMPO_SETTINGS_FORM: TempoSettingsForm = {
   enabled: false,
 };
 
+const EMPTY_TEMPO_ABSENCE_SYNC_FORM: TempoAbsenceSyncForm = {
+  enabled: false,
+  default_jira_issue_key: "",
+  daily_hours: "8.00",
+  default_start_time: "09:00:00",
+  leave_type_issue_keys: Object.fromEntries(
+    ALL_LEAVE_TYPES.map((type) => [type, ""])
+  ),
+};
+
 const EMPTY_TEMPO_MAPPINGS: TempoMappings = {
   users: [],
   accounts: [],
@@ -892,6 +915,47 @@ function normalizeTempoMappings(
     accounts: Array.isArray(mappings?.accounts) ? mappings.accounts : [],
     projects: Array.isArray(mappings?.projects) ? mappings.projects : [],
     teams: Array.isArray(mappings?.teams) ? mappings.teams : [],
+  };
+}
+
+function normalizeTempoAbsenceSyncForm(
+  settings: TempoAbsenceSyncSettings | null | undefined
+): TempoAbsenceSyncForm {
+  const leaveTypeIssueKeys = Object.fromEntries(
+    ALL_LEAVE_TYPES.map((type) => [
+      type,
+      settings?.leave_type_issue_keys?.[type] ?? "",
+    ])
+  );
+  return {
+    enabled: settings?.enabled ?? false,
+    default_jira_issue_key: settings?.default_jira_issue_key ?? "",
+    daily_hours: settings?.daily_hours ?? "8.00",
+    default_start_time: settings?.default_start_time ?? "09:00:00",
+    leave_type_issue_keys: leaveTypeIssueKeys,
+  };
+}
+
+function tempoAbsenceSyncPayload(
+  form: TempoAbsenceSyncForm,
+  overrides?: Partial<TempoAbsenceSyncForm>
+): TempoAbsenceSyncSettingsPayload {
+  const next = {
+    ...form,
+    ...overrides,
+  };
+  const leave_type_issue_keys = Object.fromEntries(
+    Object.entries(next.leave_type_issue_keys)
+      .map(([key, value]) => [key, value.trim()])
+      .filter(([, value]) => Boolean(value))
+  );
+
+  return {
+    enabled: next.enabled,
+    default_jira_issue_key: next.default_jira_issue_key.trim() || null,
+    daily_hours: next.daily_hours.trim() || "8.00",
+    default_start_time: next.default_start_time.trim() || "09:00:00",
+    leave_type_issue_keys,
   };
 }
 
@@ -1061,6 +1125,13 @@ export function TimeTrackingModule() {
   const [tempoSettingsForm, setTempoSettingsForm] = useState<TempoSettingsForm>(
     EMPTY_TEMPO_SETTINGS_FORM
   );
+  const [tempoAbsenceSyncSettings, setTempoAbsenceSyncSettings] =
+    useState<TempoAbsenceSyncSettings | null>(null);
+  const [tempoAbsenceSyncForm, setTempoAbsenceSyncForm] =
+    useState<TempoAbsenceSyncForm>(EMPTY_TEMPO_ABSENCE_SYNC_FORM);
+  const [tempoAbsenceSyncFailures, setTempoAbsenceSyncFailures] = useState<
+    TempoAbsenceSyncFailure[]
+  >([]);
   const [tempoMappings, setTempoMappings] =
     useState<TempoMappings>(EMPTY_TEMPO_MAPPINGS);
   const [tempoMappingForm, setTempoMappingForm] = useState<TempoMappingForm>(
@@ -1090,8 +1161,16 @@ export function TimeTrackingModule() {
     useState<TempoImportCommitResult | null>(null);
   const [tempoError, setTempoError] = useState<string | null>(null);
   const [tempoMessage, setTempoMessage] = useState<string | null>(null);
+  const [tempoAbsenceSyncError, setTempoAbsenceSyncError] = useState<
+    string | null
+  >(null);
+  const [tempoAbsenceSyncMessage, setTempoAbsenceSyncMessage] = useState<
+    string | null
+  >(null);
   const [isTempoLoading, setIsTempoLoading] = useState(false);
   const [isTempoSaving, setIsTempoSaving] = useState(false);
+  const [isTempoAbsenceSyncRetrying, setIsTempoAbsenceSyncRetrying] =
+    useState(false);
   const [isTempoSyncing, setIsTempoSyncing] = useState(false);
   const [documentBatch, setDocumentBatch] = useState<TimeImportBatch | null>(
     null
@@ -1375,12 +1454,20 @@ export function TimeTrackingModule() {
     setIsTempoLoading(true);
     setTempoError(null);
     try {
-      const [settings, mappings] = await Promise.all([
-        timeTrackingApi.getTempoSettings(),
-        timeTrackingApi.getTempoMappings(),
-      ]);
+      const [settings, absenceSyncSettings, absenceSyncFailures, mappings] =
+        await Promise.all([
+          timeTrackingApi.getTempoSettings(),
+          timeTrackingApi.getTempoAbsenceSyncSettings(),
+          timeTrackingApi.getTempoAbsenceSyncFailures(),
+          timeTrackingApi.getTempoMappings(),
+        ]);
       setTempoSettings(settings);
       setTempoSettingsForm(tempoSettingsToForm(settings));
+      setTempoAbsenceSyncSettings(absenceSyncSettings);
+      setTempoAbsenceSyncForm(
+        normalizeTempoAbsenceSyncForm(absenceSyncSettings)
+      );
+      setTempoAbsenceSyncFailures(absenceSyncFailures);
       setTempoDiscoveryForm((prev) => ({
         ...prev,
         base_url: settings.base_url || prev.base_url,
@@ -1395,21 +1482,41 @@ export function TimeTrackingModule() {
     }
   }, [canManageTime]);
 
+  const loadTempoAbsenceSyncFailures = useCallback(async () => {
+    if (!canManageTime) return;
+    try {
+      setTempoAbsenceSyncFailures(
+        await timeTrackingApi.getTempoAbsenceSyncFailures()
+      );
+    } catch {
+      setTempoAbsenceSyncFailures([]);
+    }
+  }, [canManageTime]);
+
   const syncTempoFromRemote = async () => {
     setIsTempoSyncing(true);
     setTempoError(null);
     setTempoMessage(null);
+    setTempoAbsenceSyncError(null);
+    setTempoAbsenceSyncMessage(null);
 
     try {
-      const updated = normalizeTempoMappings(
-        await timeTrackingApi.syncTempoMappings()
-      );
-      setTempoMappings(updated);
-      setTempoMessage(
-        `Synced from Tempo — ${updated.users.length} users, ${updated.accounts.length} accounts, ${updated.projects.length} projects, ${updated.teams.length} teams.`
-      );
+      await timeTrackingApi.syncTempo();
+      setTempoMessage("Tempo sync started. Refreshing recent worklogs.");
+      await Promise.all([
+        loadTempoAbsenceSyncFailures(),
+        loadWeek(),
+        loadWeeklySummary(),
+      ]);
     } catch (syncError) {
-      setTempoError(getErrorMessage(syncError, "Failed to sync from Tempo."));
+      const tempoSyncError = syncError as Error & { code?: string };
+      if (tempoSyncError.code === "tempo_reauth_required") {
+        setTempoError(
+          "Tempo reauth required. Connect Tempo again to continue syncing."
+        );
+      } else {
+        setTempoError(getErrorMessage(syncError, "Failed to sync from Tempo."));
+      }
     } finally {
       setIsTempoSyncing(false);
     }
@@ -2214,6 +2321,55 @@ export function TimeTrackingModule() {
     }
   };
 
+  const saveTempoAbsenceSyncSettings = async (useDefaults = false) => {
+    setIsTempoSaving(true);
+    setTempoError(null);
+    setTempoMessage(null);
+    setTempoAbsenceSyncError(null);
+    setTempoAbsenceSyncMessage(null);
+
+    const nextForm = {
+      ...tempoAbsenceSyncForm,
+      enabled: useDefaults ? true : tempoAbsenceSyncForm.enabled,
+      daily_hours: useDefaults ? "8.00" : tempoAbsenceSyncForm.daily_hours,
+      default_start_time: useDefaults
+        ? "09:00:00"
+        : tempoAbsenceSyncForm.default_start_time,
+    };
+
+    const issueKey = nextForm.default_jira_issue_key.trim();
+    if (!issueKey) {
+      setTempoAbsenceSyncError("Default absence Jira issue key is required.");
+      setIsTempoSaving(false);
+      return;
+    }
+
+    try {
+      const settings = await timeTrackingApi.updateTempoAbsenceSyncSettings(
+        tempoAbsenceSyncPayload(nextForm, {
+          default_jira_issue_key: issueKey,
+        })
+      );
+      setTempoAbsenceSyncSettings(settings);
+      setTempoAbsenceSyncForm(normalizeTempoAbsenceSyncForm(settings));
+      setTempoMessage(
+        useDefaults
+          ? "Absence sync enabled with defaults."
+          : "Absence sync settings saved."
+      );
+      await loadTempoAbsenceSyncFailures();
+    } catch (saveError) {
+      setTempoAbsenceSyncError(
+        getErrorMessage(
+          saveError,
+          "Failed to save Tempo absence sync settings."
+        )
+      );
+    } finally {
+      setIsTempoSaving(false);
+    }
+  };
+
   const testTempoConnection = async () => {
     setIsTempoSaving(true);
     setTempoError(null);
@@ -2236,6 +2392,26 @@ export function TimeTrackingModule() {
       await loadTempoIntegration();
     } finally {
       setIsTempoSaving(false);
+    }
+  };
+
+  const retryTempoAbsenceSync = async (leaveRequestId: number) => {
+    setIsTempoAbsenceSyncRetrying(true);
+    setTempoAbsenceSyncError(null);
+    setTempoAbsenceSyncMessage(null);
+
+    try {
+      await timeTrackingApi.retryTempoAbsenceSync(leaveRequestId);
+      setTempoAbsenceSyncMessage(
+        `Retry started for leave request #${leaveRequestId}.`
+      );
+      await loadTempoAbsenceSyncFailures();
+    } catch (retryError) {
+      setTempoAbsenceSyncError(
+        getErrorMessage(retryError, "Failed to retry Tempo absence sync.")
+      );
+    } finally {
+      setIsTempoAbsenceSyncRetrying(false);
     }
   };
 
@@ -3340,6 +3516,10 @@ export function TimeTrackingModule() {
                 settings={tempoSettings}
                 settingsForm={tempoSettingsForm}
                 setSettingsForm={setTempoSettingsForm}
+                absenceSyncSettings={tempoAbsenceSyncSettings}
+                absenceSyncForm={tempoAbsenceSyncForm}
+                setAbsenceSyncForm={setTempoAbsenceSyncForm}
+                absenceSyncFailures={tempoAbsenceSyncFailures}
                 mappings={tempoMappings}
                 mappingForm={tempoMappingForm}
                 setMappingForm={setTempoMappingForm}
@@ -3354,9 +3534,12 @@ export function TimeTrackingModule() {
                 projects={projects}
                 error={tempoError}
                 message={tempoMessage}
+                absenceSyncError={tempoAbsenceSyncError}
+                absenceSyncMessage={tempoAbsenceSyncMessage}
                 isLoading={isTempoLoading}
                 isSaving={isTempoSaving}
                 onSaveSettings={saveTempoSettings}
+                onSaveAbsenceSyncSettings={saveTempoAbsenceSyncSettings}
                 onTestConnection={testTempoConnection}
                 onSaveMapping={saveTempoMapping}
                 onDiscover={discoverTempoProjects}
@@ -3370,6 +3553,8 @@ export function TimeTrackingModule() {
                 }}
                 canConnect={jiraOAuthStatus?.connected === true}
                 onSyncAll={syncTempoFromRemote}
+                onRetryAbsenceSync={retryTempoAbsenceSync}
+                isAbsenceSyncRetrying={isTempoAbsenceSyncRetrying}
                 isSyncing={isTempoSyncing}
               />
             </TabsContent>
@@ -5572,6 +5757,10 @@ function TempoIntegrationPanel({
   settings,
   settingsForm,
   setSettingsForm,
+  absenceSyncSettings,
+  absenceSyncForm,
+  setAbsenceSyncForm,
+  absenceSyncFailures,
   mappings,
   mappingForm,
   setMappingForm,
@@ -5586,9 +5775,12 @@ function TempoIntegrationPanel({
   projects,
   error,
   message,
+  absenceSyncError,
+  absenceSyncMessage,
   isLoading,
   isSaving,
   onSaveSettings,
+  onSaveAbsenceSyncSettings,
   onTestConnection,
   onSaveMapping,
   onDiscover,
@@ -5599,11 +5791,17 @@ function TempoIntegrationPanel({
   onRefreshEntries,
   canConnect,
   onSyncAll,
+  onRetryAbsenceSync,
+  isAbsenceSyncRetrying,
   isSyncing,
 }: {
   settings: TempoSettings | null;
   settingsForm: TempoSettingsForm;
   setSettingsForm: Dispatch<SetStateAction<TempoSettingsForm>>;
+  absenceSyncSettings: TempoAbsenceSyncSettings | null;
+  absenceSyncForm: TempoAbsenceSyncForm;
+  setAbsenceSyncForm: Dispatch<SetStateAction<TempoAbsenceSyncForm>>;
+  absenceSyncFailures: TempoAbsenceSyncFailure[];
   mappings: TempoMappings;
   mappingForm: TempoMappingForm;
   setMappingForm: Dispatch<SetStateAction<TempoMappingForm>>;
@@ -5618,9 +5816,12 @@ function TempoIntegrationPanel({
   projects: Project[];
   error: string | null;
   message: string | null;
+  absenceSyncError: string | null;
+  absenceSyncMessage: string | null;
   isLoading: boolean;
   isSaving: boolean;
   onSaveSettings: () => void;
+  onSaveAbsenceSyncSettings: (useDefaults?: boolean) => void;
   onTestConnection: () => void;
   onSaveMapping: () => void;
   onDiscover: () => void;
@@ -5635,19 +5836,11 @@ function TempoIntegrationPanel({
   onRefreshEntries: () => void;
   canConnect: boolean;
   onSyncAll: () => void;
+  onRetryAbsenceSync: (leaveRequestId: number) => void;
+  isAbsenceSyncRetrying: boolean;
   isSyncing: boolean;
 }) {
   const [tempoOAuth, setTempoOAuth] = useState<TempoOAuthStatus | null>(null);
-  const autoSyncedRef = useRef(false);
-  useEffect(() => {
-    if (tempoOAuth?.connected && !autoSyncedRef.current && !isSyncing) {
-      autoSyncedRef.current = true;
-      onSyncAll();
-    }
-    if (!tempoOAuth?.connected) {
-      autoSyncedRef.current = false;
-    }
-  }, [tempoOAuth?.connected, isSyncing, onSyncAll]);
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -5659,10 +5852,20 @@ function TempoIntegrationPanel({
             Configure Tempo imports, mappings, preview, and commit.
           </p>
         </div>
-        <Button variant="outline" onClick={onRefresh} disabled={isLoading}>
-          <RefreshCw className="mr-2 h-4 w-4" />
-          Refresh
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={onRefresh} disabled={isLoading}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Refresh
+          </Button>
+          <Button
+            variant="outline"
+            onClick={onSyncAll}
+            disabled={isLoading || isSyncing || !tempoOAuth?.connected}
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Sync recent worklogs
+          </Button>
+        </div>
       </div>
 
       {(error || message) && (
@@ -5680,11 +5883,243 @@ function TempoIntegrationPanel({
         </div>
       )}
 
-      <TempoConnectionCard
-        canConnect={canConnect}
-        connectDisabledReason="Connect Jira before Tempo so BloomHub can use the Jira board URL for Tempo."
-        onStatusChange={setTempoOAuth}
-      />
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <JiraConnectionCard />
+        <TempoConnectionCard
+          canConnect={canConnect}
+          connectDisabledReason="Connect Jira before Tempo so BloomHub can use the Jira board URL for Tempo."
+          onStatusChange={setTempoOAuth}
+        />
+      </div>
+
+      <Card className="border-gray-200">
+        <CardHeader className="pb-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <CardTitle>Absence Sync</CardTitle>
+              <p className="mt-1 text-sm text-gray-500">
+                Enter the Jira issue key used for all BloomHub leave worklogs in
+                Tempo. BloomHub will create the local project/task mapping
+                automatically.
+              </p>
+            </div>
+            <Badge
+              className={
+                absenceSyncSettings?.enabled
+                  ? "bg-green-100 text-green-800 hover:bg-green-100"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-100"
+              }
+            >
+              {absenceSyncSettings?.enabled ? "Enabled" : "Disabled"}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {absenceSyncError && (
+            <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              {absenceSyncError}
+            </div>
+          )}
+          {absenceSyncMessage && (
+            <div className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+              {absenceSyncMessage}
+            </div>
+          )}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-[220px_1fr_1fr_1fr]">
+            <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-3">
+              <Switch
+                checked={absenceSyncForm.enabled}
+                onCheckedChange={(checked) =>
+                  setAbsenceSyncForm((prev) => ({
+                    ...prev,
+                    enabled: checked,
+                  }))
+                }
+              />
+              <div>
+                <Label className="text-sm font-medium text-gray-900">
+                  Enable absence sync
+                </Label>
+                <p className="text-xs text-gray-500">
+                  Push approved leave into Tempo.
+                </p>
+              </div>
+            </div>
+            <Field label="Default absence Jira issue key">
+              <Input
+                value={absenceSyncForm.default_jira_issue_key}
+                onChange={(e) =>
+                  setAbsenceSyncForm((prev) => ({
+                    ...prev,
+                    default_jira_issue_key: e.target.value,
+                  }))
+                }
+                placeholder="ABS-1"
+              />
+            </Field>
+            <Field label="Daily hours">
+              <Input
+                inputMode="decimal"
+                value={absenceSyncForm.daily_hours}
+                onChange={(e) =>
+                  setAbsenceSyncForm((prev) => ({
+                    ...prev,
+                    daily_hours: e.target.value,
+                  }))
+                }
+                placeholder="8.00"
+              />
+            </Field>
+            <Field label="Start time">
+              <Input
+                value={absenceSyncForm.default_start_time}
+                onChange={(e) =>
+                  setAbsenceSyncForm((prev) => ({
+                    ...prev,
+                    default_start_time: e.target.value,
+                  }))
+                }
+                placeholder="09:00:00"
+              />
+            </Field>
+          </div>
+          <p className="text-sm text-gray-600">
+            Enter the Jira issue key used for all BloomHub leave worklogs in
+            Tempo. BloomHub will create the local project/task mapping
+            automatically.
+          </p>
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900">
+                  Advanced leave-type issue keys
+                </h3>
+                <p className="text-xs text-gray-500">
+                  Optional. Override the default issue key per leave type.
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {ALL_LEAVE_TYPES.map((leaveType) => (
+                <Field key={leaveType} label={LEAVE_TYPE_LABELS[leaveType]}>
+                  <Input
+                    value={
+                      absenceSyncForm.leave_type_issue_keys[leaveType] || ""
+                    }
+                    onChange={(e) =>
+                      setAbsenceSyncForm((prev) => ({
+                        ...prev,
+                        leave_type_issue_keys: {
+                          ...prev.leave_type_issue_keys,
+                          [leaveType]: e.target.value,
+                        },
+                      }))
+                    }
+                    placeholder={
+                      absenceSyncForm.default_jira_issue_key || "ABS-1"
+                    }
+                  />
+                </Field>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="primary"
+              onClick={() => onSaveAbsenceSyncSettings(false)}
+              disabled={isSaving}
+            >
+              Save settings
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => onSaveAbsenceSyncSettings(true)}
+              disabled={isSaving}
+            >
+              Enable with defaults
+            </Button>
+          </div>
+          <p className="text-sm text-gray-500">
+            Each employee must connect both Jira and Tempo for leave to sync
+            under their own account.
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="border-gray-200">
+        <CardHeader className="pb-3">
+          <CardTitle>Tempo absence sync failures</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-gray-500">
+            Visible sync failures and retry action. Retry refreshes this table.
+          </p>
+          <div className="overflow-x-auto rounded-md border border-gray-200">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Employee</TableHead>
+                  <TableHead>Leave request ID</TableHead>
+                  <TableHead>Work date</TableHead>
+                  <TableHead>Leave type</TableHead>
+                  <TableHead>Jira issue key</TableHead>
+                  <TableHead>Error code</TableHead>
+                  <TableHead>Last error</TableHead>
+                  <TableHead>Retry count</TableHead>
+                  <TableHead>Retry</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {absenceSyncFailures.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={9}
+                      className="py-6 text-sm text-gray-500"
+                    >
+                      No Tempo absence sync failures.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  absenceSyncFailures.map((failure) => (
+                    <TableRow
+                      key={[
+                        failure.leave_request_id,
+                        failure.work_date,
+                        failure.leave_type,
+                        failure.jira_issue_key || "default",
+                        failure.error_code || "error",
+                      ].join(":")}
+                    >
+                      <TableCell>{failure.employee_name}</TableCell>
+                      <TableCell>{failure.leave_request_id}</TableCell>
+                      <TableCell>{failure.work_date}</TableCell>
+                      <TableCell>{failure.leave_type}</TableCell>
+                      <TableCell>{failure.jira_issue_key || "--"}</TableCell>
+                      <TableCell>{failure.error_code || "--"}</TableCell>
+                      <TableCell className="max-w-sm whitespace-normal break-words text-sm text-gray-700">
+                        {failure.last_error}
+                      </TableCell>
+                      <TableCell>{failure.retry_count}</TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            onRetryAbsenceSync(failure.leave_request_id)
+                          }
+                          disabled={isSaving || isAbsenceSyncRetrying}
+                        >
+                          Retry
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
 
       {!tempoOAuth?.connected ? (
         <Card>

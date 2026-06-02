@@ -6185,7 +6185,7 @@
       "label": "TempoMappingsPanel()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L6177",
+      "source_location": "L6169",
       "id": "hr_dashboard_timetrackingmodule_tempomappingspanel",
       "community": 35,
       "norm_label": "tempomappingspanel()"
@@ -6194,7 +6194,7 @@
       "label": "TempoProjectDiscoveryPanel()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L6457",
+      "source_location": "L6449",
       "id": "hr_dashboard_timetrackingmodule_tempoprojectdiscoverypanel",
       "community": 35,
       "norm_label": "tempoprojectdiscoverypanel()"
@@ -6203,7 +6203,7 @@
       "label": "TempoDiscoveryTable()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L6593",
+      "source_location": "L6585",
       "id": "hr_dashboard_timetrackingmodule_tempodiscoverytable",
       "community": 35,
       "norm_label": "tempodiscoverytable()"
@@ -6212,7 +6212,7 @@
       "label": "setFormFromTempoRow()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L6725",
+      "source_location": "L6717",
       "id": "hr_dashboard_timetrackingmodule_setformfromtemporow",
       "community": 35,
       "norm_label": "setformfromtemporow()"
@@ -6221,7 +6221,7 @@
       "label": "tempoDiscoveryValue()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L6771",
+      "source_location": "L6763",
       "id": "hr_dashboard_timetrackingmodule_tempodiscoveryvalue",
       "community": 225,
       "norm_label": "tempodiscoveryvalue()"
@@ -6230,7 +6230,7 @@
       "label": "tempoDiscoveryExternalId()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L6783",
+      "source_location": "L6775",
       "id": "hr_dashboard_timetrackingmodule_tempodiscoveryexternalid",
       "community": 225,
       "norm_label": "tempodiscoveryexternalid()"
@@ -6239,7 +6239,7 @@
       "label": "tempoDiscoveryExternalKey()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L6811",
+      "source_location": "L6803",
       "id": "hr_dashboard_timetrackingmodule_tempodiscoveryexternalkey",
       "community": 225,
       "norm_label": "tempodiscoveryexternalkey()"
@@ -6248,7 +6248,7 @@
       "label": "tempoDiscoveryRowName()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L6834",
+      "source_location": "L6826",
       "id": "hr_dashboard_timetrackingmodule_tempodiscoveryrowname",
       "community": 225,
       "norm_label": "tempodiscoveryrowname()"
@@ -6257,7 +6257,7 @@
       "label": "tempoDiscoveryRowKeyLabel()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L6862",
+      "source_location": "L6854",
       "id": "hr_dashboard_timetrackingmodule_tempodiscoveryrowkeylabel",
       "community": 225,
       "norm_label": "tempodiscoveryrowkeylabel()"
@@ -6266,7 +6266,7 @@
       "label": "tempoDiscoveryRowKey()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L6874",
+      "source_location": "L6866",
       "id": "hr_dashboard_timetrackingmodule_tempodiscoveryrowkey",
       "community": 225,
       "norm_label": "tempodiscoveryrowkey()"
@@ -6275,7 +6275,7 @@
       "label": "tempoDiscoverySuggestedProjectId()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L6882",
+      "source_location": "L6874",
       "id": "hr_dashboard_timetrackingmodule_tempodiscoverysuggestedprojectid",
       "community": 35,
       "norm_label": "tempodiscoverysuggestedprojectid()"
@@ -6284,7 +6284,7 @@
       "label": "tempoDiscoverySuggestedProjectName()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L6888",
+      "source_location": "L6880",
       "id": "hr_dashboard_timetrackingmodule_tempodiscoverysuggestedprojectname",
       "community": 35,
       "norm_label": "tempodiscoverysuggestedprojectname()"
@@ -6293,7 +6293,7 @@
       "label": "tempoDiscoveryConfidence()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L6904",
+      "source_location": "L6896",
       "id": "hr_dashboard_timetrackingmodule_tempodiscoveryconfidence",
       "community": 35,
       "norm_label": "tempodiscoveryconfidence()"
@@ -6302,7 +6302,7 @@
       "label": "tempoDiscoveryMappingStatus()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L6914",
+      "source_location": "L6906",
       "id": "hr_dashboard_timetrackingmodule_tempodiscoverymappingstatus",
       "community": 225,
       "norm_label": "tempodiscoverymappingstatus()"
@@ -6311,7 +6311,7 @@
       "label": "tempoDiscoveryMappingPayload()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L6944",
+      "source_location": "L6936",
       "id": "hr_dashboard_timetrackingmodule_tempodiscoverymappingpayload",
       "community": 225,
       "norm_label": "tempodiscoverymappingpayload()"
@@ -6320,7 +6320,7 @@
       "label": "TempoImportPanel()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L6989",
+      "source_location": "L6981",
       "id": "hr_dashboard_timetrackingmodule_tempoimportpanel",
       "community": 35,
       "norm_label": "tempoimportpanel()"
@@ -6329,7 +6329,7 @@
       "label": "TempoPreviewTable()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L7193",
+      "source_location": "L7185",
       "id": "hr_dashboard_timetrackingmodule_tempopreviewtable",
       "community": 35,
       "norm_label": "tempopreviewtable()"
@@ -6338,7 +6338,7 @@
       "label": "DocumentImportPanel()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L7288",
+      "source_location": "L7280",
       "id": "hr_dashboard_timetrackingmodule_documentimportpanel",
       "community": 35,
       "norm_label": "documentimportpanel()"
@@ -6347,7 +6347,7 @@
       "label": "TimeTrackingReportsPanel()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L7627",
+      "source_location": "L7619",
       "id": "hr_dashboard_timetrackingmodule_timetrackingreportspanel",
       "community": 148,
       "norm_label": "timetrackingreportspanel()"
@@ -6356,7 +6356,7 @@
       "label": "SourceTotals()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L7960",
+      "source_location": "L7952",
       "id": "hr_dashboard_timetrackingmodule_sourcetotals",
       "community": 35,
       "norm_label": "sourcetotals()"
@@ -6365,7 +6365,7 @@
       "label": "StatusTotals()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L7976",
+      "source_location": "L7968",
       "id": "hr_dashboard_timetrackingmodule_statustotals",
       "community": 35,
       "norm_label": "statustotals()"
@@ -6374,7 +6374,7 @@
       "label": "ReportEntriesTable()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L7990",
+      "source_location": "L7982",
       "id": "hr_dashboard_timetrackingmodule_reportentriestable",
       "community": 35,
       "norm_label": "reportentriestable()"
@@ -6383,7 +6383,7 @@
       "label": "ImportObservabilityPanel()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L8057",
+      "source_location": "L8049",
       "id": "hr_dashboard_timetrackingmodule_importobservabilitypanel",
       "community": 35,
       "norm_label": "importobservabilitypanel()"
@@ -6392,7 +6392,7 @@
       "label": "ImportBatchDetail()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L8366",
+      "source_location": "L8358",
       "id": "hr_dashboard_timetrackingmodule_importbatchdetail",
       "community": 35,
       "norm_label": "importbatchdetail()"
@@ -6401,7 +6401,7 @@
       "label": "SourceReviewFilters()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L8471",
+      "source_location": "L8463",
       "id": "hr_dashboard_timetrackingmodule_sourcereviewfilters",
       "community": 35,
       "norm_label": "sourcereviewfilters()"
@@ -6410,7 +6410,7 @@
       "label": "SourceReviewDetail()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L8577",
+      "source_location": "L8569",
       "id": "hr_dashboard_timetrackingmodule_sourcereviewdetail",
       "community": 249,
       "norm_label": "sourcereviewdetail()"
@@ -6419,7 +6419,7 @@
       "label": "SummaryCard()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L8652",
+      "source_location": "L8644",
       "id": "hr_dashboard_timetrackingmodule_summarycard",
       "community": 35,
       "norm_label": "summarycard()"
@@ -6428,7 +6428,7 @@
       "label": "WeeklySummaryPanel()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L8677",
+      "source_location": "L8669",
       "id": "hr_dashboard_timetrackingmodule_weeklysummarypanel",
       "community": 35,
       "norm_label": "weeklysummarypanel()"
@@ -6437,7 +6437,7 @@
       "label": "AllocationContextPanel()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L8858",
+      "source_location": "L8850",
       "id": "hr_dashboard_timetrackingmodule_allocationcontextpanel",
       "community": 35,
       "norm_label": "allocationcontextpanel()"
@@ -6446,7 +6446,7 @@
       "label": "Field()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L8950",
+      "source_location": "L8942",
       "id": "hr_dashboard_timetrackingmodule_field",
       "community": 35,
       "norm_label": "field()"
@@ -6455,7 +6455,7 @@
       "label": "StatusBadge()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L8959",
+      "source_location": "L8951",
       "id": "hr_dashboard_timetrackingmodule_statusbadge",
       "community": 35,
       "norm_label": "statusbadge()"
@@ -6464,7 +6464,7 @@
       "label": "SourceBadge()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L8967",
+      "source_location": "L8959",
       "id": "hr_dashboard_timetrackingmodule_sourcebadge",
       "community": 35,
       "norm_label": "sourcebadge()"
@@ -6473,7 +6473,7 @@
       "label": "Detail()",
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/TimeTrackingModule.tsx",
-      "source_location": "L8975",
+      "source_location": "L8967",
       "id": "hr_dashboard_timetrackingmodule_detail",
       "community": 35,
       "norm_label": "detail()"
@@ -9769,7 +9769,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/ProfileHistorySection.tsx",
       "source_location": "L25",
       "id": "employee_profiles_profilehistorysection_profilehistorysection",
-      "community": 57,
+      "community": 23,
       "norm_label": "profilehistorysection()"
     },
     {
@@ -9841,7 +9841,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/ProfileTechnologySection.tsx",
       "source_location": "L1",
       "id": "employee_profiles_profiletechnologysection",
-      "community": 34,
+      "community": 23,
       "norm_label": "profiletechnologysection.tsx"
     },
     {
@@ -9850,7 +9850,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/ProfileTechnologySection.tsx",
       "source_location": "L6",
       "id": "employee_profiles_profiletechnologysection_profiletechnologysectionprops",
-      "community": 34,
+      "community": 23,
       "norm_label": "profiletechnologysectionprops"
     },
     {
@@ -9859,7 +9859,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/ProfileTechnologySection.tsx",
       "source_location": "L15",
       "id": "employee_profiles_profiletechnologysection_profiletechnologysection",
-      "community": 34,
+      "community": 23,
       "norm_label": "profiletechnologysection()"
     },
     {
@@ -9868,7 +9868,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/ProfilesDetailView.tsx",
       "source_location": "L1",
       "id": "employee_profiles_profilesdetailview",
-      "community": 57,
+      "community": 23,
       "norm_label": "profilesdetailview.tsx"
     },
     {
@@ -9877,7 +9877,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/ProfilesDetailView.tsx",
       "source_location": "L27",
       "id": "employee_profiles_profilesdetailview_profilesdetailviewprops",
-      "community": 57,
+      "community": 23,
       "norm_label": "profilesdetailviewprops"
     },
     {
@@ -9886,7 +9886,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/ProfilesDetailView.tsx",
       "source_location": "L70",
       "id": "employee_profiles_profilesdetailview_introannouncementdraft",
-      "community": 57,
+      "community": 23,
       "norm_label": "introannouncementdraft"
     },
     {
@@ -9895,7 +9895,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/ProfilesDetailView.tsx",
       "source_location": "L78",
       "id": "employee_profiles_profilesdetailview_defaultintrotitle",
-      "community": 57,
+      "community": 23,
       "norm_label": "defaultintrotitle()"
     },
     {
@@ -9904,7 +9904,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/ProfilesDetailView.tsx",
       "source_location": "L87",
       "id": "employee_profiles_profilesdetailview_resolveviewerrole",
-      "community": 57,
+      "community": 23,
       "norm_label": "resolveviewerrole()"
     },
     {
@@ -9913,7 +9913,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/ProfilesDetailView.tsx",
       "source_location": "L102",
       "id": "employee_profiles_profilesdetailview_profilesdetailview",
-      "community": 57,
+      "community": 23,
       "norm_label": "profilesdetailview()"
     },
     {
@@ -10138,7 +10138,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/TechnologyTagInput.tsx",
       "source_location": "L26",
       "id": "employee_profiles_technologytaginput_technologytaginput",
-      "community": 34,
+      "community": 23,
       "norm_label": "technologytaginput()"
     },
     {
@@ -10588,7 +10588,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/atoms/ProfileSection.tsx",
       "source_location": "L1",
       "id": "atoms_profilesection",
-      "community": 108,
+      "community": 23,
       "norm_label": "profilesection.tsx"
     },
     {
@@ -10597,7 +10597,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/atoms/ProfileSection.tsx",
       "source_location": "L3",
       "id": "atoms_profilesection_profilesectionprops",
-      "community": 108,
+      "community": 23,
       "norm_label": "profilesectionprops"
     },
     {
@@ -10606,7 +10606,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/atoms/ProfileSection.tsx",
       "source_location": "L17",
       "id": "atoms_profilesection_profilesection",
-      "community": 108,
+      "community": 23,
       "norm_label": "profilesection()"
     },
     {
@@ -10615,7 +10615,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/atoms/RestrictedBlock.tsx",
       "source_location": "L1",
       "id": "atoms_restrictedblock",
-      "community": 108,
+      "community": 23,
       "norm_label": "restrictedblock.tsx"
     },
     {
@@ -10624,7 +10624,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/atoms/RestrictedBlock.tsx",
       "source_location": "L4",
       "id": "atoms_restrictedblock_restrictedblockprops",
-      "community": 108,
+      "community": 23,
       "norm_label": "restrictedblockprops"
     },
     {
@@ -10633,7 +10633,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/atoms/RestrictedBlock.tsx",
       "source_location": "L13",
       "id": "atoms_restrictedblock_restrictedblock",
-      "community": 108,
+      "community": 23,
       "norm_label": "restrictedblock()"
     },
     {
@@ -11056,7 +11056,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/index.ts",
       "source_location": "L1",
       "id": "employee_profiles_index",
-      "community": 34,
+      "community": 38,
       "norm_label": "index.ts"
     },
     {
@@ -11101,7 +11101,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/profilesModuleHelpers.ts",
       "source_location": "L54",
       "id": "employee_profiles_profilesmodulehelpers_sortcvversionsdesc",
-      "community": 38,
+      "community": 57,
       "norm_label": "sortcvversionsdesc()"
     },
     {
@@ -11191,7 +11191,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/profilesModuleLoaders.ts",
       "source_location": "L1",
       "id": "employee_profiles_profilesmoduleloaders",
-      "community": 38,
+      "community": 57,
       "norm_label": "profilesmoduleloaders.ts"
     },
     {
@@ -11200,7 +11200,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/profilesModuleLoaders.ts",
       "source_location": "L16",
       "id": "employee_profiles_profilesmoduleloaders_legacyprofilespagesnapshot",
-      "community": 38,
+      "community": 57,
       "norm_label": "legacyprofilespagesnapshot"
     },
     {
@@ -11209,7 +11209,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/profilesModuleLoaders.ts",
       "source_location": "L32",
       "id": "employee_profiles_profilesmoduleloaders_fetchlegacyprofilespagesnapshot",
-      "community": 38,
+      "community": 57,
       "norm_label": "fetchlegacyprofilespagesnapshot()"
     },
     {
@@ -11218,7 +11218,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/profilesModuleLoaders.ts",
       "source_location": "L98",
       "id": "employee_profiles_profilesmoduleloaders_profilesdropdownrefs",
-      "community": 38,
+      "community": 57,
       "norm_label": "profilesdropdownrefs"
     },
     {
@@ -11227,7 +11227,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/profilesModuleLoaders.ts",
       "source_location": "L109",
       "id": "employee_profiles_profilesmoduleloaders_fetchprofilesdropdownrefs",
-      "community": 38,
+      "community": 57,
       "norm_label": "fetchprofilesdropdownrefs()"
     },
     {
@@ -11236,7 +11236,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/profilesModuleLoaders.ts",
       "source_location": "L146",
       "id": "employee_profiles_profilesmoduleloaders_employeemodalfetchresult",
-      "community": 38,
+      "community": 57,
       "norm_label": "employeemodalfetchresult"
     },
     {
@@ -11245,7 +11245,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/profilesModuleLoaders.ts",
       "source_location": "L157",
       "id": "employee_profiles_profilesmoduleloaders_fetchemployeemodalopenpayload",
-      "community": 38,
+      "community": 57,
       "norm_label": "fetchemployeemodalopenpayload()"
     },
     {
@@ -11326,7 +11326,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/sectionPermissions.ts",
       "source_location": "L55",
       "id": "employee_profiles_sectionpermissions_getvieweraccess",
-      "community": 57,
+      "community": 23,
       "norm_label": "getvieweraccess()"
     },
     {
@@ -11416,7 +11416,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/sections/ProfileCompensationSection.tsx",
       "source_location": "L1",
       "id": "sections_profilecompensationsection",
-      "community": 108,
+      "community": 23,
       "norm_label": "profilecompensationsection.tsx"
     },
     {
@@ -11452,7 +11452,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
       "source_location": "L1",
       "id": "sections_profileemploymentsection",
-      "community": 108,
+      "community": 82,
       "norm_label": "profileemploymentsection.tsx"
     },
     {
@@ -11470,7 +11470,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/sections/ProfileEmploymentSection.tsx",
       "source_location": "L18",
       "id": "sections_profileemploymentsection_profileemploymentsection",
-      "community": 108,
+      "community": 82,
       "norm_label": "profileemploymentsection()"
     },
     {
@@ -11488,7 +11488,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/sections/ProfilePersonalSection.tsx",
       "source_location": "L13",
       "id": "sections_profilepersonalsection_profilepersonalsectionprops",
-      "community": 23,
+      "community": 108,
       "norm_label": "profilepersonalsectionprops"
     },
     {
@@ -11497,7 +11497,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/sections/ProfilePersonalSection.tsx",
       "source_location": "L23",
       "id": "sections_profilepersonalsection_formatbirthdate",
-      "community": 23,
+      "community": 108,
       "norm_label": "formatbirthdate()"
     },
     {
@@ -11506,7 +11506,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/sections/ProfilePersonalSection.tsx",
       "source_location": "L40",
       "id": "sections_profilepersonalsection_profilepersonalsection",
-      "community": 23,
+      "community": 108,
       "norm_label": "profilepersonalsection()"
     },
     {
@@ -11551,7 +11551,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/tech-icons.tsx",
       "source_location": "L1",
       "id": "employee_profiles_tech_icons",
-      "community": 34,
+      "community": 38,
       "norm_label": "tech-icons.tsx"
     },
     {
@@ -11560,7 +11560,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/tech-icons.tsx",
       "source_location": "L34",
       "id": "employee_profiles_tech_icons_techiconconfig",
-      "community": 34,
+      "community": 38,
       "norm_label": "techiconconfig"
     },
     {
@@ -11569,7 +11569,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/tech-icons.tsx",
       "source_location": "L41",
       "id": "employee_profiles_tech_icons_tech_icon_map",
-      "community": 34,
+      "community": 38,
       "norm_label": "tech_icon_map"
     },
     {
@@ -11578,7 +11578,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/tech-icons.tsx",
       "source_location": "L230",
       "id": "employee_profiles_tech_icons_default_config",
-      "community": 34,
+      "community": 38,
       "norm_label": "default_config"
     },
     {
@@ -11587,7 +11587,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/tech-icons.tsx",
       "source_location": "L237",
       "id": "employee_profiles_tech_icons_gettechiconconfig",
-      "community": 34,
+      "community": 38,
       "norm_label": "gettechiconconfig()"
     },
     {
@@ -11596,7 +11596,7 @@
       "source_file": "src/components/hr-dashboard/employee-profiles/tech-icons.tsx",
       "source_location": "L241",
       "id": "employee_profiles_tech_icons_techicon",
-      "community": 34,
+      "community": 38,
       "norm_label": "techicon()"
     },
     {
@@ -12892,7 +12892,7 @@
       "source_file": "src/components/hr-dashboard/orgchart/crossModuleNav.ts",
       "source_location": "L1",
       "id": "orgchart_crossmodulenav",
-      "community": 164,
+      "community": 38,
       "norm_label": "crossmodulenav.ts"
     },
     {
@@ -12901,7 +12901,7 @@
       "source_file": "src/components/hr-dashboard/orgchart/crossModuleNav.ts",
       "source_location": "L15",
       "id": "orgchart_crossmodulenav_safestorage",
-      "community": 164,
+      "community": 38,
       "norm_label": "safestorage()"
     },
     {
@@ -12910,7 +12910,7 @@
       "source_file": "src/components/hr-dashboard/orgchart/crossModuleNav.ts",
       "source_location": "L24",
       "id": "orgchart_crossmodulenav_requestopenemployee",
-      "community": 164,
+      "community": 38,
       "norm_label": "requestopenemployee()"
     },
     {
@@ -12919,7 +12919,7 @@
       "source_file": "src/components/hr-dashboard/orgchart/crossModuleNav.ts",
       "source_location": "L28",
       "id": "orgchart_crossmodulenav_consumeopenemployeerequest",
-      "community": 164,
+      "community": 38,
       "norm_label": "consumeopenemployeerequest()"
     },
     {
@@ -12928,7 +12928,7 @@
       "source_file": "src/components/hr-dashboard/orgchart/crossModuleNav.ts",
       "source_location": "L38",
       "id": "orgchart_crossmodulenav_requestprojectssearch",
-      "community": 164,
+      "community": 38,
       "norm_label": "requestprojectssearch()"
     },
     {
@@ -12937,7 +12937,7 @@
       "source_file": "src/components/hr-dashboard/orgchart/crossModuleNav.ts",
       "source_location": "L42",
       "id": "orgchart_crossmodulenav_consumeprojectssearchrequest",
-      "community": 164,
+      "community": 38,
       "norm_label": "consumeprojectssearchrequest()"
     },
     {
@@ -12946,7 +12946,7 @@
       "source_file": "src/components/hr-dashboard/orgchart/crossModuleNav.ts",
       "source_location": "L51",
       "id": "orgchart_crossmodulenav_requestopenproject",
-      "community": 164,
+      "community": 38,
       "norm_label": "requestopenproject()"
     },
     {
@@ -12955,7 +12955,7 @@
       "source_file": "src/components/hr-dashboard/orgchart/crossModuleNav.ts",
       "source_location": "L55",
       "id": "orgchart_crossmodulenav_consumeopenprojectrequest",
-      "community": 164,
+      "community": 38,
       "norm_label": "consumeopenprojectrequest()"
     },
     {
@@ -14224,7 +14224,7 @@
       "source_file": "src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx",
       "source_location": "L1",
       "id": "dialogs_createprojectdrawer",
-      "community": 118,
+      "community": 34,
       "norm_label": "createprojectdrawer.tsx"
     },
     {
@@ -14233,7 +14233,7 @@
       "source_file": "src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx",
       "source_location": "L39",
       "id": "dialogs_createprojectdrawer_createprojectformvalues",
-      "community": 118,
+      "community": 34,
       "norm_label": "createprojectformvalues"
     },
     {
@@ -14242,7 +14242,7 @@
       "source_file": "src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx",
       "source_location": "L52",
       "id": "dialogs_createprojectdrawer_createprojectdrawerprops",
-      "community": 118,
+      "community": 34,
       "norm_label": "createprojectdrawerprops"
     },
     {
@@ -14251,7 +14251,7 @@
       "source_file": "src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx",
       "source_location": "L58",
       "id": "dialogs_createprojectdrawer_steps",
-      "community": 118,
+      "community": 34,
       "norm_label": "steps"
     },
     {
@@ -14260,7 +14260,7 @@
       "source_file": "src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx",
       "source_location": "L67",
       "id": "dialogs_createprojectdrawer_empty",
-      "community": 118,
+      "community": 34,
       "norm_label": "empty"
     },
     {
@@ -14269,7 +14269,7 @@
       "source_file": "src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx",
       "source_location": "L81",
       "id": "dialogs_createprojectdrawer_api_status_to_ui",
-      "community": 118,
+      "community": 34,
       "norm_label": "api_status_to_ui"
     },
     {
@@ -14287,7 +14287,7 @@
       "source_file": "src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx",
       "source_location": "L106",
       "id": "dialogs_createprojectdrawer_code_stop_words",
-      "community": 118,
+      "community": 34,
       "norm_label": "code_stop_words"
     },
     {
@@ -14296,7 +14296,7 @@
       "source_file": "src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx",
       "source_location": "L116",
       "id": "dialogs_createprojectdrawer_vowels",
-      "community": 118,
+      "community": 34,
       "norm_label": "vowels"
     },
     {
@@ -14305,7 +14305,7 @@
       "source_file": "src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx",
       "source_location": "L124",
       "id": "dialogs_createprojectdrawer_splittoken",
-      "community": 118,
+      "community": 34,
       "norm_label": "splittoken()"
     },
     {
@@ -14314,7 +14314,7 @@
       "source_file": "src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx",
       "source_location": "L136",
       "id": "dialogs_createprojectdrawer_consonants",
-      "community": 118,
+      "community": 34,
       "norm_label": "consonants()"
     },
     {
@@ -14323,7 +14323,7 @@
       "source_file": "src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx",
       "source_location": "L144",
       "id": "dialogs_createprojectdrawer_squeezeword",
-      "community": 118,
+      "community": 34,
       "norm_label": "squeezeword()"
     },
     {
@@ -14332,7 +14332,7 @@
       "source_file": "src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx",
       "source_location": "L152",
       "id": "dialogs_createprojectdrawer_deriveprojectcode",
-      "community": 118,
+      "community": 34,
       "norm_label": "deriveprojectcode()"
     },
     {
@@ -14341,7 +14341,7 @@
       "source_file": "src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx",
       "source_location": "L208",
       "id": "dialogs_createprojectdrawer_createprojectdrawer",
-      "community": 118,
+      "community": 34,
       "norm_label": "createprojectdrawer()"
     },
     {
@@ -14350,7 +14350,7 @@
       "source_file": "src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx",
       "source_location": "L844",
       "id": "dialogs_createprojectdrawer_fieldwrapprops",
-      "community": 118,
+      "community": 34,
       "norm_label": "fieldwrapprops"
     },
     {
@@ -14359,7 +14359,7 @@
       "source_file": "src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx",
       "source_location": "L852",
       "id": "dialogs_createprojectdrawer_fieldwrap",
-      "community": 118,
+      "community": 34,
       "norm_label": "fieldwrap()"
     },
     {
@@ -14368,7 +14368,7 @@
       "source_file": "src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx",
       "source_location": "L869",
       "id": "dialogs_createprojectdrawer_reviewrowprops",
-      "community": 118,
+      "community": 34,
       "norm_label": "reviewrowprops"
     },
     {
@@ -14377,7 +14377,7 @@
       "source_file": "src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx",
       "source_location": "L875",
       "id": "dialogs_createprojectdrawer_reviewrow",
-      "community": 118,
+      "community": 34,
       "norm_label": "reviewrow()"
     },
     {
@@ -14638,7 +14638,7 @@
       "source_file": "src/components/hr-dashboard/projects/dialogs/StatusEditorDialog.tsx",
       "source_location": "L32",
       "id": "dialogs_statuseditordialog_statuseditordialogprops",
-      "community": 118,
+      "community": 78,
       "norm_label": "statuseditordialogprops"
     },
     {
@@ -15160,7 +15160,7 @@
       "source_file": "src/components/hr-dashboard/projects/types.ts",
       "source_location": "L1",
       "id": "projects_types",
-      "community": 184,
+      "community": 118,
       "norm_label": "types.ts"
     },
     {
@@ -20416,7 +20416,7 @@
       "source_file": "src/components/hr-dashboard/ui/slider.tsx",
       "source_location": "L1",
       "id": "ui_slider",
-      "community": 28,
+      "community": 118,
       "norm_label": "slider.tsx"
     },
     {
@@ -20425,7 +20425,7 @@
       "source_file": "src/components/hr-dashboard/ui/slider.tsx",
       "source_location": "L8",
       "id": "ui_slider_slider",
-      "community": 28,
+      "community": 118,
       "norm_label": "slider()"
     },
     {
@@ -20740,7 +20740,7 @@
       "source_file": "src/components/hr-dashboard/ui/utils.ts",
       "source_location": "L1",
       "id": "ui_utils",
-      "community": 28,
+      "community": 118,
       "norm_label": "utils.ts"
     },
     {
@@ -23395,7 +23395,7 @@
       "source_file": "src/lib/api/helpers/httpClient.ts",
       "source_location": "L176",
       "id": "helpers_httpclient_buildquerystring",
-      "community": 44,
+      "community": 152,
       "norm_label": "buildquerystring()"
     },
     {
@@ -23674,7 +23674,7 @@
       "source_file": "src/lib/api/managers.ts",
       "source_location": "L1",
       "id": "api_managers",
-      "community": 38,
+      "community": 57,
       "norm_label": "managers.ts"
     },
     {
@@ -23908,7 +23908,7 @@
       "source_file": "src/lib/api/modules/documents/index.ts",
       "source_location": "L47",
       "id": "documents_index_apidocumentrecord",
-      "community": 25,
+      "community": 13,
       "norm_label": "apidocumentrecord"
     },
     {
@@ -24124,7 +24124,7 @@
       "source_file": "src/lib/api/modules/employees/hrProfileBundles.ts",
       "source_location": "L23",
       "id": "employees_hrprofilebundles_employeeprofilemodalbundleapplied",
-      "community": 38,
+      "community": 57,
       "norm_label": "employeeprofilemodalbundleapplied"
     },
     {
@@ -24304,7 +24304,7 @@
       "source_file": "src/lib/api/modules/employees/index.ts",
       "source_location": "L37",
       "id": "employees_index_employeeprofilechangehistoryitem",
-      "community": 57,
+      "community": 23,
       "norm_label": "employeeprofilechangehistoryitem"
     },
     {
@@ -24547,7 +24547,7 @@
       "source_file": "src/lib/api/modules/managers/index.ts",
       "source_location": "L4",
       "id": "managers_index_manager",
-      "community": 38,
+      "community": 57,
       "norm_label": "manager"
     },
     {
@@ -24565,7 +24565,7 @@
       "source_file": "src/lib/api/modules/managers/index.ts",
       "source_location": "L19",
       "id": "managers_index_managersapi",
-      "community": 38,
+      "community": 57,
       "norm_label": "managersapi"
     },
     {
@@ -24817,7 +24817,7 @@
       "source_file": "src/lib/api/modules/technology-tags/index.ts",
       "source_location": "L1",
       "id": "technology_tags_index",
-      "community": 34,
+      "community": 57,
       "norm_label": "index.ts"
     },
     {
@@ -24826,7 +24826,7 @@
       "source_file": "src/lib/api/modules/technology-tags/index.ts",
       "source_location": "L8",
       "id": "technology_tags_index_error_messages",
-      "community": 34,
+      "community": 57,
       "norm_label": "error_messages"
     },
     {
@@ -24835,7 +24835,7 @@
       "source_file": "src/lib/api/modules/technology-tags/index.ts",
       "source_location": "L21",
       "id": "technology_tags_index_default_technology_tags",
-      "community": 34,
+      "community": 57,
       "norm_label": "default_technology_tags"
     },
     {
@@ -24844,7 +24844,7 @@
       "source_file": "src/lib/api/modules/technology-tags/index.ts",
       "source_location": "L56",
       "id": "technology_tags_index_getalltags",
-      "community": 34,
+      "community": 57,
       "norm_label": "getalltags()"
     },
     {
@@ -24853,7 +24853,7 @@
       "source_file": "src/lib/api/modules/technology-tags/index.ts",
       "source_location": "L81",
       "id": "technology_tags_index_updateemployeetags",
-      "community": 34,
+      "community": 57,
       "norm_label": "updateemployeetags()"
     },
     {
@@ -24862,7 +24862,7 @@
       "source_file": "src/lib/api/modules/technology-tags/index.ts",
       "source_location": "L92",
       "id": "technology_tags_index_technologytagsapi",
-      "community": 34,
+      "community": 57,
       "norm_label": "technologytagsapi"
     },
     {
@@ -25501,7 +25501,7 @@
       "source_file": "src/lib/api/permissions.ts",
       "source_location": "L123",
       "id": "api_permissions_getuserpermissions",
-      "community": 38,
+      "community": 57,
       "norm_label": "getuserpermissions()"
     },
     {
@@ -29353,7 +29353,7 @@
       "source_file": "src/types/technology-tags.ts",
       "source_location": "L1",
       "id": "types_technology_tags",
-      "community": 34,
+      "community": 23,
       "norm_label": "technology-tags.ts"
     },
     {
@@ -29362,7 +29362,7 @@
       "source_file": "src/types/technology-tags.ts",
       "source_location": "L1",
       "id": "types_technology_tags_technologytag",
-      "community": 34,
+      "community": 23,
       "norm_label": "technologytag"
     },
     {
@@ -36219,7 +36219,7 @@
       "file_type": "code",
       "source_file": "src/types/technology-tags.ts",
       "source_location": "L1",
-      "community": 34,
+      "community": 23,
       "norm_label": "technology-tags.ts",
       "id": "src_types_technology_tags_ts"
     },
@@ -36912,7 +36912,7 @@
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/ui/slider.tsx",
       "source_location": "L1",
-      "community": 28,
+      "community": 118,
       "norm_label": "slider.tsx",
       "id": "src_components_hr_dashboard_ui_slider_tsx"
     },
@@ -37893,7 +37893,7 @@
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/projects/dialogs/CreateProjectDrawer.tsx",
       "source_location": "L1",
-      "community": 118,
+      "community": 34,
       "norm_label": "createprojectdrawer.tsx",
       "id": "src_components_hr_dashboard_projects_dialogs_createprojectdrawer_tsx"
     },
@@ -37902,7 +37902,7 @@
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/employee-profiles/ProfileTechnologySection.tsx",
       "source_location": "L1",
-      "community": 34,
+      "community": 23,
       "norm_label": "profiletechnologysection.tsx",
       "id": "src_components_hr_dashboard_employee_profiles_profiletechnologysection_tsx"
     },
@@ -38010,7 +38010,7 @@
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/employee-profiles/tech-icons.tsx",
       "source_location": "L1",
-      "community": 34,
+      "community": 38,
       "norm_label": "tech-icons.tsx",
       "id": "src_components_hr_dashboard_employee_profiles_tech_icons_tsx"
     },
@@ -38118,7 +38118,7 @@
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/employee-profiles/ProfilesDetailView.tsx",
       "source_location": "L1",
-      "community": 57,
+      "community": 23,
       "norm_label": "profilesdetailview.tsx",
       "id": "src_components_hr_dashboard_employee_profiles_profilesdetailview_tsx"
     },
@@ -38127,7 +38127,7 @@
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/employee-profiles/profilesModuleLoaders.ts",
       "source_location": "L1",
-      "community": 38,
+      "community": 57,
       "norm_label": "profilesmoduleloaders.ts",
       "id": "src_components_hr_dashboard_employee_profiles_profilesmoduleloaders_ts"
     },
@@ -38181,7 +38181,7 @@
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/employee-profiles/sections/ProfilePersonalSection.tsx",
       "source_location": "L1",
-      "community": 23,
+      "community": 108,
       "norm_label": "profilepersonalsection.tsx",
       "id": "src_components_hr_dashboard_employee_profiles_sections_profilepersonalsection_tsx"
     },
@@ -38199,7 +38199,7 @@
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/employee-profiles/sections/index.ts",
       "source_location": "L1",
-      "community": 57,
+      "community": 23,
       "norm_label": "index.ts",
       "id": "src_components_hr_dashboard_employee_profiles_sections_index_ts"
     },
@@ -38262,7 +38262,7 @@
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/employee-profiles/atoms/RestrictedBlock.tsx",
       "source_location": "L1",
-      "community": 108,
+      "community": 23,
       "norm_label": "restrictedblock.tsx",
       "id": "src_components_hr_dashboard_employee_profiles_atoms_restrictedblock_tsx"
     },
@@ -38298,7 +38298,7 @@
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/employee-profiles/atoms/ProfileSection.tsx",
       "source_location": "L1",
-      "community": 108,
+      "community": 23,
       "norm_label": "profilesection.tsx",
       "id": "src_components_hr_dashboard_employee_profiles_atoms_profilesection_tsx"
     },
@@ -38487,7 +38487,7 @@
       "file_type": "code",
       "source_file": "src/components/hr-dashboard/orgchart/crossModuleNav.ts",
       "source_location": "L1",
-      "community": 164,
+      "community": 38,
       "norm_label": "crossmodulenav.ts",
       "id": "src_components_hr_dashboard_orgchart_crossmodulenav_ts"
     },
@@ -38883,7 +38883,7 @@
       "file_type": "code",
       "source_file": "src/lib/api/managers.ts",
       "source_location": "L1",
-      "community": 38,
+      "community": 57,
       "norm_label": "managers.ts",
       "id": "src_lib_api_managers_ts"
     },
@@ -39144,7 +39144,7 @@
       "file_type": "code",
       "source_file": "src/lib/api/modules/technology-tags/index.ts",
       "source_location": "L1",
-      "community": 34,
+      "community": 57,
       "norm_label": "index.ts",
       "id": "src_lib_api_modules_technology_tags_index_ts"
     },
@@ -41328,7 +41328,7 @@
       "label": "technology-tags API module",
       "file_type": "code",
       "path": "src/lib/api/modules/technology-tags/index.ts",
-      "community": 34,
+      "community": 23,
       "norm_label": "technology-tags api module",
       "id": "technology_tags_api_index"
     },
@@ -54793,9 +54793,9 @@
       "source_file": "src/components/hr-dashboard/OnboardingModule.tsx",
       "source_location": "L5",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "hr_dashboard_onboardingmodule",
-      "target": "hr_dashboard_datepicker"
+      "target": "hr_dashboard_datepicker",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -55292,9 +55292,9 @@
       "source_file": "src/components/hr-dashboard/OnboardingModule.tsx",
       "source_location": "L5",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "hr_dashboard_onboardingmodule",
-      "target": "hr_dashboard_datepicker_datepicker"
+      "target": "hr_dashboard_datepicker_datepicker",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -64923,9 +64923,9 @@
       "source_file": "src/components/hr-dashboard/VacationsModule.tsx",
       "source_location": "L161",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "hr_dashboard_vacationsmodule",
-      "target": "hr_dashboard_vacationsmodule_tempo_sync_status_classes"
+      "target": "hr_dashboard_vacationsmodule_tempo_sync_status_classes",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -64933,9 +64933,9 @@
       "source_file": "src/components/hr-dashboard/VacationsModule.tsx",
       "source_location": "L152",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "hr_dashboard_vacationsmodule",
-      "target": "hr_dashboard_vacationsmodule_tempo_sync_status_labels"
+      "target": "hr_dashboard_vacationsmodule_tempo_sync_status_labels",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -64943,9 +64943,9 @@
       "source_file": "src/components/hr-dashboard/VacationsModule.tsx",
       "source_location": "L170",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "hr_dashboard_vacationsmodule",
-      "target": "hr_dashboard_vacationsmodule_temposyncbadge"
+      "target": "hr_dashboard_vacationsmodule_temposyncbadge",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -65117,9 +65117,9 @@
       "source_file": "src/components/hr-dashboard/VacationsModule.tsx",
       "source_location": "L57",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "hr_dashboard_vacationsmodule",
-      "target": "types_vacations_temposyncstatus"
+      "target": "types_vacations_temposyncstatus",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
