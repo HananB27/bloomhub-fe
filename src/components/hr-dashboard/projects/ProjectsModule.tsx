@@ -131,6 +131,10 @@ export function ProjectsModule({
 
   const handleRetry = useCallback(() => setReloadKey((k) => k + 1), []);
 
+  useEffect(() => {
+    if (initialProjectId) setActiveId(initialProjectId);
+  }, [initialProjectId]);
+
   const activeProject = useMemo(
     () => (activeId ? (projects.find((p) => p.id === activeId) ?? null) : null),
     [activeId, projects]
@@ -192,8 +196,8 @@ export function ProjectsModule({
         case "share": {
           const url =
             typeof window !== "undefined"
-              ? `${window.location.origin}${window.location.pathname}?id=${project.id}`
-              : project.id;
+              ? `${window.location.origin}/projects?id=${encodeURIComponent(project.id)}`
+              : `/projects?id=${encodeURIComponent(project.id)}`;
           if (typeof navigator !== "undefined" && navigator.clipboard) {
             navigator.clipboard.writeText(url).catch(() => {});
           }

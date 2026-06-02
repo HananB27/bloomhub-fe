@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Download, UserPlus, PlusCircle } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -19,7 +20,6 @@ import { StatBadge, StatCard } from "./StatCard";
 import { LogBonusDialog } from "./LogBonusDialog";
 import { BonusIncentivesTab } from "./BonusIncentivesTab";
 import { SalaryBandsTab } from "./SalaryBandsTab";
-import { requestOpenEmployee } from "../orgchart/crossModuleNav";
 import { computeSalaryBands, toLegacyBands } from "./salaryBands";
 import { exportCompensationCsv } from "./exportCompensationCsv";
 import "./compensation.css";
@@ -56,6 +56,7 @@ interface CompensationModuleProps {
 export function CompensationModule({
   onNavigate,
 }: CompensationModuleProps = {}) {
+  const router = useRouter();
   const [overview, setOverview] = useState<CompensationOverview | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,10 +70,9 @@ export function CompensationModule({
 
   const openEmployee = useCallback(
     (employeeId: number) => {
-      requestOpenEmployee(employeeId);
-      onNavigate?.("profiles");
+      router.push(`/employee/${employeeId}`);
     },
-    [onNavigate]
+    [router]
   );
 
   useEffect(() => {

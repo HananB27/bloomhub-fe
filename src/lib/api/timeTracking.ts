@@ -11,6 +11,34 @@ import { fetchWithAuthRetry } from "./refresh";
 import { getAccessToken } from "./tokens";
 
 const base = `${API_BASE_URL}/api`;
+const TEMPO_AUTHORIZE_PATH = "/oauth/authorize/";
+const TEMPO_AUTHORIZE_REDIRECT_PATH = "/oauth/authorize/redirect/";
+
+function normalizeTempoAuthorizeUrl(authorizeUrl: string): string {
+  try {
+    const url = new URL(authorizeUrl);
+    const normalizedPath = url.pathname.endsWith("/")
+      ? url.pathname
+      : `${url.pathname}/`;
+
+    if (
+      normalizedPath === TEMPO_AUTHORIZE_PATH ||
+      normalizedPath === TEMPO_AUTHORIZE_REDIRECT_PATH
+    ) {
+      url.protocol = "https:";
+      url.host = "api.tempo.io";
+      url.pathname =
+        normalizedPath === TEMPO_AUTHORIZE_REDIRECT_PATH
+          ? "/oauth/authorize/redirect"
+          : TEMPO_AUTHORIZE_PATH;
+      return url.toString();
+    }
+  } catch {
+    // Fall through and let the browser/backend surface malformed URLs.
+  }
+
+  return authorizeUrl;
+}
 
 export type TimeEntrySourceType =
   | "manual"
@@ -299,6 +327,39 @@ export interface JiraSettingsPayload {
   enabled?: boolean;
 }
 
+export interface JiraOAuthStatus {
+  connected: boolean;
+  jira_account_id: string | null;
+  jira_email: string | null;
+  jira_display_name: string | null;
+  cloud_id: string | null;
+  site_url: string | null;
+  connected_at: string | null;
+  token_expires_at: string | null;
+  scopes: string[];
+}
+
+export interface JiraOAuthAuthorize {
+  authorize_url: string;
+  state: string;
+}
+
+export interface TempoOAuthStatus {
+  connected: boolean;
+  tempo_account_id: string | null;
+  tempo_email: string | null;
+  tempo_display_name: string | null;
+  site_url: string | null;
+  connected_at: string | null;
+  token_expires_at: string | null;
+  scopes: string[];
+}
+
+export interface TempoOAuthAuthorize {
+  authorize_url: string;
+  state: string;
+}
+
 export interface JiraUserMapping {
   id: number;
   jira_account_id: string;
@@ -367,9 +428,9 @@ export type JiraMappingPayload =
     };
 
 export interface JiraProjectDiscoveryPayload {
-  base_url?: string;
-  auth_email?: string;
-  api_token?: string;
+  query?: string;
+  employee_id?: number;
+  project_id?: number;
   date_from?: string;
   date_to?: string;
   limit?: number;
@@ -529,6 +590,37 @@ export interface TempoSettingsPayload {
   base_url?: string;
   api_token?: string;
   enabled?: boolean;
+}
+
+export interface TempoAbsenceSyncSettings {
+  enabled: boolean;
+  default_jira_issue_key: string | null;
+  daily_hours: string;
+  default_start_time: string;
+  leave_type_issue_keys: Record<string, string>;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface TempoAbsenceSyncSettingsPayload {
+  enabled?: boolean;
+  default_jira_issue_key?: string | null;
+  daily_hours?: string;
+  default_start_time?: string;
+  leave_type_issue_keys?: Record<string, string>;
+}
+
+export interface TempoAbsenceSyncFailure {
+  employee_name: string;
+  leave_request_id: number;
+  work_date: string;
+  leave_type: string;
+  jira_issue_key: string | null;
+  error_code: string;
+  last_error: string;
+  retry_count: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface TempoUserMapping {
@@ -1100,6 +1192,46 @@ export const timeTrackingApi = {
     );
   },
 
+  async getJiraOAuthStatus(): Promise<JiraOAuthStatus> {
+    return get<JiraOAuthStatus>(
+      `${base}/time-integrations/jira/oauth/status/`,
+      "Failed to load Jira OAuth status"
+    );
+  },
+
+  async startJiraOAuth(): Promise<JiraOAuthAuthorize> {
+    return get<JiraOAuthAuthorize>(
+      `${base}/time-integrations/jira/oauth/authorize/`,
+      "Failed to start Jira OAuth"
+    );
+  },
+
+  async completeJiraOAuth(
+    code: string,
+    state: string
+  ): Promise<JiraOAuthStatus> {
+    return post<JiraOAuthStatus>(
+      `${base}/time-integrations/jira/oauth/callback/`,
+      { code, state },
+      "Failed to complete Jira OAuth"
+    );
+  },
+
+  async disconnectJira(): Promise<void> {
+    return del(
+      `${base}/time-integrations/jira/oauth/connection/`,
+      "Failed to disconnect Jira"
+    );
+  },
+
+  async syncJiraMappings(): Promise<JiraMappings> {
+    return post<JiraMappings>(
+      `${base}/time-integrations/jira/sync/`,
+      {},
+      "Failed to sync Jira data"
+    );
+  },
+
   async getJiraMappings(): Promise<JiraMappings> {
     return get<JiraMappings>(
       `${base}/time-integrations/jira/mappings/`,
@@ -1163,6 +1295,66 @@ export const timeTrackingApi = {
     );
   },
 
+  async getTempoOAuthStatus(): Promise<TempoOAuthStatus> {
+    return get<TempoOAuthStatus>(
+      `${base}/time-integrations/tempo/oauth/status/`,
+      "Failed to load Tempo OAuth status"
+    );
+  },
+
+  async startTempoOAuth(params?: {
+    jira_url?: string;
+    redirect_uri?: string;
+  }): Promise<TempoOAuthAuthorize> {
+    const qs = buildQueryString({
+      jira_url: params?.jira_url,
+      redirect_uri: params?.redirect_uri,
+    });
+    const response = await get<TempoOAuthAuthorize>(
+      `${base}/time-integrations/tempo/oauth/authorize/${qs}`,
+      "Failed to start Tempo OAuth"
+    );
+    return {
+      ...response,
+      authorize_url: normalizeTempoAuthorizeUrl(response.authorize_url),
+    };
+  },
+
+  async completeTempoOAuth(
+    code: string,
+    state: string,
+    redirectUri?: string
+  ): Promise<TempoOAuthStatus> {
+    return post<TempoOAuthStatus>(
+      `${base}/time-integrations/tempo/oauth/callback/`,
+      { code, state, redirect_uri: redirectUri },
+      "Failed to complete Tempo OAuth"
+    );
+  },
+
+  async disconnectTempo(): Promise<void> {
+    return del(
+      `${base}/time-integrations/tempo/oauth/connection/`,
+      "Failed to disconnect Tempo"
+    );
+  },
+
+  async syncTempoMappings(): Promise<TempoMappings> {
+    return post<TempoMappings>(
+      `${base}/time-integrations/tempo/sync/`,
+      {},
+      "Failed to sync Tempo data"
+    );
+  },
+
+  async syncTempo(payload: Record<string, never> = {}): Promise<unknown> {
+    return post<unknown>(
+      `${base}/time-integrations/tempo/sync/`,
+      payload,
+      "Failed to sync Tempo data"
+    );
+  },
+
   async getTempoSettings(): Promise<TempoSettings> {
     return get<TempoSettings>(
       `${base}/time-integrations/tempo/settings/`,
@@ -1220,6 +1412,38 @@ export const timeTrackingApi = {
       `${base}/time-integrations/tempo/mappings/`,
       payload,
       "Failed to update Tempo mapping"
+    );
+  },
+
+  async getTempoAbsenceSyncSettings(): Promise<TempoAbsenceSyncSettings> {
+    return get<TempoAbsenceSyncSettings>(
+      `${base}/time-integrations/tempo/absence-sync/settings/`,
+      "Failed to load Tempo absence sync settings"
+    );
+  },
+
+  async updateTempoAbsenceSyncSettings(
+    payload: TempoAbsenceSyncSettingsPayload
+  ): Promise<TempoAbsenceSyncSettings> {
+    return patch<TempoAbsenceSyncSettings>(
+      `${base}/time-integrations/tempo/absence-sync/settings/`,
+      payload,
+      "Failed to save Tempo absence sync settings"
+    );
+  },
+
+  async getTempoAbsenceSyncFailures(): Promise<TempoAbsenceSyncFailure[]> {
+    return get<TempoAbsenceSyncFailure[]>(
+      `${base}/time-integrations/tempo/absence-sync/failures/`,
+      "Failed to load Tempo absence sync failures"
+    );
+  },
+
+  async retryTempoAbsenceSync(leaveRequestId: number): Promise<unknown> {
+    return post<unknown>(
+      `${base}/time-integrations/tempo/absence-sync/${leaveRequestId}/retry/`,
+      {},
+      "Failed to retry Tempo absence sync"
     );
   },
 

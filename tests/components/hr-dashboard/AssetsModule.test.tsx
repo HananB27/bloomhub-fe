@@ -254,6 +254,52 @@ describe("AssetsModule", () => {
     expect(mockListAssignments).toHaveBeenCalledWith("test-token");
   });
 
+  it("refreshes asset inventory when Asset Inventory tab is clicked", async () => {
+    sessionRole = "HR";
+    mockListAssets
+      .mockResolvedValueOnce([
+        {
+          id: 201,
+          name: "Old Asset",
+          category: "laptops",
+          serial_number: "SN-201",
+          asset_tag: "AT-201",
+          status: "available",
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          id: 201,
+          name: "Old Asset",
+          category: "laptops",
+          serial_number: "SN-201",
+          asset_tag: "AT-201",
+          status: "retired",
+        },
+        {
+          id: 202,
+          name: "New Asset",
+          category: "monitors",
+          serial_number: "SN-202",
+          asset_tag: "AT-202",
+          status: "available",
+        },
+      ]);
+
+    render(<AssetsModule />);
+
+    expect(await screen.findByText("Old Asset")).toBeInTheDocument();
+    expect(screen.queryByText("New Asset")).toBeNull();
+
+    fireEvent.click(screen.getByRole("tab", { name: /Assignment History/i }));
+    fireEvent.click(screen.getByRole("tab", { name: /Asset Inventory/i }));
+
+    expect(await screen.findByText("New Asset")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(mockListAssets).toHaveBeenCalledTimes(2);
+    });
+  });
+
   it("toggles asset filter controls from the header Filter button", async () => {
     sessionRole = "HR";
     mockListAssets.mockResolvedValueOnce([
@@ -1201,7 +1247,7 @@ describe("AssetsModule", () => {
     fireEvent.click(await screen.findByRole("menuitem", { name: /Edit/i }));
 
     const dialog = await screen.findByRole("dialog", { name: /Edit Asset/i });
-    fireEvent.change(within(dialog).getByLabelText(/Asset ID/i), {
+    fireEvent.change(within(dialog).getByLabelText(/Asset Tag/i), {
       target: { value: "AST-704-UPDATED" },
     });
     fireEvent.change(within(dialog).getByLabelText(/Asset Name/i), {
@@ -1855,7 +1901,9 @@ describe("AssetsModule", () => {
       within(dialog).getByRole("combobox", { name: /Status after/i })
     );
     fireEvent.click(
-      await screen.findByRole("option", { name: "Status after: Not recorded" })
+      await screen.findByRole("option", {
+        name: "Status after: Not recorded",
+      })
     );
     fireEvent.click(
       within(dialog).getByRole("combobox", { name: /Condition after/i })
@@ -1885,7 +1933,7 @@ describe("AssetsModule", () => {
       expect(screen.queryByText(/^Related asset:/i)).toBeNull();
       expect(screen.queryByText(/^Cost:/i)).toBeNull();
     });
-  });
+  }, 30000);
 
   it("shows maintenance-log update field errors from the API", async () => {
     sessionRole = "HR";

@@ -51,10 +51,16 @@ const OPEN_ANNOUNCEMENT_EVENT = "bloomhub:open-announcement";
 
 interface HRDashboardAppProps {
   initialAnnouncementId?: number;
+  initialEmployeeId?: number;
+  initialModule?: HrModuleId;
+  initialProjectId?: string | null;
 }
 
 export default function HRDashboardApp({
   initialAnnouncementId,
+  initialEmployeeId,
+  initialModule,
+  initialProjectId,
 }: HRDashboardAppProps = {}) {
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
@@ -67,6 +73,8 @@ export default function HRDashboardApp({
 
   const router = useRouter();
   const openAssistant = searchParams.get("assistant") === "1";
+  const queryProjectId = searchParams.get("id");
+  const queryModule = searchParams.get("module");
 
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 0);
@@ -126,12 +134,16 @@ export default function HRDashboardApp({
     }
   }, [session]);
 
-  const [activeModule, setActiveModule] = useState<HrModuleId>(() =>
-    initialAnnouncementId ? "announcements" : "dashboard"
-  );
+  const [activeModule, setActiveModule] = useState<HrModuleId>(() => {
+    if (initialModule) return initialModule;
+    if (queryModule === "projects" && queryProjectId) return "projects";
+    if (initialEmployeeId != null) return "profiles";
+    if (initialAnnouncementId) return "announcements";
+    return "dashboard";
+  });
   const openedInitialAnnouncementRef = useRef(false);
   const [pendingEmployeeId, setPendingEmployeeId] = useState<number | null>(
-    null
+    initialEmployeeId ?? null
   );
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -188,6 +200,13 @@ export default function HRDashboardApp({
     setActiveModule(moduleId as HrModuleId);
     setIsSearchOpen(false);
     setSearchQuery("");
+    setPendingEmployeeId(null);
+    if (
+      typeof window !== "undefined" &&
+      window.location.pathname.startsWith("/employee/")
+    ) {
+      window.history.replaceState(null, "", "/");
+    }
   };
 
   useEffect(() => {
@@ -326,11 +345,21 @@ export default function HRDashboardApp({
               activeModule={activeModule}
               defaultOpen={openAssistant}
               onModuleNavigate={(moduleId, entityId) => {
+                if (moduleId === "profiles" && entityId != null) {
+                  setActiveModule("profiles");
+                  setPendingEmployeeId(entityId);
+                  if (typeof window !== "undefined") {
+                    window.history.pushState(null, "", `/employee/${entityId}`);
+                  }
+                  return;
+                }
                 setActiveModule(moduleId);
-                if (moduleId === "profiles") {
-                  setPendingEmployeeId(entityId ?? null);
-                } else {
-                  setPendingEmployeeId(null);
+                setPendingEmployeeId(null);
+                if (
+                  typeof window !== "undefined" &&
+                  window.location.pathname.startsWith("/employee/")
+                ) {
+                  window.history.replaceState(null, "", "/");
                 }
               }}
             />
@@ -674,6 +703,7 @@ export default function HRDashboardApp({
               addNotification={addNotification}
               onNavigate={(moduleId) => setActiveModule(moduleId as HrModuleId)}
               initialEmployeeId={pendingEmployeeId}
+              initialProjectId={initialProjectId ?? queryProjectId}
             />
           </div>
         </div>

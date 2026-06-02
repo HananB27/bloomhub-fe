@@ -4,14 +4,20 @@ import { fetchUserProfiles } from "@/lib/api/reviews";
 import {
   createSurvey,
   fetchPulseSummary,
+  fetchSuggestions,
   fetchSurveyAnalytics,
   fetchSurveyIndividualResponses,
   fetchSurveys,
+  recallSurvey,
   submitPulseCheck,
+  submitSuggestion,
   submitSurveyResponse,
+  updateSuggestionStatus,
   updateSurvey,
   type PulseCategory,
   type PulseSummary,
+  type Suggestion as ApiSuggestion,
+  type SuggestionStatus as ApiSuggestionStatus,
   type Survey as ApiSurvey,
   type SurveyAnalytics,
   type SurveyIndividualResponsesPayload,
@@ -47,12 +53,17 @@ import {
   TableRow,
 } from "./ui/table";
 import { Badge } from "./ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import { QuickActionButton } from "./QuickActionButton";
 import { Progress } from "./ui/progress";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Separator } from "./ui/separator";
 import { Switch } from "./ui/switch";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Checkbox } from "./ui/checkbox";
 import {
   LineChart,
@@ -284,7 +295,65 @@ export function FeedbackModule() {
     title: "",
     description: "",
     category: "hr" as SuggestionCategory,
+    anonymous: false,
   });
+  const [suggestionSubmitting, setSuggestionSubmitting] = useState(false);
+  const [suggestionFeedback, setSuggestionFeedback] = useState<string | null>(
+    null
+  );
+  const [suggestionCategoryFilter, setSuggestionCategoryFilter] = useState<
+    "all" | SuggestionCategory
+  >("all");
+
+  // Map API <-> FE-local suggestion status values.
+  const apiToLocalSuggestionStatus = (
+    s: ApiSuggestionStatus
+  ): SuggestionStatus => {
+    switch (s) {
+      case "under_review":
+        return "in_review";
+      case "implemented":
+        return "implemented";
+      case "declined":
+        return "rejected";
+      default:
+        return "open"; // covers "new" and "planned"
+    }
+  };
+  const localToApiSuggestionStatus = (
+    s: SuggestionStatus
+  ): ApiSuggestionStatus => {
+    switch (s) {
+      case "in_review":
+        return "under_review";
+      case "implemented":
+        return "implemented";
+      case "rejected":
+        return "declined";
+      default:
+        return "new";
+    }
+  };
+  const fromApiSuggestion = (s: ApiSuggestion): Suggestion => {
+    const category: SuggestionCategory =
+      s.category === "tech" || s.category === "office" ? s.category : "hr";
+    // The submit form packs "title\n\ndescription" into a single `text`
+    // field on the BE; recover the title/description split for display.
+    const [titlePart, ...rest] = (s.text || "").split("\n\n");
+    const description = rest.join("\n\n").trim();
+    const title = description ? titlePart.trim() : "";
+    return {
+      id: s.id,
+      title,
+      description: description || titlePart,
+      category,
+      status: apiToLocalSuggestionStatus(s.status),
+      submittedBy: s.employee_name,
+      submittedDate: (s.created_at || "").split("T")[0] ?? "",
+      votes: 0,
+      comments: 0,
+    };
+  };
 
   // Pulse Check State (BHB-452)
   const [pulseRatings, setPulseRatings] = useState({
@@ -569,16 +638,19 @@ export function FeedbackModule() {
       fetchSurveys(token).catch(() => [] as ApiSurvey[]),
       fetchUserProfiles(token).catch(() => []),
       fetchPulseSummary(7, token).catch(() => null),
-    ]).then(([mine, all, users, summary]) => {
+      fetchSuggestions(token).catch(() => [] as ApiSuggestion[]),
+    ]).then(([mine, all, users, summary, sugs]) => {
       if (cancelled) return;
       setSurveys(mine.map(fromApiSurvey));
       setAvailableSurveys(all.map(fromApiSurvey));
       setOrgUsers(users);
       setPulseSummary(summary);
+      setSuggestions(sugs.map(fromApiSuggestion));
     });
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fetch analytics when the selected survey or filters change.
@@ -693,29 +765,64 @@ export function FeedbackModule() {
     });
   };
 
-  const submitSuggestion = () => {
+  const handleSubmitSuggestion = async () => {
     if (!newSuggestion.title.trim() || !newSuggestion.description.trim())
       return;
+    const token = getAccessToken();
+    if (!token) {
+      setSuggestionFeedback("You need to be logged in to submit.");
+      return;
+    }
+    setSuggestionSubmitting(true);
+    setSuggestionFeedback(null);
+    try {
+      const text = `${newSuggestion.title.trim()}\n\n${newSuggestion.description.trim()}`;
+      const created = await submitSuggestion(
+        {
+          category: newSuggestion.category,
+          text,
+          is_anonymous: newSuggestion.anonymous,
+        },
+        token
+      );
+      setSuggestions((prev) => [fromApiSuggestion(created), ...prev]);
+      setSuggestionFeedback("Thanks — your suggestion was submitted.");
+      setNewSuggestion({
+        title: "",
+        description: "",
+        category: "hr",
+        anonymous: false,
+      });
+    } catch (err) {
+      const msg =
+        err instanceof Error ? err.message : "Failed to submit suggestion.";
+      setSuggestionFeedback(msg);
+    } finally {
+      setSuggestionSubmitting(false);
+    }
+  };
 
-    const suggestion: Suggestion = {
-      id: Date.now(),
-      title: newSuggestion.title,
-      description: newSuggestion.description,
-      category: newSuggestion.category,
-      status: "open",
-      submittedBy: "John Doe", // Current user
-      submittedDate: new Date().toISOString().split("T")[0],
-      votes: 0,
-      comments: 0,
-    };
-
-    setSuggestions((prev) => [...prev, suggestion]);
-
-    setNewSuggestion({
-      title: "",
-      description: "",
-      category: "hr",
-    });
+  const handleSuggestionStatusChange = async (
+    id: number,
+    status: SuggestionStatus
+  ) => {
+    const token = getAccessToken();
+    if (!token) return;
+    try {
+      const updated = await updateSuggestionStatus(
+        id,
+        localToApiSuggestionStatus(status),
+        token
+      );
+      setSuggestions((prev) =>
+        prev.map((s) => (s.id === id ? fromApiSuggestion(updated) : s))
+      );
+    } catch {
+      // Optimistic local fallback.
+      setSuggestions((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, status } : s))
+      );
+    }
   };
 
   const isSurveyLocked = (survey: Survey): boolean => {
@@ -783,6 +890,172 @@ export function FeedbackModule() {
     setActiveTab("results");
   };
 
+  const handleExportResultsCsv = () => {
+    if (!analytics) return;
+    const safeTitle = (analytics.survey_title || "survey").replace(/\s+/g, "_");
+    const quote = (v: string | number | null | undefined) => {
+      const raw = v === null || v === undefined ? "" : String(v).trim();
+      const s = raw === "" ? "N/A" : raw;
+      return `"${s.replace(/"/g, '""')}"`;
+    };
+    const lines: string[] = [];
+    lines.push("sep=,");
+    lines.push(
+      [
+        "Survey",
+        "Anonymous",
+        "Total Responses",
+        "Question",
+        "Type",
+        "Response Count",
+        "Average / Value",
+        "Count",
+      ]
+        .map(quote)
+        .join(",")
+    );
+    for (const q of analytics.questions) {
+      if (q.type === "scale") {
+        lines.push(
+          [
+            analytics.survey_title,
+            analytics.is_anonymous ? "Yes" : "No",
+            analytics.total_responses,
+            q.text,
+            q.type,
+            q.response_count,
+            q.average ?? "",
+            "",
+          ]
+            .map(quote)
+            .join(",")
+        );
+        for (const d of q.distribution ?? []) {
+          lines.push(
+            [
+              analytics.survey_title,
+              analytics.is_anonymous ? "Yes" : "No",
+              analytics.total_responses,
+              q.text,
+              q.type,
+              q.response_count,
+              d.value,
+              d.count,
+            ]
+              .map(quote)
+              .join(",")
+          );
+        }
+      } else if (q.type === "choice") {
+        for (const d of q.distribution ?? []) {
+          lines.push(
+            [
+              analytics.survey_title,
+              analytics.is_anonymous ? "Yes" : "No",
+              analytics.total_responses,
+              q.text,
+              q.type,
+              q.response_count,
+              d.value,
+              d.count,
+            ]
+              .map(quote)
+              .join(",")
+          );
+        }
+      } else {
+        for (const sample of q.samples ?? []) {
+          lines.push(
+            [
+              analytics.survey_title,
+              analytics.is_anonymous ? "Yes" : "No",
+              analytics.total_responses,
+              q.text,
+              q.type,
+              q.response_count,
+              sample,
+              "",
+            ]
+              .map(quote)
+              .join(",")
+          );
+        }
+      }
+    }
+    const blob = new Blob(["﻿" + lines.join("\r\n")], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${safeTitle}_results.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportResultsPdf = async () => {
+    if (!analytics) return;
+    const { default: jsPDF } = await import("jspdf");
+    const { default: autoTable } = await import("jspdf-autotable");
+    const safeTitle = (analytics.survey_title || "survey").replace(/\s+/g, "_");
+
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("Survey Results", 14, 18);
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+    doc.text(`Survey: ${analytics.survey_title}`, 14, 26);
+    doc.text(`Anonymous: ${analytics.is_anonymous ? "Yes" : "No"}`, 14, 32);
+    doc.text(`Total responses: ${analytics.total_responses}`, 14, 38);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 44);
+
+    let cursorY = 52;
+    for (const q of analytics.questions) {
+      doc.setFontSize(12);
+      doc.setTextColor(0);
+      doc.text(q.text, 14, cursorY);
+      cursorY += 4;
+
+      let head: string[][];
+      let body: (string | number)[][];
+      if (q.type === "scale") {
+        head = [["Value", "Count"]];
+        body = [
+          ["Average", q.average?.toFixed(2) ?? "—"],
+          ["Responses", q.response_count],
+          ...(q.distribution ?? []).map((d) => [d.value, d.count]),
+        ];
+      } else if (q.type === "choice") {
+        head = [["Option", "Count"]];
+        body = (q.distribution ?? []).map((d) => [d.value, d.count]);
+        if (body.length === 0) body = [["—", 0]];
+      } else {
+        head = [["Sample Answer"]];
+        body = (q.samples ?? []).map((s) => [s]);
+        if (body.length === 0) body = [["No text responses."]];
+      }
+      autoTable(doc, {
+        startY: cursorY,
+        head,
+        body,
+        theme: "striped",
+        headStyles: { fillColor: [37, 99, 235] },
+        margin: { left: 14, right: 14 },
+        styles: { fontSize: 9, cellPadding: 3 },
+      });
+      cursorY =
+        ((doc as unknown as { lastAutoTable?: { finalY: number } })
+          .lastAutoTable?.finalY ?? cursorY + 20) + 10;
+      if (cursorY > 260) {
+        doc.addPage();
+        cursorY = 20;
+      }
+    }
+    doc.save(`${safeTitle}_results.pdf`);
+  };
+
   const refreshAllSurveyLists = async (token: string) => {
     const [mine, all] = await Promise.all([
       fetchSurveys(token, { mine: true }).catch(() => [] as ApiSurvey[]),
@@ -808,8 +1081,22 @@ export function FeedbackModule() {
   const handleSendOut = (surveyId: number) =>
     handleStatusChange(surveyId, "active");
 
-  const handleRecall = (surveyId: number) =>
-    handleStatusChange(surveyId, "draft");
+  // Recall uses a dedicated endpoint so it works even when the survey is
+  // locked by an expired end_date (the action also clears the end_date).
+  const handleRecall = async (surveyId: number) => {
+    const token = getAccessToken();
+    if (!token) return;
+    try {
+      await recallSurvey(surveyId, token);
+      await refreshAllSurveyLists(token);
+    } catch {
+      setSurveys((prev) =>
+        prev.map((s) =>
+          s.id === surveyId ? { ...s, status: "draft", endDate: "" } : s
+        )
+      );
+    }
+  };
 
   const openTakeSurvey = (survey: Survey) => {
     setTakingSurvey(survey);
@@ -1106,6 +1393,7 @@ export function FeedbackModule() {
                     {(() => {
                       const active = availableSurveys
                         .filter((s) => s.status === "active")
+                        .filter((s) => !isSurveyLocked(s))
                         .filter((s) => {
                           switch (availableFilter) {
                             case "todo":
@@ -1156,15 +1444,7 @@ export function FeedbackModule() {
                                 size="sm"
                                 variant="primary"
                                 onClick={() => openTakeSurvey(survey)}
-                                disabled={
-                                  survey.questions.length === 0 ||
-                                  isSurveyLocked(survey)
-                                }
-                                title={
-                                  isSurveyLocked(survey)
-                                    ? `Survey ended ${survey.endDate}`
-                                    : undefined
-                                }
+                                disabled={survey.questions.length === 0}
                               >
                                 <Send className="w-4 h-4 mr-2" />
                                 {hasRespondedToSurvey(survey)
@@ -1691,42 +1971,35 @@ export function FeedbackModule() {
                                   </TableCell>
                                   <TableCell>
                                     <div className="flex gap-1 items-center">
-                                      {isSurveyLocked(survey) && (
-                                        <Badge
-                                          variant="outline"
-                                          className="bg-gray-100 text-gray-700 border-gray-200 mr-1"
-                                          title={`Locked — ended ${survey.endDate}`}
+                                      {survey.status === "draft" && (
+                                        <Button
+                                          variant="primary"
+                                          size="sm"
+                                          onClick={() =>
+                                            void handleSendOut(survey.id)
+                                          }
                                         >
-                                          <Lock className="w-3 h-3 mr-1" />
-                                          Locked
-                                        </Badge>
+                                          <Send className="w-4 h-4 mr-1" />
+                                          Send Out
+                                        </Button>
                                       )}
-                                      {survey.status === "draft" &&
-                                        !isSurveyLocked(survey) && (
-                                          <Button
-                                            variant="primary"
-                                            size="sm"
-                                            onClick={() =>
-                                              void handleSendOut(survey.id)
-                                            }
-                                          >
-                                            <Send className="w-4 h-4 mr-1" />
-                                            Send Out
-                                          </Button>
-                                        )}
-                                      {survey.status === "active" &&
-                                        !isSurveyLocked(survey) && (
+                                      {survey.status !== "draft" &&
+                                        (isSurveyLocked(survey) ? (
+                                          <span className="text-xs text-gray-500 italic px-2">
+                                            Ended on {survey.endDate}
+                                          </span>
+                                        ) : (
                                           <Button
                                             variant="outline"
                                             size="sm"
                                             onClick={() =>
                                               void handleRecall(survey.id)
                                             }
-                                            title="Stop accepting responses (sets back to draft)"
+                                            title="Set back to draft"
                                           >
                                             Recall
                                           </Button>
-                                        )}
+                                        ))}
                                       <Button
                                         variant="ghost"
                                         size="sm"
@@ -1738,13 +2011,8 @@ export function FeedbackModule() {
                                       <Button
                                         variant="ghost"
                                         size="sm"
-                                        title={
-                                          isSurveyLocked(survey)
-                                            ? "Survey ended — cannot edit"
-                                            : "Edit survey"
-                                        }
+                                        title="Edit survey"
                                         onClick={() => openEditSurvey(survey)}
-                                        disabled={isSurveyLocked(survey)}
                                       >
                                         <Edit3 className="w-4 h-4" />
                                       </Button>
@@ -1798,6 +2066,29 @@ export function FeedbackModule() {
                         <h3 className="font-medium text-gray-900">
                           Survey Results Dashboard
                         </h3>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled={!analytics}
+                            >
+                              <Download className="w-4 h-4 mr-2" />
+                              Export
+                              <ChevronDown className="w-3 h-3 ml-1" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={handleExportResultsCsv}>
+                              Export as CSV
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => void handleExportResultsPdf()}
+                            >
+                              Export as PDF
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
 
                       {/* Pulse Check Summary — independent of survey selection */}
@@ -2160,12 +2451,13 @@ export function FeedbackModule() {
                               id="suggestion-title"
                               placeholder="Brief title for your suggestion"
                               value={newSuggestion.title}
-                              onChange={(e) =>
+                              onChange={(e) => {
                                 setNewSuggestion((prev) => ({
                                   ...prev,
                                   title: e.target.value,
-                                }))
-                              }
+                                }));
+                                setSuggestionFeedback(null);
+                              }}
                             />
                           </div>
                           <div className="space-y-2">
@@ -2214,124 +2506,168 @@ export function FeedbackModule() {
                             id="suggestion-description"
                             placeholder="Provide details about your suggestion and how it could improve our workplace..."
                             value={newSuggestion.description}
-                            onChange={(e) =>
+                            onChange={(e) => {
                               setNewSuggestion((prev) => ({
                                 ...prev,
                                 description: e.target.value,
-                              }))
-                            }
+                              }));
+                              setSuggestionFeedback(null);
+                            }}
                             rows={4}
                           />
                         </div>
 
+                        {suggestionFeedback && (
+                          <p className="text-sm text-gray-700">
+                            {suggestionFeedback}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-3">
+                          <Switch
+                            id="suggestion-anonymous"
+                            checked={newSuggestion.anonymous}
+                            onCheckedChange={(checked) =>
+                              setNewSuggestion((prev) => ({
+                                ...prev,
+                                anonymous: checked,
+                              }))
+                            }
+                          />
+                          <Label
+                            htmlFor="suggestion-anonymous"
+                            className="text-sm"
+                          >
+                            Submit anonymously
+                          </Label>
+                        </div>
                         <div className="flex gap-2">
                           <Button
-                            onClick={submitSuggestion}
+                            onClick={() => void handleSubmitSuggestion()}
                             disabled={
                               !newSuggestion.title.trim() ||
-                              !newSuggestion.description.trim()
+                              !newSuggestion.description.trim() ||
+                              suggestionSubmitting
                             }
                             variant="primary"
                           >
                             <Send className="w-4 h-4 mr-2" />
-                            Submit Suggestion
+                            {suggestionSubmitting
+                              ? "Submitting..."
+                              : "Submit Suggestion"}
                           </Button>
-                          <Button variant="outline">Save Draft</Button>
                         </div>
                       </CardContent>
                     </Card>
 
-                    {/* Existing Suggestions */}
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-medium text-gray-900">
-                          All Suggestions
-                        </h4>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            <Filter className="w-4 h-4 mr-2" />
-                            Filter by Category
-                          </Button>
+                    {/* Existing Suggestions — HR-only */}
+                    {!isHRUser ? (
+                      <div className="text-center py-12 border border-gray-200 rounded-lg">
+                        <Lock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                          HR-only view
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          All suggestions are visible to HR only.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium text-gray-900">
+                            All Suggestions
+                          </h4>
+                          <div className="flex items-center gap-2">
+                            <Filter className="w-4 h-4 text-gray-500" />
+                            <Select
+                              value={suggestionCategoryFilter}
+                              onValueChange={(v) =>
+                                setSuggestionCategoryFilter(
+                                  v as "all" | SuggestionCategory
+                                )
+                              }
+                            >
+                              <SelectTrigger className="h-8 w-40 text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">
+                                  All categories
+                                </SelectItem>
+                                <SelectItem value="hr">HR</SelectItem>
+                                <SelectItem value="tech">Tech</SelectItem>
+                                <SelectItem value="office">Office</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          {suggestions
+                            .filter(
+                              (s) =>
+                                suggestionCategoryFilter === "all" ||
+                                s.category === suggestionCategoryFilter
+                            )
+                            .map((suggestion) => {
+                              const CategoryIcon = getCategoryIcon(
+                                suggestion.category
+                              );
+                              return (
+                                <Card
+                                  key={suggestion.id}
+                                  className="border-gray-200"
+                                >
+                                  <CardContent className="p-4">
+                                    <div className="flex items-start justify-between">
+                                      <div className="flex-1">
+                                        <div className="flex items-center gap-3 mb-2">
+                                          <CategoryIcon className="w-4 h-4 text-gray-500" />
+                                          <h4 className="font-medium text-gray-900">
+                                            {suggestion.title}
+                                          </h4>
+                                          <Badge
+                                            variant="outline"
+                                            className={getCategoryColor(
+                                              suggestion.category
+                                            )}
+                                          >
+                                            {suggestion.category.toUpperCase()}
+                                          </Badge>
+                                          <Badge
+                                            variant="outline"
+                                            className={getStatusColor(
+                                              suggestion.status
+                                            )}
+                                          >
+                                            {suggestion.status.replace(
+                                              "_",
+                                              " "
+                                            )}
+                                          </Badge>
+                                        </div>
+                                        <p className="text-sm text-gray-600 mb-3">
+                                          {suggestion.description}
+                                        </p>
+                                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                                          <span>
+                                            By:{" "}
+                                            {suggestion.submittedBy ||
+                                              "Anonymous"}
+                                          </span>
+                                          <span>
+                                            Submitted:{" "}
+                                            {suggestion.submittedDate}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              );
+                            })}
                         </div>
                       </div>
-
-                      <div className="space-y-3">
-                        {suggestions.map((suggestion) => {
-                          const CategoryIcon = getCategoryIcon(
-                            suggestion.category
-                          );
-                          return (
-                            <Card
-                              key={suggestion.id}
-                              className="border-gray-200"
-                            >
-                              <CardContent className="p-4">
-                                <div className="flex items-start justify-between">
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-3 mb-2">
-                                      <CategoryIcon className="w-4 h-4 text-gray-500" />
-                                      <h4 className="font-medium text-gray-900">
-                                        {suggestion.title}
-                                      </h4>
-                                      <Badge
-                                        variant="outline"
-                                        className={getCategoryColor(
-                                          suggestion.category
-                                        )}
-                                      >
-                                        {suggestion.category.toUpperCase()}
-                                      </Badge>
-                                      <Badge
-                                        variant="outline"
-                                        className={getStatusColor(
-                                          suggestion.status
-                                        )}
-                                      >
-                                        {suggestion.status.replace("_", " ")}
-                                      </Badge>
-                                    </div>
-                                    <p className="text-sm text-gray-600 mb-3">
-                                      {suggestion.description}
-                                    </p>
-                                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                                      <span>
-                                        By:{" "}
-                                        {suggestion.submittedBy || "Anonymous"}
-                                      </span>
-                                      <span>
-                                        Submitted: {suggestion.submittedDate}
-                                      </span>
-                                      <div className="flex items-center gap-1">
-                                        <ThumbsUp className="w-3 h-3" />
-                                        <span>{suggestion.votes} votes</span>
-                                      </div>
-                                      <div className="flex items-center gap-1">
-                                        <MessageSquare className="w-3 h-3" />
-                                        <span>
-                                          {suggestion.comments} comments
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="flex gap-2">
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="text-blue-600 hover:text-blue-700"
-                                    >
-                                      <ThumbsUp className="w-4 h-4" />
-                                    </Button>
-                                    <Button variant="ghost" size="sm">
-                                      <MessageSquare className="w-4 h-4" />
-                                    </Button>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
-                      </div>
-                    </div>
+                    )}
 
                     {/* Category Summary */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -3038,60 +3374,73 @@ export function FeedbackModule() {
                   )}
 
                   {q.type === "multiple_choice" && (
-                    <RadioGroup
-                      value={takeDraft[q.id] ?? ""}
-                      onValueChange={(value) =>
-                        setTakeDraft((prev) => ({
-                          ...prev,
-                          [q.id]: value,
-                        }))
-                      }
-                    >
-                      {(q.options ?? []).map((opt, idx) => (
-                        <div
-                          key={`${q.id}-${idx}`}
-                          className="flex items-center gap-2"
-                        >
-                          <RadioGroupItem
-                            value={opt}
-                            id={`q${q.id}-opt${idx}`}
-                          />
-                          <Label
-                            htmlFor={`q${q.id}-opt${idx}`}
-                            className="cursor-pointer font-normal"
+                    <div className="grid gap-2">
+                      {(q.options ?? []).map((opt, idx) => {
+                        const selected = takeDraft[q.id] === opt;
+                        return (
+                          <button
+                            key={`${q.id}-${idx}`}
+                            type="button"
+                            onClick={() =>
+                              setTakeDraft((prev) => ({
+                                ...prev,
+                                [q.id]: opt,
+                              }))
+                            }
+                            className={`w-full text-left px-4 py-3 rounded-lg border transition-all ${
+                              selected
+                                ? "border-blue-500 bg-blue-50 text-blue-900 ring-2 ring-blue-200"
+                                : "border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50/40 text-gray-800"
+                            }`}
                           >
-                            {opt}
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
+                            <span className="flex items-center gap-3">
+                              <span
+                                className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                                  selected
+                                    ? "border-blue-600 bg-blue-600"
+                                    : "border-gray-300 bg-white"
+                                }`}
+                              >
+                                {selected && (
+                                  <span className="w-2 h-2 rounded-full bg-white" />
+                                )}
+                              </span>
+                              <span className="font-medium text-sm">{opt}</span>
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   )}
 
                   {q.type === "yes_no" && (
-                    <RadioGroup
-                      value={takeDraft[q.id] ?? ""}
-                      onValueChange={(value) =>
-                        setTakeDraft((prev) => ({
-                          ...prev,
-                          [q.id]: value,
-                        }))
-                      }
-                    >
-                      {["Yes", "No"].map((opt) => (
-                        <div
-                          key={`${q.id}-${opt}`}
-                          className="flex items-center gap-2"
-                        >
-                          <RadioGroupItem value={opt} id={`q${q.id}-${opt}`} />
-                          <Label
-                            htmlFor={`q${q.id}-${opt}`}
-                            className="cursor-pointer font-normal"
+                    <div className="grid grid-cols-2 gap-3">
+                      {["Yes", "No"].map((opt) => {
+                        const selected = takeDraft[q.id] === opt;
+                        const isYes = opt === "Yes";
+                        return (
+                          <button
+                            key={`${q.id}-${opt}`}
+                            type="button"
+                            onClick={() =>
+                              setTakeDraft((prev) => ({
+                                ...prev,
+                                [q.id]: opt,
+                              }))
+                            }
+                            className={`px-4 py-4 rounded-lg border-2 text-sm font-semibold transition-all ${
+                              selected
+                                ? isYes
+                                  ? "border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200"
+                                  : "border-red-500 bg-red-50 text-red-700 ring-2 ring-red-200"
+                                : "border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50"
+                            }`}
                           >
                             {opt}
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
+                          </button>
+                        );
+                      })}
+                    </div>
                   )}
 
                   {q.type === "rating" && (

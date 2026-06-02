@@ -22,6 +22,42 @@ describe("timeTrackingApi", () => {
     vi.mocked(fetchWithAuthRetry).mockReset();
   });
 
+  it("normalizes Tempo OAuth authorize URLs to Tempo public API", async () => {
+    vi.mocked(fetchWithAuthRetry).mockResolvedValue(
+      jsonResponse({
+        authorize_url:
+          "http://organization-public.default.svc.cluster.local/oauth/authorize/?client_id=abc&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Foauth%2Ftempo%2Fcallback&state=state-1&response_type=code",
+        state: "state-1",
+      })
+    );
+
+    const result = await timeTrackingApi.startTempoOAuth();
+
+    expect(result.authorize_url).toBe(
+      "https://api.tempo.io/oauth/authorize/?client_id=abc&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Foauth%2Ftempo%2Fcallback&state=state-1&response_type=code"
+    );
+  });
+
+  it("passes Jira site URL when starting Tempo OAuth", async () => {
+    vi.mocked(fetchWithAuthRetry).mockResolvedValue(
+      jsonResponse({
+        authorize_url: "https://api.tempo.io/oauth/authorize/redirect?state=s",
+        state: "s",
+      })
+    );
+
+    await timeTrackingApi.startTempoOAuth({
+      jira_url: "https://acme.atlassian.net",
+      redirect_uri: "https://bloomhub-fe-dev.vercel.app/oauth/tempo/callback",
+    });
+
+    const url = vi.mocked(fetchWithAuthRetry).mock.calls[0][0] as string;
+    expect(url).toContain("jira_url=https%3A%2F%2Facme.atlassian.net");
+    expect(url).toContain(
+      "redirect_uri=https%3A%2F%2Fbloomhub-fe-dev.vercel.app%2Foauth%2Ftempo%2Fcallback"
+    );
+  });
+
   it("loads weekly allocation summary with employee filter", async () => {
     vi.mocked(fetchWithAuthRetry).mockResolvedValue(
       jsonResponse({
@@ -208,9 +244,8 @@ describe("timeTrackingApi", () => {
     );
 
     await timeTrackingApi.discoverJiraProjects({
-      base_url: "https://example.atlassian.net",
-      auth_email: "admin@example.com",
-      api_token: "jira-token",
+      query: "BHB",
+      employee_id: 42,
       date_from: "2026-05-01",
       date_to: "2026-05-25",
       limit: 1000,
@@ -223,9 +258,8 @@ describe("timeTrackingApi", () => {
     expect(url).toContain("/api/time-integrations/jira/project-discovery/");
     expect(options.method).toBe("POST");
     expect(JSON.parse(String(options.body))).toEqual({
-      base_url: "https://example.atlassian.net",
-      auth_email: "admin@example.com",
-      api_token: "jira-token",
+      query: "BHB",
+      employee_id: 42,
       date_from: "2026-05-01",
       date_to: "2026-05-25",
       limit: 1000,

@@ -59,6 +59,7 @@ import type {
   LeaveBalance,
   LeaveType,
   LeaveStatus,
+  TempoSyncStatus,
   TeamCalendarEvent,
   CreateLeaveRequestPayload,
   VacationCapabilities,
@@ -147,6 +148,40 @@ const getEmployeeInitials = (name: string): string => {
   const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? "") : "";
   return `${first}${last}`.toUpperCase();
 };
+
+const TEMPO_SYNC_STATUS_LABELS: Record<TempoSyncStatus, string> = {
+  synced: "Synced",
+  failed: "Failed",
+  pending: "Pending",
+  skipped: "Skipped",
+  deleted: "Deleted",
+  not_started: "Not started",
+};
+
+const TEMPO_SYNC_STATUS_CLASSES: Record<TempoSyncStatus, string> = {
+  synced: "bg-green-100 text-green-800 border-green-200",
+  failed: "bg-red-100 text-red-800 border-red-200",
+  pending: "bg-amber-100 text-amber-800 border-amber-200",
+  skipped: "bg-gray-100 text-gray-700 border-gray-200",
+  deleted: "bg-gray-100 text-gray-700 border-gray-200",
+  not_started: "bg-gray-50 text-gray-500 border-gray-200",
+};
+
+function TempoSyncBadge({ status }: { status?: TempoSyncStatus | null }) {
+  if (!status) {
+    return (
+      <Badge className="border-gray-200 bg-gray-50 text-gray-500">
+        Not started
+      </Badge>
+    );
+  }
+
+  return (
+    <Badge className={TEMPO_SYNC_STATUS_CLASSES[status]}>
+      {TEMPO_SYNC_STATUS_LABELS[status]}
+    </Badge>
+  );
+}
 
 interface VacationsModuleProps {
   addNotification?: (
@@ -967,6 +1002,51 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                       }
                     </span>
                   </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-gray-200">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg font-semibold text-gray-950">
+                    Recent Requests
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {leaveRequests.slice(0, 5).length === 0 ? (
+                    <p className="text-sm text-gray-500">
+                      No leave requests yet.
+                    </p>
+                  ) : (
+                    leaveRequests.slice(0, 5).map((request) => (
+                      <div
+                        key={request.id}
+                        className="space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-3"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {request.employeeName}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {formatDate(request.startDate)} to{" "}
+                              {formatDate(request.endDate)} · {request.days}{" "}
+                              days
+                            </p>
+                          </div>
+                          {getStatusBadge(request.status)}
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge>{LEAVE_TYPE_LABELS[request.leaveType]}</Badge>
+                          <TempoSyncBadge status={request.tempo_sync_status} />
+                          <span className="text-xs text-gray-500">
+                            {request.tempo_synced_days ?? 0} synced ·{" "}
+                            {request.tempo_failed_days ?? 0} failed ·{" "}
+                            {request.tempo_sync_error_count ?? 0} errors
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </CardContent>
               </Card>
             </div>
