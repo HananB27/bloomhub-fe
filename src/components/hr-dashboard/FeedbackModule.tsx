@@ -58,7 +58,6 @@ import { Progress } from "./ui/progress";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Separator } from "./ui/separator";
 import { Switch } from "./ui/switch";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Checkbox } from "./ui/checkbox";
 import {
   LineChart,
@@ -1222,6 +1221,7 @@ export function FeedbackModule() {
                     {(() => {
                       const active = availableSurveys
                         .filter((s) => s.status === "active")
+                        .filter((s) => !isSurveyLocked(s))
                         .filter((s) => {
                           switch (availableFilter) {
                             case "todo":
@@ -1272,15 +1272,7 @@ export function FeedbackModule() {
                                 size="sm"
                                 variant="primary"
                                 onClick={() => openTakeSurvey(survey)}
-                                disabled={
-                                  survey.questions.length === 0 ||
-                                  isSurveyLocked(survey)
-                                }
-                                title={
-                                  isSurveyLocked(survey)
-                                    ? `Survey ended ${survey.endDate}`
-                                    : undefined
-                                }
+                                disabled={survey.questions.length === 0}
                               >
                                 <Send className="w-4 h-4 mr-2" />
                                 {hasRespondedToSurvey(survey)
@@ -1819,18 +1811,23 @@ export function FeedbackModule() {
                                           Send Out
                                         </Button>
                                       )}
-                                      {survey.status !== "draft" && (
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          onClick={() =>
-                                            void handleRecall(survey.id)
-                                          }
-                                          title="Set back to draft (also clears past end date)"
-                                        >
-                                          Recall
-                                        </Button>
-                                      )}
+                                      {survey.status !== "draft" &&
+                                        (isSurveyLocked(survey) ? (
+                                          <span className="text-xs text-gray-500 italic px-2">
+                                            Ended on {survey.endDate}
+                                          </span>
+                                        ) : (
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() =>
+                                              void handleRecall(survey.id)
+                                            }
+                                            title="Set back to draft"
+                                          >
+                                            Recall
+                                          </Button>
+                                        ))}
                                       <Button
                                         variant="ghost"
                                         size="sm"
@@ -3182,60 +3179,73 @@ export function FeedbackModule() {
                   )}
 
                   {q.type === "multiple_choice" && (
-                    <RadioGroup
-                      value={takeDraft[q.id] ?? ""}
-                      onValueChange={(value) =>
-                        setTakeDraft((prev) => ({
-                          ...prev,
-                          [q.id]: value,
-                        }))
-                      }
-                    >
-                      {(q.options ?? []).map((opt, idx) => (
-                        <div
-                          key={`${q.id}-${idx}`}
-                          className="flex items-center gap-2"
-                        >
-                          <RadioGroupItem
-                            value={opt}
-                            id={`q${q.id}-opt${idx}`}
-                          />
-                          <Label
-                            htmlFor={`q${q.id}-opt${idx}`}
-                            className="cursor-pointer font-normal"
+                    <div className="grid gap-2">
+                      {(q.options ?? []).map((opt, idx) => {
+                        const selected = takeDraft[q.id] === opt;
+                        return (
+                          <button
+                            key={`${q.id}-${idx}`}
+                            type="button"
+                            onClick={() =>
+                              setTakeDraft((prev) => ({
+                                ...prev,
+                                [q.id]: opt,
+                              }))
+                            }
+                            className={`w-full text-left px-4 py-3 rounded-lg border transition-all ${
+                              selected
+                                ? "border-blue-500 bg-blue-50 text-blue-900 ring-2 ring-blue-200"
+                                : "border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50/40 text-gray-800"
+                            }`}
                           >
-                            {opt}
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
+                            <span className="flex items-center gap-3">
+                              <span
+                                className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                                  selected
+                                    ? "border-blue-600 bg-blue-600"
+                                    : "border-gray-300 bg-white"
+                                }`}
+                              >
+                                {selected && (
+                                  <span className="w-2 h-2 rounded-full bg-white" />
+                                )}
+                              </span>
+                              <span className="font-medium text-sm">{opt}</span>
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   )}
 
                   {q.type === "yes_no" && (
-                    <RadioGroup
-                      value={takeDraft[q.id] ?? ""}
-                      onValueChange={(value) =>
-                        setTakeDraft((prev) => ({
-                          ...prev,
-                          [q.id]: value,
-                        }))
-                      }
-                    >
-                      {["Yes", "No"].map((opt) => (
-                        <div
-                          key={`${q.id}-${opt}`}
-                          className="flex items-center gap-2"
-                        >
-                          <RadioGroupItem value={opt} id={`q${q.id}-${opt}`} />
-                          <Label
-                            htmlFor={`q${q.id}-${opt}`}
-                            className="cursor-pointer font-normal"
+                    <div className="grid grid-cols-2 gap-3">
+                      {["Yes", "No"].map((opt) => {
+                        const selected = takeDraft[q.id] === opt;
+                        const isYes = opt === "Yes";
+                        return (
+                          <button
+                            key={`${q.id}-${opt}`}
+                            type="button"
+                            onClick={() =>
+                              setTakeDraft((prev) => ({
+                                ...prev,
+                                [q.id]: opt,
+                              }))
+                            }
+                            className={`px-4 py-4 rounded-lg border-2 text-sm font-semibold transition-all ${
+                              selected
+                                ? isYes
+                                  ? "border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200"
+                                  : "border-red-500 bg-red-50 text-red-700 ring-2 ring-red-200"
+                                : "border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50"
+                            }`}
                           >
                             {opt}
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
+                          </button>
+                        );
+                      })}
+                    </div>
                   )}
 
                   {q.type === "rating" && (
