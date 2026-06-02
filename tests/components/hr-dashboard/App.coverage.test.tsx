@@ -1,12 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import HRDashboardApp from "@/components/hr-dashboard/App";
+
+type SessionMock = {
+  data: {
+    user: {
+      email: string;
+    };
+    accessToken?: string;
+  };
+  status: string;
+};
 
 const mocks = vi.hoisted(() => ({
   session: {
@@ -17,7 +21,7 @@ const mocks = vi.hoisted(() => ({
       accessToken: "access-token-123",
     },
     status: "authenticated",
-  },
+  } as SessionMock,
   storedUser: null as Record<string, unknown> | null,
   careerLevelResponse: { career_level: "Senior" },
   apiBaseUrl: "https://api.example.com",
@@ -33,7 +37,7 @@ const mocks = vi.hoisted(() => ({
         isRead: false,
       },
     ],
-    notificationCounts: { dashboard: 1 },
+    notificationCounts: { dashboard: 1 } as Record<string, number>,
     unreadCount: 1,
     markAsRead: vi.fn(),
     markAllAsRead: vi.fn(),
@@ -93,6 +97,7 @@ vi.mock("next-auth/react", () => ({
 
 vi.mock("next/navigation", () => ({
   useRouter: () => mocks.router,
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/lib/api/auth", () => ({

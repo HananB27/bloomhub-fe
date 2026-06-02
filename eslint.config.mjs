@@ -13,7 +13,6 @@ const eslintConfig = defineConfig([
       "out/**",
       "build/**",
       "next-env.d.ts",
-      "src/components/hr-dashboard/ui/**",
       "src/components/hr-dashboard/figma/**",
     ],
   },

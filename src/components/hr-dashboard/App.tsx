@@ -43,7 +43,7 @@ import { formatRelativeTimestamp } from "@/utils";
 import { getApiBaseUrl } from "@/lib/config";
 import { logoutUser } from "@/lib/api/auth";
 import { useSession, signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getStoredUser, storeTokens } from "@/lib/api/tokens";
 import { useAdminAccess } from "@/hooks/useAdminAccess";
 
@@ -51,12 +51,17 @@ const OPEN_ANNOUNCEMENT_EVENT = "bloomhub:open-announcement";
 
 interface HRDashboardAppProps {
   initialAnnouncementId?: number;
+  initialEmployeeId?: number;
+  initialModule?: HrModuleId;
 }
 
 export default function HRDashboardApp({
   initialAnnouncementId,
+  initialEmployeeId,
+  initialModule,
 }: HRDashboardAppProps = {}) {
   const { data: session, status } = useSession();
+  const searchParams = useSearchParams();
   const [mounted, setMounted] = useState(false);
   const [careerLevel, setCareerLevel] = useState<string | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
@@ -65,6 +70,7 @@ export default function HRDashboardApp({
   );
 
   const router = useRouter();
+  const openAssistant = searchParams.get("assistant") === "1";
 
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 0);
@@ -124,12 +130,15 @@ export default function HRDashboardApp({
     }
   }, [session]);
 
-  const [activeModule, setActiveModule] = useState<HrModuleId>(() =>
-    initialAnnouncementId ? "announcements" : "dashboard"
-  );
+  const [activeModule, setActiveModule] = useState<HrModuleId>(() => {
+    if (initialModule) return initialModule;
+    if (initialEmployeeId != null) return "profiles";
+    if (initialAnnouncementId) return "announcements";
+    return "dashboard";
+  });
   const openedInitialAnnouncementRef = useRef(false);
   const [pendingEmployeeId, setPendingEmployeeId] = useState<number | null>(
-    null
+    initialEmployeeId ?? null
   );
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -186,6 +195,13 @@ export default function HRDashboardApp({
     setActiveModule(moduleId as HrModuleId);
     setIsSearchOpen(false);
     setSearchQuery("");
+    setPendingEmployeeId(null);
+    if (
+      typeof window !== "undefined" &&
+      window.location.pathname.startsWith("/employee/")
+    ) {
+      window.history.replaceState(null, "", "/");
+    }
   };
 
   useEffect(() => {
@@ -255,7 +271,11 @@ export default function HRDashboardApp({
   }, [isAdmin, isAdminLoading, activeModule]);
 
   return (
-    <div className="h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
+    <div
+      data-testid="hr-dashboard-app"
+      data-hydrated={mounted ? "true" : "false"}
+      className="h-screen overflow-hidden bg-gray-50 dark:bg-gray-950"
+    >
       <CollapsibleSidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed((c) => !c)}
@@ -318,12 +338,23 @@ export default function HRDashboardApp({
 
             <AIAssistant
               activeModule={activeModule}
+              defaultOpen={openAssistant}
               onModuleNavigate={(moduleId, entityId) => {
+                if (moduleId === "profiles" && entityId != null) {
+                  setActiveModule("profiles");
+                  setPendingEmployeeId(entityId);
+                  if (typeof window !== "undefined") {
+                    window.history.pushState(null, "", `/employee/${entityId}`);
+                  }
+                  return;
+                }
                 setActiveModule(moduleId);
-                if (moduleId === "profiles") {
-                  setPendingEmployeeId(entityId ?? null);
-                } else {
-                  setPendingEmployeeId(null);
+                setPendingEmployeeId(null);
+                if (
+                  typeof window !== "undefined" &&
+                  window.location.pathname.startsWith("/employee/")
+                ) {
+                  window.history.replaceState(null, "", "/");
                 }
               }}
             />
