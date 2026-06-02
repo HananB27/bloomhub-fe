@@ -41,6 +41,7 @@ export interface EmployeeProfileData {
         start_date: string;
         end_date?: string | null;
         status: string;
+        allocation_percentage?: number;
       }[]
     | null;
 }
@@ -170,6 +171,12 @@ export function transformEmployeeData(data: any): EmployeeProfileData {
           start_date: p.start_date as string,
           end_date: p.end_date as string | null | undefined,
           status: p.status as string,
+          allocation_percentage:
+            typeof p.allocation_percentage === "number"
+              ? p.allocation_percentage
+              : p.allocation_percentage != null
+                ? Number(p.allocation_percentage)
+                : undefined,
         }))
       : [],
   };
