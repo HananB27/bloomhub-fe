@@ -15,6 +15,14 @@ export type LeaveStatus =
   | "rejected"
   | "cancelled";
 
+export type TempoSyncStatus =
+  | "synced"
+  | "failed"
+  | "pending"
+  | "skipped"
+  | "deleted"
+  | "not_started";
+
 export const LEAVE_STATUS_LABELS: Record<LeaveStatus, string> = {
   pending: "Pending",
   lead_approved: "Lead Approved",
@@ -64,6 +72,10 @@ export interface LeaveRequest {
   approverId?: string;
   approverName?: string;
   approvedDate?: string;
+  tempo_sync_status?: TempoSyncStatus | null;
+  tempo_sync_error_count?: number | null;
+  tempo_synced_days?: number | null;
+  tempo_failed_days?: number | null;
 }
 
 export interface LeaveBalance {

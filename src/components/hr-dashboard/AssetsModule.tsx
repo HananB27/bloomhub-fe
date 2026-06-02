@@ -2867,7 +2867,12 @@ export function AssetsModule() {
               >
                 <CardHeader className="pb-3">
                   <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="assets">Asset Inventory</TabsTrigger>
+                    <TabsTrigger
+                      value="assets"
+                      onClick={() => void loadAssetsAndAssignments()}
+                    >
+                      Asset Inventory
+                    </TabsTrigger>
                     <TabsTrigger value="assignments">
                       Assignment History
                     </TabsTrigger>
@@ -6514,7 +6519,7 @@ export function AssetsModule() {
                   htmlFor="edit-asset-id"
                   className={ADD_ASSET_LIGHT_LABEL_CLASS}
                 >
-                  Asset ID
+                  Asset Tag
                 </Label>
                 <Input
                   id="edit-asset-id"

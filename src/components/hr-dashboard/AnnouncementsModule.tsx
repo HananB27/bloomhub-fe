@@ -71,22 +71,22 @@ const ANNOUNCEMENT_TYPES: {
   {
     value: "general",
     label: "General",
-    badgeClass: "border-slate-300 bg-white text-slate-700",
+    badgeClass: "border-slate-400 bg-slate-100 text-slate-900",
   },
   {
     value: "news",
     label: "News",
-    badgeClass: "border-sky-200 bg-sky-50 text-sky-700",
+    badgeClass: "border-sky-300 bg-sky-100 text-sky-900",
   },
   {
     value: "celebration",
     label: "Celebration",
-    badgeClass: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    badgeClass: "border-emerald-300 bg-emerald-100 text-emerald-900",
   },
   {
     value: "urgent",
     label: "Urgent",
-    badgeClass: "border-rose-200 bg-rose-50 text-rose-700",
+    badgeClass: "border-rose-300 bg-rose-100 text-rose-900",
   },
 ];
 
@@ -697,11 +697,11 @@ export function AnnouncementsModule() {
 
         <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(240px,1fr)_180px_210px]">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-600 dark:text-gray-300" />
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              className="pl-9"
+              className="pl-9 text-gray-950 placeholder:text-gray-600 dark:text-gray-50 dark:placeholder:text-gray-400"
               placeholder="Search title or body"
             />
           </div>
@@ -797,10 +797,10 @@ export function AnnouncementsModule() {
                     onClick={() => void openDetail(item)}
                     className="min-w-0 text-left"
                   >
-                    <div className="truncate font-medium text-gray-950 hover:text-blue-700 dark:text-gray-50">
+                    <div className="truncate font-semibold text-gray-950 hover:text-blue-700 dark:text-gray-50">
                       {item.title}
                     </div>
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className="mt-1 text-xs text-gray-700 dark:text-gray-400">
                       Updated {formatDateTime(item.updated_at)}
                     </div>
                   </button>
@@ -809,15 +809,15 @@ export function AnnouncementsModule() {
                       {type.label}
                     </Badge>
                   </div>
-                  <div className="truncate text-sm text-gray-600 dark:text-gray-300">
+                  <div className="truncate text-sm font-medium text-gray-800 dark:text-gray-200">
                     {item.author_name || `User ${item.author_id}`}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                  <div className="text-sm text-gray-800 dark:text-gray-200">
                     {formatDateTime(item.published_at)}
                   </div>
                   <div className="space-y-1">
                     <Badge variant={status.variant}>{status.label}</Badge>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-700 dark:text-gray-400">
                       {formatDateTime(item.scheduled_at)}
                     </div>
                   </div>
@@ -831,8 +831,9 @@ export function AnnouncementsModule() {
                   />
                   <div className="flex justify-end gap-1">
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
+                      className="border-gray-300 bg-white px-2 text-gray-900 shadow-sm hover:border-gray-400 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-50 dark:hover:border-gray-500 dark:hover:bg-gray-700"
                       onClick={() => void openDetail(item)}
                       disabled={detailLoadingId === item.id}
                       aria-label={`View ${item.title}`}
@@ -846,8 +847,9 @@ export function AnnouncementsModule() {
                     {canManage && (
                       <>
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
+                          className="border-gray-300 bg-white px-2 text-gray-900 shadow-sm hover:border-gray-400 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-50 dark:hover:border-gray-500 dark:hover:bg-gray-700"
                           onClick={() => void openEdit(item)}
                           aria-label={`Edit ${item.title}`}
                         >
@@ -1002,6 +1004,7 @@ export function AnnouncementsModule() {
                 <div className="flex justify-end gap-2 border-t pt-4">
                   <Button
                     variant="outline"
+                    className="border-gray-300 bg-white text-gray-900 shadow-sm hover:border-gray-400 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-50 dark:hover:border-gray-500 dark:hover:bg-gray-700"
                     onClick={() => void openEdit(selected)}
                   >
                     <Edit3 className="h-4 w-4" />
@@ -1009,7 +1012,7 @@ export function AnnouncementsModule() {
                   </Button>
                   <Button
                     variant="outline"
-                    className="text-red-600 hover:text-red-700"
+                    className="border-red-300 bg-white text-red-700 shadow-sm hover:border-red-400 hover:bg-red-50 hover:text-red-800 dark:border-red-800 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
                     onClick={() => setDeleteTarget(selected)}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -1080,7 +1083,10 @@ export function AnnouncementsModule() {
                 }
                 disabled={saving}
               >
-                <SelectTrigger id="announcement-type">
+                <SelectTrigger
+                  id="announcement-type"
+                  className="h-11 px-4 text-gray-950 dark:text-gray-50"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

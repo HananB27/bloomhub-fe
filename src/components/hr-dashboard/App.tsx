@@ -53,12 +53,14 @@ interface HRDashboardAppProps {
   initialAnnouncementId?: number;
   initialEmployeeId?: number;
   initialModule?: HrModuleId;
+  initialProjectId?: string | null;
 }
 
 export default function HRDashboardApp({
   initialAnnouncementId,
   initialEmployeeId,
   initialModule,
+  initialProjectId,
 }: HRDashboardAppProps = {}) {
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
@@ -71,6 +73,8 @@ export default function HRDashboardApp({
 
   const router = useRouter();
   const openAssistant = searchParams.get("assistant") === "1";
+  const queryProjectId = searchParams.get("id");
+  const queryModule = searchParams.get("module");
 
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 0);
@@ -132,6 +136,7 @@ export default function HRDashboardApp({
 
   const [activeModule, setActiveModule] = useState<HrModuleId>(() => {
     if (initialModule) return initialModule;
+    if (queryModule === "projects" && queryProjectId) return "projects";
     if (initialEmployeeId != null) return "profiles";
     if (initialAnnouncementId) return "announcements";
     return "dashboard";
@@ -698,6 +703,7 @@ export default function HRDashboardApp({
               addNotification={addNotification}
               onNavigate={(moduleId) => setActiveModule(moduleId as HrModuleId)}
               initialEmployeeId={pendingEmployeeId}
+              initialProjectId={initialProjectId ?? queryProjectId}
             />
           </div>
         </div>

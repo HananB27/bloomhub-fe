@@ -4,7 +4,13 @@ import { fetchWithAuthRetry } from "../refresh";
 export interface ApiError {
   detail?: string;
   message?: string;
+  code?: string;
   [key: string]: unknown;
+}
+
+export interface ApiRequestError extends Error {
+  status?: number;
+  code?: string;
 }
 
 export function getHeaders(): HeadersInit {
@@ -40,9 +46,14 @@ async function handleResponse<T>(
       response.status === 403
         ? "Not allowed to perform this action"
         : errorMessage;
-    throw new Error(
+    const requestError = new Error(
       extractErrorMessage(error as Record<string, unknown>, fallback)
-    );
+    ) as ApiRequestError;
+    requestError.status = response.status;
+    if (typeof (error as Record<string, unknown>).code === "string") {
+      requestError.code = (error as Record<string, unknown>).code as string;
+    }
+    throw requestError;
   }
   return (parseBody ? response.json() : undefined) as T;
 }

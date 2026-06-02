@@ -294,7 +294,7 @@ export function DiscordAnnouncementChannelsTab() {
                 <Webhook className="h-5 w-5" />
                 Discord Announcement Channels
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-gray-700">
                 Map announcement types to Discord webhook channels.
               </CardDescription>
             </div>
@@ -346,10 +346,10 @@ export function DiscordAnnouncementChannelsTab() {
             </div>
           ) : isLoading ? (
             <div className="flex items-center justify-center py-10">
-              <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+              <Loader2 className="h-6 w-6 animate-spin text-gray-700" />
             </div>
           ) : channels.length === 0 ? (
-            <div className="rounded-md border border-dashed p-6 text-center text-sm text-gray-500">
+            <div className="rounded-md border border-dashed border-gray-300 bg-white p-6 text-center text-sm text-gray-700">
               No Discord announcement channels found.
             </div>
           ) : (
@@ -403,7 +403,7 @@ export function DiscordAnnouncementChannelsTab() {
                         <div className="flex justify-end gap-2">
                           <Button
                             type="button"
-                            variant="ghost"
+                            variant="outline"
                             size="icon"
                             onClick={() => openEditDialog(channel)}
                           >
@@ -411,9 +411,9 @@ export function DiscordAnnouncementChannelsTab() {
                           </Button>
                           <Button
                             type="button"
-                            variant="ghost"
+                            variant="outline"
                             size="icon"
-                            className="text-red-500"
+                            className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
                             onClick={() => setDeleteTarget(channel)}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -435,7 +435,7 @@ export function DiscordAnnouncementChannelsTab() {
             <DialogTitle>
               {editing ? "Edit Discord channel" : "New Discord channel"}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-gray-700">
               {editing?.has_webhook_url
                 ? "Webhook configured. Leave blank to preserve existing secret."
                 : "Webhook URL is write-only and will not be shown again."}
@@ -521,7 +521,7 @@ export function DiscordAnnouncementChannelsTab() {
             <div className="flex items-center justify-between rounded-md border p-3">
               <div className="space-y-0.5">
                 <Label htmlFor="discord-channel-enabled">Enabled</Label>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-700">
                   Allow published matching announcements to post to Discord.
                 </p>
               </div>

@@ -1,13 +1,8 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "./ui/dialog";
+import { DatePicker } from "./DatePicker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -535,6 +530,7 @@ export function OnboardingModule({
   onNavigate: _onNavigate,
 }: OnboardingModuleProps = {}) {
   const { data: session } = useSession();
+  const router = useRouter();
   const sessionUser = session?.user as
     | { is_staff?: boolean; role?: string; image?: string }
     | null
@@ -579,7 +575,6 @@ export function OnboardingModule({
   const [confirmUnassignId, setConfirmUnassignId] = useState<number | null>(
     null
   );
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [newComment, setNewComment] = useState("");
   // Template management state
   const [templates, setTemplates] = useState<ChecklistTemplate[]>([]);
@@ -613,6 +608,8 @@ export function OnboardingModule({
   const [allEmployees, setAllEmployees] = useState<EmployeeProfileData[]>([]);
   const [allEmployeesLoading, setAllEmployeesLoading] = useState(false);
   const [sortOrder, setSortOrder] = useState<SortOrder>("default");
+  const [assignDialogContainer, setAssignDialogContainer] =
+    useState<HTMLDivElement | null>(null);
 
   const [tasks, setTasks] = useState<Task[]>([]);
 
@@ -1009,6 +1006,11 @@ export function OnboardingModule({
     if (value === "tracker" && selectedEmployee) {
       void loadTrackerTasks(selectedEmployee);
     }
+  };
+
+  const handleOpenEmployeeProfile = () => {
+    if (!selectedEmployeeProfile) return;
+    router.push(`/employee/${selectedEmployeeProfile.id}`);
   };
 
   const handleUnassignInstance = async (instanceId: number) => {
@@ -1719,7 +1721,7 @@ export function OnboardingModule({
                             variant="outline"
                             size="sm"
                             className="w-full mt-2"
-                            onClick={() => setProfileModalOpen(true)}
+                            onClick={handleOpenEmployeeProfile}
                             disabled={!selectedEmployeeProfile}
                           >
                             <User className="w-4 h-4 mr-2" />
@@ -2121,7 +2123,10 @@ export function OnboardingModule({
 
               {/* Assign to Employee Modal */}
               {assignModalTemplate && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                <div
+                  ref={setAssignDialogContainer}
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+                >
                   <Card className="w-full max-w-md mx-4">
                     <CardHeader>
                       <CardTitle>Assign Template to Employee</CardTitle>
@@ -2150,10 +2155,14 @@ export function OnboardingModule({
                       </div>
                       <div className="space-y-2">
                         <Label>Due Date (all tasks)</Label>
-                        <Input
-                          type="date"
+                        <DatePicker
+                          mode="single"
+                          size="compact"
                           value={assignDueDate}
-                          onChange={(e) => setAssignDueDate(e.target.value)}
+                          onChange={setAssignDueDate}
+                          placeholder="Pick due date"
+                          floatPortal
+                          portalContainer={assignDialogContainer}
                         />
                         <p className="text-xs text-gray-500">
                           Applied to every task unless overridden below.
@@ -2171,25 +2180,29 @@ export function OnboardingModule({
                                 <span className="flex-1 text-gray-700 truncate">
                                   {task.title}
                                 </span>
-                                <Input
-                                  type="date"
-                                  className="w-36 text-xs"
-                                  value={
-                                    task.id !== undefined
-                                      ? (taskDueDates[task.id] ?? "")
-                                      : ""
-                                  }
-                                  onChange={(e) => {
-                                    if (task.id === undefined) return;
-                                    const val = e.target.value;
-                                    setTaskDueDates((prev) => {
-                                      const next = { ...prev };
-                                      if (val) next[task.id!] = val;
-                                      else delete next[task.id!];
-                                      return next;
-                                    });
-                                  }}
-                                />
+                                <div className="w-36 shrink-0">
+                                  <DatePicker
+                                    mode="single"
+                                    size="compact"
+                                    value={
+                                      task.id !== undefined
+                                        ? (taskDueDates[task.id] ?? "")
+                                        : ""
+                                    }
+                                    onChange={(val) => {
+                                      if (task.id === undefined) return;
+                                      setTaskDueDates((prev) => {
+                                        const next = { ...prev };
+                                        if (val) next[task.id!] = val;
+                                        else delete next[task.id!];
+                                        return next;
+                                      });
+                                    }}
+                                    placeholder="Pick due date"
+                                    floatPortal
+                                    portalContainer={assignDialogContainer}
+                                  />
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -2235,54 +2248,6 @@ export function OnboardingModule({
           )}
         </TabsContent>
       </Tabs>
-
-      <Dialog open={profileModalOpen} onOpenChange={setProfileModalOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>
-              {selectedEmployeeProfile
-                ? employeeDisplayName(selectedEmployeeProfile)
-                : "Employee Profile"}
-            </DialogTitle>
-            <DialogDescription>
-              Read-only profile snapshot for the selected employee.
-            </DialogDescription>
-          </DialogHeader>
-          {selectedEmployeeProfile && (
-            <div className="grid grid-cols-2 gap-4 pt-2">
-              {[
-                ["Employee ID", String(selectedEmployeeProfile.id)],
-                ["Email", selectedEmployeeProfile.email],
-                ["Phone", selectedEmployeeProfile.phone_number],
-                ["Department", selectedEmployeeProfile.department],
-                ["Role", selectedEmployeeProfile.role?.name],
-                ["Start Date", selectedEmployeeProfile.start_date],
-                ["Birth Date", selectedEmployeeProfile.birth_date],
-                ["Address", selectedEmployeeProfile.address],
-                [
-                  "Employment Status",
-                  selectedEmployeeProfile.employment_status,
-                ],
-                [
-                  "Managers",
-                  Array.isArray(selectedEmployeeProfile.manager_names)
-                    ? selectedEmployeeProfile.manager_names.join(", ")
-                    : selectedEmployeeProfile.manager_names,
-                ],
-              ].map(([label, value]) => (
-                <div key={label as string} className="space-y-1">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    {label}
-                  </p>
-                  <p className="text-sm text-gray-900">
-                    {value && String(value).trim() ? String(value) : "N/A"}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
