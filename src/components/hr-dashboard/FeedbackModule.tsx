@@ -53,6 +53,12 @@ import {
   TableRow,
 } from "./ui/table";
 import { Badge } from "./ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import { QuickActionButton } from "./QuickActionButton";
 import { Progress } from "./ui/progress";
 import { Avatar, AvatarFallback } from "./ui/avatar";
@@ -882,6 +888,172 @@ export function FeedbackModule() {
     setAnalyticsSurveyId(surveyId);
     setAnalyticsFilters({ department: "", startDate: "", endDate: "" });
     setActiveTab("results");
+  };
+
+  const handleExportResultsCsv = () => {
+    if (!analytics) return;
+    const safeTitle = (analytics.survey_title || "survey").replace(/\s+/g, "_");
+    const quote = (v: string | number | null | undefined) => {
+      const raw = v === null || v === undefined ? "" : String(v).trim();
+      const s = raw === "" ? "N/A" : raw;
+      return `"${s.replace(/"/g, '""')}"`;
+    };
+    const lines: string[] = [];
+    lines.push("sep=,");
+    lines.push(
+      [
+        "Survey",
+        "Anonymous",
+        "Total Responses",
+        "Question",
+        "Type",
+        "Response Count",
+        "Average / Value",
+        "Count",
+      ]
+        .map(quote)
+        .join(",")
+    );
+    for (const q of analytics.questions) {
+      if (q.type === "scale") {
+        lines.push(
+          [
+            analytics.survey_title,
+            analytics.is_anonymous ? "Yes" : "No",
+            analytics.total_responses,
+            q.text,
+            q.type,
+            q.response_count,
+            q.average ?? "",
+            "",
+          ]
+            .map(quote)
+            .join(",")
+        );
+        for (const d of q.distribution ?? []) {
+          lines.push(
+            [
+              analytics.survey_title,
+              analytics.is_anonymous ? "Yes" : "No",
+              analytics.total_responses,
+              q.text,
+              q.type,
+              q.response_count,
+              d.value,
+              d.count,
+            ]
+              .map(quote)
+              .join(",")
+          );
+        }
+      } else if (q.type === "choice") {
+        for (const d of q.distribution ?? []) {
+          lines.push(
+            [
+              analytics.survey_title,
+              analytics.is_anonymous ? "Yes" : "No",
+              analytics.total_responses,
+              q.text,
+              q.type,
+              q.response_count,
+              d.value,
+              d.count,
+            ]
+              .map(quote)
+              .join(",")
+          );
+        }
+      } else {
+        for (const sample of q.samples ?? []) {
+          lines.push(
+            [
+              analytics.survey_title,
+              analytics.is_anonymous ? "Yes" : "No",
+              analytics.total_responses,
+              q.text,
+              q.type,
+              q.response_count,
+              sample,
+              "",
+            ]
+              .map(quote)
+              .join(",")
+          );
+        }
+      }
+    }
+    const blob = new Blob(["﻿" + lines.join("\r\n")], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${safeTitle}_results.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportResultsPdf = async () => {
+    if (!analytics) return;
+    const { default: jsPDF } = await import("jspdf");
+    const { default: autoTable } = await import("jspdf-autotable");
+    const safeTitle = (analytics.survey_title || "survey").replace(/\s+/g, "_");
+
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("Survey Results", 14, 18);
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+    doc.text(`Survey: ${analytics.survey_title}`, 14, 26);
+    doc.text(`Anonymous: ${analytics.is_anonymous ? "Yes" : "No"}`, 14, 32);
+    doc.text(`Total responses: ${analytics.total_responses}`, 14, 38);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 44);
+
+    let cursorY = 52;
+    for (const q of analytics.questions) {
+      doc.setFontSize(12);
+      doc.setTextColor(0);
+      doc.text(q.text, 14, cursorY);
+      cursorY += 4;
+
+      let head: string[][];
+      let body: (string | number)[][];
+      if (q.type === "scale") {
+        head = [["Value", "Count"]];
+        body = [
+          ["Average", q.average?.toFixed(2) ?? "—"],
+          ["Responses", q.response_count],
+          ...(q.distribution ?? []).map((d) => [d.value, d.count]),
+        ];
+      } else if (q.type === "choice") {
+        head = [["Option", "Count"]];
+        body = (q.distribution ?? []).map((d) => [d.value, d.count]);
+        if (body.length === 0) body = [["—", 0]];
+      } else {
+        head = [["Sample Answer"]];
+        body = (q.samples ?? []).map((s) => [s]);
+        if (body.length === 0) body = [["No text responses."]];
+      }
+      autoTable(doc, {
+        startY: cursorY,
+        head,
+        body,
+        theme: "striped",
+        headStyles: { fillColor: [37, 99, 235] },
+        margin: { left: 14, right: 14 },
+        styles: { fontSize: 9, cellPadding: 3 },
+      });
+      cursorY =
+        ((doc as unknown as { lastAutoTable?: { finalY: number } })
+          .lastAutoTable?.finalY ?? cursorY + 20) + 10;
+      if (cursorY > 260) {
+        doc.addPage();
+        cursorY = 20;
+      }
+    }
+    doc.save(`${safeTitle}_results.pdf`);
   };
 
   const refreshAllSurveyLists = async (token: string) => {
@@ -1894,6 +2066,29 @@ export function FeedbackModule() {
                         <h3 className="font-medium text-gray-900">
                           Survey Results Dashboard
                         </h3>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled={!analytics}
+                            >
+                              <Download className="w-4 h-4 mr-2" />
+                              Export
+                              <ChevronDown className="w-3 h-3 ml-1" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={handleExportResultsCsv}>
+                              Export as CSV
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => void handleExportResultsPdf()}
+                            >
+                              Export as PDF
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
 
                       {/* Pulse Check Summary — independent of survey selection */}
