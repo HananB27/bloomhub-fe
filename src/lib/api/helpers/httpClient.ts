@@ -165,6 +165,19 @@ export async function patch<T>(
   return handleResponse<T>(response, errorMessage);
 }
 
+export async function put<T>(
+  url: string,
+  body: unknown,
+  errorMessage: string
+): Promise<T> {
+  const response = await fetchWithAuthRetry(url, {
+    method: "PUT",
+    headers: getHeaders(),
+    body: JSON.stringify(body),
+  });
+  return handleResponse<T>(response, errorMessage);
+}
+
 export async function del(url: string, errorMessage: string): Promise<void> {
   const response = await fetchWithAuthRetry(url, {
     method: "DELETE",

@@ -14,7 +14,15 @@ export const ALL_JOB_LISTING_STATUSES: JobListingStatus[] = [
   "cancelled",
 ];
 
-export type ListingTone = "open" | "closing-soon" | "filled" | "closed";
+export type ListingTone =
+  | "draft"
+  | "upcoming"
+  | "open"
+  | "closing-soon"
+  | "expired"
+  | "cancelled"
+  | "filled"
+  | "closed";
 
 export interface ListingTonePill {
   label: string;
@@ -23,6 +31,16 @@ export interface ListingTonePill {
 }
 
 export const LISTING_TONE_PILLS: Record<ListingTone, ListingTonePill> = {
+  draft: {
+    label: "Draft",
+    bg: "bg-gray-100 text-gray-700",
+    dot: "bg-gray-500",
+  },
+  upcoming: {
+    label: "Upcoming",
+    bg: "bg-sky-50 text-sky-700",
+    dot: "bg-sky-600",
+  },
   open: {
     label: "Open",
     bg: "bg-emerald-50 text-emerald-700",
@@ -37,6 +55,16 @@ export const LISTING_TONE_PILLS: Record<ListingTone, ListingTonePill> = {
     label: "Filled",
     bg: "bg-blue-50 text-blue-700",
     dot: "bg-blue-600",
+  },
+  expired: {
+    label: "Expired",
+    bg: "bg-rose-50 text-rose-700",
+    dot: "bg-rose-600",
+  },
+  cancelled: {
+    label: "Cancelled",
+    bg: "bg-gray-100 text-gray-600",
+    dot: "bg-gray-400",
   },
   closed: {
     label: "Closed",
@@ -144,6 +172,15 @@ export interface CreateListingPayload {
   departmentId?: number | null;
   openAt: string;
   closeAt: string;
+  status?: JobListingStatus;
+}
+
+export interface UpdateListingPayload {
+  title?: string;
+  description?: string;
+  departmentId?: number | null;
+  openAt?: string;
+  closeAt?: string;
   status?: JobListingStatus;
 }
 
