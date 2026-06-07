@@ -35,25 +35,33 @@ function extractErrorMessage(
   return fieldErrors.length > 0 ? fieldErrors.join("; ") : fallback;
 }
 
+function buildRequestError(
+  response: Response,
+  error: Record<string, unknown>,
+  fallback: string
+): ApiRequestError {
+  const requestError = new Error(
+    extractErrorMessage(error, fallback)
+  ) as ApiRequestError;
+  requestError.status = response.status;
+  if (typeof error.code === "string") {
+    requestError.code = error.code;
+  }
+  return requestError;
+}
+
 async function handleResponse<T>(
   response: Response,
   errorMessage: string,
   parseBody = true
 ): Promise<T> {
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
+    const error = (await response.json().catch(() => ({}))) as Record<string, unknown>;
     const fallback =
       response.status === 403
         ? "Not allowed to perform this action"
         : errorMessage;
-    const requestError = new Error(
-      extractErrorMessage(error as Record<string, unknown>, fallback)
-    ) as ApiRequestError;
-    requestError.status = response.status;
-    if (typeof (error as Record<string, unknown>).code === "string") {
-      requestError.code = (error as Record<string, unknown>).code as string;
-    }
-    throw requestError;
+    throw buildRequestError(response, error, fallback);
   }
   return (parseBody ? response.json() : undefined) as T;
 }
