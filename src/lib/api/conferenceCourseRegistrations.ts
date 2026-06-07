@@ -6,6 +6,7 @@ import type {
   CreateConferenceCourseRegistrationPayload,
   UpdateConferenceCourseRegistrationPayload,
 } from "@/types/conferenceCourseRegistration";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const API_BASE_URL = getApiBaseUrl();
 const ENDPOINT = `${API_BASE_URL}/api/conference-course-registrations/`;
