@@ -217,26 +217,30 @@ async function parseResponse<T>(response: Response): Promise<T> {
   return body as T;
 }
 
+async function apiRequest<T>(
+  url: string,
+  options?: RequestInit
+): Promise<T> {
+  const response = await fetchWithAuthRetry(url, {
+    ...options,
+    headers: getHeaders(),
+  });
+  return parseResponse<T>(response);
+}
+
 export async function sendAiChatMessage(
   request: AiChatRequest
 ): Promise<AiChatResponse> {
-  const response = await fetchWithAuthRetry(`${baseUrl()}/api/ai/chat/`, {
+  return apiRequest<AiChatResponse>(`${baseUrl()}/api/ai/chat/`, {
     method: "POST",
-    headers: getHeaders(),
     body: JSON.stringify(request),
   });
-
-  return parseResponse<AiChatResponse>(response);
 }
 
 export async function listAiChatSessions(): Promise<AiChatSessionSummary[]> {
-  const response = await fetchWithAuthRetry(
-    `${baseUrl()}/api/ai/chat/sessions/`,
-    { headers: getHeaders() }
-  );
-  const data = await parseResponse<
+  const data = await apiRequest<
     AiChatSessionSummary[] | { results?: AiChatSessionSummary[] }
-  >(response);
+  >(`${baseUrl()}/api/ai/chat/sessions/`);
 
   return Array.isArray(data) ? data : (data.results ?? []);
 }
@@ -244,29 +248,13 @@ export async function listAiChatSessions(): Promise<AiChatSessionSummary[]> {
 export async function getAiChatSession(
   id: number
 ): Promise<AiChatSessionDetail> {
-  const response = await fetchWithAuthRetry(
-    `${baseUrl()}/api/ai/chat/sessions/${id}/`,
-    { headers: getHeaders() }
+  return apiRequest<AiChatSessionDetail>(
+    `${baseUrl()}/api/ai/chat/sessions/${id}/`
   );
-
-  return parseResponse<AiChatSessionDetail>(response);
 }
 
 export async function deleteAiChatSession(id: number): Promise<void> {
-  const response = await fetchWithAuthRetry(
-    `${baseUrl()}/api/ai/chat/sessions/${id}/`,
-    {
-      method: "DELETE",
-      headers: getHeaders(),
-    }
-  );
-
-  if (!response.ok) {
-    const body = await response.json().catch(() => undefined);
-    throw new AiChatApiError(
-      response.status,
-      extractErrorMessage(body, response.status),
-      extractFieldErrors(body)
-    );
-  }
+  await apiRequest<void>(`${baseUrl()}/api/ai/chat/sessions/${id}/`, {
+    method: "DELETE",
+  });
 }
