@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/hr-dashboard/ui/button";
 import type { TrainingEntry } from "@/types/training";
-import { formatDate } from "@/utils";
+import { formatDate } from "@/lib/utils/date";
 
 interface TrainingEntryListProps {
   entries: TrainingEntry[];
