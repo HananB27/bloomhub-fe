@@ -31,19 +31,31 @@ export interface FetchEmployeesOptions {
   accessToken: string;
 }
 
-export const fetchEmployees = async (
-  options: FetchEmployeesOptions
-): Promise<Employee[]> => {
-  const response = await fetch(`${API_BASE_URL}/api/employees/`, {
+// Internal helpers to reduce duplication
+async function fetchWithAuth(url: string, token: string): Promise<Response> {
+  return fetch(url, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${options.accessToken}`,
+      Authorization: `Bearer ${token}`,
     },
   });
+}
+
+async function parseJsonSafe(response: Response): Promise<any> {
+  return response.json().catch(() => ({}));
+}
+
+export const fetchEmployees = async (
+  options: FetchEmployeesOptions
+): Promise<Employee[]> => {
+  const response = await fetchWithAuth(
+    `${API_BASE_URL}/api/employees/`,
+    options.accessToken
+  );
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
+    const error = await parseJsonSafe(response);
 
     if (response.status === 401) {
       throw new Error("Unauthorized: Please log in again");
@@ -62,16 +74,13 @@ export const fetchEmployees = async (
 export const fetchCurrentUserProfile = async (
   accessToken: string
 ): Promise<Employee> => {
-  const response = await fetch(`${API_BASE_URL}/api/auth/profile/`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+  const response = await fetchWithAuth(
+    `${API_BASE_URL}/api/auth/profile/`,
+    accessToken
+  );
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
+    const error = await parseJsonSafe(response);
     throw new Error(error.detail || "Failed to fetch user profile");
   }
 
