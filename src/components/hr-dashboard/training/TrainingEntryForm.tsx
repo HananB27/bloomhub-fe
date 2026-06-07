@@ -12,9 +12,6 @@ import type {
   TrainingEntry,
 } from "@/types/training";
 import type { TrainingBudgetWarning } from "@/types/trainingBudget";
-import { createTrainingEntry, updateTrainingEntry } from "@/lib/api/training";
-import { notifyWarning, notifyError } from "@/utils/notificationHelpers";
-import { formatCurrency } from "@/utils/format";
 
 interface TrainingEntryFormProps {
   accessToken: string;
@@ -22,6 +19,16 @@ interface TrainingEntryFormProps {
   onCancel?: () => void;
   editingEntry?: TrainingEntry;
   employeeId?: number;
+  onCreateEntry?: (
+    payload: CreateTrainingEntryPayload,
+    accessToken: string
+  ) => Promise<{ entry: TrainingEntry; budgetWarning?: TrainingBudgetWarning }>;
+  onUpdateEntry?: (
+    id: number,
+    payload: UpdateTrainingEntryPayload,
+    accessToken: string
+  ) => Promise<TrainingEntry>;
+  onNotifyBudgetWarning?: (warning: TrainingBudgetWarning) => void;
 }
 
 const TRAINING_TYPES = [
@@ -63,6 +70,9 @@ export function TrainingEntryForm({
   onCancel,
   editingEntry,
   employeeId,
+  onCreateEntry,
+  onUpdateEntry,
+  onNotifyBudgetWarning,
 }: TrainingEntryFormProps) {
   const isEditing = !!editingEntry;
   const [isLoading, setIsLoading] = useState(false);
@@ -155,14 +165,14 @@ export function TrainingEntryForm({
     try {
       let result: TrainingEntry;
       let warning: TrainingBudgetWarning | undefined;
-      if (isEditing && editingEntry) {
-        result = await updateTrainingEntry(
+      if (isEditing && editingEntry && onUpdateEntry) {
+        result = await onUpdateEntry(
           editingEntry.id,
           formData as UpdateTrainingEntryPayload,
           accessToken
         );
-      } else {
-        const created = await createTrainingEntry(formData, accessToken);
+      } else if (!isEditing && onCreateEntry) {
+        const created = await onCreateEntry(formData, accessToken);
         result = created.entry;
         warning = created.budgetWarning;
         setFormData({
@@ -176,9 +186,11 @@ export function TrainingEntryForm({
           certificateLink: "",
           employeeId,
         });
+      } else {
+        throw new Error("Entry creation/update function not provided");
       }
-      if (warning) {
-        notifyBudgetWarning(warning);
+      if (warning && onNotifyBudgetWarning) {
+        onNotifyBudgetWarning(warning);
       }
       if (onSuccess) onSuccess(result, warning);
     } catch (err) {
@@ -187,15 +199,6 @@ export function TrainingEntryForm({
       setIsLoading(false);
     }
   };
-
-  function notifyBudgetWarning(warning: TrainingBudgetWarning) {
-    const message = `${warning.percentUsed}% of FY ${warning.fiscalYear} budget used (${formatCurrency(warning.usedBudget)} of ${formatCurrency(warning.allocatedBudget)}).`;
-    if (warning.level === "exceeded") {
-      notifyError(`Training budget exceeded — ${message}`);
-    } else {
-      notifyWarning(`Training budget limit approaching — ${message}`);
-    }
-  }
 
   const inputCls =
     "w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-gray-400 focus:bg-white disabled:opacity-50";
