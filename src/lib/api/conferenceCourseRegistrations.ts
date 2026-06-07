@@ -80,22 +80,29 @@ async function extractErrorMessage(
   return fallback;
 }
 
+async function handleApiResponse<T>(response: Response, fallback: string): Promise<T> {
+  if (!response.ok) {
+    throw new Error(await extractErrorMessage(response, fallback));
+  }
+  return response.json() as Promise<T>;
+}
+
+async function handleApiDeleteResponse(response: Response, fallback: string): Promise<void> {
+  if (!response.ok) {
+    throw new Error(await extractErrorMessage(response, fallback));
+  }
+}
+
 export const fetchConferenceCourseRegistrations = async (
   accessToken: string,
   filters?: ConferenceCourseRegistrationFilters
 ): Promise<ConferenceCourseRegistration[]> => {
   const queryString = filters ? buildFilterQuery(filters) : "";
   const url = `${ENDPOINT}${queryString ? `?${queryString}` : ""}`;
-  const response = await fetch(url, {
-    method: "GET",
-    headers: authHeaders(accessToken),
-  });
-  if (!response.ok) {
-    throw new Error(
-      await extractErrorMessage(response, "Failed to fetch registrations")
-    );
-  }
-  const data = await response.json();
+  const data = await handleApiResponse<{ results?: ApiRegistration[] }>(
+    await fetch(url, { method: "GET", headers: authHeaders(accessToken) }),
+    "Failed to fetch registrations"
+  );
   const list = data.results ? data.results : Array.isArray(data) ? data : [];
   return list.map(transformRegistration);
 };
@@ -104,16 +111,10 @@ export const fetchConferenceCourseRegistration = async (
   id: number,
   accessToken: string
 ): Promise<ConferenceCourseRegistration> => {
-  const response = await fetch(`${ENDPOINT}${id}/`, {
-    method: "GET",
-    headers: authHeaders(accessToken),
-  });
-  if (!response.ok) {
-    throw new Error(
-      await extractErrorMessage(response, "Failed to fetch registration")
-    );
-  }
-  const data: ApiRegistration = await response.json();
+  const data = await handleApiResponse<ApiRegistration>(
+    await fetch(`${ENDPOINT}${id}/`, { method: "GET", headers: authHeaders(accessToken) }),
+    "Failed to fetch registration"
+  );
   return transformRegistration(data);
 };
 
@@ -141,17 +142,14 @@ export const createConferenceCourseRegistration = async (
   payload: CreateConferenceCourseRegistrationPayload,
   accessToken: string
 ): Promise<ConferenceCourseRegistration> => {
-  const response = await fetch(ENDPOINT, {
-    method: "POST",
-    headers: authHeaders(accessToken),
-    body: JSON.stringify(buildPayload(payload, true)),
-  });
-  if (!response.ok) {
-    throw new Error(
-      await extractErrorMessage(response, "Failed to create registration")
-    );
-  }
-  const data: ApiRegistration = await response.json();
+  const data = await handleApiResponse<ApiRegistration>(
+    await fetch(ENDPOINT, {
+      method: "POST",
+      headers: authHeaders(accessToken),
+      body: JSON.stringify(buildPayload(payload, true)),
+    }),
+    "Failed to create registration"
+  );
   return transformRegistration(data);
 };
 
@@ -160,17 +158,14 @@ export const updateConferenceCourseRegistration = async (
   payload: UpdateConferenceCourseRegistrationPayload,
   accessToken: string
 ): Promise<ConferenceCourseRegistration> => {
-  const response = await fetch(`${ENDPOINT}${id}/`, {
-    method: "PATCH",
-    headers: authHeaders(accessToken),
-    body: JSON.stringify(buildPayload(payload, false)),
-  });
-  if (!response.ok) {
-    throw new Error(
-      await extractErrorMessage(response, "Failed to update registration")
-    );
-  }
-  const data: ApiRegistration = await response.json();
+  const data = await handleApiResponse<ApiRegistration>(
+    await fetch(`${ENDPOINT}${id}/`, {
+      method: "PATCH",
+      headers: authHeaders(accessToken),
+      body: JSON.stringify(buildPayload(payload, false)),
+    }),
+    "Failed to update registration"
+  );
   return transformRegistration(data);
 };
 
@@ -178,13 +173,11 @@ export const deleteConferenceCourseRegistration = async (
   id: number,
   accessToken: string
 ): Promise<void> => {
-  const response = await fetch(`${ENDPOINT}${id}/`, {
-    method: "DELETE",
-    headers: authHeaders(accessToken, false),
-  });
-  if (!response.ok) {
-    throw new Error(
-      await extractErrorMessage(response, "Failed to delete registration")
-    );
-  }
+  await handleApiDeleteResponse(
+    await fetch(`${ENDPOINT}${id}/`, {
+      method: "DELETE",
+      headers: authHeaders(accessToken, false),
+    }),
+    "Failed to delete registration"
+  );
 };
