@@ -20,8 +20,6 @@ export const DOCUMENT_EDITOR_DEFAULT_PAGE_BG = "#ffffff";
 // runs on load and returns the inner HTML + the styles it found.
 
 export const TEMPLATE_BODY_WRAPPER_ATTR = "data-template-body";
-const TEMPLATE_VISIBILITY_SCOPE_ATTR = "data-visibility-scope";
-const TEMPLATE_ALLOWED_ROLES_ATTR = "data-allowed-roles";
 const FONT_FAMILY_STYLE_REGEX = /font-family\s*:\s*([^;"]+)/i;
 const BACKGROUND_COLOR_STYLE_REGEX = /background-color\s*:\s*([^;"]+)/i;
 const TEMPLATE_BODY_WRAPPER_OPEN_REGEX = new RegExp(
