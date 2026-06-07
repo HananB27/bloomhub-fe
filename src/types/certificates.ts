@@ -15,11 +15,6 @@ export interface Certificate {
   updatedAt?: string;
 }
 
-export interface CertificateFilters {
-  employeeId?: number;
-  search?: string;
-  ordering?: string;
-}
 
 export interface CreateCertificatePayload {
   title: string;
