@@ -87,9 +87,3 @@ export interface CreateCPFLevelChangePayload {
 }
 
 export type UpdateCPFLevelChangePayload = Partial<CreateCPFLevelChangePayload>;
-
-export const ALL_CPF_CHANGE_SOURCES: CPFChangeSource[] = [
-  "manual",
-  "performance_review",
-  "promotion",
-];
