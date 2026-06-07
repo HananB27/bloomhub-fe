@@ -423,6 +423,64 @@ function parseContentDispositionFilename(value: string | null): string | null {
   return filenameMatch[1].trim().replace(/^"|"$/g, "");
 }
 
+async function fetchBlobWithAuth(
+  url: string,
+  options: RequestInit = {},
+  tokenOverride?: string
+): Promise<{ blob: Blob; response: Response }> {
+  const token = tokenOverride ?? getStoredAccessToken();
+  const headers = new Headers(options.headers || {});
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+  const response = await fetch(url, { ...options, headers });
+  if (!response.ok) {
+    const contentType = response.headers.get("content-type") || "";
+    const errorPayload = contentType.includes("application/json")
+      ? await response.json().catch(() => ({}))
+      : await response.text().catch(() => "");
+    throw new ApiError(
+      extractErrorMessage(errorPayload, response.status),
+      response.status,
+      errorPayload
+    );
+  }
+  const blob = await response.blob();
+  return { blob, response };
+}
+
+function normalizeAssignPayload(payload: Record<string, unknown>): Record<string, unknown> {
+  const normalized = {
+    ...payload,
+    asset:
+      payload.asset ??
+      payload.asset_id ??
+      (typeof payload.assetId === "number" ? payload.assetId : undefined),
+    employee:
+      payload.employee ??
+      payload.employee_id ??
+      (typeof payload.employeeId === "number" ? payload.employeeId : undefined),
+  };
+  delete (normalized as Record<string, unknown>).asset_id;
+  delete (normalized as Record<string, unknown>).assetId;
+  delete (normalized as Record<string, unknown>).employee_id;
+  delete (normalized as Record<string, unknown>).employeeId;
+  return normalized;
+}
+
+function formatUserProfileToName(profile: UserProfileApiItem): string {
+  const first = profile.user?.first_name?.trim() || "";
+  const last = profile.user?.last_name?.trim() || "";
+  const joinedName = `${first} ${last}`.trim();
+  return (
+    profile.full_name?.trim() ||
+    joinedName ||
+    profile.user?.email ||
+    profile.user?.username ||
+    `User ${profile.id}`
+  );
+}
+
 async function requestJson<T>(
   path: string,
   options: RequestOptions = {}
@@ -515,36 +573,11 @@ export async function downloadAssetQrCode(
   assetId: number | string,
   token?: string
 ): Promise<AssetQrCodeDownloadResult> {
-  const authToken = token || getStoredAccessToken();
-  const headers: HeadersInit = {};
-
-  if (authToken) {
-    headers.Authorization = `Bearer ${authToken}`;
-  }
-
-  const response = await fetch(getAssetQrCodeUrl(assetId), {
-    method: "GET",
-    headers,
-  });
-
-  if (!response.ok) {
-    const contentType = response.headers.get("content-type") || "";
-    const errorPayload = contentType.includes("application/json")
-      ? await response.json().catch(() => ({}))
-      : await response.text().catch(() => "");
-
-    throw new ApiError(
-      extractErrorMessage(errorPayload, response.status),
-      response.status,
-      errorPayload
-    );
-  }
-
-  const blob = await response.blob();
+  const url = getAssetQrCodeUrl(assetId);
+  const { blob, response } = await fetchBlobWithAuth(url, { method: "GET" }, token);
   const filenameFromHeader = parseContentDispositionFilename(
     response.headers.get("content-disposition")
   );
-
   return {
     blob,
     filename: filenameFromHeader || `asset-${assetId}-qr-code.png`,
@@ -561,27 +594,10 @@ export async function assignAssetToEmployee(
   payload: Record<string, unknown>,
   token?: string
 ): Promise<AssetAssignmentApiItem> {
-  const normalizedPayload = {
-    ...payload,
-    asset:
-      payload.asset ??
-      payload.asset_id ??
-      (typeof payload.assetId === "number" ? payload.assetId : undefined),
-    employee:
-      payload.employee ??
-      payload.employee_id ??
-      (typeof payload.employeeId === "number" ? payload.employeeId : undefined),
-  };
-
-  delete (normalizedPayload as Record<string, unknown>).asset_id;
-  delete (normalizedPayload as Record<string, unknown>).assetId;
-  delete (normalizedPayload as Record<string, unknown>).employee_id;
-  delete (normalizedPayload as Record<string, unknown>).employeeId;
-
   return requestJson<AssetAssignmentApiItem>(ASSIGNMENTS_PATH, {
     method: "POST",
     token,
-    body: normalizedPayload,
+    body: normalizeAssignPayload(payload),
   });
 }
 
@@ -791,63 +807,28 @@ export async function listAssignableUsers(
     token,
   });
 
-  return profiles.map((profile) => {
-    const first = profile.user?.first_name?.trim() || "";
-    const last = profile.user?.last_name?.trim() || "";
-    const joinedName = `${first} ${last}`.trim();
-
-    return {
-      id: String(profile.id),
-      name:
-        profile.full_name?.trim() ||
-        joinedName ||
-        profile.user?.email ||
-        profile.user?.username ||
-        `User ${profile.id}`,
-    };
-  });
+  return profiles.map((profile) => ({
+    id: String(profile.id),
+    name: formatUserProfileToName(profile),
+  }));
 }
 
 export async function exportAssetsCsv(
   payload: AssetExportPayload,
   token?: string
 ): Promise<AssetExportResult> {
-  const authToken = token || getStoredAccessToken();
+  const url = `${getApiBaseUrl()}${normalizePath(ASSETS_EXPORT_PATH)}`;
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-
-  if (authToken) {
-    headers.Authorization = `Bearer ${authToken}`;
-  }
-
-  const response = await fetch(
-    `${getApiBaseUrl()}${normalizePath(ASSETS_EXPORT_PATH)}`,
-    {
-      method: "POST",
-      headers,
-      body: JSON.stringify(payload),
-    }
+  const { blob, response } = await fetchBlobWithAuth(
+    url,
+    { method: "POST", headers, body: JSON.stringify(payload) },
+    token
   );
-
-  if (!response.ok) {
-    const contentType = response.headers.get("content-type") || "";
-    const errorPayload = contentType.includes("application/json")
-      ? await response.json().catch(() => ({}))
-      : await response.text().catch(() => "");
-
-    throw new ApiError(
-      extractErrorMessage(errorPayload, response.status),
-      response.status,
-      errorPayload
-    );
-  }
-
-  const blob = await response.blob();
   const filenameFromHeader = parseContentDispositionFilename(
     response.headers.get("content-disposition")
   );
-
   return {
     blob,
     filename: filenameFromHeader || payload.filename || "asset_export.csv",
