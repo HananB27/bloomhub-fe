@@ -56,23 +56,44 @@ async function parseResponseError(
     string,
     unknown
   > | null;
-  if (errorData && typeof errorData.detail === "string") {
-    return new Error(errorData.detail);
+  if (!errorData) {
+    return new Error(fallbackMessage);
   }
-  if (errorData && typeof errorData.message === "string") {
-    return new Error(errorData.message);
+
+  const errorKey = (["detail", "message"] as const).find(
+    (key) => typeof errorData[key] === "string"
+  );
+  if (errorKey) {
+    return new Error(errorData[errorKey] as string);
   }
-  if (errorData) {
-    const fieldErrors = Object.entries(errorData)
-      .filter(([, v]) => Array.isArray(v) || typeof v === "string")
-      .map(
-        ([k, v]) => `${k}: ${Array.isArray(v) ? (v as string[]).join(", ") : v}`
-      );
-    if (fieldErrors.length > 0) {
-      return new Error(fieldErrors.join("; "));
-    }
+
+  const fieldErrors = Object.entries(errorData)
+    .filter(([, v]) => Array.isArray(v) || typeof v === "string")
+    .map(([k, v]) =>
+      `${k}: ${Array.isArray(v) ? (v as string[]).join(", ") : v}`
+    );
+  if (fieldErrors.length > 0) {
+    return new Error(fieldErrors.join("; "));
   }
+
   return new Error(fallbackMessage);
+}
+
+function buildCertificateFormData(payload: CreateCertificatePayload): FormData {
+  const formData = new FormData();
+  formData.append("file", payload.file);
+  formData.append("title", payload.title);
+  formData.append("issued_date", payload.issuedDate);
+  if (payload.expirationDate) {
+    formData.append("expiration_date", payload.expirationDate);
+  }
+  if (payload.issuer) {
+    formData.append("issuer", payload.issuer);
+  }
+  if (payload.employeeId !== undefined) {
+    formData.append("employee_id", String(payload.employeeId));
+  }
+  return formData;
 }
 
 export const certificatesApi = {
@@ -101,20 +122,7 @@ export const certificatesApi = {
   },
 
   async upload(payload: CreateCertificatePayload): Promise<Certificate> {
-    const formData = new FormData();
-    formData.append("file", payload.file);
-    formData.append("title", payload.title);
-    formData.append("issued_date", payload.issuedDate);
-    if (payload.expirationDate) {
-      formData.append("expiration_date", payload.expirationDate);
-    }
-    if (payload.issuer) {
-      formData.append("issuer", payload.issuer);
-    }
-    if (payload.employeeId !== undefined) {
-      formData.append("employee_id", String(payload.employeeId));
-    }
-
+    const formData = buildCertificateFormData(payload);
     const response = await fetchWithAuthRetry(
       `${API_BASE_URL}${CERTIFICATES_API_BASE_PATH}`,
       { method: "POST", body: formData }
