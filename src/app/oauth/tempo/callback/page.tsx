@@ -35,6 +35,41 @@ function readReturnTo(): string {
   return DEFAULT_RETURN_TO;
 }
 
+function TempoOAuthErrorView({
+  message,
+  onRetry,
+  onBack,
+}: {
+  message: string;
+  onRetry: () => void;
+  onBack: () => void;
+}) {
+  return (
+    <>
+      <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+        <div className="flex-1">{message}</div>
+      </div>
+      <div className="flex gap-2">
+        <Button
+          variant="primary"
+          className="h-8 rounded-lg bg-gray-950 text-white hover:bg-black"
+          onClick={onRetry}
+        >
+          Try again
+        </Button>
+        <Button
+          variant="outline"
+          className="h-8 rounded-lg border-gray-200 bg-white text-gray-800"
+          onClick={onBack}
+        >
+          Back to dashboard
+        </Button>
+      </div>
+    </>
+  );
+}
+
 function TempoOAuthCallbackInner() {
   const router = useRouter();
   const params = useSearchParams();
