@@ -4,15 +4,16 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 import { Toaster } from "@/components/hr-dashboard/ui/sonner";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const fonts = {
+  geistSans: Geist({
+    variable: "--font-geist-sans",
+    subsets: ["latin"],
+  }),
+  geistMono: Geist_Mono({
+    variable: "--font-geist-mono",
+    subsets: ["latin"],
+  }),
+};
 
 export const metadata: Metadata = {
   title: "BloomHub",
@@ -27,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${fonts.geistSans.variable} ${fonts.geistMono.variable} antialiased`}
       >
         <Providers>
           {children}
