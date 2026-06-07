@@ -51,16 +51,20 @@ function isDateField(
   );
 }
 
+function parseLocalDate(trimmed: string): string | null {
+  const match = /^(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})\.?$/.exec(trimmed);
+  if (!match) return null;
+  const [, day, month, year] = match;
+  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+}
+
 function normalizeDateValue(value: JsonValue): JsonValue {
   if (typeof value !== "string") return value;
   const trimmed = value.trim();
   if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
 
-  const localDate = /^(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})\.?$/.exec(trimmed);
-  if (!localDate) return value;
-
-  const [, day, month, year] = localDate;
-  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  const converted = parseLocalDate(trimmed);
+  return converted ?? value;
 }
 
 export function normalizeFormDataForSchema(
