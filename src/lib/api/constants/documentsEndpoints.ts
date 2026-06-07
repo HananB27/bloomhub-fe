@@ -2,57 +2,61 @@ export const DOCUMENTS_API_BASE_PATH = "/api/documents/";
 
 // ─── Single-document paths ────────────────────────────────────────────────────
 
+function documentPath(documentId: number | string, suffix: string): string {
+  return `${DOCUMENTS_API_BASE_PATH}${documentId}/${suffix}`;
+}
+
 export function documentDownloadPath(documentId: number | string): string {
-  return `${DOCUMENTS_API_BASE_PATH}${documentId}/download/`;
+  return documentPath(documentId, "download/");
 }
 
 export function documentPreviewPath(documentId: number | string): string {
   // TODO [BACKEND REQUIRED]: GET /api/documents/{id}/preview/ — return a short-lived signed preview URL
-  return `${DOCUMENTS_API_BASE_PATH}${documentId}/preview/`;
+  return documentPath(documentId, "preview/");
 }
 
 export function documentArchivePath(documentId: number | string): string {
   // TODO [BACKEND REQUIRED]: POST /api/documents/{id}/archive/ — soft-delete (archive) a document
-  return `${DOCUMENTS_API_BASE_PATH}${documentId}/archive/`;
+  return documentPath(documentId, "archive/");
 }
 
 export function documentUnarchivePath(documentId: number | string): string {
-  return `${DOCUMENTS_API_BASE_PATH}${documentId}/unarchive/`;
+  return documentPath(documentId, "unarchive/");
 }
 
 export function documentVersionsPath(documentId: number | string): string {
   // TODO [BACKEND REQUIRED]: GET /api/documents/{id}/versions/ — return full version history array
-  return `${DOCUMENTS_API_BASE_PATH}${documentId}/versions/`;
+  return documentPath(documentId, "versions/");
 }
 
 export function documentSignaturePath(documentId: number | string): string {
   // TODO [BACKEND REQUIRED]: POST /api/documents/{id}/request-signature/ — initiate signature workflow
-  return `${DOCUMENTS_API_BASE_PATH}${documentId}/request-signature/`;
+  return documentPath(documentId, "request-signature/");
 }
 
 export function documentSignPath(documentId: number | string): string {
-  return `${DOCUMENTS_API_BASE_PATH}${documentId}/sign/`;
+  return documentPath(documentId, "sign/");
 }
 
 export function documentSignaturesPath(documentId: number | string): string {
-  return `${DOCUMENTS_API_BASE_PATH}${documentId}/signatures/`;
+  return documentPath(documentId, "signatures/");
 }
 
 export function documentResetSignaturesPath(
   documentId: number | string
 ): string {
   // POST /api/documents/{id}/reset-signatures/ — clears all signers (testing helper)
-  return `${DOCUMENTS_API_BASE_PATH}${documentId}/reset-signatures/`;
+  return documentPath(documentId, "reset-signatures/");
 }
 
 export function documentReminderPath(documentId: number | string): string {
   // TODO [BACKEND REQUIRED]: POST /api/documents/{id}/send-reminder/ — re-send signature requests to pending signers
-  return `${DOCUMENTS_API_BASE_PATH}${documentId}/send-reminder/`;
+  return documentPath(documentId, "send-reminder/");
 }
 
 export function documentVisibilityPath(documentId: number | string): string {
   // TODO [BACKEND REQUIRED]: PATCH /api/documents/{id}/visibility/ — update allowed_roles + visibility_scope (HR/Admin only)
-  return `${DOCUMENTS_API_BASE_PATH}${documentId}/visibility/`;
+  return documentPath(documentId, "visibility/");
 }
 
 // ─── Bulk operation paths ─────────────────────────────────────────────────────
