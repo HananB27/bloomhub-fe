@@ -8,21 +8,27 @@ function buildApiUrl(path: string): string {
   return `${normalizedBase}/${normalizedPath}`;
 }
 
-function getAuthHeaders(token?: string): Record<string, string> {
-  const normalizedToken = token?.trim();
-  if (!normalizedToken) {
+async function request<T>(
+  method: string,
+  path: string,
+  options?: { body?: unknown; token?: string }
+): Promise<T> {
+  const token = options?.token?.trim();
+  if (!token) {
     throw new ApiError(
       "Authentication token is required for feedback API requests",
       401
     );
   }
-  return {
-    Authorization: `Bearer ${normalizedToken}`,
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
   };
-}
-
-async function parseResponse<T>(response: Response): Promise<T> {
+  const init: RequestInit = { method, headers };
+  if (options?.body !== undefined) {
+    init.body = JSON.stringify(options.body);
+  }
+  const response = await fetch(buildApiUrl(path), init);
   const contentType = response.headers.get("content-type") ?? "";
   const rawBody = await response.text();
   let payload: unknown;
@@ -100,29 +106,18 @@ export async function fetchSurveys(
   options: { mine?: boolean } = {}
 ): Promise<Survey[]> {
   const qs = options.mine ? "?mine=true" : "";
-  const response = await fetch(buildApiUrl(`/api/surveys/${qs}`), {
-    headers: getAuthHeaders(token),
-  });
-  return parseResponse<Survey[]>(response);
+  return request<Survey[]>("GET", `/api/surveys/${qs}`, { token });
 }
 
 export async function fetchSurvey(id: number, token?: string): Promise<Survey> {
-  const response = await fetch(buildApiUrl(`/api/surveys/${id}/`), {
-    headers: getAuthHeaders(token),
-  });
-  return parseResponse<Survey>(response);
+  return request<Survey>("GET", `/api/surveys/${id}/`, { token });
 }
 
 export async function createSurvey(
   payload: CreateSurveyPayload,
   token?: string
 ): Promise<Survey> {
-  const response = await fetch(buildApiUrl("/api/surveys/"), {
-    method: "POST",
-    headers: getAuthHeaders(token),
-    body: JSON.stringify(payload),
-  });
-  return parseResponse<Survey>(response);
+  return request<Survey>("POST", "/api/surveys/", { body: payload, token });
 }
 
 export async function updateSurvey(
@@ -130,39 +125,22 @@ export async function updateSurvey(
   payload: UpdateSurveyPayload,
   token?: string
 ): Promise<Survey> {
-  const response = await fetch(buildApiUrl(`/api/surveys/${id}/`), {
-    method: "PATCH",
-    headers: getAuthHeaders(token),
-    body: JSON.stringify(payload),
-  });
-  return parseResponse<Survey>(response);
+  return request<Survey>("PATCH", `/api/surveys/${id}/`, { body: payload, token });
 }
 
 export async function deleteSurvey(id: number, token?: string): Promise<void> {
-  const response = await fetch(buildApiUrl(`/api/surveys/${id}/`), {
-    method: "DELETE",
-    headers: getAuthHeaders(token),
-  });
-  if (!response.ok) await parseResponse<void>(response);
+  await request<void>("DELETE", `/api/surveys/${id}/`, { token });
 }
 
 export async function closeSurvey(id: number, token?: string): Promise<Survey> {
-  const response = await fetch(buildApiUrl(`/api/surveys/${id}/close/`), {
-    method: "POST",
-    headers: getAuthHeaders(token),
-  });
-  return parseResponse<Survey>(response);
+  return request<Survey>("POST", `/api/surveys/${id}/close/`, { token });
 }
 
 export async function recallSurvey(
   id: number,
   token?: string
 ): Promise<Survey> {
-  const response = await fetch(buildApiUrl(`/api/surveys/${id}/recall/`), {
-    method: "POST",
-    headers: getAuthHeaders(token),
-  });
-  return parseResponse<Survey>(response);
+  return request<Survey>("POST", `/api/surveys/${id}/recall/`, { token });
 }
 
 export async function addSurveyQuestion(
@@ -170,15 +148,10 @@ export async function addSurveyQuestion(
   question: SurveyQuestion,
   token?: string
 ): Promise<SurveyQuestion> {
-  const response = await fetch(
-    buildApiUrl(`/api/surveys/${surveyId}/questions/`),
-    {
-      method: "POST",
-      headers: getAuthHeaders(token),
-      body: JSON.stringify(question),
-    }
-  );
-  return parseResponse<SurveyQuestion>(response);
+  return request<SurveyQuestion>("POST", `/api/surveys/${surveyId}/questions/`, {
+    body: question,
+    token,
+  });
 }
 
 // ── Response submission ────────────────────────────────────────────────────
@@ -199,15 +172,10 @@ export async function submitSurveyResponse(
   answers: SubmitAnswerPayload[],
   token?: string
 ): Promise<SubmitResponseResult> {
-  const response = await fetch(
-    buildApiUrl(`/api/surveys/${surveyId}/responses/`),
-    {
-      method: "POST",
-      headers: getAuthHeaders(token),
-      body: JSON.stringify({ answers }),
-    }
-  );
-  return parseResponse<SubmitResponseResult>(response);
+  return request<SubmitResponseResult>("POST", `/api/surveys/${surveyId}/responses/`, {
+    body: { answers },
+    token,
+  });
 }
 
 // ── Analytics ─────────────────────────────────────────────────────────────
@@ -281,12 +249,10 @@ export async function submitPulseCheck(
   category: PulseCategory = "overall",
   token?: string
 ): Promise<PulseCheck> {
-  const response = await fetch(buildApiUrl("/api/pulse-checks/"), {
-    method: "POST",
-    headers: getAuthHeaders(token),
-    body: JSON.stringify({ value, category }),
+  return request<PulseCheck>("POST", "/api/pulse-checks/", {
+    body: { value, category },
+    token,
   });
-  return parseResponse<PulseCheck>(response);
 }
 
 export interface SurveyIndividualAnswer {
@@ -315,11 +281,11 @@ export async function fetchSurveyIndividualResponses(
   surveyId: number,
   token?: string
 ): Promise<SurveyIndividualResponsesPayload> {
-  const response = await fetch(
-    buildApiUrl(`/api/surveys/${surveyId}/individual-responses/`),
-    { headers: getAuthHeaders(token) }
+  return request<SurveyIndividualResponsesPayload>(
+    "GET",
+    `/api/surveys/${surveyId}/individual-responses/`,
+    { token }
   );
-  return parseResponse<SurveyIndividualResponsesPayload>(response);
 }
 
 // ── Suggestion Box (BHB-454) ──────────────────────────────────────────────
@@ -351,19 +317,14 @@ export async function submitSuggestion(
   payload: CreateSuggestionPayload,
   token?: string
 ): Promise<Suggestion> {
-  const response = await fetch(buildApiUrl("/api/suggestions/"), {
-    method: "POST",
-    headers: getAuthHeaders(token),
-    body: JSON.stringify(payload),
+  return request<Suggestion>("POST", "/api/suggestions/", {
+    body: payload,
+    token,
   });
-  return parseResponse<Suggestion>(response);
 }
 
 export async function fetchSuggestions(token?: string): Promise<Suggestion[]> {
-  const response = await fetch(buildApiUrl("/api/suggestions/"), {
-    headers: getAuthHeaders(token),
-  });
-  return parseResponse<Suggestion[]>(response);
+  return request<Suggestion[]>("GET", "/api/suggestions/", { token });
 }
 
 export async function updateSuggestionStatus(
@@ -371,23 +332,21 @@ export async function updateSuggestionStatus(
   status: SuggestionStatus,
   token?: string
 ): Promise<Suggestion> {
-  const response = await fetch(buildApiUrl(`/api/suggestions/${id}/`), {
-    method: "PATCH",
-    headers: getAuthHeaders(token),
-    body: JSON.stringify({ status }),
+  return request<Suggestion>("PATCH", `/api/suggestions/${id}/`, {
+    body: { status },
+    token,
   });
-  return parseResponse<Suggestion>(response);
 }
 
 export async function fetchPulseSummary(
   days = 7,
   token?: string
 ): Promise<PulseSummary> {
-  const response = await fetch(
-    buildApiUrl(`/api/pulse-checks/summary/?days=${days}`),
-    { headers: getAuthHeaders(token) }
+  return request<PulseSummary>(
+    "GET",
+    `/api/pulse-checks/summary/?days=${days}`,
+    { token }
   );
-  return parseResponse<PulseSummary>(response);
 }
 
 export async function fetchSurveyAnalytics(
@@ -400,9 +359,6 @@ export async function fetchSurveyAnalytics(
   if (filters.startDate) params.set("start_date", filters.startDate);
   if (filters.endDate) params.set("end_date", filters.endDate);
   const qs = params.toString();
-  const url = buildApiUrl(
-    `/api/surveys/${surveyId}/analytics/${qs ? `?${qs}` : ""}`
-  );
-  const response = await fetch(url, { headers: getAuthHeaders(token) });
-  return parseResponse<SurveyAnalytics>(response);
+  const path = `/api/surveys/${surveyId}/analytics/${qs ? `?${qs}` : ""}`;
+  return request<SurveyAnalytics>("GET", path, { token });
 }
