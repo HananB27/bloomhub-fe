@@ -40,6 +40,31 @@ export interface TextToken {
 
 export type LinearToken = EntityToken | TextToken;
 
+function isValidSpan(span: AiEntitySpan, textLength: number): boolean {
+  return (
+    Number.isFinite(span.start) &&
+    Number.isFinite(span.end) &&
+    span.start >= 0 &&
+    span.end <= textLength &&
+    span.end > span.start
+  );
+}
+
+function pushTextToken(
+  tokens: LinearToken[],
+  text: string,
+  from: number,
+  to: number
+): void {
+  if (to > from) {
+    tokens.push({ kind: "text", text: text.slice(from, to) });
+  }
+}
+
+function pushEntityToken(tokens: LinearToken[], span: AiEntitySpan): void {
+  tokens.push({ kind: "entity", entity: span });
+}
+
 export function spliceEntityTokens(
   text: string,
   spans: AiEntitySpan[] | undefined
@@ -48,28 +73,17 @@ export function spliceEntityTokens(
     return text ? [{ kind: "text", text }] : [];
   }
   const valid = spans
-    .filter(
-      (s) =>
-        Number.isFinite(s.start) &&
-        Number.isFinite(s.end) &&
-        s.start >= 0 &&
-        s.end <= text.length &&
-        s.end > s.start
-    )
+    .filter((s) => isValidSpan(s, text.length))
     .sort((a, b) => a.start - b.start);
 
   const tokens: LinearToken[] = [];
   let cursor = 0;
   for (const span of valid) {
     if (span.start < cursor) continue;
-    if (span.start > cursor) {
-      tokens.push({ kind: "text", text: text.slice(cursor, span.start) });
-    }
-    tokens.push({ kind: "entity", entity: span });
+    pushTextToken(tokens, text, cursor, span.start);
+    pushEntityToken(tokens, span);
     cursor = span.end;
   }
-  if (cursor < text.length) {
-    tokens.push({ kind: "text", text: text.slice(cursor) });
-  }
+  pushTextToken(tokens, text, cursor, text.length);
   return tokens;
 }
