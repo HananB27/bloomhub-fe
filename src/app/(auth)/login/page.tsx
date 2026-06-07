@@ -26,6 +26,22 @@ export default function LoginPage() {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
+  const handleCredentialsLogin = async (email: string, password: string) => {
+    const result = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+    });
+
+    if (result?.error) {
+      toast.error(result.error);
+      setError(result.error);
+    } else {
+      toast.success("Welcome back!");
+      router.push("/");
+    }
+  };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -41,23 +57,8 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const result = await signIn("credentials", {
-        redirect: false,
-        email: formData.email,
-        password: formData.password,
-      });
-
-      if (result?.error) {
-        toast.error(result.error);
-        setError(result.error);
-      } else {
-        toast.success("Welcome back!");
-        router.push("/");
-      }
+      await handleCredentialsLogin(formData.email, formData.password);
     } catch (err: unknown) {
-      // Log unexpected errors for diagnostics but avoid using `any`
-      // Provide a generic message to the user
-
       console.error("Login error:", err);
       const errorMsg = "An unexpected error occurred. Please try again.";
       toast.error(errorMsg);
