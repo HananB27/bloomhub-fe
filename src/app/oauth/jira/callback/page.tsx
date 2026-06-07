@@ -35,6 +35,28 @@ function readReturnTo(): string {
   return DEFAULT_RETURN_TO;
 }
 
+function buildErrorState(params: URLSearchParams): ExchangeState | null {
+  const providerError = params.get("error");
+  if (providerError) {
+    const description =
+      params.get("error_description") ?? "Jira authorization was denied.";
+    return { kind: "error" as const, message: description };
+  }
+  return null;
+}
+
+function buildMissingParamsState(params: URLSearchParams): ExchangeState | null {
+  const code = params.get("code");
+  const stateParam = params.get("state");
+  if (!code || !stateParam) {
+    return {
+      kind: "error" as const,
+      message: "Missing authorization code or state in callback URL.",
+    };
+  }
+  return null;
+}
+
 function JiraOAuthCallbackInner() {
   const router = useRouter();
   const params = useSearchParams();
@@ -57,23 +79,20 @@ function JiraOAuthCallbackInner() {
     if (ranRef.current) return;
     ranRef.current = true;
 
-    const providerError = params.get("error");
-    if (providerError) {
-      const description =
-        params.get("error_description") ?? "Jira authorization was denied.";
-      setState({ kind: "error", message: description });
+    const errorState = buildErrorState(params);
+    if (errorState) {
+      setState(errorState);
       return;
     }
 
-    const code = params.get("code");
-    const stateParam = params.get("state");
-    if (!code || !stateParam) {
-      setState({
-        kind: "error",
-        message: "Missing authorization code or state in callback URL.",
-      });
+    const missingParamsState = buildMissingParamsState(params);
+    if (missingParamsState) {
+      setState(missingParamsState);
       return;
     }
+
+    const code = params.get("code")!;
+    const stateParam = params.get("state")!;
 
     (async () => {
       try {
