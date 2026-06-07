@@ -163,15 +163,6 @@ export function validateExternalCvUrlInput(raw: string): string | null {
   return null;
 }
 
-export function inferCvLinkProvider(url: string): "canva" | "other" {
-  try {
-    const host = new URL(url).hostname.toLowerCase();
-    if (host.includes("canva.")) return "canva";
-  } catch {
-    /* empty */
-  }
-  return "other";
-}
 
 /** Inline PDF/file preview works; external pages (e.g. Canva) open best in a new tab. */
 export function cvVersionSupportsEmbeddedPreview(cv: {
