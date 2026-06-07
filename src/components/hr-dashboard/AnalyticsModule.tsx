@@ -108,6 +108,58 @@ function _availabilityWindow(): { startDate: string; endDate: string } {
   return { startDate: _toISODate(start), endDate: _toISODate(end) };
 }
 
+/** Hook that fetches department options from the analytics API, scoped to a year. */
+function useDepartmentOptions(year: number): string[] {
+  const [options, setOptions] = useState<string[]>([]);
+  const { isAdmin } = useAdminAccess();
+
+  useEffect(() => {
+    if (!isAdmin) {
+      setOptions([]);
+      return;
+    }
+    let cancelled = false;
+    leaveAnalyticsApi
+      .departments({ year })
+      .then((rows) => {
+        if (cancelled) return;
+        const names = rows
+          .map((r) => r.department)
+          .filter((d): d is string => Boolean(d));
+        setOptions(Array.from(new Set(names)).sort());
+      })
+      .catch(() => {
+        if (!cancelled) setOptions([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [year, isAdmin]);
+
+  return options;
+}
+
+/** Hook that fetches project options from the projects API. */
+function useProjectOptions(): Project[] {
+  const [options, setOptions] = useState<Project[]>([]);
+  const { isAdmin } = useAdminAccess();
+
+  useEffect(() => {
+    if (!isAdmin) {
+      setOptions([]);
+      return;
+    }
+    const controller = new AbortController();
+    projectApi
+      .list({ page_size: 100 }, { signal: controller.signal })
+      .then((response) => setOptions(response.results))
+      .catch(() => setOptions([]));
+    return () => controller.abort();
+  }, [isAdmin]);
+
+  return options;
+}
+
 const ALL_TYPE_IDS = new Set<LeaveType>(ALL_LEAVE_TYPES);
 
 const TAB_TRIGGER_CLASSES =
@@ -155,28 +207,14 @@ export function AnalyticsModule({ onNavigate }: AnalyticsModuleProps = {}) {
   const data = useLeaveAnalyticsData(year, scope);
   const prevData = useLeaveAnalyticsData(year - 1, scope);
 
+  // Use custom hooks to isolate direct API dependencies
+  const departmentOptions = useDepartmentOptions(year);
+  const projectOptions = useProjectOptions();
+
+  // Keep both state variables in sync with the hook results
   useEffect(() => {
-    if (!isAdmin) {
-      setDeptOptions([]);
-      return;
-    }
-    let cancelled = false;
-    leaveAnalyticsApi
-      .departments({ year })
-      .then((rows) => {
-        if (cancelled) return;
-        const names = rows
-          .map((r) => r.department)
-          .filter((d): d is string => Boolean(d));
-        setDeptOptions(Array.from(new Set(names)).sort());
-      })
-      .catch(() => {
-        if (!cancelled) setDeptOptions([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [year, isAdmin]);
+    setDeptOptions(departmentOptions);
+  }, [departmentOptions]);
 
   useEffect(() => {
     if (!isAdmin && deptFilter !== ALL_DEPARTMENTS_SENTINEL) {
@@ -185,17 +223,8 @@ export function AnalyticsModule({ onNavigate }: AnalyticsModuleProps = {}) {
   }, [isAdmin, deptFilter]);
 
   useEffect(() => {
-    if (!isAdmin) {
-      setProjectOptions([]);
-      return;
-    }
-    const controller = new AbortController();
-    projectApi
-      .list({ page_size: 100 }, { signal: controller.signal })
-      .then((response) => setProjectOptions(response.results))
-      .catch(() => setProjectOptions([]));
-    return () => controller.abort();
-  }, [isAdmin]);
+    setProjectOptions(projectOptions);
+  }, [projectOptions]);
 
   const availability = useTeamAvailability({
     startDate: isAdmin ? availabilityWindow.startDate : "",
