@@ -1,6 +1,12 @@
 import { API_BASE_URL } from "../config";
 import { fetchWithAuthRetry } from "./refresh";
 import { buildQueryString, getHeaders } from "./helpers/httpClient";
+import {
+  CelebrationAccessDeniedError,
+  celebrationsApi,
+  type UpcomingCelebration,
+  type UpcomingCelebrationsParams,
+} from "./celebrations";
 
 export type CelebrationTypeFilter = "all" | "birthday" | "anniversary";
 export type CelebrationEventType = "birthday" | "anniversary";
