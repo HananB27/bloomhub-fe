@@ -28,6 +28,7 @@ import {
 } from "@/lib/api/announcements";
 import { getStoredUser } from "@/lib/api/tokens";
 import { isHrLikeRole } from "@/lib/permissions/assets-permissions";
+import { useCanManageAnnouncements } from "@/hooks/useCanManageAnnouncements";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -170,37 +171,6 @@ function roleFrom(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value : null;
 }
 
-function useCanManageAnnouncements() {
-  const { data: session } = useSession();
-  const [storedUser, setStoredUser] = useState<Record<string, unknown> | null>(
-    null
-  );
-
-  useEffect(() => {
-    setStoredUser(getStoredUser());
-  }, []);
-
-  const sessionUser = session?.user as
-    | {
-        role?: string;
-        career_level?: string;
-        is_staff?: boolean;
-        is_superuser?: boolean;
-      }
-    | undefined;
-
-  const role =
-    roleFrom(sessionUser?.role) ??
-    roleFrom(sessionUser?.career_level) ??
-    roleFrom(storedUser?.role) ??
-    roleFrom(storedUser?.career_level);
-
-  return (
-    Boolean(sessionUser?.is_staff) ||
-    Boolean(sessionUser?.is_superuser) ||
-    isHrLikeRole(role)
-  );
-}
 
 function isForbidden(error: string | null) {
   return Boolean(
