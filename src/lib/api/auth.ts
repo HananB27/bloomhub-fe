@@ -17,6 +17,14 @@ export interface RegistrationPayload {
   providerAvatarUrl?: string; // Fallback from provider
 }
 
+const handleApiError = async (response: Response, defaultMessage: string) => {
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.detail || defaultMessage);
+  }
+  return response.json();
+};
+
 export const loginWithEmail = async (credentials: LoginCredentials) => {
   const response = await fetch(`${API_BASE_URL}/api/auth/login/`, {
     method: "POST",
@@ -26,15 +34,10 @@ export const loginWithEmail = async (credentials: LoginCredentials) => {
     body: JSON.stringify(credentials),
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.detail || "Failed to log in");
-  }
-
-  return response.json();
+  return handleApiError(response, "Failed to log in");
 };
 
-export const registerUser = async (payload: RegistrationPayload) => {
+const buildRegistrationFormData = (payload: RegistrationPayload): FormData => {
   const formData = new FormData();
   formData.append("first_name", payload.firstName);
   formData.append("last_name", payload.lastName);
@@ -54,17 +57,18 @@ export const registerUser = async (payload: RegistrationPayload) => {
     formData.append("provider_avatar_url", payload.providerAvatarUrl);
   }
 
+  return formData;
+};
+
+export const registerUser = async (payload: RegistrationPayload) => {
+  const formData = buildRegistrationFormData(payload);
+
   const response = await fetch(`${API_BASE_URL}/api/auth/register/`, {
     method: "POST",
     body: formData, // Sending as FormData to support file upload
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.detail || "Failed to register account");
-  }
-
-  return response.json();
+  return handleApiError(response, "Failed to register account");
 };
 
 export const logoutUser = async (refreshToken?: string) => {
