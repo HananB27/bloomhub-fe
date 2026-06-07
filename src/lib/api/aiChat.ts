@@ -1,6 +1,7 @@
 import { getApiBaseUrl } from "@/lib/config";
 import { fetchWithAuthRetry } from "@/lib/api/refresh";
 import { getHeaders } from "@/lib/api/helpers/httpClient";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
 export type JsonValue =
   | string
@@ -176,6 +177,286 @@ function extractFieldErrors(body: unknown): Record<string, string> {
 }
 
 const baseUrl = () => getApiBaseUrl();
+
+// Mock dependencies
+vi.mock("@/lib/config", () => ({
+  getApiBaseUrl: vi.fn(() => "https://example.com"),
+}));
+
+vi.mock("@/lib/api/refresh", () => ({
+  fetchWithAuthRetry: vi.fn(),
+}));
+
+vi.mock("@/lib/api/helpers/httpClient", () => ({
+  getHeaders: vi.fn(() => ({ "Content-Type": "application/json" })),
+}));
+
+describe("AiChatApiError", () => {
+  it("should create an error with status, message, and fieldErrors", () => {
+    const error = new AiChatApiError(400, "Bad request", { field: "error" });
+    expect(error).toBeInstanceOf(Error);
+    expect(error.name).toBe("AiChatApiError");
+    expect(error.status).toBe(400);
+    expect(error.message).toBe("Bad request");
+    expect(error.fieldErrors).toEqual({ field: "error" });
+  });
+
+  it("should default fieldErrors to empty object", () => {
+    const error = new AiChatApiError(500, "Server error");
+    expect(error.fieldErrors).toEqual({});
+  });
+});
+
+describe("extractFieldErrors", () => {
+  it("should return empty object for non-object input", () => {
+    expect(extractFieldErrors(null)).toEqual({});
+    expect(extractFieldErrors("string")).toEqual({});
+    expect(extractFieldErrors(123)).toEqual({});
+  });
+
+  it("should skip detail and message keys", () => {
+    const body = { detail: "error", message: "msg", field: "value" };
+    expect(extractFieldErrors(body)).toEqual({ field: "value" });
+  });
+
+  it("should join array values with comma", () => {
+    const body = { field: ["a", "b", "c"] };
+    expect(extractFieldErrors(body)).toEqual({ field: "a, b, c" });
+  });
+
+  it("should stringify non-string values", () => {
+    const body = { field: 123 };
+    expect(extractFieldErrors(body)).toEqual({ field: "123" });
+  });
+});
+
+describe("extractErrorMessage", () => {
+  it("should return detail field if present", () => {
+    const body = { detail: "Detailed error" };
+    expect(extractErrorMessage(body, 400)).toBe("Detailed error");
+  });
+
+  it("should return message field if present", () => {
+    const body = { message: "Error message" };
+    expect(extractErrorMessage(body, 400)).toBe("Error message");
+  });
+
+  it("should build error from field errors", () => {
+    const body = { field1: "error1", field2: ["e2a", "e2b"] };
+    const msg = extractErrorMessage(body, 400);
+    expect(msg).toContain("field1: error1");
+    expect(msg).toContain("field2: e2a, e2b");
+  });
+
+  it("should return default message for 400", () => {
+    expect(extractErrorMessage(null, 400)).toBe(
+      "Request was not valid. Check message and try again."
+    );
+  });
+
+  it("should return default message for 401", () => {
+    expect(extractErrorMessage(null, 401)).toBe(
+      "Session expired. Sign in again to use AI assistant."
+    );
+  });
+
+  it("should return default message for 403", () => {
+    expect(extractErrorMessage(null, 403)).toBe(
+      "You do not have permission to use this assistant."
+    );
+  });
+
+  it("should return default message for 500+", () => {
+    expect(extractErrorMessage(null, 500)).toBe(
+      "AI service failed. Try again in a moment."
+    );
+    expect(extractErrorMessage(null, 503)).toBe(
+      "AI service failed. Try again in a moment."
+    );
+  });
+
+  it("should return generic message for unknown status", () => {
+    expect(extractErrorMessage(null, 418)).toBe("AI assistant request failed.");
+  });
+});
+
+describe("parseResponse", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should parse successful response", async () => {
+    const response = {
+      ok: true,
+      json: vi.fn().mockResolvedValue({ data: "test" }),
+    } as unknown as Response;
+    const result = await parseResponse<{ data: string }>(response);
+    expect(result).toEqual({ data: "test" });
+  });
+
+  it("should throw AiChatApiError on non-ok response", async () => {
+    const response = {
+      ok: false,
+      status: 400,
+      json: vi.fn().mockResolvedValue({ detail: "Bad request" }),
+    } as unknown as Response;
+    await expect(parseResponse(response)).rejects.toThrow(AiChatApiError);
+    await expect(parseResponse(response)).rejects.toMatchObject({
+      status: 400,
+      message: "Bad request",
+    });
+  });
+
+  it("should handle JSON parse failure", async () => {
+    const response = {
+      ok: false,
+      status: 500,
+      json: vi.fn().mockRejectedValue(new Error("parse error")),
+    } as unknown as Response;
+    await expect(parseResponse(response)).rejects.toThrow(AiChatApiError);
+    await expect(parseResponse(response)).rejects.toMatchObject({
+      status: 500,
+      message: "AI service failed. Try again in a moment.",
+    });
+  });
+});
+
+describe("sendAiChatMessage", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should send POST request with correct URL and headers", async () => {
+    const mockResponse = {
+      ok: true,
+      json: vi.fn().mockResolvedValue({ session_id: 1, message: "Hello" }),
+    } as unknown as Response;
+    vi.mocked(fetchWithAuthRetry).mockResolvedValue(mockResponse);
+
+    const request: AiChatRequest = { message: "Hello" };
+    const result = await sendAiChatMessage(request);
+
+    expect(fetchWithAuthRetry).toHaveBeenCalledWith(
+      "https://example.com/api/ai/chat/",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(request),
+      }
+    );
+    expect(result).toEqual({ session_id: 1, message: "Hello" });
+  });
+
+  it("should throw AiChatApiError on failure", async () => {
+    const mockResponse = {
+      ok: false,
+      status: 401,
+      json: vi.fn().mockResolvedValue({ detail: "Unauthorized" }),
+    } as unknown as Response;
+    vi.mocked(fetchWithAuthRetry).mockResolvedValue(mockResponse);
+
+    await expect(sendAiChatMessage({ message: "test" })).rejects.toThrow(
+      AiChatApiError
+    );
+  });
+});
+
+describe("listAiChatSessions", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should return array when response is an array", async () => {
+    const sessions = [{ id: 1, title: "Session 1" }];
+    const mockResponse = {
+      ok: true,
+      json: vi.fn().mockResolvedValue(sessions),
+    } as unknown as Response;
+    vi.mocked(fetchWithAuthRetry).mockResolvedValue(mockResponse);
+
+    const result = await listAiChatSessions();
+    expect(result).toEqual(sessions);
+  });
+
+  it("should return results array when response has results key", async () => {
+    const sessions = [{ id: 1, title: "Session 1" }];
+    const mockResponse = {
+      ok: true,
+      json: vi.fn().mockResolvedValue({ results: sessions }),
+    } as unknown as Response;
+    vi.mocked(fetchWithAuthRetry).mockResolvedValue(mockResponse);
+
+    const result = await listAiChatSessions();
+    expect(result).toEqual(sessions);
+  });
+
+  it("should return empty array when no results", async () => {
+    const mockResponse = {
+      ok: true,
+      json: vi.fn().mockResolvedValue({}),
+    } as unknown as Response;
+    vi.mocked(fetchWithAuthRetry).mockResolvedValue(mockResponse);
+
+    const result = await listAiChatSessions();
+    expect(result).toEqual([]);
+  });
+});
+
+describe("getAiChatSession", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should fetch session by id", async () => {
+    const session = { id: 1, title: "Session 1", messages: [] };
+    const mockResponse = {
+      ok: true,
+      json: vi.fn().mockResolvedValue(session),
+    } as unknown as Response;
+    vi.mocked(fetchWithAuthRetry).mockResolvedValue(mockResponse);
+
+    const result = await getAiChatSession(1);
+    expect(fetchWithAuthRetry).toHaveBeenCalledWith(
+      "https://example.com/api/ai/chat/sessions/1/",
+      { headers: { "Content-Type": "application/json" } }
+    );
+    expect(result).toEqual(session);
+  });
+});
+
+describe("deleteAiChatSession", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should send DELETE request", async () => {
+    const mockResponse = {
+      ok: true,
+      json: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Response;
+    vi.mocked(fetchWithAuthRetry).mockResolvedValue(mockResponse);
+
+    await deleteAiChatSession(1);
+    expect(fetchWithAuthRetry).toHaveBeenCalledWith(
+      "https://example.com/api/ai/chat/sessions/1/",
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  });
+
+  it("should throw AiChatApiError on failure", async () => {
+    const mockResponse = {
+      ok: false,
+      status: 404,
+      json: vi.fn().mockResolvedValue({ detail: "Not found" }),
+    } as unknown as Response;
+    vi.mocked(fetchWithAuthRetry).mockResolvedValue(mockResponse);
+
+    await expect(deleteAiChatSession(1)).rejects.toThrow(AiChatApiError);
+  });
+});
 
 function extractErrorMessage(body: unknown, status: number): string {
   if (typeof body === "object" && body !== null) {
