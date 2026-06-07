@@ -11,6 +11,26 @@ export const TEMPLATES_API_BASE_PATH = "/api/documents/templates/";
 // TODO [BACKEND REQUIRED]: GET /api/documents/templates/categories/ — return list of template category options
 export const TEMPLATES_CATEGORIES_PATH = `${TEMPLATES_API_BASE_PATH}categories/`;
 
+// Internal helper to build paths with a suffix after the id
+function templateIdPath(id: number | string, suffix: string): string {
+  return `${TEMPLATES_API_BASE_PATH}${id}/${suffix}`;
+}
+
+// Internal helper to build query string from optional parameters
+function buildQueryString(query: {
+  category?: TemplateCategory;
+  search?: string;
+  status?: TemplateStatus;
+  visibility?: TemplateVisibility;
+}): string {
+  const params = new URLSearchParams();
+  if (query.category) params.set("category", query.category);
+  if (query.search) params.set("search", query.search);
+  if (query.status) params.set("status", query.status);
+  if (query.visibility) params.set("visibility", query.visibility);
+  return params.toString();
+}
+
 export function templatesListPath(query?: {
   category?: TemplateCategory;
   search?: string;
@@ -18,30 +38,25 @@ export function templatesListPath(query?: {
   visibility?: TemplateVisibility;
 }): string {
   if (!query) return TEMPLATES_API_BASE_PATH;
-  const params = new URLSearchParams();
-  if (query.category) params.set("category", query.category);
-  if (query.search) params.set("search", query.search);
-  if (query.status) params.set("status", query.status);
-  if (query.visibility) params.set("visibility", query.visibility);
-  const qs = params.toString();
+  const qs = buildQueryString(query);
   return qs ? `${TEMPLATES_API_BASE_PATH}?${qs}` : TEMPLATES_API_BASE_PATH;
 }
 
 export function templatePath(id: number | string): string {
-  return `${TEMPLATES_API_BASE_PATH}${id}/`;
+  return templateIdPath(id, '');
 }
 
 // TODO [BACKEND REQUIRED]: POST /api/documents/templates/{id}/duplicate/ — clone a template, return new DocumentTemplate
 export function templateDuplicatePath(id: number | string): string {
-  return `${TEMPLATES_API_BASE_PATH}${id}/duplicate/`;
+  return templateIdPath(id, 'duplicate/');
 }
 
 // TODO [BACKEND REQUIRED]: POST /api/documents/templates/{id}/use/ — instantiate a template into a document
 export function templateUsePath(id: number | string): string {
-  return `${TEMPLATES_API_BASE_PATH}${id}/use/`;
+  return templateIdPath(id, 'use/');
 }
 
 // TODO [BACKEND REQUIRED]: PATCH /api/documents/templates/{id}/visibility/ — update allowed_roles + visibility_scope
 export function templateVisibilityPath(id: number | string): string {
-  return `${TEMPLATES_API_BASE_PATH}${id}/visibility/`;
+  return templateIdPath(id, 'visibility/');
 }
