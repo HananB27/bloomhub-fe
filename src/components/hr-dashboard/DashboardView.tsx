@@ -16,6 +16,7 @@ import { AnalyticsModule } from "./AnalyticsModule";
 import { AnnouncementsModule } from "./AnnouncementsModule";
 import { AdminModule } from "./AdminModule";
 import type { AddNotification } from "./notifications";
+import type { ComponentType } from "react";
 
 interface DashboardViewProps {
   activeModule: string;
