@@ -1969,6 +1969,801 @@ function RoleDrawer({
             ].filter(Boolean) as Array<["overview" | "applicants", string]>
           ).map(([k, l]) => (
             <button
+function ListingEditDialog({
+  open,
+  listing,
+  departments,
+  onOpenChange,
+  onSaved,
+}: {
+  open: boolean;
+  listing: JobListingDetail | null;
+  departments: Department[];
+  onOpenChange: (v: boolean) => void;
+  onSaved: (
+    listingId: number,
+    action: "updated" | "published" | "deleted"
+  ) => Promise<void> | void;
+}) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [departmentId, setDepartmentId] = useState<string>(LISTING_ROLE_NONE);
+  const [openAt, setOpenAt] = useState("");
+  const [closeAt, setCloseAt] = useState("");
+  const [status, setStatus] = useState<JobListingStatus>("draft");
+  const [errors, setErrors] = useState<ListingFormErrors>({});
+  const [saving, setSaving] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open || !listing) return;
+    setTitle(listing.title);
+    setDescription(listing.description || "");
+    setDepartmentId(
+      listing.departmentId !== null
+        ? String(listing.departmentId)
+        : LISTING_ROLE_NONE
+    );
+    setOpenAt(formatDateTimeInput(listing.openAt));
+    setCloseAt(formatDateTimeInput(listing.closeAt));
+    setStatus(listing.status);
+    setErrors({});
+    setDeleteConfirmOpen(false);
+    setDeleteError(null);
+  }, [open, listing]);
+
+  const resetAndClose = () => {
+    if (saving || publishing || deleting) return;
+    onOpenChange(false);
+    setDeleteConfirmOpen(false);
+    setDeleteError(null);
+    setErrors({});
+  };
+
+  const validate = (): ListingFormErrors => {
+    const next: ListingFormErrors = {};
+    const trimmedTitle = title.trim();
+
+    if (!trimmedTitle) next.title = "Title is required.";
+    if (!openAt) next.openAt = "Open date is required.";
+    if (!closeAt) next.closeAt = "Close date is required.";
+    if (openAt && closeAt) {
+      const start = new Date(openAt).getTime();
+      const end = new Date(closeAt).getTime();
+      if (Number.isNaN(start)) next.openAt = "Open date is invalid.";
+      if (Number.isNaN(end)) next.closeAt = "Close date is invalid.";
+      if (!Number.isNaN(start) && !Number.isNaN(end) && end <= start) {
+        next.closeAt = "Close date must be after the open date.";
+      }
+    }
+
+    return next;
+  };
+
+  const saveListing = async () => {
+    if (!listing) return;
+    const nextErrors = validate();
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
+    setSaving(true);
+    setErrors({});
+    try {
+      await jobListingsApi.updateListing(listing.id, {
+        title: title.trim(),
+        description: description.trim(),
+        departmentId:
+          departmentId !== LISTING_ROLE_NONE ? Number(departmentId) : null,
+        openAt: parseDateTimeInput(openAt),
+        closeAt: parseDateTimeInput(closeAt),
+        status,
+      });
+      await onSaved(listing.id, "updated");
+      onOpenChange(false);
+    } catch (err) {
+      const message = getListingActionError(err, "Failed to update listing.");
+      if (isFormErrors(message)) {
+        setErrors(message);
+      } else {
+        setErrors({ general: message });
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const publishListing = async () => {
+    if (!listing) return;
+    setPublishing(true);
+    setErrors({});
+    try {
+      await jobListingsApi.patchListing(listing.id, { status: "open" });
+      await onSaved(listing.id, "published");
+      onOpenChange(false);
+    } catch (err) {
+      const message = getListingActionError(err, "Failed to publish listing.");
+      if (isFormErrors(message)) {
+        setErrors(message);
+      } else {
+        setErrors({ general: message });
+      }
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const deleteListing = async () => {
+    if (!listing) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await jobListingsApi.deleteListing(listing.id);
+      await onSaved(listing.id, "deleted");
+      onOpenChange(false);
+      setDeleteConfirmOpen(false);
+    } catch (err) {
+      const message = getListingActionError(err, "Failed to delete listing.");
+      setDeleteError(
+        typeof message === "string"
+          ? message
+          : message.general || "Failed to delete listing."
+      );
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <>
+      <Dialog
+        open={open && listing !== null}
+        onOpenChange={(v) => {
+          if (!v) resetAndClose();
+        }}
+      >
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit role listing</DialogTitle>
+            <DialogDescription>
+              Update the role details, dates, and lifecycle status.
+            </DialogDescription>
+          </DialogHeader>
+
+          {listing && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="listing-title">Title</Label>
+                  <Input
+                    id="listing-title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    aria-invalid={Boolean(errors.title)}
+                  />
+                  {errors.title && (
+                    <p className="text-xs text-red-700">{errors.title}</p>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="listing-description">Description</Label>
+                  <Textarea
+                    id="listing-description"
+                    rows={6}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    aria-invalid={Boolean(errors.description)}
+                  />
+                  {errors.description && (
+                    <p className="text-xs text-red-700">{errors.description}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>Department</Label>
+                  <Select value={departmentId} onValueChange={setDepartmentId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={LISTING_ROLE_NONE}>
+                        Unspecified
+                      </SelectItem>
+                      {departments.map((d) => (
+                        <SelectItem key={d.id} value={String(d.id)}>
+                          {d.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.departmentId && (
+                    <p className="text-xs text-red-700">
+                      {errors.departmentId}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Status</Label>
+                  <Select
+                    value={status}
+                    onValueChange={(v) => setStatus(v as JobListingStatus)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {["draft", "open", "closed", "cancelled"].map((value) => (
+                        <SelectItem key={value} value={value}>
+                          {JOB_LISTING_STATUS_LABELS[value as JobListingStatus]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.status && (
+                    <p className="text-xs text-red-700">{errors.status}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="listing-open-at">Open date</Label>
+                  <Input
+                    id="listing-open-at"
+                    type="datetime-local"
+                    value={openAt}
+                    onChange={(e) => setOpenAt(e.target.value)}
+                    aria-invalid={Boolean(errors.openAt)}
+                  />
+                  {errors.openAt && (
+                    <p className="text-xs text-red-700">{errors.openAt}</p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="listing-close-at">Close date</Label>
+                  <Input
+                    id="listing-close-at"
+                    type="datetime-local"
+                    value={closeAt}
+                    onChange={(e) => setCloseAt(e.target.value)}
+                    aria-invalid={Boolean(errors.closeAt)}
+                  />
+                  {errors.closeAt && (
+                    <p className="text-xs text-red-700">{errors.closeAt}</p>
+                  )}
+                </div>
+              </div>
+
+              {errors.general && (
+                <div className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+                  <AlertCircle className="w-3.5 h-3.5 inline mr-1.5" />
+                  {errors.general}
+                </div>
+              )}
+
+              <div className="flex items-center justify-between gap-3 pt-2 border-t border-gray-200 dark:border-gray-700">
+                <Button
+                  variant="ghost"
+                  onClick={resetAndClose}
+                  disabled={saving || publishing}
+                >
+                  Close
+                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={publishListing}
+                    disabled={saving || publishing || status === "open"}
+                  >
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                    {publishing ? "Publishing…" : "Publish"}
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => setDeleteConfirmOpen(true)}
+                    disabled={saving || publishing}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Delete
+                  </Button>
+                  <Button onClick={saveListing} disabled={saving || publishing}>
+                    <Pencil className="w-3.5 h-3.5" />
+                    {saving ? "Saving…" : "Save changes"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={deleteConfirmOpen}
+        onOpenChange={(v) => {
+          if (!v && !deleting) setDeleteConfirmOpen(false);
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete role listing</DialogTitle>
+            <DialogDescription>
+              {listing
+                ? `Delete "${listing.title}"? This cannot be undone.`
+                : "Delete this listing? This cannot be undone."}
+            </DialogDescription>
+          </DialogHeader>
+
+          {deleteError && (
+            <div className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+              <AlertCircle className="w-3.5 h-3.5 inline mr-1.5" />
+              {deleteError}
+            </div>
+          )}
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+            <Button
+              variant="ghost"
+              onClick={() => setDeleteConfirmOpen(false)}
+              disabled={deleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={deleteListing}
+              disabled={deleting}
+            >
+              {deleting ? "Deleting…" : "Delete"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+/* ============ Applicant Row (HR) ============ */
+function ApplicantRow({
+  application,
+  onStatusChange,
+}: {
+  application: JobApplication;
+  onStatusChange: (
+    nextStatus: ApplicationStatus,
+    decisionNote?: string
+  ) => Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pendingStatus, setPendingStatus] = useState<ApplicationStatus | null>(
+    null
+  );
+  const style = applicationStatusStyle(application.status);
+  const terminal = isTerminalApplicationStatus(application.status);
+
+  const allowed = application.allowedNextStatuses;
+  const canApprove = allowed.includes("accepted");
+  const canReject = allowed.includes("rejected");
+  // Intermediate transitions belong in the dropdown (under_review, shortlisted).
+  // Accept/Reject live on their own buttons that open the decision dialog.
+  const intermediateOptions = allowed.filter(
+    (s) => s !== "accepted" && s !== "rejected"
+  );
+
+  const commit = async (next: ApplicationStatus, note?: string) => {
+    if (next === application.status || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await onStatusChange(next, note);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to update application."
+      );
+      throw err;
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="grid grid-cols-[1fr_auto] gap-3 items-start p-3 border border-gray-200 dark:border-gray-700 rounded-md">
+        <div>
+          <div className="text-[13px] font-medium">
+            {application.applicantName ||
+              `Applicant #${application.applicantId}`}
+          </div>
+          <div className="text-[11.5px] text-gray-500 mt-0.5">
+            Applied {fmtPostedAgo(application.appliedAt)}
+          </div>
+          {application.coverNote && (
+            <p className="text-xs mt-1.5 leading-relaxed">
+              {application.coverNote}
+            </p>
+          )}
+          {terminal && application.decidedAt && (
+            <p className="text-[11.5px] text-gray-500 mt-1.5">
+              Decided by{" "}
+              <span className="font-medium text-gray-700 dark:text-gray-200">
+                {application.decidedByName || "—"}
+              </span>{" "}
+              · {formatDate(application.decidedAt)}
+            </p>
+          )}
+          {application.decisionNote && (
+            <p className="text-xs mt-1 text-gray-600 dark:text-gray-300 italic leading-relaxed">
+              “{application.decisionNote}”
+            </p>
+          )}
+          {error && (
+            <p className="text-[11.5px] text-red-700 mt-1.5">
+              <AlertCircle className="w-3 h-3 inline mr-1" />
+              {error}
+            </p>
+          )}
+        </div>
+        <div className="flex flex-col items-end gap-1.5 min-w-[180px]">
+          <Pill
+            label={application.statusDisplay}
+            bg={style.bg}
+            dot={style.dot}
+          />
+          {!terminal && intermediateOptions.length > 0 && (
+            <Select
+              value={application.status}
+              onValueChange={(v) => void commit(v as ApplicationStatus)}
+              disabled={busy}
+            >
+              <SelectTrigger className="w-44 h-8 text-[12px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={application.status} disabled>
+                  {application.statusDisplay}
+                </SelectItem>
+                {intermediateOptions.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    Advance to {APPLICATION_STATUS_LABELS[s]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          {!terminal && (canApprove || canReject) && (
+            <div className="flex gap-1.5">
+              {canApprove && (
+                <button
+                  type="button"
+                  onClick={() => setPendingStatus("accepted")}
+                  disabled={busy}
+                  className="inline-flex items-center gap-1 h-7 px-2 rounded-md text-[11.5px] font-medium border border-emerald-200 text-emerald-700 hover:bg-emerald-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-emerald-900/40 dark:text-emerald-400 dark:hover:bg-emerald-900/20"
+                  aria-label="Approve application"
+                >
+                  <Check className="w-3 h-3" />
+                  Approve
+                </button>
+              )}
+              {canReject && (
+                <button
+                  type="button"
+                  onClick={() => setPendingStatus("rejected")}
+                  disabled={busy}
+                  className="inline-flex items-center gap-1 h-7 px-2 rounded-md text-[11.5px] font-medium border border-red-200 text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-red-900/40 dark:text-red-400 dark:hover:bg-red-900/20"
+                  aria-label="Reject application"
+                >
+                  <X className="w-3 h-3" />
+                  Reject
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+      <DecisionDialog
+        open={pendingStatus !== null}
+        decisionStatus={pendingStatus}
+        applicantName={application.applicantName}
+        onClose={() => setPendingStatus(null)}
+        onConfirm={async (note) => {
+          if (pendingStatus === null) return;
+          await commit(pendingStatus, note);
+          setPendingStatus(null);
+        }}
+      />
+    </>
+  );
+}
+
+/* ============ Decision Dialog (approve / reject) ============ */
+function DecisionDialog({
+  open,
+  decisionStatus,
+  applicantName,
+  onClose,
+  onConfirm,
+}: {
+  open: boolean;
+  decisionStatus: ApplicationStatus | null;
+  applicantName: string;
+  onClose: () => void;
+  onConfirm: (note: string) => Promise<void>;
+}) {
+  const [note, setNote] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  // Rejecting demands a reason; approving makes it optional.
+  const noteRequired = decisionStatus === "rejected";
+  const verb = decisionStatus === "accepted" ? "Approve" : "Reject";
+
+  useEffect(() => {
+    if (open) {
+      setNote("");
+      setError(null);
+    }
+  }, [open]);
+
+  const submit = async () => {
+    const trimmed = note.trim();
+    if (noteRequired && !trimmed) {
+      setError("A reason is required to reject an application.");
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    try {
+      await onConfirm(trimmed);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save decision.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v && !submitting) onClose();
+      }}
+    >
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>{verb} application</DialogTitle>
+          <DialogDescription>
+            {decisionStatus === "accepted"
+              ? `Confirm approval for ${applicantName || "this applicant"}. The applicant will be notified.`
+              : `Provide a short reason. ${applicantName || "The applicant"} will be notified.`}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="decision-note">
+              Decision note{noteRequired ? "" : " (optional)"}
+            </Label>
+            <Textarea
+              id="decision-note"
+              rows={4}
+              placeholder={
+                decisionStatus === "accepted"
+                  ? "Offer details, next steps, sponsor…"
+                  : "Why is this candidate not progressing?"
+              }
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+            />
+          </div>
+          {error && (
+            <div className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+              <AlertCircle className="w-3.5 h-3.5 inline mr-1.5" />
+              {error}
+            </div>
+          )}
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+            <Button variant="ghost" onClick={onClose} disabled={submitting}>
+              Cancel
+            </Button>
+            <Button
+              variant={
+                decisionStatus === "accepted" ? "primary" : "destructive"
+              }
+              onClick={submit}
+              disabled={submitting}
+            >
+              {decisionStatus === "accepted" ? (
+                <Check className="w-3.5 h-3.5" />
+              ) : (
+                <X className="w-3.5 h-3.5" />
+              )}
+              {submitting ? "Saving…" : `${verb} application`}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ============ Post Role Dialog ============ */
+function PostRoleDialog({
+  open,
+  onOpenChange,
+  departments,
+  onCreated,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  departments: Department[];
+  onCreated: () => void | Promise<void>;
+}) {
+  const [title, setTitle] = useState("");
+  const [departmentId, setDepartmentId] = useState<string>("__none");
+  const [openAt, setOpenAt] = useState<string>(
+    new Date().toISOString().slice(0, 10)
+  );
+  const [closeAt, setCloseAt] = useState<string>(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 21);
+    return d.toISOString().slice(0, 10);
+  });
+  const [summary, setSummary] = useState("");
+  const [requirements, setRequirements] = useState("");
+  const [posting, setPosting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const reset = () => {
+    setTitle("");
+    setDepartmentId("__none");
+    setSummary("");
+    setRequirements("");
+    setError(null);
+  };
+
+  const submit = async (asDraft: boolean) => {
+    if (!title.trim()) {
+      setError("Title is required.");
+      return;
+    }
+    const description = [summary.trim(), requirements.trim()]
+      .filter(Boolean)
+      .join("\n\n");
+    const payload: CreateListingPayload = {
+      title: title.trim(),
+      description,
+      departmentId:
+        departmentId && departmentId !== "__none" ? Number(departmentId) : null,
+      openAt,
+      closeAt,
+      status: asDraft ? "draft" : "open",
+    };
+    setPosting(true);
+    setError(null);
+    try {
+      await jobListingsApi.createListing(payload);
+      reset();
+      await onCreated();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to post role.");
+    } finally {
+      setPosting(false);
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) reset();
+        onOpenChange(v);
+      }}
+    >
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Post a new role</DialogTitle>
+          <DialogDescription>
+            Internal listings are visible to all employees and notify matched
+            subscribers.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="post-title">Title</Label>
+            <Input
+              id="post-title"
+              placeholder="e.g. Senior Product Designer · Growth"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label>Department</Label>
+              <Select
+                value={departmentId}
+                onValueChange={(v) => setDepartmentId(v)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select department" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none">Unspecified</SelectItem>
+                  {departments.map((d) => (
+                    <SelectItem key={d.id} value={String(d.id)}>
+                      {d.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Opens</Label>
+              <DatePicker
+                mode="single"
+                size="compact"
+                value={openAt}
+                onChange={setOpenAt}
+                placeholder="Select open date"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Closes</Label>
+              <DatePicker
+                mode="single"
+                size="compact"
+                value={closeAt}
+                onChange={setCloseAt}
+                placeholder="Select close date"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="post-summary">One-paragraph summary</Label>
+            <Textarea
+              id="post-summary"
+              rows={3}
+              placeholder="What's the scope of the role? What kind of person is going to thrive here?"
+              value={summary}
+              onChange={(e) => setSummary(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="post-req">Requirements (one per line)</Label>
+            <Textarea
+              id="post-req"
+              rows={4}
+              placeholder={
+                "3+ years of …\nTrack record on …\nOperating at P3 today or …"
+              }
+              value={requirements}
+              onChange={(e) => setRequirements(e.target.value)}
+            />
+          </div>
+
+          {error && (
+            <div className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+              <AlertCircle className="w-3.5 h-3.5 inline mr-1.5" />
+              {error}
+            </div>
+          )}
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+            <Button
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+              disabled={posting}
+            >
+              Cancel
+            </Button>
+=======
               key={k}
               onClick={() => setDrawerTab(k)}
               className={`h-9 px-3 text-[12.5px] font-medium -mb-px border-b-2 ${
@@ -2103,6 +2898,801 @@ function RoleDrawer({
 }
 
 /* ============ Listing Edit Dialog (HR) ============ */
+function ListingEditDialog({
+  open,
+  listing,
+  departments,
+  onOpenChange,
+  onSaved,
+}: {
+  open: boolean;
+  listing: JobListingDetail | null;
+  departments: Department[];
+  onOpenChange: (v: boolean) => void;
+  onSaved: (
+    listingId: number,
+    action: "updated" | "published" | "deleted"
+  ) => Promise<void> | void;
+}) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [departmentId, setDepartmentId] = useState<string>(LISTING_ROLE_NONE);
+  const [openAt, setOpenAt] = useState("");
+  const [closeAt, setCloseAt] = useState("");
+  const [status, setStatus] = useState<JobListingStatus>("draft");
+  const [errors, setErrors] = useState<ListingFormErrors>({});
+  const [saving, setSaving] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open || !listing) return;
+    setTitle(listing.title);
+    setDescription(listing.description || "");
+    setDepartmentId(
+      listing.departmentId !== null
+        ? String(listing.departmentId)
+        : LISTING_ROLE_NONE
+    );
+    setOpenAt(formatDateTimeInput(listing.openAt));
+    setCloseAt(formatDateTimeInput(listing.closeAt));
+    setStatus(listing.status);
+    setErrors({});
+    setDeleteConfirmOpen(false);
+    setDeleteError(null);
+  }, [open, listing]);
+
+  const resetAndClose = () => {
+    if (saving || publishing || deleting) return;
+    onOpenChange(false);
+    setDeleteConfirmOpen(false);
+    setDeleteError(null);
+    setErrors({});
+  };
+
+  const validate = (): ListingFormErrors => {
+    const next: ListingFormErrors = {};
+    const trimmedTitle = title.trim();
+
+    if (!trimmedTitle) next.title = "Title is required.";
+    if (!openAt) next.openAt = "Open date is required.";
+    if (!closeAt) next.closeAt = "Close date is required.";
+    if (openAt && closeAt) {
+      const start = new Date(openAt).getTime();
+      const end = new Date(closeAt).getTime();
+      if (Number.isNaN(start)) next.openAt = "Open date is invalid.";
+      if (Number.isNaN(end)) next.closeAt = "Close date is invalid.";
+      if (!Number.isNaN(start) && !Number.isNaN(end) && end <= start) {
+        next.closeAt = "Close date must be after the open date.";
+      }
+    }
+
+    return next;
+  };
+
+  const saveListing = async () => {
+    if (!listing) return;
+    const nextErrors = validate();
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
+    setSaving(true);
+    setErrors({});
+    try {
+      await jobListingsApi.updateListing(listing.id, {
+        title: title.trim(),
+        description: description.trim(),
+        departmentId:
+          departmentId !== LISTING_ROLE_NONE ? Number(departmentId) : null,
+        openAt: parseDateTimeInput(openAt),
+        closeAt: parseDateTimeInput(closeAt),
+        status,
+      });
+      await onSaved(listing.id, "updated");
+      onOpenChange(false);
+    } catch (err) {
+      const message = getListingActionError(err, "Failed to update listing.");
+      if (isFormErrors(message)) {
+        setErrors(message);
+      } else {
+        setErrors({ general: message });
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const publishListing = async () => {
+    if (!listing) return;
+    setPublishing(true);
+    setErrors({});
+    try {
+      await jobListingsApi.patchListing(listing.id, { status: "open" });
+      await onSaved(listing.id, "published");
+      onOpenChange(false);
+    } catch (err) {
+      const message = getListingActionError(err, "Failed to publish listing.");
+      if (isFormErrors(message)) {
+        setErrors(message);
+      } else {
+        setErrors({ general: message });
+      }
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const deleteListing = async () => {
+    if (!listing) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await jobListingsApi.deleteListing(listing.id);
+      await onSaved(listing.id, "deleted");
+      onOpenChange(false);
+      setDeleteConfirmOpen(false);
+    } catch (err) {
+      const message = getListingActionError(err, "Failed to delete listing.");
+      setDeleteError(
+        typeof message === "string"
+          ? message
+          : message.general || "Failed to delete listing."
+      );
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <>
+      <Dialog
+        open={open && listing !== null}
+        onOpenChange={(v) => {
+          if (!v) resetAndClose();
+        }}
+      >
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit role listing</DialogTitle>
+            <DialogDescription>
+              Update the role details, dates, and lifecycle status.
+            </DialogDescription>
+          </DialogHeader>
+
+          {listing && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="listing-title">Title</Label>
+                  <Input
+                    id="listing-title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    aria-invalid={Boolean(errors.title)}
+                  />
+                  {errors.title && (
+                    <p className="text-xs text-red-700">{errors.title}</p>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="listing-description">Description</Label>
+                  <Textarea
+                    id="listing-description"
+                    rows={6}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    aria-invalid={Boolean(errors.description)}
+                  />
+                  {errors.description && (
+                    <p className="text-xs text-red-700">{errors.description}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>Department</Label>
+                  <Select value={departmentId} onValueChange={setDepartmentId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={LISTING_ROLE_NONE}>
+                        Unspecified
+                      </SelectItem>
+                      {departments.map((d) => (
+                        <SelectItem key={d.id} value={String(d.id)}>
+                          {d.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.departmentId && (
+                    <p className="text-xs text-red-700">
+                      {errors.departmentId}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Status</Label>
+                  <Select
+                    value={status}
+                    onValueChange={(v) => setStatus(v as JobListingStatus)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {["draft", "open", "closed", "cancelled"].map((value) => (
+                        <SelectItem key={value} value={value}>
+                          {JOB_LISTING_STATUS_LABELS[value as JobListingStatus]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.status && (
+                    <p className="text-xs text-red-700">{errors.status}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="listing-open-at">Open date</Label>
+                  <Input
+                    id="listing-open-at"
+                    type="datetime-local"
+                    value={openAt}
+                    onChange={(e) => setOpenAt(e.target.value)}
+                    aria-invalid={Boolean(errors.openAt)}
+                  />
+                  {errors.openAt && (
+                    <p className="text-xs text-red-700">{errors.openAt}</p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="listing-close-at">Close date</Label>
+                  <Input
+                    id="listing-close-at"
+                    type="datetime-local"
+                    value={closeAt}
+                    onChange={(e) => setCloseAt(e.target.value)}
+                    aria-invalid={Boolean(errors.closeAt)}
+                  />
+                  {errors.closeAt && (
+                    <p className="text-xs text-red-700">{errors.closeAt}</p>
+                  )}
+                </div>
+              </div>
+
+              {errors.general && (
+                <div className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+                  <AlertCircle className="w-3.5 h-3.5 inline mr-1.5" />
+                  {errors.general}
+                </div>
+              )}
+
+              <div className="flex items-center justify-between gap-3 pt-2 border-t border-gray-200 dark:border-gray-700">
+                <Button
+                  variant="ghost"
+                  onClick={resetAndClose}
+                  disabled={saving || publishing}
+                >
+                  Close
+                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={publishListing}
+                    disabled={saving || publishing || status === "open"}
+                  >
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                    {publishing ? "Publishing…" : "Publish"}
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => setDeleteConfirmOpen(true)}
+                    disabled={saving || publishing}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Delete
+                  </Button>
+                  <Button onClick={saveListing} disabled={saving || publishing}>
+                    <Pencil className="w-3.5 h-3.5" />
+                    {saving ? "Saving…" : "Save changes"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={deleteConfirmOpen}
+        onOpenChange={(v) => {
+          if (!v && !deleting) setDeleteConfirmOpen(false);
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete role listing</DialogTitle>
+            <DialogDescription>
+              {listing
+                ? `Delete "${listing.title}"? This cannot be undone.`
+                : "Delete this listing? This cannot be undone."}
+            </DialogDescription>
+          </DialogHeader>
+
+          {deleteError && (
+            <div className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+              <AlertCircle className="w-3.5 h-3.5 inline mr-1.5" />
+              {deleteError}
+            </div>
+          )}
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+            <Button
+              variant="ghost"
+              onClick={() => setDeleteConfirmOpen(false)}
+              disabled={deleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={deleteListing}
+              disabled={deleting}
+            >
+              {deleting ? "Deleting…" : "Delete"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+/* ============ Applicant Row (HR) ============ */
+function ApplicantRow({
+  application,
+  onStatusChange,
+}: {
+  application: JobApplication;
+  onStatusChange: (
+    nextStatus: ApplicationStatus,
+    decisionNote?: string
+  ) => Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pendingStatus, setPendingStatus] = useState<ApplicationStatus | null>(
+    null
+  );
+  const style = applicationStatusStyle(application.status);
+  const terminal = isTerminalApplicationStatus(application.status);
+
+  const allowed = application.allowedNextStatuses;
+  const canApprove = allowed.includes("accepted");
+  const canReject = allowed.includes("rejected");
+  // Intermediate transitions belong in the dropdown (under_review, shortlisted).
+  // Accept/Reject live on their own buttons that open the decision dialog.
+  const intermediateOptions = allowed.filter(
+    (s) => s !== "accepted" && s !== "rejected"
+  );
+
+  const commit = async (next: ApplicationStatus, note?: string) => {
+    if (next === application.status || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await onStatusChange(next, note);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to update application."
+      );
+      throw err;
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="grid grid-cols-[1fr_auto] gap-3 items-start p-3 border border-gray-200 dark:border-gray-700 rounded-md">
+        <div>
+          <div className="text-[13px] font-medium">
+            {application.applicantName ||
+              `Applicant #${application.applicantId}`}
+          </div>
+          <div className="text-[11.5px] text-gray-500 mt-0.5">
+            Applied {fmtPostedAgo(application.appliedAt)}
+          </div>
+          {application.coverNote && (
+            <p className="text-xs mt-1.5 leading-relaxed">
+              {application.coverNote}
+            </p>
+          )}
+          {terminal && application.decidedAt && (
+            <p className="text-[11.5px] text-gray-500 mt-1.5">
+              Decided by{" "}
+              <span className="font-medium text-gray-700 dark:text-gray-200">
+                {application.decidedByName || "—"}
+              </span>{" "}
+              · {formatDate(application.decidedAt)}
+            </p>
+          )}
+          {application.decisionNote && (
+            <p className="text-xs mt-1 text-gray-600 dark:text-gray-300 italic leading-relaxed">
+              “{application.decisionNote}”
+            </p>
+          )}
+          {error && (
+            <p className="text-[11.5px] text-red-700 mt-1.5">
+              <AlertCircle className="w-3 h-3 inline mr-1" />
+              {error}
+            </p>
+          )}
+        </div>
+        <div className="flex flex-col items-end gap-1.5 min-w-[180px]">
+          <Pill
+            label={application.statusDisplay}
+            bg={style.bg}
+            dot={style.dot}
+          />
+          {!terminal && intermediateOptions.length > 0 && (
+            <Select
+              value={application.status}
+              onValueChange={(v) => void commit(v as ApplicationStatus)}
+              disabled={busy}
+            >
+              <SelectTrigger className="w-44 h-8 text-[12px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={application.status} disabled>
+                  {application.statusDisplay}
+                </SelectItem>
+                {intermediateOptions.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    Advance to {APPLICATION_STATUS_LABELS[s]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          {!terminal && (canApprove || canReject) && (
+            <div className="flex gap-1.5">
+              {canApprove && (
+                <button
+                  type="button"
+                  onClick={() => setPendingStatus("accepted")}
+                  disabled={busy}
+                  className="inline-flex items-center gap-1 h-7 px-2 rounded-md text-[11.5px] font-medium border border-emerald-200 text-emerald-700 hover:bg-emerald-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-emerald-900/40 dark:text-emerald-400 dark:hover:bg-emerald-900/20"
+                  aria-label="Approve application"
+                >
+                  <Check className="w-3 h-3" />
+                  Approve
+                </button>
+              )}
+              {canReject && (
+                <button
+                  type="button"
+                  onClick={() => setPendingStatus("rejected")}
+                  disabled={busy}
+                  className="inline-flex items-center gap-1 h-7 px-2 rounded-md text-[11.5px] font-medium border border-red-200 text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-red-900/40 dark:text-red-400 dark:hover:bg-red-900/20"
+                  aria-label="Reject application"
+                >
+                  <X className="w-3 h-3" />
+                  Reject
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+      <DecisionDialog
+        open={pendingStatus !== null}
+        decisionStatus={pendingStatus}
+        applicantName={application.applicantName}
+        onClose={() => setPendingStatus(null)}
+        onConfirm={async (note) => {
+          if (pendingStatus === null) return;
+          await commit(pendingStatus, note);
+          setPendingStatus(null);
+        }}
+      />
+    </>
+  );
+}
+
+/* ============ Decision Dialog (approve / reject) ============ */
+function DecisionDialog({
+  open,
+  decisionStatus,
+  applicantName,
+  onClose,
+  onConfirm,
+}: {
+  open: boolean;
+  decisionStatus: ApplicationStatus | null;
+  applicantName: string;
+  onClose: () => void;
+  onConfirm: (note: string) => Promise<void>;
+}) {
+  const [note, setNote] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  // Rejecting demands a reason; approving makes it optional.
+  const noteRequired = decisionStatus === "rejected";
+  const verb = decisionStatus === "accepted" ? "Approve" : "Reject";
+
+  useEffect(() => {
+    if (open) {
+      setNote("");
+      setError(null);
+    }
+  }, [open]);
+
+  const submit = async () => {
+    const trimmed = note.trim();
+    if (noteRequired && !trimmed) {
+      setError("A reason is required to reject an application.");
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    try {
+      await onConfirm(trimmed);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save decision.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v && !submitting) onClose();
+      }}
+    >
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>{verb} application</DialogTitle>
+          <DialogDescription>
+            {decisionStatus === "accepted"
+              ? `Confirm approval for ${applicantName || "this applicant"}. The applicant will be notified.`
+              : `Provide a short reason. ${applicantName || "The applicant"} will be notified.`}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="decision-note">
+              Decision note{noteRequired ? "" : " (optional)"}
+            </Label>
+            <Textarea
+              id="decision-note"
+              rows={4}
+              placeholder={
+                decisionStatus === "accepted"
+                  ? "Offer details, next steps, sponsor…"
+                  : "Why is this candidate not progressing?"
+              }
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+            />
+          </div>
+          {error && (
+            <div className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+              <AlertCircle className="w-3.5 h-3.5 inline mr-1.5" />
+              {error}
+            </div>
+          )}
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+            <Button variant="ghost" onClick={onClose} disabled={submitting}>
+              Cancel
+            </Button>
+            <Button
+              variant={
+                decisionStatus === "accepted" ? "primary" : "destructive"
+              }
+              onClick={submit}
+              disabled={submitting}
+            >
+              {decisionStatus === "accepted" ? (
+                <Check className="w-3.5 h-3.5" />
+              ) : (
+                <X className="w-3.5 h-3.5" />
+              )}
+              {submitting ? "Saving…" : `${verb} application`}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ============ Post Role Dialog ============ */
+function PostRoleDialog({
+  open,
+  onOpenChange,
+  departments,
+  onCreated,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  departments: Department[];
+  onCreated: () => void | Promise<void>;
+}) {
+  const [title, setTitle] = useState("");
+  const [departmentId, setDepartmentId] = useState<string>("__none");
+  const [openAt, setOpenAt] = useState<string>(
+    new Date().toISOString().slice(0, 10)
+  );
+  const [closeAt, setCloseAt] = useState<string>(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 21);
+    return d.toISOString().slice(0, 10);
+  });
+  const [summary, setSummary] = useState("");
+  const [requirements, setRequirements] = useState("");
+  const [posting, setPosting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const reset = () => {
+    setTitle("");
+    setDepartmentId("__none");
+    setSummary("");
+    setRequirements("");
+    setError(null);
+  };
+
+  const submit = async (asDraft: boolean) => {
+    if (!title.trim()) {
+      setError("Title is required.");
+      return;
+    }
+    const description = [summary.trim(), requirements.trim()]
+      .filter(Boolean)
+      .join("\n\n");
+    const payload: CreateListingPayload = {
+      title: title.trim(),
+      description,
+      departmentId:
+        departmentId && departmentId !== "__none" ? Number(departmentId) : null,
+      openAt,
+      closeAt,
+      status: asDraft ? "draft" : "open",
+    };
+    setPosting(true);
+    setError(null);
+    try {
+      await jobListingsApi.createListing(payload);
+      reset();
+      await onCreated();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to post role.");
+    } finally {
+      setPosting(false);
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) reset();
+        onOpenChange(v);
+      }}
+    >
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Post a new role</DialogTitle>
+          <DialogDescription>
+            Internal listings are visible to all employees and notify matched
+            subscribers.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="post-title">Title</Label>
+            <Input
+              id="post-title"
+              placeholder="e.g. Senior Product Designer · Growth"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label>Department</Label>
+              <Select
+                value={departmentId}
+                onValueChange={(v) => setDepartmentId(v)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select department" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none">Unspecified</SelectItem>
+                  {departments.map((d) => (
+                    <SelectItem key={d.id} value={String(d.id)}>
+                      {d.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Opens</Label>
+              <DatePicker
+                mode="single"
+                size="compact"
+                value={openAt}
+                onChange={setOpenAt}
+                placeholder="Select open date"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Closes</Label>
+              <DatePicker
+                mode="single"
+                size="compact"
+                value={closeAt}
+                onChange={setCloseAt}
+                placeholder="Select close date"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="post-summary">One-paragraph summary</Label>
+            <Textarea
+              id="post-summary"
+              rows={3}
+              placeholder="What's the scope of the role? What kind of person is going to thrive here?"
+              value={summary}
+              onChange={(e) => setSummary(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="post-req">Requirements (one per line)</Label>
+            <Textarea
+              id="post-req"
+              rows={4}
+              placeholder={
+                "3+ years of …\nTrack record on …\nOperating at P3 today or …"
+              }
+              value={requirements}
+              onChange={(e) => setRequirements(e.target.value)}
+            />
+          </div>
+
+          {error && (
+            <div className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+              <AlertCircle className="w-3.5 h-3.5 inline mr-1.5" />
+              {error}
+            </div>
+          )}
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+            <Button
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+              disabled={posting}
+            >
+              Cancel
+            </Button>
+============ Listing Edit Dialog (HR) ============ */
 function ListingEditDialog({
   open,
   listing,
