@@ -20,16 +20,14 @@ import {
   AlertDialogTitle,
 } from "./ui/alert-dialog";
 import { toast } from "sonner";
-import {
-  TrainingEntryForm,
-  TrainingFilters,
-  TrainingEntryList,
-  ConferenceCourseRegistrationSection,
-  CertificatesSection,
-  PeerSessionSection,
-  TrainingBudgetSection,
-  EmployeeBudgetCard,
-} from "./training";
+import { TrainingEntryForm } from "./training/TrainingEntryForm";
+import { TrainingFilters } from "./training/TrainingFilters";
+import { TrainingEntryList } from "./training/TrainingEntryList";
+import { ConferenceCourseRegistrationSection } from "./training/ConferenceCourseRegistrationSection";
+import { CertificatesSection } from "./training/CertificatesSection";
+import { PeerSessionSection } from "./training/PeerSessionSection";
+import { TrainingBudgetSection } from "./training/TrainingBudgetSection";
+import { EmployeeBudgetCard } from "./training/EmployeeBudgetCard";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs";
 import type { TrainingEntry, TrainingEntryFilters } from "@/types/training";
 import { fetchTrainingEntries, deleteTrainingEntry } from "@/lib/api/training";
