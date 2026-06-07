@@ -86,6 +86,22 @@ export interface CreateBonusPayload {
   currency?: string;
 }
 
+function buildQueryString(params: Record<string, string | number | boolean | undefined | null>): string {
+  const entries = Object.entries(params).filter(([_, v]) => v !== undefined && v !== null);
+  if (entries.length === 0) return "";
+  const search = new URLSearchParams();
+  for (const [key, val] of entries) {
+    search.set(key, String(val));
+  }
+  return `?${search.toString()}`;
+}
+
+async function fetchList<T>(url: string, errorMsg: string): Promise<T[]> {
+  const data = await get<T[] | { results: T[] }>(url, errorMsg);
+  if (Array.isArray(data)) return data;
+  return data.results ?? [];
+}
+
 // Backend serializer returns Tailwind-palette names; map to hex used by the
 // donut SVG + legend swatches. Unknown names fall back to neutral gray.
 const MIX_COLOR_MAP: Record<string, string> = {
@@ -191,14 +207,10 @@ export type UpdateBenefitCatalogPayload = Partial<CreateBenefitCatalogPayload>;
 
 export const policyApi = {
   async list(): Promise<CompensationPolicy[]> {
-    const data = await get<
-      CompensationPolicy[] | { results: CompensationPolicy[] }
-    >(
+    return fetchList<CompensationPolicy>(
       `${API_BASE_URL}/api/compensation/policies/`,
       "Failed to load compensation policies"
     );
-    if (Array.isArray(data)) return data;
-    return data.results ?? [];
   },
 
   async create(
@@ -232,19 +244,11 @@ export const policyApi = {
 
 export const benefitCatalogApi = {
   async list(params?: { is_active?: boolean }): Promise<BenefitCatalogEntry[]> {
-    const search = new URLSearchParams();
-    if (params?.is_active !== undefined) {
-      search.set("is_active", String(params.is_active));
-    }
-    const qs = search.toString() ? `?${search.toString()}` : "";
-    const data = await get<
-      BenefitCatalogEntry[] | { results: BenefitCatalogEntry[] }
-    >(
+    const qs = buildQueryString({ is_active: params?.is_active });
+    return fetchList<BenefitCatalogEntry>(
       `${API_BASE_URL}/api/compensation/benefits/${qs}`,
       "Failed to load benefits catalog"
     );
-    if (Array.isArray(data)) return data;
-    return data.results ?? [];
   },
 
   async create(
@@ -282,18 +286,15 @@ export const bonusApi = {
     since?: string;
     bonus_type?: BonusTypeId;
   }): Promise<BonusRecord[]> {
-    const search = new URLSearchParams();
-    if (params?.employee_id)
-      search.set("employee_id", String(params.employee_id));
-    if (params?.since) search.set("since", params.since);
-    if (params?.bonus_type) search.set("bonus_type", params.bonus_type);
-    const qs = search.toString() ? `?${search.toString()}` : "";
-    const data = await get<BonusRecord[] | { results: BonusRecord[] }>(
+    const qs = buildQueryString({
+      employee_id: params?.employee_id,
+      since: params?.since,
+      bonus_type: params?.bonus_type,
+    });
+    return fetchList<BonusRecord>(
       `${API_BASE_URL}/api/bonuses/${qs}`,
       "Failed to load bonuses"
     );
-    if (Array.isArray(data)) return data;
-    return data.results ?? [];
   },
 
   async listForEmployee(employeeId: number): Promise<BonusRecord[]> {
