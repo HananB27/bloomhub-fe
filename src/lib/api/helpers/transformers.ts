@@ -76,6 +76,27 @@ const TECHNOLOGY_TAG_NAME_BY_ID: Record<number, string> = {
   27: "MySQL",
 };
 
+// ── Internal helpers ──────────────────────────────────────────
+function asNum(raw: Record<string, unknown>, key: string): number {
+  return raw[key] as number;
+}
+
+function num(raw: Record<string, unknown>, key: string, fallback: number = 0): number {
+  return (raw[key] as number) ?? fallback;
+}
+
+function str(raw: Record<string, unknown>, key: string, fallback: string = ""): string {
+  return (raw[key] as string) || fallback;
+}
+
+function strOrNull(raw: Record<string, unknown>, key: string): string | null {
+  return (raw[key] as string) || null;
+}
+
+function bool(raw: Record<string, unknown>, key: string, fallback: boolean = true): boolean {
+  return raw[key] !== undefined ? (raw[key] as boolean) : fallback;
+}
+
 function normalizeTechnologyTags(
   input: unknown
 ): { id: number; name: string }[] {
@@ -224,22 +245,22 @@ export function transformLeaveMonthlyAggregate(
   raw: Record<string, unknown>
 ): LeaveMonthlyAggregate {
   return {
-    id: raw.id as number,
-    employeeId: raw.employee_id as number,
-    employeeName: (raw.employee_name as string) || "",
-    department: (raw.department as string) || null,
+    id: asNum(raw, "id"),
+    employeeId: asNum(raw, "employee_id"),
+    employeeName: str(raw, "employee_name"),
+    department: strOrNull(raw, "department"),
     leaveType: raw.leave_type as LeaveType,
-    leaveTypeDisplay: (raw.leave_type_display as string) || "",
-    year: raw.year as number,
-    month: raw.month as number,
-    approvedDays: (raw.approved_days as number) ?? 0,
-    pendingDays: (raw.pending_days as number) ?? 0,
-    rejectedDays: (raw.rejected_days as number) ?? 0,
-    cancelledDays: (raw.cancelled_days as number) ?? 0,
-    totalDays: (raw.total_days as number) ?? 0,
-    requestsCount: (raw.requests_count as number) ?? 0,
-    createdAt: (raw.created_at as string) || "",
-    updatedAt: (raw.updated_at as string) || "",
+    leaveTypeDisplay: str(raw, "leave_type_display"),
+    year: asNum(raw, "year"),
+    month: asNum(raw, "month"),
+    approvedDays: num(raw, "approved_days"),
+    pendingDays: num(raw, "pending_days"),
+    rejectedDays: num(raw, "rejected_days"),
+    cancelledDays: num(raw, "cancelled_days"),
+    totalDays: num(raw, "total_days"),
+    requestsCount: num(raw, "requests_count"),
+    createdAt: str(raw, "created_at"),
+    updatedAt: str(raw, "updated_at"),
   };
 }
 
@@ -253,10 +274,10 @@ export function transformLeaveAnalyticsMonthRow(
   raw: Record<string, unknown>
 ): LeaveAnalyticsMonthRow {
   return {
-    year: raw.year as number,
-    month: raw.month as number,
-    monthLabel: (raw.month_label as string) || "",
-    total: (raw.total as number) ?? 0,
+    year: asNum(raw, "year"),
+    month: asNum(raw, "month"),
+    monthLabel: str(raw, "month_label"),
+    total: num(raw, "total"),
     byType: _normalizeByType(raw.by_type as Record<string, unknown>),
   };
 }
@@ -271,12 +292,12 @@ export function transformLeaveAnalyticsYearTotals(
   raw: Record<string, unknown>
 ): LeaveAnalyticsYearTotals {
   return {
-    year: raw.year as number,
-    total: (raw.total as number) ?? 0,
+    year: asNum(raw, "year"),
+    total: num(raw, "total"),
     byType: _normalizeByType(raw.by_type as Record<string, unknown>),
-    pendingTotal: (raw.pending_total as number) ?? 0,
-    headcount: (raw.headcount as number) ?? 0,
-    onLeaveToday: (raw.on_leave_today as number) ?? 0,
+    pendingTotal: num(raw, "pending_total"),
+    headcount: num(raw, "headcount"),
+    onLeaveToday: num(raw, "on_leave_today"),
   };
 }
 
@@ -284,9 +305,9 @@ export function transformLeaveAnalyticsDepartmentRow(
   raw: Record<string, unknown>
 ): LeaveAnalyticsDepartmentRow {
   return {
-    department: (raw.department as string) || "Unassigned",
-    headcount: (raw.headcount as number) ?? 0,
-    total: (raw.total as number) ?? 0,
+    department: str(raw, "department", "Unassigned"),
+    headcount: num(raw, "headcount"),
+    total: num(raw, "total"),
     byType: _normalizeByType(raw.by_type as Record<string, unknown>),
   };
 }
@@ -301,13 +322,13 @@ export function transformLeaveAnalyticsEmployeeSummary(
   raw: Record<string, unknown>
 ): LeaveAnalyticsEmployeeSummary {
   return {
-    employeeId: raw.employee_id as number,
-    employeeName: (raw.employee_name as string) || "",
-    role: (raw.role as string) || null,
-    department: (raw.department as string) || null,
-    total: (raw.total as number) ?? 0,
-    vacationUsed: (raw.vacation_used as number) ?? 0,
-    vacationRemaining: (raw.vacation_remaining as number) ?? 0,
+    employeeId: asNum(raw, "employee_id"),
+    employeeName: str(raw, "employee_name"),
+    role: strOrNull(raw, "role"),
+    department: strOrNull(raw, "department"),
+    total: num(raw, "total"),
+    vacationUsed: num(raw, "vacation_used"),
+    vacationRemaining: num(raw, "vacation_remaining"),
     byType: _normalizeByType(raw.by_type as Record<string, unknown>),
   };
 }
@@ -324,12 +345,12 @@ export function transformLeaveAnalyticsRefreshResponse(
   const snapshots =
     (raw.snapshots as Record<string, unknown> | undefined) ?? {};
   return {
-    createdCount: (raw.created_count as number) ?? 0,
-    updatedCount: (raw.updated_count as number) ?? 0,
-    deletedCount: (raw.deleted_count as number) ?? 0,
+    createdCount: num(raw, "created_count"),
+    updatedCount: num(raw, "updated_count"),
+    deletedCount: num(raw, "deleted_count"),
     snapshots: {
-      createdCount: (snapshots.created_count as number) ?? 0,
-      updatedCount: (snapshots.updated_count as number) ?? 0,
+      createdCount: num(snapshots, "created_count"),
+      updatedCount: num(snapshots, "updated_count"),
     },
   };
 }
@@ -338,19 +359,19 @@ export function transformLeaveBalanceSnapshot(
   raw: Record<string, unknown>
 ): LeaveBalanceSnapshot {
   return {
-    id: raw.id as number,
-    employeeId: raw.employee_id as number,
-    employeeName: (raw.employee_name as string) || "",
+    id: asNum(raw, "id"),
+    employeeId: asNum(raw, "employee_id"),
+    employeeName: str(raw, "employee_name"),
     leaveType: raw.leave_type as LeaveType,
-    leaveTypeDisplay: (raw.leave_type_display as string) || "",
-    year: raw.year as number,
-    snapshotDate: (raw.snapshot_date as string) || "",
-    allocated: (raw.allocated as number) ?? 0,
-    used: (raw.used as number) ?? 0,
-    carryover: (raw.carryover as number) ?? 0,
-    remaining: (raw.remaining as number) ?? 0,
-    createdAt: (raw.created_at as string) || "",
-    updatedAt: (raw.updated_at as string) || "",
+    leaveTypeDisplay: str(raw, "leave_type_display"),
+    year: asNum(raw, "year"),
+    snapshotDate: str(raw, "snapshot_date"),
+    allocated: num(raw, "allocated"),
+    used: num(raw, "used"),
+    carryover: num(raw, "carryover"),
+    remaining: num(raw, "remaining"),
+    createdAt: str(raw, "created_at"),
+    updatedAt: str(raw, "updated_at"),
   };
 }
 
@@ -364,18 +385,18 @@ export function transformLeaveRequestHistoryRow(
   raw: Record<string, unknown>
 ): import("@/types/leaveAnalytics").LeaveRequestHistoryRow {
   return {
-    id: raw.id as number,
-    employeeId: (raw.employee_id as number) ?? 0,
-    employeeName: (raw.employee_name as string) || "",
+    id: asNum(raw, "id"),
+    employeeId: num(raw, "employee_id"),
+    employeeName: str(raw, "employee_name"),
     leaveType: raw.leave_type as LeaveType,
-    leaveTypeDisplay: (raw.leave_type_display as string) || "",
-    startDate: (raw.start_date as string) || "",
-    endDate: (raw.end_date as string) || "",
-    days: (raw.days as number) ?? 0,
-    reason: (raw.reason as string) || "",
+    leaveTypeDisplay: str(raw, "leave_type_display"),
+    startDate: str(raw, "start_date"),
+    endDate: str(raw, "end_date"),
+    days: num(raw, "days"),
+    reason: str(raw, "reason"),
     status: raw.status as import("@/types/vacations").LeaveStatus,
-    statusDisplay: (raw.status_display as string) || "",
-    submittedDate: (raw.submitted_date as string) || "",
+    statusDisplay: str(raw, "status_display"),
+    submittedDate: str(raw, "submitted_date"),
   };
 }
 
@@ -391,10 +412,10 @@ function _transformLeaveAvailabilityEntry(
   return {
     leaveType: raw.leave_type as LeaveType,
     status: raw.status as import("@/types/vacations").LeaveStatus,
-    startDate: (raw.start_date as string) || "",
-    endDate: (raw.end_date as string) || "",
-    windowStart: (raw.window_start as string) || "",
-    windowEnd: (raw.window_end as string) || "",
+    startDate: str(raw, "start_date"),
+    endDate: str(raw, "end_date"),
+    windowStart: str(raw, "window_start"),
+    windowEnd: str(raw, "window_end"),
   };
 }
 
@@ -403,10 +424,10 @@ function _transformLeaveAvailabilityEmployee(
 ): import("@/types/leaveAnalytics").LeaveAvailabilityEmployee {
   const entries = (raw.entries as Record<string, unknown>[] | undefined) ?? [];
   return {
-    employeeId: (raw.employee_id as number) ?? 0,
-    employeeName: (raw.employee_name as string) || "",
-    role: (raw.role as string) || null,
-    department: (raw.department as string) || null,
+    employeeId: num(raw, "employee_id"),
+    employeeName: str(raw, "employee_name"),
+    role: strOrNull(raw, "role"),
+    department: strOrNull(raw, "department"),
     entries: entries.map(_transformLeaveAvailabilityEntry),
   };
 }
@@ -415,8 +436,8 @@ function _transformLeaveAvailabilityDay(
   raw: Record<string, unknown>
 ): import("@/types/leaveAnalytics").LeaveAvailabilityDayCount {
   return {
-    date: (raw.date as string) || "",
-    onLeaveCount: (raw.on_leave_count as number) ?? 0,
+    date: str(raw, "date"),
+    onLeaveCount: num(raw, "on_leave_count"),
     byType: _normalizeByType(raw.by_type as Record<string, unknown>),
     isCritical: Boolean(raw.is_critical),
   };
@@ -431,13 +452,13 @@ export function transformLeaveAvailabilityResponse(
   const daily = (raw.daily as Record<string, unknown>[] | undefined) ?? [];
   return {
     range: {
-      startDate: (range.start_date as string) || "",
-      endDate: (range.end_date as string) || "",
-      workingDaysCount: (range.working_days_count as number) ?? 0,
-      headcount: (range.headcount as number) ?? 0,
+      startDate: str(range, "start_date"),
+      endDate: str(range, "end_date"),
+      workingDaysCount: num(range, "working_days_count"),
+      headcount: num(range, "headcount"),
       projectId: (range.project_id as number | null) ?? null,
       projectName: (range.project_name as string | null) ?? null,
-      criticalRatio: (range.critical_ratio as number) ?? 0,
+      criticalRatio: num(range, "critical_ratio"),
     },
     employees: employees.map(_transformLeaveAvailabilityEmployee),
     daily: daily.map(_transformLeaveAvailabilityDay),
@@ -448,8 +469,8 @@ export function transformLeaveAnalyticsEmployeeHistory(
   raw: Record<string, unknown>
 ): import("@/types/leaveAnalytics").LeaveAnalyticsEmployeeHistory {
   return {
-    employeeId: (raw.employee_id as number) ?? 0,
-    employeeName: (raw.employee_name as string) || "",
+    employeeId: num(raw, "employee_id"),
+    employeeName: str(raw, "employee_name"),
     monthlyAggregates: transformLeaveMonthlyAggregateList(
       (raw.monthly_aggregates as Record<string, unknown>[]) ?? []
     ),
