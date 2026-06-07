@@ -13,6 +13,7 @@
 
 ## Never-Touch Paths
 
+-`.agents/` because agent skills requires human handling.
 - `**/.env*` because secrets must never be modified by Gardener.
 - `**/secrets/**` because secret material requires human handling.
 - `**/migrations/**` because database migrations require explicit review.
