@@ -6,7 +6,6 @@ import {
   DialogDescription,
   DialogTitle,
 } from "../ui/dialog";
-import { getEmbeddedPreviewUrl } from "./profilesModuleHelpers";
 
 interface CvPreviewDialogProps {
   open: boolean;
