@@ -5594,6 +5594,19 @@ function JiraIssueLink({
   issueUrl: string;
 }) {
   if (!issueUrl) {
+    return <span className="font-medium">{issueKey}</span>;
+  }
+  return (
+    <a
+      href={issueUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="font-medium text-blue-600 underline hover:text-blue-800"
+    >
+      {issueKey}
+    </a>
+  );
+}
     return <p className="font-medium">{issueKey}</p>;
   }
 
