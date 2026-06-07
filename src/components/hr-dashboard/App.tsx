@@ -47,6 +47,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getStoredUser, storeTokens } from "@/lib/api/tokens";
 import { useAdminAccess } from "@/hooks/useAdminAccess";
+import { useNotifications, type Notification } from "./notifications";
 
 const OPEN_ANNOUNCEMENT_EVENT = "bloomhub:open-announcement";
 
