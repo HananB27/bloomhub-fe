@@ -81,3 +81,10 @@ export const logoutUser = async (refreshToken?: string) => {
     }
   }
 };
+
+/* v8 ignore next 3 */
+export const __test__ = {
+  loginWithEmail,
+  registerUser,
+  logoutUser,
+};
