@@ -95,6 +95,17 @@ export interface AnnouncementDiscordChannelPayload {
   enabled: boolean;
 }
 
+async function listHelper<T>(
+  url: string,
+  errorMsg: string,
+  params?: Record<string, string | number | boolean | null | undefined>,
+  opts?: { signal?: AbortSignal }
+): Promise<{ results: T[]; count: number }> {
+  const qs = buildQueryString(params);
+  const data = await get<unknown>(`${url}/${qs}`, errorMsg, { signal: opts?.signal });
+  return handleListResponse<T>(data as { results?: T[]; count?: number } | T[]);
+}
+
 const base = `${API_BASE_URL}/api/announcements`;
 const discordChannelsBase = `${API_BASE_URL}/api/announcement-discord-channels`;
 
@@ -103,22 +114,11 @@ export const announcementApi = {
     params?: AnnouncementListParams,
     opts?: { signal?: AbortSignal }
   ): Promise<{ results: AnnouncementListItem[]; count: number }> {
-    const qs = buildQueryString(
-      params as
-        | Record<string, string | number | boolean | null | undefined>
-        | undefined
-    );
-    const data = await get<unknown>(
-      `${base}/${qs}`,
+    return listHelper<AnnouncementListItem>(
+      base,
       "Failed to load announcements",
-      {
-        signal: opts?.signal,
-      }
-    );
-    return handleListResponse<AnnouncementListItem>(
-      data as
-        | { results?: AnnouncementListItem[]; count?: number }
-        | AnnouncementListItem[]
+      params as Record<string, string | number | boolean | null | undefined> | undefined,
+      opts
     );
   },
 
@@ -212,23 +212,11 @@ export const announcementDiscordChannelApi = {
     params?: AnnouncementDiscordChannelListParams,
     opts?: { signal?: AbortSignal }
   ): Promise<{ results: AnnouncementDiscordChannel[]; count: number }> {
-    const qs = buildQueryString(
-      params as
-        | Record<string, string | number | boolean | null | undefined>
-        | undefined
-    );
-    const data = await get<unknown>(
-      `${discordChannelsBase}/${qs}`,
+    return listHelper<AnnouncementDiscordChannel>(
+      discordChannelsBase,
       "Failed to load Discord announcement channels",
-      { signal: opts?.signal }
-    );
-    return handleListResponse<AnnouncementDiscordChannel>(
-      data as
-        | {
-            results?: AnnouncementDiscordChannel[];
-            count?: number;
-          }
-        | AnnouncementDiscordChannel[]
+      params as Record<string, string | number | boolean | null | undefined> | undefined,
+      opts
     );
   },
 
