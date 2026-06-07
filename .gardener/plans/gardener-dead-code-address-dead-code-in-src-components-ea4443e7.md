@@ -1,0 +1,22 @@
+<!-- gardener-maintenance-pr-plan-id: a52c907d-e110-4262-af02-111eae08a97a -->
+# Plan 2 dead_code maintenance opportunities
+
+## Goal
+
+187 dead code signals found in src/components. | 83 dead code signals found in src/types.
+
+## Evidence
+
+src/components/Providers.tsx: File has no importers (in_degree=0) | src/components/hr-dashboard/FormComponents.tsx: File has no importers (in_degree=0) | src/components/hr-dashboard/common/dialogs.tsx: File has no importers (in_degree=0) | src/types/certificates.ts: File has no importers (in_degree=0) | src/types/cpf.ts: File has no importers (in_degree=0) | src/types/dashboard.ts: File has no importers (in_degree=0) Categories checked against constitution allowed fixes: dead_code. Changed paths checked against protected modules and never-touch paths: src/components/Providers.tsx, src/components/hr-dashboard/FormComponents.tsx, src/components/hr-dashboard/common/dialogs.tsx, src/components/hr-dashboard/compensation/CompensationPlaceholderTab.tsx, src/components/hr-dashboard/dashboard/dashboardModuleLoaders.ts, src/components/hr-dashboard/documentsModuleHelpers.ts, src/components/hr-dashboard/employee-profiles/CvDeleteDialog.tsx, src/components/hr-dashboard/employee-profiles/CvPreviewDialog.tsx, src/components/hr-dashboard/employee-profiles/EmployeesTableSection.tsx, src/components/hr-dashboard/employee-profiles/ProfileDialogSaveControls.tsx, src/components/hr-dashboard/employee-profiles/ProfilesModule.tsx, src/components/hr-dashboard/employee-profiles/profilesModuleHelpers.ts, src/components/hr-dashboard/employee-profiles/profilesModuleLoaders.ts, src/components/hr-dashboard/leave-analytics/Atoms.tsx, src/components/hr-dashboard/orgchart/crossModuleNav.ts, src/components/hr-dashboard/orgchart/mockData.ts, src/components/hr-dashboard/templates/FieldComponents.tsx, src/components/hr-dashboard/templates/templateEditorHelpers.ts, src/components/hr-dashboard/ui/accordion.tsx, src/components/hr-dashboard/ui/alert-dialog.tsx, src/types/certificates.ts, src/types/conferenceCourseRegistration.ts, src/types/cpf.ts, src/types/dashboard.ts, src/types/documents.ts, src/types/jobListing.ts, src/types/leaveAnalytics.ts, src/types/peerSession.ts, src/types/promotion.ts, src/types/reviews.ts, src/types/technology-tags.ts, src/types/training.ts, src/types/trainingBudget.ts, src/types/vacations.ts.
+
+## Entropy impact
+
+Expected -3.2 entropy delta across 34 path(s).
+
+## Verification
+
+Required checks: none configured. Risk tier: tier_2_assisted. Minimum opportunity confidence 0.40; threshold 0.40; eligible for review-required PR. Changed paths: src/components/Providers.tsx, src/components/hr-dashboard/FormComponents.tsx, src/components/hr-dashboard/common/dialogs.tsx, src/components/hr-dashboard/compensation/CompensationPlaceholderTab.tsx, src/components/hr-dashboard/dashboard/dashboardModuleLoaders.ts, src/components/hr-dashboard/documentsModuleHelpers.ts, src/components/hr-dashboard/employee-profiles/CvDeleteDialog.tsx, src/components/hr-dashboard/employee-profiles/CvPreviewDialog.tsx, src/components/hr-dashboard/employee-profiles/EmployeesTableSection.tsx, src/components/hr-dashboard/employee-profiles/ProfileDialogSaveControls.tsx, src/components/hr-dashboard/employee-profiles/ProfilesModule.tsx, src/components/hr-dashboard/employee-profiles/profilesModuleHelpers.ts, src/components/hr-dashboard/employee-profiles/profilesModuleLoaders.ts, src/components/hr-dashboard/leave-analytics/Atoms.tsx, src/components/hr-dashboard/orgchart/crossModuleNav.ts, src/components/hr-dashboard/orgchart/mockData.ts, src/components/hr-dashboard/templates/FieldComponents.tsx, src/components/hr-dashboard/templates/templateEditorHelpers.ts, src/components/hr-dashboard/ui/accordion.tsx, src/components/hr-dashboard/ui/alert-dialog.tsx, src/types/certificates.ts, src/types/conferenceCourseRegistration.ts, src/types/cpf.ts, src/types/dashboard.ts, src/types/documents.ts, src/types/jobListing.ts, src/types/leaveAnalytics.ts, src/types/peerSession.ts, src/types/promotion.ts, src/types/reviews.ts, src/types/technology-tags.ts, src/types/training.ts, src/types/trainingBudget.ts, src/types/vacations.ts. Rollback: revert the focused PR branch if checks or review fail.
+
+## ROI impact
+
+Estimated 20.4–40.8 engineering hours saved. 2 high-entropy-delta path(s) addressed. Assumptions: 3.0 hrs/file for dead_code; confidence 0.40, 0.40; conservative scale 0.5–1.0×. Estimates are conservative and indicative only.
