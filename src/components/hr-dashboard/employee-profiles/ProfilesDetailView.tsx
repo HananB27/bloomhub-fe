@@ -25,7 +25,6 @@ import { UpcomingCelebrationsWidget } from "./UpcomingCelebrationsWidget";
 import type { ProfileSectionNavItem } from "./useProfileSectionNav";
 import type { ProfileViewerRole } from "./atoms/RoleSwitch";
 import { ProfileSection } from "./atoms/ProfileSection";
-import { DatePicker } from "../DatePicker";
 
 interface ProfilesDetailViewProps {
   profile: EmployeeProfileData;
@@ -296,22 +295,21 @@ export function ProfilesDetailView({
                   <span className="text-sm font-semibold text-zinc-700">
                     Schedule date
                   </span>
-                  <DatePicker
-                    mode="single"
+                  <input
+                    type="date"
+                    className="h-10 rounded-lg border border-zinc-300 px-3 text-sm"
                     value={introDraft.scheduledDate}
-                    onChange={(date) =>
+                    onChange={(event) =>
                       onIntroDraftChange({
                         ...introDraft,
-                        scheduledDate: date,
+                        scheduledDate: event.target.value,
                         scheduledTime:
-                          date && !introDraft.scheduledTime
+                          event.target.value && !introDraft.scheduledTime
                             ? "09:00"
                             : introDraft.scheduledTime,
                       })
                     }
                     placeholder="dd. mm. yyyy."
-                    size="compact"
-                    floatPortal
                   />
                 </label>
                 <label className="grid gap-2">
