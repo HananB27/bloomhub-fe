@@ -8,6 +8,57 @@ import { signIn } from "next-auth/react";
 import { getApiBaseUrl } from "@/lib/config";
 import { toast } from "sonner";
 
+// Helper: Convert HEIC/HEIF to JPEG
+async function convertHeicToJpeg(file: File): Promise<File> {
+  const heic2any = (await import("heic2any")).default;
+  const result = await heic2any({
+    blob: file,
+    toType: "image/jpeg",
+    quality: 0.7,
+  });
+  const blob = Array.isArray(result) ? result[0] : result;
+  return new File([blob], file.name.replace(/\.heic$/i, ".jpg"), {
+    type: "image/jpeg",
+  });
+}
+
+// Helper: Validate step 1 fields
+function validateStep1(formData: {
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+  password: string;
+  passwordConfirm: string;
+}): string | null {
+  if (
+    !formData.firstName ||
+    !formData.lastName ||
+    !formData.username ||
+    !formData.email ||
+    !formData.password ||
+    !formData.passwordConfirm
+  ) {
+    return "Please fill in all fields";
+  }
+  if (formData.password !== formData.passwordConfirm) {
+    return "Passwords do not match";
+  }
+  return null;
+}
+
+// Helper: Extract error messages from DRF response
+function extractErrorMessages(data: unknown): string {
+  if (typeof data !== "object" || data === null) return "Registration failed";
+  const messages: string[] = [];
+  for (const key in data) {
+    if (Object.prototype.hasOwnProperty.call(data, key)) {
+      messages.push(`${key}: ${(data as Record<string, unknown>)[key]}`);
+    }
+  }
+  return messages.join(", ") || "Registration failed";
+}
+
 export default function RegisterPage() {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
@@ -44,20 +95,9 @@ export default function RegisterPage() {
       ) {
         setIsConverting(true);
         try {
-          const heic2any = (await import("heic2any")).default;
-          const result = await heic2any({
-            blob: file,
-            toType: "image/jpeg",
-            quality: 0.7,
-          });
-          const blob = Array.isArray(result) ? result[0] : result;
-          fileToRead = new File([blob], file.name.replace(/\.heic$/i, ".jpg"), {
-            type: "image/jpeg",
-          });
+          fileToRead = await convertHeicToJpeg(file);
           setIsConverting(false);
         } catch (err: unknown) {
-          // Log conversion error; use unknown instead of any
-
           console.error("HEIC conversion error:", err);
           setIsConverting(false);
           toast.error("Failed to process HEIC image");
@@ -78,24 +118,10 @@ export default function RegisterPage() {
     e.preventDefault();
 
     // Manual validation to avoid default browser tooltips
-    if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.username ||
-      !formData.email ||
-      !formData.password ||
-      !formData.passwordConfirm
-    ) {
-      const errorMsg = "Please fill in all fields";
-      toast.error(errorMsg);
-      setError(errorMsg);
-      return;
-    }
-
-    if (formData.password !== formData.passwordConfirm) {
-      const errorMsg = "Passwords do not match";
-      toast.error(errorMsg);
-      setError(errorMsg);
+    const validationError = validateStep1(formData);
+    if (validationError) {
+      toast.error(validationError);
+      setError(validationError);
       return;
     }
     setError(null);
@@ -131,14 +157,7 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        // Collect all possible errors from DRF response
-        const messages = [];
-        if (typeof data === "object") {
-          for (const key in data) {
-            messages.push(`${key}: ${data[key]}`);
-          }
-        }
-        const errorMsg = messages.join(", ") || "Registration failed";
+        const errorMsg = extractErrorMessages(data);
         throw new Error(errorMsg);
       }
 
