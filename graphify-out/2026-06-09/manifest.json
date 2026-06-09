@@ -240,8 +240,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/AnnouncementsModule.tsx": {
-    "mtime": 1780384494.2968795,
-    "ast_hash": "76791dfd976aaa3d4478037a89174e73",
+    "mtime": 1781031076.6294787,
+    "ast_hash": "8a241a46b62c0dee03ccac1c6969e579",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/App.tsx": {
@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/AssetsModule.tsx": {
-    "mtime": 1780995128.5340323,
-    "ast_hash": "7ab38688c15e9a67cf702c646cb7b317",
+    "mtime": 1781007347.1413977,
+    "ast_hash": "44c3aa957c05b7db2652ac7fead9c61c",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx": {
@@ -380,7 +380,7 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/compensation/CompensationModule.tsx": {
-    "mtime": 1780953315.4184647,
+    "mtime": 1781007347.1413977,
     "ast_hash": "420f6b88ed68b1be289aedbcb94721f3",
     "semantic_hash": ""
   },
@@ -465,8 +465,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/AnnouncementsWidget.tsx": {
-    "mtime": 1780385764.3595665,
-    "ast_hash": "1979a72de3cc73e571f52f8d3ad6b9d0",
+    "mtime": 1781010949.3751366,
+    "ast_hash": "e1020fe51f53ae11c8045b9a514878cc",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/dashboard/widgets/ApprovalQueueWidget.tsx": {
@@ -1800,7 +1800,7 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/lib/api/assets.ts": {
-    "mtime": 1780950965.5432322,
+    "mtime": 1781007347.1413977,
     "ast_hash": "0a2ce16a8a6ce67d050d3ffca4d14ecd",
     "semantic_hash": ""
   },
@@ -2235,7 +2235,7 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/tests/components/hr-dashboard/AssetsModule.test.tsx": {
-    "mtime": 1780993367.1860409,
+    "mtime": 1781007347.1413977,
     "ast_hash": "f1c416ff6f6e80c851336e842d4db51f",
     "semantic_hash": ""
   },
@@ -2612,6 +2612,56 @@
   "/home/macatop/WebstormProjects/bloomhub-fe/GARDENER.md": {
     "mtime": 1780950573.5839427,
     "ast_hash": "041bf6db1de25a5a0bc3ea87f3333555",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/Announcement-redesign/announcements-redesign/app.jsx": {
+    "mtime": 1781010322.0,
+    "ast_hash": "3d1a4348b835539cc458e46b1c5d1812",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/Announcement-redesign/announcements-redesign/data.js": {
+    "mtime": 1781010322.0,
+    "ast_hash": "c72dfac5594e36516144a8b9f9e8424b",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/Announcement-redesign/announcements-redesign/dialogs.jsx": {
+    "mtime": 1781010322.0,
+    "ast_hash": "89262d7db3043adb620400ffee16b6cc",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/Announcement-redesign/announcements-redesign/module.jsx": {
+    "mtime": 1781010322.0,
+    "ast_hash": "7821451106094c632d54455499f704cf",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/Announcement-redesign/announcements-redesign/ui.jsx": {
+    "mtime": 1781010322.0,
+    "ast_hash": "712ba36b025311a07469a797a0396a8b",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/Announcement-redesign/tsx-redesign/AnnouncementsModule.tsx": {
+    "mtime": 1781010322.0,
+    "ast_hash": "aa54341543f8a1b195a7d87cec932a63",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/Announcement-redesign/tsx-redesign/AnnouncementsWidget.tsx": {
+    "mtime": 1781010322.0,
+    "ast_hash": "176c7c015d61277667ee57e8882286fb",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/Announcement-redesign/Announcements Redesign (standalone).html": {
+    "mtime": 1781010380.463528,
+    "ast_hash": "42b2311664315712427f68ca6b2ad515",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/Announcement-redesign/announcements-redesign/Announcements.html": {
+    "mtime": 1781010322.0,
+    "ast_hash": "84e23394b9cea143f338937a0e635693",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/Announcement-redesign/tsx-redesign/CHANGES.md": {
+    "mtime": 1781010322.0,
+    "ast_hash": "a632d0e05da4df56ccf4ada4b1383ed4",
     "semantic_hash": ""
   }
 }
