@@ -3177,120 +3177,124 @@ export function AssetsModule() {
             <div className="am-panel-body">
               {activeTab === "assets" && (
                 <div>
-                  {isFilterPanelOpen && (
-                    <div id="asset-filter-controls" className="am-toolbar">
-                      <div className="relative min-w-[220px] flex-1">
-                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-                        <Input
-                          placeholder="Search assets..."
-                          value={searchTerm}
-                          onChange={(event) =>
-                            setSearchTerm(event.target.value)
-                          }
-                          className="pl-9"
-                        />
-                      </div>
-                      <Select
-                        value={categoryFilter}
-                        onValueChange={setCategoryFilter}
-                      >
-                        <SelectTrigger className="w-full md:w-40">
-                          <SelectValue placeholder="Category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All categories</SelectItem>
-                          {categories.map((category) => (
-                            <SelectItem
-                              key={category.value}
-                              value={category.value}
-                            >
-                              {category.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Select
-                        value={statusFilter}
-                        onValueChange={setStatusFilter}
-                      >
-                        <SelectTrigger className="w-full md:w-36">
-                          <SelectValue placeholder="Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Status</SelectItem>
-                          {ASSET_STATUS_OPTIONS.map((status) => (
-                            <SelectItem key={status.value} value={status.value}>
-                              {status.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Select
-                        value={conditionFilter}
-                        onValueChange={setConditionFilter}
-                      >
-                        <SelectTrigger className="w-full md:w-36">
-                          <SelectValue placeholder="Condition" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All conditions</SelectItem>
-                          {ASSET_CONDITION_OPTIONS.map((condition) => (
-                            <SelectItem
-                              key={condition.value}
-                              value={condition.value}
-                            >
-                              {condition.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Select
-                        value={ownerFilter}
-                        onValueChange={setOwnerFilter}
-                      >
-                        <SelectTrigger className="w-full md:w-40">
-                          <SelectValue placeholder="Owner" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All owners</SelectItem>
-                          <SelectItem value="unassigned">Unassigned</SelectItem>
-                          {ownerOptions.map((owner) => (
-                            <SelectItem key={owner.id} value={owner.id}>
-                              {owner.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Select
-                        value={locationFilter}
-                        onValueChange={setLocationFilter}
-                      >
-                        <SelectTrigger className="w-full md:w-40">
-                          <SelectValue placeholder="Location" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All locations</SelectItem>
-                          {locationOptions.map((location) => (
-                            <SelectItem key={location} value={location}>
-                              {location}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {hasActiveFilters && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={clearInventoryFilters}
+                  <div id="asset-filter-controls" className="am-toolbar">
+                    {isFilterPanelOpen && (
+                      <>
+                        <div className="relative min-w-[180px] flex-1">
+                          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                          <Input
+                            placeholder="Search assets..."
+                            value={searchTerm}
+                            onChange={(event) =>
+                              setSearchTerm(event.target.value)
+                            }
+                            className="pl-9"
+                          />
+                        </div>
+                        <Select
+                          value={categoryFilter}
+                          onValueChange={setCategoryFilter}
                         >
-                          Clear
-                        </Button>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="am-toolbar">
+                          <SelectTrigger className="w-full md:w-40">
+                            <SelectValue placeholder="Category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All categories</SelectItem>
+                            {categories.map((category) => (
+                              <SelectItem
+                                key={category.value}
+                                value={category.value}
+                              >
+                                {category.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          value={statusFilter}
+                          onValueChange={setStatusFilter}
+                        >
+                          <SelectTrigger className="w-full md:w-36">
+                            <SelectValue placeholder="Status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Status</SelectItem>
+                            {ASSET_STATUS_OPTIONS.map((status) => (
+                              <SelectItem
+                                key={status.value}
+                                value={status.value}
+                              >
+                                {status.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          value={conditionFilter}
+                          onValueChange={setConditionFilter}
+                        >
+                          <SelectTrigger className="w-full md:w-36">
+                            <SelectValue placeholder="Condition" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All conditions</SelectItem>
+                            {ASSET_CONDITION_OPTIONS.map((condition) => (
+                              <SelectItem
+                                key={condition.value}
+                                value={condition.value}
+                              >
+                                {condition.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          value={ownerFilter}
+                          onValueChange={setOwnerFilter}
+                        >
+                          <SelectTrigger className="w-full md:w-40">
+                            <SelectValue placeholder="Owner" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All owners</SelectItem>
+                            <SelectItem value="unassigned">
+                              Unassigned
+                            </SelectItem>
+                            {ownerOptions.map((owner) => (
+                              <SelectItem key={owner.id} value={owner.id}>
+                                {owner.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          value={locationFilter}
+                          onValueChange={setLocationFilter}
+                        >
+                          <SelectTrigger className="w-full md:w-40">
+                            <SelectValue placeholder="Location" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All locations</SelectItem>
+                            {locationOptions.map((location) => (
+                              <SelectItem key={location} value={location}>
+                                {location}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {hasActiveFilters && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={clearInventoryFilters}
+                          >
+                            Clear
+                          </Button>
+                        )}
+                      </>
+                    )}
                     <div className="am-toolbar-spacer" />
                     <span className="am-result-count">
                       {filteredAssets.length} of {assets.length}
