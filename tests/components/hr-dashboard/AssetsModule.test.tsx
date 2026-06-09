@@ -2556,17 +2556,22 @@ describe("AssetsModule", () => {
       screen.getByRole("tab", { name: /Assignment History/i })
     );
 
-    expect(await screen.findByText(/Alex Morgan/)).toBeInTheDocument();
     expect(
-      screen.getByText(/requested return for MacBook Air M3/)
-    ).toBeInTheDocument();
+      screen.queryByText(/requested return for MacBook Air M3/)
+    ).not.toBeInTheDocument();
+
+    fireEvent.mouseDown(screen.getByRole("tab", { name: /Return Requests/i }));
+
+    expect(await screen.findByText(/Alex Morgan/)).toBeInTheDocument();
+    expect(screen.getByText("MacBook Air M3")).toBeInTheDocument();
+    expect(screen.getByText(/Requested by Alex Morgan/)).toBeInTheDocument();
     expect(screen.getByText(/AST-071/)).toBeInTheDocument();
     expect(
       screen.getByText("Device is ready for handover.")
     ).toBeInTheDocument();
     expect(screen.queryByPlaceholderText("Rejection reason")).toBeNull();
 
-    fireEvent.click(screen.getByRole("button", { name: /View details/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Review$/i }));
 
     const dialog = await screen.findByRole("dialog");
     expect(
@@ -2641,12 +2646,8 @@ describe("AssetsModule", () => {
     render(<AssetsModule />);
     await screen.findByText(/No assets found/i);
 
-    fireEvent.mouseDown(
-      screen.getByRole("tab", { name: /Assignment History/i })
-    );
-    fireEvent.click(
-      await screen.findByRole("button", { name: /View details/i })
-    );
+    fireEvent.mouseDown(screen.getByRole("tab", { name: /Return Requests/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /^Review$/i }));
 
     const dialog = await screen.findByRole("dialog");
     expect(
@@ -2692,12 +2693,8 @@ describe("AssetsModule", () => {
     render(<AssetsModule />);
     await screen.findByText(/No assets found/i);
 
-    fireEvent.mouseDown(
-      screen.getByRole("tab", { name: /Assignment History/i })
-    );
-    fireEvent.click(
-      await screen.findByRole("button", { name: /View details/i })
-    );
+    fireEvent.mouseDown(screen.getByRole("tab", { name: /Return Requests/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /^Review$/i }));
 
     const dialog = await screen.findByRole("dialog");
     fireEvent.click(
@@ -2753,12 +2750,8 @@ describe("AssetsModule", () => {
     render(<AssetsModule />);
     await screen.findByText(/No assets found/i);
 
-    fireEvent.mouseDown(
-      screen.getByRole("tab", { name: /Assignment History/i })
-    );
-    fireEvent.click(
-      await screen.findByRole("button", { name: /View details/i })
-    );
+    fireEvent.mouseDown(screen.getByRole("tab", { name: /Return Requests/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /^Review$/i }));
 
     const dialog = await screen.findByRole("dialog");
     fireEvent.click(

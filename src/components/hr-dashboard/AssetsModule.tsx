@@ -34,6 +34,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
@@ -93,6 +94,14 @@ import {
   Building,
   UserCheck,
   Package2,
+  List,
+  LayoutGrid,
+  ArrowUp,
+  ArrowDown,
+  ChevronsUpDown,
+  Tag,
+  CircleDot,
+  Clock,
 } from "lucide-react";
 import { formatDate, formatCurrency } from "@/utils";
 import { ApiError } from "@/utils/api";
@@ -906,6 +915,25 @@ export function AssetsModule() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [conditionFilter, setConditionFilter] = useState("all");
+  const [ownerFilter, setOwnerFilter] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
+  const [quickFilter, setQuickFilter] = useState<
+    "total" | "active" | "available" | "maintenance" | "issues"
+  >("total");
+  const [inventoryView, setInventoryView] = useState<"table" | "grid">("table");
+  const [inventorySortKey, setInventorySortKey] = useState<
+    | "name"
+    | "category"
+    | "owner"
+    | "location"
+    | "value"
+    | "condition"
+    | "status"
+  >("name");
+  const [inventorySortDir, setInventorySortDir] = useState<"asc" | "desc">(
+    "asc"
+  );
   const [assignmentAssetFilter, setAssignmentAssetFilter] = useState("");
   const [assignmentEmployeeFilter, setAssignmentEmployeeFilter] = useState("");
   const [assignmentStatusFilter, setAssignmentStatusFilter] = useState("all");
@@ -1037,6 +1065,9 @@ export function AssetsModule() {
   const [isLoadingAssignableUsers, setIsLoadingAssignableUsers] =
     useState(false);
   const [replacementLogs, setReplacementLogs] = useState<
+    AssetReplacementLogApiItem[]
+  >([]);
+  const [inventoryReplacementLogs, setInventoryReplacementLogs] = useState<
     AssetReplacementLogApiItem[]
   >([]);
   const [isLoadingReplacementLogs, setIsLoadingReplacementLogs] =
@@ -1273,6 +1304,7 @@ export function AssetsModule() {
       setAssignments([]);
       setPendingReturnRequests([]);
       setScheduledMaintenance([]);
+      setInventoryReplacementLogs([]);
       setApiError(getErrorMessage(error, "Failed to load asset permissions."));
       setIsLoadingAssets(false);
       return;
@@ -1296,6 +1328,7 @@ export function AssetsModule() {
       setAssignments([]);
       setPendingReturnRequests([]);
       setScheduledMaintenance([]);
+      setInventoryReplacementLogs([]);
       setIsLoadingAssets(false);
       return;
     }
@@ -1358,6 +1391,29 @@ export function AssetsModule() {
       isAssetsMountedRef.current = false;
     };
   }, [loadAssetsAndAssignments]);
+
+  const loadInventoryReplacementLogs = useCallback(async () => {
+    if (!(canViewAssetHistory || canManageMaintenance)) {
+      setInventoryReplacementLogs([]);
+      return;
+    }
+
+    setIsLoadingReplacementLogs(true);
+    try {
+      const logs = await listReplacementLogs(undefined, accessToken);
+      if (isAssetsMountedRef.current) {
+        setInventoryReplacementLogs(logs);
+      }
+    } catch (error: unknown) {
+      if (isAssetsMountedRef.current) {
+        setApiError(getErrorMessage(error, "Failed to load replacement logs."));
+      }
+    } finally {
+      if (isAssetsMountedRef.current) {
+        setIsLoadingReplacementLogs(false);
+      }
+    }
+  }, [accessToken, canManageMaintenance, canViewAssetHistory]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -1422,30 +1478,195 @@ export function AssetsModule() {
     { value: "other", label: "Other", icon: Package2 },
   ];
 
-  const filteredAssets = assets.filter((asset) => {
-    const normalizedSearchTerm = searchTerm.toLowerCase();
-    const matchesSearch =
-      asset.name.toLowerCase().includes(normalizedSearchTerm) ||
-      asset.serialNumber.toLowerCase().includes(normalizedSearchTerm) ||
-      asset.assetTag.toLowerCase().includes(normalizedSearchTerm) ||
-      asset.brand.toLowerCase().includes(normalizedSearchTerm) ||
-      asset.model.toLowerCase().includes(normalizedSearchTerm) ||
-      (asset.assignedEmployeeName || "")
-        .toLowerCase()
-        .includes(normalizedSearchTerm) ||
-      (asset.assignedTo || "").toLowerCase().includes(normalizedSearchTerm);
-    const matchesCategory =
-      categoryFilter === "all" || asset.category === categoryFilter;
-    const matchesStatus =
-      statusFilter === "all" || asset.status === statusFilter;
+  const ownerOptions = (() => {
+    const seen = new Map<string, string>();
+    assets.forEach((asset) => {
+      if (asset.assignedTo) {
+        seen.set(
+          asset.assignedTo,
+          asset.assignedEmployeeName || asset.assignedTo
+        );
+      }
+    });
+    return Array.from(seen.entries())
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  })();
 
-    return matchesSearch && matchesCategory && matchesStatus;
-  });
+  const locationOptions = Array.from(
+    new Set(assets.map((asset) => asset.location).filter(Boolean))
+  ).sort();
+
+  const filteredAssets = assets
+    .filter((asset) => {
+      const normalizedSearchTerm = searchTerm.toLowerCase();
+      const matchesSearch =
+        asset.name.toLowerCase().includes(normalizedSearchTerm) ||
+        asset.serialNumber.toLowerCase().includes(normalizedSearchTerm) ||
+        asset.assetTag.toLowerCase().includes(normalizedSearchTerm) ||
+        asset.brand.toLowerCase().includes(normalizedSearchTerm) ||
+        asset.model.toLowerCase().includes(normalizedSearchTerm) ||
+        (asset.assignedEmployeeName || "")
+          .toLowerCase()
+          .includes(normalizedSearchTerm) ||
+        (asset.assignedTo || "").toLowerCase().includes(normalizedSearchTerm);
+      const matchesCategory =
+        categoryFilter === "all" || asset.category === categoryFilter;
+      const matchesStatus =
+        statusFilter === "all" || asset.status === statusFilter;
+      const matchesCondition =
+        conditionFilter === "all" || asset.condition === conditionFilter;
+      const matchesOwner =
+        ownerFilter === "all" ||
+        (ownerFilter === "unassigned"
+          ? !asset.assignedTo
+          : asset.assignedTo === ownerFilter);
+      const matchesLocation =
+        locationFilter === "all" || asset.location === locationFilter;
+      const matchesQuick =
+        quickFilter === "total" ||
+        (quickFilter === "active" && asset.status === "active") ||
+        (quickFilter === "available" && asset.isAvailable) ||
+        (quickFilter === "maintenance" && asset.status === "maintenance") ||
+        (quickFilter === "issues" &&
+          (asset.status === "lost" || asset.status === "damaged"));
+
+      return (
+        matchesSearch &&
+        matchesCategory &&
+        matchesStatus &&
+        matchesCondition &&
+        matchesOwner &&
+        matchesLocation &&
+        matchesQuick
+      );
+    })
+    .sort((a, b) => {
+      const dir = inventorySortDir === "desc" ? -1 : 1;
+      const getValue = (asset: Asset): string | number => {
+        switch (inventorySortKey) {
+          case "value":
+            return asset.purchasePrice;
+          case "owner":
+            return (asset.assignedEmployeeName || "zzz").toLowerCase();
+          case "category":
+            return asset.category;
+          case "status":
+            return asset.status;
+          case "condition":
+            return asset.condition;
+          case "location":
+            return (asset.location || "").toLowerCase();
+          default:
+            return asset.name.toLowerCase();
+        }
+      };
+      const x = getValue(a);
+      const y = getValue(b);
+      if (x < y) return -1 * dir;
+      if (x > y) return 1 * dir;
+      return 0;
+    });
 
   const hasActiveFilters =
     searchTerm.trim().length > 0 ||
     categoryFilter !== "all" ||
-    statusFilter !== "all";
+    statusFilter !== "all" ||
+    conditionFilter !== "all" ||
+    ownerFilter !== "all" ||
+    locationFilter !== "all" ||
+    quickFilter !== "total";
+
+  const clearInventoryFilters = () => {
+    setSearchTerm("");
+    setCategoryFilter("all");
+    setStatusFilter("all");
+    setConditionFilter("all");
+    setOwnerFilter("all");
+    setLocationFilter("all");
+    setQuickFilter("total");
+  };
+
+  const toggleInventorySort = (key: typeof inventorySortKey) => {
+    if (inventorySortKey === key) {
+      setInventorySortDir((dir) => (dir === "asc" ? "desc" : "asc"));
+    } else {
+      setInventorySortKey(key);
+      setInventorySortDir("asc");
+    }
+  };
+
+  const renderSortableHead = (
+    key: typeof inventorySortKey,
+    label: string,
+    rightAlign = false
+  ) => {
+    const isActive = inventorySortKey === key;
+    const SortIcon = !isActive
+      ? ChevronsUpDown
+      : inventorySortDir === "asc"
+        ? ArrowUp
+        : ArrowDown;
+    return (
+      <TableHead
+        className={`am-sortable ${isActive ? "am-th-active" : ""} ${
+          rightAlign ? "text-right" : ""
+        }`}
+        aria-sort={
+          isActive
+            ? inventorySortDir === "asc"
+              ? "ascending"
+              : "descending"
+            : "none"
+        }
+        onClick={() => toggleInventorySort(key)}
+      >
+        <span
+          className="am-th-inner"
+          style={rightAlign ? { flexDirection: "row-reverse" } : undefined}
+        >
+          {label}
+          <SortIcon className="am-sort-ic h-3 w-3" />
+        </span>
+      </TableHead>
+    );
+  };
+
+  const ASSET_TAG_PREFIX: Record<AssetCategory, string> = {
+    laptops: "LAP",
+    phones: "PHN",
+    monitors: "MON",
+    headphones: "AUD",
+    cameras: "CAM",
+    vehicles: "VEH",
+    furniture: "FUR",
+    other: "GEN",
+  };
+
+  const computeNextAssetTag = (category: AssetCategory): string => {
+    const prefix = ASSET_TAG_PREFIX[category] || "GEN";
+    const stem = `BTQ-${prefix}-`;
+    const used = assets
+      .map((asset) => asset.assetTag)
+      .filter((tag) => tag && tag.startsWith(stem))
+      .map((tag) => parseInt(tag.split("-")[2] ?? "", 10) || 0);
+    const next = (used.length ? Math.max(...used) : 0) + 1;
+    return `${stem}${String(next).padStart(3, "0")}`;
+  };
+
+  const renderFormSection = (
+    SectionIcon: LucideIcon,
+    title: string,
+    hint?: string
+  ) => (
+    <div className="space-y-0.5">
+      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.04em] text-gray-900">
+        <SectionIcon className="h-3.5 w-3.5 text-gray-400" />
+        {title}
+      </div>
+      {hint && <p className="text-xs text-gray-500">{hint}</p>}
+    </div>
+  );
 
   const getAssignmentAssetName = (assignment: Assignment): string => {
     const asset = assets.find((item) => item.id === assignment.assetId);
@@ -2713,419 +2934,532 @@ export function AssetsModule() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              Asset Management
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Track and manage company assets, assignments, and maintenance
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              aria-expanded={isFilterPanelOpen}
-              aria-controls="asset-filter-controls"
+    <div className="am-page assets-redesign">
+      <div className="am-pagehead">
+        <div>
+          <h1>Asset Management</h1>
+          <p>
+            Track, assign, and service company equipment across Bloomteq ·{" "}
+            {assets.length} assets
+          </p>
+        </div>
+        <div className="am-pagehead-actions">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const isAssetsTabActive = activeTab === "assets";
+              setActiveTab("assets");
+              setIsFilterPanelOpen((prev) =>
+                isAssetsTabActive ? !prev : true
+              );
+            }}
+            aria-expanded={isFilterPanelOpen}
+            aria-controls="asset-filter-controls"
+          >
+            <Filter className="mr-2 h-4 w-4" />
+            Filter
+            {hasActiveFilters && (
+              <span className="ml-2 inline-flex h-2 w-2 rounded-full bg-zinc-900" />
+            )}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void handleExportAssets()}
+            disabled={!canExportInventory || isExportingAssets}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            {isExportingAssets ? "Exporting..." : "Export"}
+          </Button>
+          <Button variant="outline" size="sm" disabled={!canGenerateQr}>
+            <QrCode className="mr-2 h-4 w-4" />
+            Scan QR
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => setIsAddAssetDialogOpen(true)}
+            disabled={!canCreateAssets}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Asset
+          </Button>
+        </div>
+      </div>
+
+      <div className="am-kpis">
+        {(
+          [
+            {
+              key: "total",
+              label: "Total assets",
+              value: assets.length,
+              sub: "All categories",
+              icon: Package,
+              tone: { bg: "#f4f4f5", fg: "#52525b" },
+            },
+            {
+              key: "active",
+              label: "Active",
+              value: assets.filter((asset) => asset.status === "active").length,
+              sub: "In service",
+              icon: CheckCircle,
+              tone: { bg: "#f0fdf4", fg: "#15803d" },
+            },
+            {
+              key: "available",
+              label: "Available",
+              value: assets.filter((asset) => asset.isAvailable).length,
+              sub: "Ready to assign",
+              icon: Package2,
+              tone: { bg: "#eff6ff", fg: "#1d4ed8" },
+            },
+            {
+              key: "maintenance",
+              label: "In maintenance",
+              value: assets.filter((asset) => asset.status === "maintenance")
+                .length,
+              sub: "Being serviced",
+              icon: Wrench,
+              tone: { bg: "#fffbeb", fg: "#b45309" },
+            },
+            {
+              key: "issues",
+              label: "Issues",
+              value: assets.filter(
+                (asset) => asset.status === "lost" || asset.status === "damaged"
+              ).length,
+              sub: "Lost or damaged",
+              icon: AlertTriangle,
+              tone: { bg: "#fef2f2", fg: "#b91c1c" },
+            },
+          ] as const
+        ).map((kpi) => {
+          const Icon = kpi.icon;
+          const isActive = quickFilter === kpi.key && kpi.key !== "total";
+          return (
+            <button
+              key={kpi.key}
+              type="button"
+              className={`am-kpi ${isActive ? "is-active" : ""}`}
+              aria-pressed={isActive}
               onClick={() => {
-                const isAssetsTabActive = activeTab === "assets";
                 setActiveTab("assets");
-                setIsFilterPanelOpen((prev) =>
-                  isAssetsTabActive ? !prev : true
+                setStatusFilter("all");
+                setQuickFilter((prev) =>
+                  prev === kpi.key ? "total" : kpi.key
                 );
               }}
             >
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-              {hasActiveFilters && (
-                <span className="ml-2 inline-flex h-2 w-2 rounded-full bg-blue-500" />
-              )}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                void handleExportAssets();
-              }}
-              disabled={!canExportInventory || isExportingAssets}
-            >
-              <Download className="w-4 h-4 mr-2" />
-              {isExportingAssets ? "Exporting..." : "Export"}
-            </Button>
-            <Button variant="outline" size="sm" disabled={!canGenerateQr}>
-              <QrCode className="w-4 h-4 mr-2" />
-              Scan QR
-            </Button>
-            {canCreateAssets && (
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => setIsAddAssetDialogOpen(true)}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Asset
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Package className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Total Assets
-              </p>
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {assets.length}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              All categories
-            </p>
-          </div>
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              <p className="text-sm text-gray-600 dark:text-gray-400">Active</p>
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {assets.filter((asset) => asset.status === "active").length}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Currently assigned
-            </p>
-          </div>
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              <p className="text-sm text-gray-600 dark:text-gray-400">Issues</p>
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {
-                assets.filter(
-                  (asset) =>
-                    asset.status === "lost" || asset.status === "damaged"
-                ).length
-              }
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Lost or damaged
-            </p>
-          </div>
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Total Value
-              </p>
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {formatCurrency(
-                assets.reduce((sum, asset) => sum + asset.purchasePrice, 0)
-              )}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Asset portfolio
-            </p>
-          </div>
-        </div>
-
-        {apiError && (
-          <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-            {apiError}
-          </div>
-        )}
+              {isActive && <span className="am-kpi-active-bar" />}
+              <div className="am-kpi-top">
+                <span
+                  className="am-kpi-ic"
+                  style={{ background: kpi.tone.bg, color: kpi.tone.fg }}
+                >
+                  <Icon className="h-4 w-4" />
+                </span>
+                {kpi.label}
+              </div>
+              <div className="am-kpi-val">{kpi.value}</div>
+              <div className="am-kpi-sub">
+                {isActive ? (
+                  <>
+                    <Filter className="h-3 w-3" /> Filtering inventory
+                  </>
+                ) : (
+                  kpi.sub
+                )}
+              </div>
+            </button>
+          );
+        })}
       </div>
 
-      {!canViewAnyAssets ? (
-        <Card className="border-gray-200 dark:border-gray-700">
-          <CardContent className="py-8 text-center text-gray-600 dark:text-gray-300">
-            You do not have permission to view asset inventory.
-          </CardContent>
-        </Card>
-      ) : isLoadingAssets ? (
-        <Card className="border-gray-200 dark:border-gray-700">
-          <CardContent className="py-8 text-center text-gray-600 dark:text-gray-300">
-            Loading asset inventory...
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            <Card className="border-gray-200 dark:border-gray-700">
-              <Tabs
-                value={activeTab}
-                onValueChange={setActiveTab}
-                className="w-full"
-              >
-                <CardHeader className="pb-3">
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger
-                      value="assets"
-                      onClick={() => void loadAssetsAndAssignments()}
-                    >
-                      Asset Inventory
-                    </TabsTrigger>
-                    <TabsTrigger value="assignments">
-                      Assignment History
-                    </TabsTrigger>
-                    <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
-                  </TabsList>
-                </CardHeader>
+      {apiError && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {apiError}
+        </div>
+      )}
 
-                <CardContent>
-                  <TabsContent value="assets" className="space-y-6 mt-0">
-                    {/* Search and Filters */}
-                    {isFilterPanelOpen && (
-                      <div
-                        id="asset-filter-controls"
-                        className="flex flex-col md:flex-row gap-4"
+      {!canViewAnyAssets ? (
+        <div className="am-panel">
+          <div className="am-empty">
+            <Package className="am-empty-icon p-3" />
+            <h3>Asset inventory hidden</h3>
+            <p>You do not have permission to view asset inventory.</p>
+          </div>
+        </div>
+      ) : isLoadingAssets ? (
+        <div className="am-panel">
+          <div className="am-empty">
+            <Package className="am-empty-icon p-3" />
+            <h3>Loading asset inventory...</h3>
+            <p>Fetching current assets, assignments, and maintenance.</p>
+          </div>
+        </div>
+      ) : (
+        <div className="am-grid">
+          <div className="am-panel">
+            <div className="am-tabs">
+              {[
+                {
+                  value: "assets",
+                  label: "Inventory",
+                  ariaLabel: "Asset Inventory",
+                  icon: Package,
+                  count: assets.length,
+                },
+                {
+                  value: "assignments",
+                  label: "Assignments",
+                  ariaLabel: "Assignment History",
+                  icon: UserCheck,
+                  count: assignments.length,
+                },
+                {
+                  value: "returns",
+                  label: "Return Requests",
+                  ariaLabel: "Return Requests",
+                  icon: RefreshCw,
+                  count: pendingReturnRequests.length,
+                  alert: pendingReturnRequests.length > 0,
+                },
+                {
+                  value: "maintenance",
+                  label: "Maintenance",
+                  ariaLabel: "Maintenance",
+                  icon: Wrench,
+                  count: scheduledMaintenance.filter(
+                    (item) => item.status === "scheduled"
+                  ).length,
+                },
+                {
+                  value: "logs",
+                  label: "Replacement Logs",
+                  ariaLabel: "Replacement Logs",
+                  icon: History,
+                  count: inventoryReplacementLogs.length,
+                },
+              ].map((tab) => {
+                const Icon = tab.icon;
+                const activateTab = () => {
+                  setActiveTab(tab.value);
+                  if (tab.value === "assets") void loadAssetsAndAssignments();
+                  if (tab.value === "logs") void loadInventoryReplacementLogs();
+                };
+                return (
+                  <button
+                    key={tab.value}
+                    type="button"
+                    role="tab"
+                    aria-label={tab.ariaLabel}
+                    aria-selected={activeTab === tab.value}
+                    className={`am-tab ${activeTab === tab.value ? "is-active" : ""}`}
+                    onMouseDown={(event) => {
+                      event.preventDefault();
+                      activateTab();
+                    }}
+                    onClick={activateTab}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span>{tab.label}</span>
+                    <span
+                      className={`am-tab-count ${tab.alert ? "am-tab-count--alert" : ""}`}
+                    >
+                      {tab.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="am-panel-body">
+              {activeTab === "assets" && (
+                <div>
+                  {isFilterPanelOpen && (
+                    <div id="asset-filter-controls" className="am-toolbar">
+                      <div className="relative min-w-[220px] flex-1">
+                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                        <Input
+                          placeholder="Search assets..."
+                          value={searchTerm}
+                          onChange={(event) =>
+                            setSearchTerm(event.target.value)
+                          }
+                          className="pl-9"
+                        />
+                      </div>
+                      <Select
+                        value={categoryFilter}
+                        onValueChange={setCategoryFilter}
                       >
-                        <div className="flex-1 relative">
-                          <Search className="absolute left-3 top-1/2 transform -trangray-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
-                          <Input
-                            placeholder="Search assets..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9"
-                          />
-                        </div>
-                        <Select
-                          value={categoryFilter}
-                          onValueChange={setCategoryFilter}
-                        >
-                          <SelectTrigger className="w-full md:w-40">
-                            <SelectValue placeholder="Category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All Categories</SelectItem>
-                            {categories.map((cat) => (
-                              <SelectItem key={cat.value} value={cat.value}>
-                                {cat.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Select
-                          value={statusFilter}
-                          onValueChange={setStatusFilter}
-                        >
-                          <SelectTrigger className="w-full md:w-32">
-                            <SelectValue placeholder="Status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All Status</SelectItem>
-                            {ASSET_STATUS_OPTIONS.map((status) => (
-                              <SelectItem
-                                key={status.value}
-                                value={status.value}
-                              >
-                                {status.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <SelectTrigger className="w-full md:w-40">
+                          <SelectValue placeholder="Category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All categories</SelectItem>
+                          {categories.map((category) => (
+                            <SelectItem
+                              key={category.value}
+                              value={category.value}
+                            >
+                              {category.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select
+                        value={statusFilter}
+                        onValueChange={setStatusFilter}
+                      >
+                        <SelectTrigger className="w-full md:w-36">
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Status</SelectItem>
+                          {ASSET_STATUS_OPTIONS.map((status) => (
+                            <SelectItem key={status.value} value={status.value}>
+                              {status.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select
+                        value={conditionFilter}
+                        onValueChange={setConditionFilter}
+                      >
+                        <SelectTrigger className="w-full md:w-36">
+                          <SelectValue placeholder="Condition" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All conditions</SelectItem>
+                          {ASSET_CONDITION_OPTIONS.map((condition) => (
+                            <SelectItem
+                              key={condition.value}
+                              value={condition.value}
+                            >
+                              {condition.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select
+                        value={ownerFilter}
+                        onValueChange={setOwnerFilter}
+                      >
+                        <SelectTrigger className="w-full md:w-40">
+                          <SelectValue placeholder="Owner" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All owners</SelectItem>
+                          <SelectItem value="unassigned">Unassigned</SelectItem>
+                          {ownerOptions.map((owner) => (
+                            <SelectItem key={owner.id} value={owner.id}>
+                              {owner.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select
+                        value={locationFilter}
+                        onValueChange={setLocationFilter}
+                      >
+                        <SelectTrigger className="w-full md:w-40">
+                          <SelectValue placeholder="Location" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All locations</SelectItem>
+                          {locationOptions.map((location) => (
+                            <SelectItem key={location} value={location}>
+                              {location}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {hasActiveFilters && (
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="md:self-center"
-                          onClick={() => {
-                            setSearchTerm("");
-                            setCategoryFilter("all");
-                            setStatusFilter("all");
-                          }}
-                          disabled={!hasActiveFilters}
+                          onClick={clearInventoryFilters}
                         >
                           Clear
                         </Button>
-                      </div>
-                    )}
+                      )}
+                    </div>
+                  )}
 
-                    {/* Asset Cards Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {filteredAssets.map((asset) => {
-                        const StatusIcon = getStatusIcon(asset.status);
-                        const CategoryIcon = getCategoryIcon(asset.category);
-                        const activeAssignment = getActiveAssignmentForAsset(
-                          asset.id
-                        );
-                        const returnStatus =
-                          activeAssignment?.returnRequestStatus;
+                  <div className="am-toolbar">
+                    <div className="am-toolbar-spacer" />
+                    <span className="am-result-count">
+                      {filteredAssets.length} of {assets.length}
+                    </span>
+                    <div className="am-seg am-seg--sm" role="tablist">
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={inventoryView === "table"}
+                        aria-label="Table view"
+                        className={inventoryView === "table" ? "is-active" : ""}
+                        onClick={() => setInventoryView("table")}
+                      >
+                        <List className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={inventoryView === "grid"}
+                        aria-label="Grid view"
+                        className={inventoryView === "grid" ? "is-active" : ""}
+                        onClick={() => setInventoryView("grid")}
+                      >
+                        <LayoutGrid className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
 
-                        return (
-                          <Card
-                            key={asset.id}
-                            className="h-full border-gray-200 dark:border-gray-700 hover:shadow-sm transition-shadow"
-                          >
-                            <CardContent className="flex h-full flex-col p-4">
-                              <div className="relative mb-3">
-                                <ImageWithFallback
-                                  src={asset.image}
-                                  alt={asset.name}
-                                  className="w-full h-32 object-cover rounded-lg bg-gray-100 dark:bg-gray-700"
-                                />
-                                <div className="absolute top-2 right-2 flex gap-1">
+                  {filteredAssets.length === 0 ? (
+                    <div className="am-empty">
+                      <Package className="am-empty-icon p-3" />
+                      <h3>No assets found</h3>
+                      <p>Try adjusting filters or add a new asset.</p>
+                    </div>
+                  ) : inventoryView === "table" ? (
+                    <div className="am-tablewrap">
+                      <Table className="am-table">
+                        <TableHeader>
+                          <TableRow>
+                            {renderSortableHead("name", "Asset")}
+                            {renderSortableHead("category", "Category")}
+                            {renderSortableHead("owner", "Owner")}
+                            {renderSortableHead("location", "Location")}
+                            {renderSortableHead("value", "Value", true)}
+                            {renderSortableHead("condition", "Condition")}
+                            {renderSortableHead("status", "Status")}
+                            <TableHead className="w-12" />
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredAssets.map((asset) => {
+                            const CategoryIcon = getCategoryIcon(
+                              asset.category
+                            );
+                            const activeAssignment =
+                              getActiveAssignmentForAsset(asset.id);
+                            const returnStatus =
+                              activeAssignment?.returnRequestStatus;
+                            return (
+                              <TableRow
+                                key={asset.id}
+                                data-slot="card"
+                                className="cursor-pointer"
+                                onClick={() => void openAssetDetails(asset)}
+                              >
+                                <TableCell>
+                                  <div className="am-asset-cell">
+                                    <span className="am-asset-ic">
+                                      <CategoryIcon className="h-5 w-5" />
+                                    </span>
+                                    <div className="min-w-0">
+                                      <div className="am-asset-name">
+                                        {asset.name}
+                                      </div>
+                                      <div className="am-asset-meta">
+                                        <span className="font-mono">
+                                          {asset.assetTag}
+                                        </span>{" "}
+                                        · {asset.brand}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </TableCell>
+                                <TableCell className="capitalize">
+                                  {asset.category}
+                                </TableCell>
+                                <TableCell>
+                                  {asset.assignedEmployeeName ? (
+                                    <div className="am-owner">
+                                      <Avatar className="h-7 w-7">
+                                        <AvatarFallback className="text-xs">
+                                          {asset.assignedEmployeeName
+                                            .split(" ")
+                                            .map((name) => name[0])
+                                            .join("")}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <span className="am-owner-name">
+                                        {asset.assignedEmployeeName}
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <span className="am-unassigned">--</span>
+                                  )}
+                                </TableCell>
+                                <TableCell>{asset.location}</TableCell>
+                                <TableCell className="text-right font-mono font-semibold">
+                                  {formatCurrency(asset.purchasePrice)}
+                                </TableCell>
+                                <TableCell>
                                   <Badge
                                     variant="outline"
-                                    className={getStatusColor(asset.status)}
+                                    className={getConditionColor(
+                                      asset.condition
+                                    )}
                                   >
-                                    <StatusIcon className="w-3 h-3 mr-1" />
-                                    {asset.status}
+                                    {asset.condition}
                                   </Badge>
-                                </div>
-                                <div className="absolute bottom-2 left-2">
-                                  <Badge
-                                    variant="outline"
-                                    className="bg-white dark:bg-gray-800/90 text-gray-700 dark:text-gray-300"
-                                  >
-                                    {asset.assetTag}
-                                  </Badge>
-                                </div>
-                              </div>
-
-                              <div className="flex flex-1 flex-col space-y-3">
-                                <div>
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <CategoryIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                                    <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
-                                      {asset.name}
-                                    </h3>
-                                  </div>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                                    {asset.brand} {asset.model}
-                                  </p>
-                                </div>
-
-                                <div className="space-y-2">
-                                  <div className="flex items-center gap-2 text-sm">
-                                    <Hash className="w-3 h-3 text-gray-400 dark:text-gray-500" />
-                                    <span className="text-gray-600 dark:text-gray-400">
-                                      Serial:
-                                    </span>
-                                    <span className="font-mono text-gray-900 dark:text-gray-100 text-xs">
-                                      {asset.serialNumber}
-                                    </span>
-                                  </div>
-
-                                  <div className="flex items-center justify-between">
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex flex-col items-start gap-1">
                                     <Badge
                                       variant="outline"
-                                      className={getConditionColor(
-                                        asset.condition
-                                      )}
+                                      className={getStatusColor(asset.status)}
                                     >
-                                      {asset.condition}
+                                      {asset.status}
                                     </Badge>
-                                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                      {formatCurrency(asset.purchasePrice)}
-                                    </span>
+                                    {returnStatus === "pending" && (
+                                      <span className="whitespace-nowrap rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700">
+                                        Return pending
+                                      </span>
+                                    )}
                                   </div>
-
-                                  <div className="flex min-w-0 items-center gap-2 text-sm">
-                                    <User className="w-3 h-3 shrink-0 text-gray-400 dark:text-gray-500" />
-                                    <span className="shrink-0 text-gray-600 dark:text-gray-400">
-                                      Assigned to:
-                                    </span>
-                                    <span
-                                      className={`min-w-0 truncate ${asset.assignedTo ? "text-gray-900 dark:text-gray-100" : "text-gray-500 dark:text-gray-400"}`}
-                                    >
-                                      {asset.assignedEmployeeName || "--"}
-                                    </span>
-                                  </div>
-
-                                  <div className="flex items-center gap-2 text-sm">
-                                    <MapPin className="w-3 h-3 text-gray-400 dark:text-gray-500" />
-                                    <span className="text-gray-600 dark:text-gray-400">
-                                      Location:
-                                    </span>
-                                    <span className="text-gray-900 dark:text-gray-100 truncate">
-                                      {asset.location}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                <div className="mt-auto flex gap-2 pt-2">
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="flex-1"
-                                    onClick={() => {
-                                      void openAssetDetails(asset);
-                                    }}
-                                  >
-                                    <Eye className="w-3 h-3 mr-1" />
-                                    View
-                                  </Button>
-                                  {isAssetCurrentlyAssigned(asset) ? (
+                                </TableCell>
+                                <TableCell
+                                  onClick={(event) => event.stopPropagation()}
+                                >
+                                  <div className="am-rowactions">
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      disabled={
-                                        !canProcessReturnForAsset(asset) ||
-                                        returnStatus === "pending"
+                                      onClick={() =>
+                                        void openAssetDetails(asset)
                                       }
-                                      onClick={() => {
-                                        openReturnDialogForAsset(asset);
-                                      }}
                                     >
-                                      {canApproveReturnForAsset(asset)
-                                        ? "Approve Return"
-                                        : "Request Return"}
+                                      <Eye className="mr-1 h-3 w-3" />
+                                      View
                                     </Button>
-                                  ) : (
-                                    isAssetAssignable(asset) && (
+                                    {isAssetCurrentlyAssigned(asset) ? (
                                       <Button
                                         variant="outline"
                                         size="sm"
                                         disabled={
-                                          !(
-                                            getAssetCapability(
-                                              asset,
-                                              "can_assign"
-                                            ) ?? canAssignAssets
-                                          )
+                                          !canProcessReturnForAsset(asset) ||
+                                          returnStatus === "pending"
                                         }
-                                        onClick={() => {
-                                          void openAssignDialog(asset);
-                                        }}
-                                      >
-                                        Assign Asset
-                                      </Button>
-                                    )
-                                  )}
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button variant="ghost" size="sm">
-                                        <MoreHorizontal className="w-4 h-4" />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                      <DropdownMenuItem
-                                        disabled={
-                                          !(
-                                            getAssetCapability(
-                                              asset,
-                                              "can_update"
-                                            ) ??
-                                            (canUpdateAssets ||
-                                              canUpdateAssetCondition)
-                                          )
+                                        onClick={() =>
+                                          openReturnDialogForAsset(asset)
                                         }
-                                        onClick={() => openEditAsset(asset)}
                                       >
-                                        <Edit3 className="w-4 h-4 mr-2" />
-                                        Edit Details
-                                      </DropdownMenuItem>
-                                      {isAssetAssignable(asset) && (
-                                        <DropdownMenuItem
+                                        {canApproveReturnForAsset(asset)
+                                          ? "Approve Return"
+                                          : "Request Return"}
+                                      </Button>
+                                    ) : (
+                                      isAssetAssignable(asset) && (
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
                                           disabled={
                                             !(
                                               getAssetCapability(
@@ -3134,813 +3468,1005 @@ export function AssetsModule() {
                                               ) ?? canAssignAssets
                                             )
                                           }
-                                          onClick={() => {
-                                            void openAssignDialog(asset);
-                                          }}
+                                          onClick={() =>
+                                            void openAssignDialog(asset)
+                                          }
                                         >
-                                          <UserCheck className="w-4 h-4 mr-2" />
                                           Assign Asset
-                                        </DropdownMenuItem>
-                                      )}
-                                      <DropdownMenuItem
-                                        disabled={!canManageMaintenance}
-                                        onClick={() =>
-                                          openMaintenanceForm(asset)
-                                        }
-                                      >
-                                        <Wrench className="w-4 h-4 mr-2" />
-                                        Schedule Maintenance
-                                      </DropdownMenuItem>
-                                      <DropdownMenuItem>
-                                        <QrCode className="w-4 h-4 mr-2" />
-                                        Generate QR Code
-                                      </DropdownMenuItem>
-                                      <DropdownMenuSeparator />
-                                      {(getAssetCapability(
-                                        asset,
-                                        "can_delete"
-                                      ) ??
-                                        canDeleteAssets) && (
-                                        <DropdownMenuItem
-                                          className="text-red-600"
-                                          onClick={() => {
-                                            setDeleteTargetAssetId(asset.id);
-                                          }}
+                                        </Button>
+                                      )
+                                    )}
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          aria-label="Asset actions"
                                         >
-                                          <Trash2 className="w-4 h-4 mr-2" />
-                                          Delete Asset
+                                          <MoreHorizontal className="h-4 w-4" />
+                                        </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent align="end">
+                                        <DropdownMenuItem
+                                          onClick={() =>
+                                            void openAssetDetails(asset)
+                                          }
+                                        >
+                                          <Eye className="mr-2 h-4 w-4" />
+                                          View Details
                                         </DropdownMenuItem>
-                                      )}
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
-                                </div>
-
-                                {returnStatus === "pending" && (
-                                  <div className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-800 shadow-sm dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-200">
-                                    <AlertTriangle className="h-4 w-4 shrink-0" />
-                                    <span>Pending HR Review</span>
+                                        <DropdownMenuItem
+                                          disabled={
+                                            !(
+                                              getAssetCapability(
+                                                asset,
+                                                "can_update"
+                                              ) ??
+                                              (canUpdateAssets ||
+                                                canUpdateAssetCondition)
+                                            )
+                                          }
+                                          onClick={() => openEditAsset(asset)}
+                                        >
+                                          <Edit3 className="mr-2 h-4 w-4" />
+                                          Edit details
+                                        </DropdownMenuItem>
+                                        {isAssetCurrentlyAssigned(asset) ? (
+                                          <DropdownMenuItem
+                                            disabled={
+                                              !canProcessReturnForAsset(
+                                                asset
+                                              ) || returnStatus === "pending"
+                                            }
+                                            onClick={() =>
+                                              openReturnDialogForAsset(asset)
+                                            }
+                                          >
+                                            <RefreshCw className="mr-2 h-4 w-4" />
+                                            {canApproveReturnForAsset(asset)
+                                              ? "Approve return"
+                                              : "Request return"}
+                                          </DropdownMenuItem>
+                                        ) : (
+                                          <DropdownMenuItem
+                                            disabled={
+                                              !isAssetAssignable(asset) ||
+                                              !(
+                                                getAssetCapability(
+                                                  asset,
+                                                  "can_assign"
+                                                ) ?? canAssignAssets
+                                              )
+                                            }
+                                            onClick={() =>
+                                              void openAssignDialog(asset)
+                                            }
+                                          >
+                                            <UserCheck className="mr-2 h-4 w-4" />
+                                            Assign asset
+                                          </DropdownMenuItem>
+                                        )}
+                                        <DropdownMenuItem
+                                          disabled={!canManageMaintenance}
+                                          onClick={() =>
+                                            openMaintenanceForm(asset)
+                                          }
+                                        >
+                                          <Wrench className="mr-2 h-4 w-4" />
+                                          Schedule maintenance
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                          disabled={
+                                            !asset.qrCodeUrl ||
+                                            downloadingQrCodeAssetId ===
+                                              asset.id
+                                          }
+                                          onClick={() =>
+                                            void handleDownloadAssetQrCode(
+                                              asset
+                                            )
+                                          }
+                                        >
+                                          <QrCode className="mr-2 h-4 w-4" />
+                                          Download QR code
+                                        </DropdownMenuItem>
+                                        {(getAssetCapability(
+                                          asset,
+                                          "can_delete"
+                                        ) ??
+                                          canDeleteAssets) && (
+                                          <>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem
+                                              className="text-red-600"
+                                              onClick={() =>
+                                                setDeleteTargetAssetId(asset.id)
+                                              }
+                                            >
+                                              <Trash2 className="mr-2 h-4 w-4" />
+                                              Delete asset
+                                            </DropdownMenuItem>
+                                          </>
+                                        )}
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
                                   </div>
-                                )}
-                                {returnStatus === "rejected" &&
-                                  activeAssignment?.returnRejectionReason && (
-                                    <p className="text-xs text-red-700 dark:text-red-300">
-                                      Rejected:{" "}
-                                      {activeAssignment.returnRejectionReason}
-                                    </p>
-                                  )}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  ) : (
+                    <div className="am-cardgrid">
+                      {filteredAssets.map((asset) => {
+                        const CategoryIcon = getCategoryIcon(asset.category);
+                        const activeAssignment = getActiveAssignmentForAsset(
+                          asset.id
+                        );
+                        const returnStatus =
+                          activeAssignment?.returnRequestStatus;
+                        const assigned = isAssetCurrentlyAssigned(asset);
+                        const flagged =
+                          asset.status === "lost" || asset.status === "damaged";
+                        return (
+                          <div
+                            key={asset.id}
+                            className="am-acard"
+                            onClick={() => void openAssetDetails(asset)}
+                          >
+                            <div className="am-acard-top">
+                              <span className="am-acard-ic">
+                                <CategoryIcon className="h-5 w-5" />
+                              </span>
+                              <Badge
+                                variant="outline"
+                                className={getStatusColor(asset.status)}
+                              >
+                                {asset.status}
+                              </Badge>
+                            </div>
+                            <h3>{asset.name}</h3>
+                            <div className="am-acard-brand">
+                              {asset.brand} · {asset.model}
+                            </div>
+                            <div className="am-acard-rows">
+                              <div className="am-acard-row">
+                                <Hash className="h-3.5 w-3.5" /> Tag
+                                <span className="am-ar-val font-mono">
+                                  {asset.assetTag}
+                                </span>
                               </div>
-                            </CardContent>
-                          </Card>
+                              <div className="am-acard-row">
+                                <User className="h-3.5 w-3.5" /> Owner
+                                <span className="am-ar-val">
+                                  {asset.assignedEmployeeName || "Unassigned"}
+                                </span>
+                              </div>
+                              <div className="am-acard-row">
+                                <MapPin className="h-3.5 w-3.5" /> Location
+                                <span className="am-ar-val">
+                                  {asset.location}
+                                </span>
+                              </div>
+                              <div className="am-acard-row">
+                                <CircleDot className="h-3.5 w-3.5" /> Condition
+                                <span className="am-ar-val">
+                                  <Badge
+                                    variant="outline"
+                                    className={getConditionColor(
+                                      asset.condition
+                                    )}
+                                  >
+                                    {asset.condition}
+                                  </Badge>
+                                </span>
+                              </div>
+                              <div className="am-acard-row">
+                                <Tag className="h-3.5 w-3.5" /> Value
+                                <span className="am-ar-val am-cost">
+                                  {formatCurrency(asset.purchasePrice)}
+                                </span>
+                              </div>
+                            </div>
+                            <div
+                              className="am-acard-foot"
+                              onClick={(event) => event.stopPropagation()}
+                            >
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => void openAssetDetails(asset)}
+                              >
+                                <Eye className="mr-1 h-3 w-3" />
+                                View
+                              </Button>
+                              {assigned ? (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={
+                                    !canProcessReturnForAsset(asset) ||
+                                    returnStatus === "pending"
+                                  }
+                                  onClick={() =>
+                                    openReturnDialogForAsset(asset)
+                                  }
+                                >
+                                  {canApproveReturnForAsset(asset)
+                                    ? "Approve Return"
+                                    : "Request Return"}
+                                </Button>
+                              ) : (
+                                isAssetAssignable(asset) && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={
+                                      !(
+                                        getAssetCapability(
+                                          asset,
+                                          "can_assign"
+                                        ) ?? canAssignAssets
+                                      )
+                                    }
+                                    onClick={() => void openAssignDialog(asset)}
+                                  >
+                                    Assign Asset
+                                  </Button>
+                                )
+                              )}
+                            </div>
+                            {returnStatus === "pending" && (
+                              <div className="am-flag am-flag--warn">
+                                <Clock className="h-3.5 w-3.5" /> Return pending
+                                HR review
+                              </div>
+                            )}
+                            {flagged && (
+                              <div className="am-flag am-flag--alert">
+                                <AlertTriangle className="h-3.5 w-3.5" />{" "}
+                                Flagged {asset.status}
+                              </div>
+                            )}
+                          </div>
                         );
                       })}
                     </div>
+                  )}
+                </div>
+              )}
 
-                    {filteredAssets.length === 0 && (
-                      <div className="text-center py-8">
-                        <Package className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                          No assets found
-                        </h3>
-                        <p className="text-gray-600 dark:text-gray-400">
-                          Try adjusting your search criteria or add a new asset.
-                        </p>
-                      </div>
+              {activeTab === "assignments" && (
+                <div>
+                  <div className="am-toolbar">
+                    <div className="space-y-1">
+                      <Label htmlFor="assignment-asset-filter">Asset</Label>
+                      <Input
+                        id="assignment-asset-filter"
+                        placeholder="Filter by asset"
+                        value={assignmentAssetFilter}
+                        onChange={(event) =>
+                          setAssignmentAssetFilter(event.target.value)
+                        }
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="assignment-employee-filter">
+                        Employee
+                      </Label>
+                      <Input
+                        id="assignment-employee-filter"
+                        placeholder="Filter by employee"
+                        value={assignmentEmployeeFilter}
+                        onChange={(event) =>
+                          setAssignmentEmployeeFilter(event.target.value)
+                        }
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="assignment-status-filter">Status</Label>
+                      <Select
+                        value={assignmentStatusFilter}
+                        onValueChange={setAssignmentStatusFilter}
+                      >
+                        <SelectTrigger
+                          id="assignment-status-filter"
+                          className="w-full md:w-40"
+                        >
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All statuses</SelectItem>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="returned">Returned</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {hasActiveAssignmentFilters && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setAssignmentAssetFilter("");
+                          setAssignmentEmployeeFilter("");
+                          setAssignmentStatusFilter("all");
+                        }}
+                      >
+                        Clear
+                      </Button>
                     )}
-                  </TabsContent>
-
-                  <TabsContent value="assignments" className="space-y-6 mt-0">
-                    {canProcessReturn && (
-                      <div className="space-y-3 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-                        <h3 className="font-medium text-gray-900 dark:text-gray-100">
-                          Pending Returns
-                        </h3>
-                        {pendingReturnRequests.length === 0 ? (
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            No pending return requests.
+                    <div className="am-toolbar-spacer" />
+                    <span className="am-result-count">
+                      {filteredAssignments.length} assignments
+                    </span>
+                  </div>
+                  {filteredAssignments.length === 0 ? (
+                    <div className="am-empty">
+                      <History className="am-empty-icon p-3" />
+                      {assignments.length === 0 ? (
+                        <>
+                          <h3>No assignment history</h3>
+                          <p>
+                            Assignment records will appear here as assets are
+                            assigned.
                           </p>
-                        ) : (
-                          <div className="space-y-3">
-                            {pendingReturnRequests.map((request) => (
-                              <div
-                                key={request.id}
-                                className="rounded-md border border-gray-200 dark:border-gray-700 p-3 space-y-2"
-                              >
-                                <div className="text-sm text-gray-900 dark:text-gray-100">
-                                  <span className="font-medium">
-                                    {request.employeeName}
-                                  </span>{" "}
-                                  requested return for {request.assetName}
-                                  {request.assetTag
-                                    ? ` (${request.assetTag})`
-                                    : ""}
-                                  {request.requestedAt
-                                    ? ` on ${formatDate(request.requestedAt)}`
-                                    : ""}
-                                </div>
-                                {request.notes && (
-                                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                                    {request.notes}
-                                  </p>
-                                )}
-                                <div className="flex gap-2">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => {
-                                      setSelectedReturnRequest(request);
-                                      setReturnRejectionReason("");
-                                      setIsReturnRequestDetailsOpen(true);
-                                    }}
+                        </>
+                      ) : (
+                        <>
+                          <h3>No matching assignments</h3>
+                          <p>
+                            Try changing the asset, employee, or status filters.
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="am-tablewrap">
+                      <Table className="am-table">
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Asset</TableHead>
+                            <TableHead>Employee</TableHead>
+                            <TableHead>Assigned</TableHead>
+                            <TableHead>Returned</TableHead>
+                            <TableHead>Condition</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="w-12" />
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredAssignments.map((assignment) => {
+                            const asset = assets.find(
+                              (item) => item.id === assignment.assetId
+                            );
+                            return (
+                              <TableRow key={assignment.id}>
+                                <TableCell>
+                                  <button
+                                    type="button"
+                                    className="am-asset-cell text-left"
+                                    onClick={() =>
+                                      asset && void openAssetDetails(asset)
+                                    }
                                   >
-                                    View details
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    onClick={() => {
-                                      void approvePendingReturn(
-                                        request.assignmentId
-                                      );
-                                    }}
-                                  >
-                                    Approve return
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => {
-                                      setSelectedReturnRequest(request);
-                                      setReturnRejectionReason("");
-                                      setIsReturnRequestDetailsOpen(true);
-                                    }}
-                                  >
-                                    Reject return
-                                  </Button>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    <div className="space-y-4">
-                      <div className="flex flex-col gap-3">
-                        <div className="flex items-center justify-between gap-3">
-                          <h3 className="font-medium text-gray-900 dark:text-gray-100">
-                            Assignment History
-                          </h3>
-                          {hasActiveAssignmentFilters && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setAssignmentAssetFilter("");
-                                setAssignmentEmployeeFilter("");
-                                setAssignmentStatusFilter("all");
-                              }}
-                            >
-                              Clear filters
-                            </Button>
-                          )}
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          <div className="space-y-1">
-                            <Label
-                              htmlFor="assignment-asset-filter"
-                              className="text-xs text-gray-600 dark:text-gray-400"
-                            >
-                              Asset
-                            </Label>
-                            <Input
-                              id="assignment-asset-filter"
-                              placeholder="Filter by asset"
-                              value={assignmentAssetFilter}
-                              onChange={(event) =>
-                                setAssignmentAssetFilter(event.target.value)
-                              }
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <Label
-                              htmlFor="assignment-employee-filter"
-                              className="text-xs text-gray-600 dark:text-gray-400"
-                            >
-                              Employee
-                            </Label>
-                            <Input
-                              id="assignment-employee-filter"
-                              placeholder="Filter by employee"
-                              value={assignmentEmployeeFilter}
-                              onChange={(event) =>
-                                setAssignmentEmployeeFilter(event.target.value)
-                              }
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <Label
-                              htmlFor="assignment-status-filter"
-                              className="text-xs text-gray-600 dark:text-gray-400"
-                            >
-                              Status
-                            </Label>
-                            <Select
-                              value={assignmentStatusFilter}
-                              onValueChange={setAssignmentStatusFilter}
-                            >
-                              <SelectTrigger id="assignment-status-filter">
-                                <SelectValue placeholder="Filter by status" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="all">
-                                  All statuses
-                                </SelectItem>
-                                <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="returned">
-                                  Returned
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="bg-gray-50 dark:bg-gray-900">
-                              <TableHead>Asset</TableHead>
-                              <TableHead>Employee</TableHead>
-                              <TableHead>Assigned Date</TableHead>
-                              <TableHead>Returned Date</TableHead>
-                              <TableHead>Duration</TableHead>
-                              <TableHead>Condition</TableHead>
-                              <TableHead>Status</TableHead>
-                              <TableHead className="text-right">
-                                Actions
-                              </TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {filteredAssignments.map((assignment) => {
-                              const asset = assets.find(
-                                (a) => a.id === assignment.assetId
-                              );
-                              const fallbackAssetName =
-                                getAssignmentAssetName(assignment);
-                              const fallbackAssetTag =
-                                getAssignmentAssetTag(assignment);
-                              const duration = assignment.returnedDate
-                                ? Math.ceil(
-                                    (new Date(
-                                      assignment.returnedDate
-                                    ).getTime() -
-                                      new Date(
-                                        assignment.assignedDate
-                                      ).getTime()) /
-                                      (1000 * 3600 * 24)
-                                  )
-                                : Math.ceil(
-                                    (new Date().getTime() -
-                                      new Date(
-                                        assignment.assignedDate
-                                      ).getTime()) /
-                                      (1000 * 3600 * 24)
-                                  );
-
-                              return (
-                                <TableRow
-                                  key={assignment.id}
-                                  className="hover:bg-gray-50 dark:hover:bg-gray-800"
-                                >
-                                  <TableCell>
-                                    <div className="flex items-center gap-3">
-                                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                        <Package className="w-4 h-4 text-blue-600" />
-                                      </div>
-                                      <div>
-                                        <p className="font-medium text-gray-900 dark:text-gray-100">
-                                          {asset?.name || fallbackAssetName}
-                                        </p>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                                          {asset?.assetTag || fallbackAssetTag}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  </TableCell>
-                                  <TableCell>
-                                    <div className="flex items-center gap-2">
-                                      <Avatar className="w-6 h-6">
-                                        <AvatarFallback className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs">
-                                          {assignment.employeeName
-                                            .split(" ")
-                                            .map((n) => n[0])
-                                            .join("")}
-                                        </AvatarFallback>
-                                      </Avatar>
-                                      <span className="text-gray-900 dark:text-gray-100">
-                                        {assignment.employeeName}
-                                      </span>
-                                    </div>
-                                  </TableCell>
-                                  <TableCell>
-                                    <span className="text-gray-900 dark:text-gray-100">
-                                      {formatDate(assignment.assignedDate)}
+                                    <span className="am-asset-ic">
+                                      <Package className="h-5 w-5" />
                                     </span>
-                                  </TableCell>
-                                  <TableCell>
-                                    {assignment.returnedDate ? (
-                                      <span className="text-gray-900 dark:text-gray-100">
-                                        {formatDate(assignment.returnedDate)}
+                                    <span className="min-w-0">
+                                      <span className="am-asset-name block">
+                                        {asset?.name ||
+                                          getAssignmentAssetName(assignment)}
                                       </span>
-                                    ) : (
-                                      <Badge
-                                        variant="outline"
-                                        className="bg-blue-50 text-blue-700"
-                                      >
-                                        Current
-                                      </Badge>
+                                      <span className="am-asset-meta block">
+                                        {asset?.assetTag ||
+                                          getAssignmentAssetTag(assignment)}
+                                      </span>
+                                    </span>
+                                  </button>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="am-owner">
+                                    <Avatar className="h-7 w-7">
+                                      <AvatarFallback className="text-xs">
+                                        {assignment.employeeName
+                                          .split(" ")
+                                          .map((name) => name[0])
+                                          .join("")}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <span className="am-owner-name">
+                                      {assignment.employeeName}
+                                    </span>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  {formatDate(assignment.assignedDate)}
+                                </TableCell>
+                                <TableCell>
+                                  {assignment.returnedDate
+                                    ? formatDate(assignment.returnedDate)
+                                    : "Current"}
+                                </TableCell>
+                                <TableCell>
+                                  <Badge
+                                    variant="outline"
+                                    className={getConditionColor(
+                                      assignment.condition
                                     )}
-                                  </TableCell>
-                                  <TableCell>
-                                    <span className="text-gray-900 dark:text-gray-100">
-                                      {duration} days
-                                    </span>
-                                  </TableCell>
-                                  <TableCell>
+                                  >
+                                    {assignment.condition}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  {assignment.returnRequestStatus ===
+                                  "pending" ? (
                                     <Badge
                                       variant="outline"
-                                      className={getConditionColor(
-                                        assignment.condition
-                                      )}
+                                      className="bg-amber-100 text-amber-800"
                                     >
-                                      {assignment.condition}
+                                      Return pending
                                     </Badge>
-                                  </TableCell>
-                                  <TableCell>
+                                  ) : (
                                     <Badge
                                       variant="outline"
                                       className={
                                         assignment.isActive
                                           ? "bg-green-100 text-green-800"
-                                          : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                                          : "bg-gray-100 text-gray-800"
                                       }
                                     >
                                       {assignment.isActive
                                         ? "Active"
                                         : "Returned"}
                                     </Badge>
-                                  </TableCell>
-                                  <TableCell className="text-right">
-                                    <DropdownMenu>
-                                      <DropdownMenuTrigger asChild>
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          aria-label={`Assignment actions for ${assignment.employeeName}`}
-                                        >
-                                          <MoreHorizontal className="w-4 h-4" />
-                                        </Button>
-                                      </DropdownMenuTrigger>
-                                      <DropdownMenuContent
-                                        align="end"
-                                        className={
-                                          ADD_ASSET_LIGHT_SURFACE_CLASS
-                                        }
-                                        style={FORCED_LIGHT_SURFACE_STYLE}
+                                  )}
+                                </TableCell>
+                                <TableCell>
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        aria-label={`Assignment actions for ${assignment.employeeName}`}
                                       >
+                                        <MoreHorizontal className="h-4 w-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      <DropdownMenuItem
+                                        onClick={() => {
+                                          setSelectedAssignment(assignment);
+                                          setIsAssignmentDetailsDialogOpen(
+                                            true
+                                          );
+                                        }}
+                                      >
+                                        <Eye className="mr-2 h-4 w-4" />
+                                        View Details
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem
+                                        onClick={() => {
+                                          setSelectedAssignment(assignment);
+                                          setIsAssignmentFormDialogOpen(true);
+                                        }}
+                                      >
+                                        <FileText className="mr-2 h-4 w-4" />
+                                        Assignment Form
+                                      </DropdownMenuItem>
+                                      {assignment.isActive && (
                                         <DropdownMenuItem
-                                          className={ADD_ASSET_LIGHT_ITEM_CLASS}
-                                          onClick={() => {
-                                            setSelectedAssignment(assignment);
-                                            setIsAssignmentDetailsDialogOpen(
-                                              true
-                                            );
-                                          }}
-                                        >
-                                          <Eye className="w-4 h-4 mr-2" />
-                                          View Details
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                          className={ADD_ASSET_LIGHT_ITEM_CLASS}
-                                          onClick={() => {
-                                            setSelectedAssignment(assignment);
-                                            setIsAssignmentFormDialogOpen(true);
-                                          }}
-                                        >
-                                          <FileText className="w-4 h-4 mr-2" />
-                                          Assignment Form
-                                        </DropdownMenuItem>
-                                        {assignment.isActive && (
-                                          <DropdownMenuItem
-                                            className={
-                                              ADD_ASSET_LIGHT_ITEM_CLASS
-                                            }
-                                            disabled={
-                                              !asset ||
-                                              !canProcessReturnForAsset(asset)
-                                            }
-                                            onClick={() => {
-                                              if (asset) {
-                                                openReturnDialogForAsset(asset);
-                                              }
-                                            }}
-                                          >
-                                            <RefreshCw className="w-4 h-4 mr-2" />
-                                            Unassign Asset
-                                          </DropdownMenuItem>
-                                        )}
-                                      </DropdownMenuContent>
-                                    </DropdownMenu>
-                                  </TableCell>
-                                </TableRow>
-                              );
-                            })}
-                          </TableBody>
-                        </Table>
-                      </div>
-
-                      {assignments.length === 0 ? (
-                        <div className="text-center py-8">
-                          <History className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                            No assignment history
-                          </h3>
-                          <p className="text-gray-600 dark:text-gray-400">
-                            Assignment records will appear here as assets are
-                            assigned to employees.
-                          </p>
-                        </div>
-                      ) : (
-                        filteredAssignments.length === 0 && (
-                          <div className="text-center py-8">
-                            <Search className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                              No matching assignments
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-400">
-                              Try changing the asset, employee, or status
-                              filters.
-                            </p>
-                          </div>
-                        )
-                      )}
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="maintenance" className="space-y-6 mt-0">
-                    <div className="space-y-4">
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <h3 className="font-medium text-gray-900 dark:text-gray-100">
-                          Maintenance Queue
-                        </h3>
-                        {canManageMaintenance && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openMaintenanceForm()}
-                          >
-                            <Wrench className="mr-2 h-4 w-4" />
-                            Schedule Maintenance
-                          </Button>
-                        )}
-                      </div>
-
-                      <Tabs
-                        value={maintenanceQueueTab}
-                        onValueChange={(value) =>
-                          setMaintenanceQueueTab(value as MaintenanceQueueTab)
-                        }
-                      >
-                        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
-                          {MAINTENANCE_QUEUE_TABS.map((tab) => (
-                            <TabsTrigger key={tab.value} value={tab.value}>
-                              {tab.label}
-                            </TabsTrigger>
-                          ))}
-                        </TabsList>
-                      </Tabs>
-
-                      <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                          <Input
-                            value={maintenanceQueueSearchTerm}
-                            onChange={(event) =>
-                              setMaintenanceQueueSearchTerm(event.target.value)
-                            }
-                            placeholder="Search asset or user"
-                            className="pl-10"
-                          />
-                        </div>
-                        <Select
-                          value={maintenanceQueueTypeFilter}
-                          onValueChange={(value) =>
-                            setMaintenanceQueueTypeFilter(
-                              value as ScheduledMaintenanceType | "all"
-                            )
-                          }
-                        >
-                          <SelectTrigger>
-                            <Filter className="mr-2 h-4 w-4 text-gray-500" />
-                            <SelectValue placeholder="All types" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All types</SelectItem>
-                            {MAINTENANCE_TYPE_OPTIONS.map((option) => (
-                              <SelectItem
-                                key={option.value}
-                                value={option.value}
-                              >
-                                {option.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {!hasScheduledMaintenanceAccess ? (
-                        <div className="text-center py-8">
-                          <History className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                            Maintenance hidden
-                          </h3>
-                          <p className="text-gray-600 dark:text-gray-400">
-                            You do not have permission to view scheduled
-                            maintenance.
-                          </p>
-                        </div>
-                      ) : isLoadingAssets ? (
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Loading maintenance...
-                        </p>
-                      ) : visibleScheduledMaintenance.length === 0 ? (
-                        <div className="text-center py-8">
-                          <Wrench className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                            No maintenance items
-                          </h3>
-                          <p className="text-gray-600 dark:text-gray-400">
-                            Matching maintenance items will appear here.
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="space-y-3">
-                          {visibleScheduledMaintenance.map((item) => (
-                            <Card
-                              key={item.id}
-                              className="border-gray-200 bg-white text-gray-900 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
-                            >
-                              <CardContent className="p-4">
-                                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                                  <div className="flex items-start gap-3">
-                                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                      <Wrench className="w-5 h-5 text-blue-600" />
-                                    </div>
-                                    <div className="space-y-1">
-                                      <h4 className="font-medium text-gray-900 dark:text-gray-100">
-                                        {item.asset_details?.name ||
-                                          `Asset #${item.asset}`}
-                                      </h4>
-                                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                                        {formatMaintenanceType(
-                                          item.maintenance_type
-                                        )}{" "}
-                                        • Due {formatDate(item.due_date)}
-                                      </p>
-                                      <p className="text-sm text-gray-700 dark:text-gray-300">
-                                        {item.reason}
-                                      </p>
-                                      <div className="flex flex-wrap items-center gap-2">
-                                        <Badge
-                                          variant="outline"
-                                          className={getMaintenanceStatusBadgeClass(
-                                            item.status
-                                          )}
-                                        >
-                                          {formatMaintenanceStatus(item.status)}
-                                        </Badge>
-                                        <Badge
-                                          variant="outline"
-                                          className={getMaintenanceDueBadgeClass(
-                                            item.due_state
-                                          )}
-                                        >
-                                          {formatDueState(item.due_state)}
-                                        </Badge>
-                                        {item.owner_details && (
-                                          <Badge
-                                            variant="outline"
-                                            className="border-violet-200 bg-violet-50 text-violet-800"
-                                          >
-                                            Owner:{" "}
-                                            {toPersonName(item.owner_details)}
-                                          </Badge>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                  {canManageMaintenance &&
-                                    item.status === "scheduled" && (
-                                      <div className="flex gap-2">
-                                        <Button
-                                          type="button"
-                                          variant="outline"
-                                          size="sm"
+                                          disabled={
+                                            !asset ||
+                                            !canProcessReturnForAsset(asset)
+                                          }
                                           onClick={() =>
-                                            openCompleteMaintenance(item)
+                                            asset &&
+                                            openReturnDialogForAsset(asset)
                                           }
                                         >
-                                          Complete
-                                        </Button>
-                                        <Button
-                                          type="button"
-                                          variant="outline"
-                                          size="sm"
-                                          onClick={() => {
-                                            setMaintenanceCancelTarget(item);
-                                            setMaintenanceCancelReason("");
-                                          }}
-                                        >
-                                          Cancel
-                                        </Button>
-                                      </div>
-                                    )}
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                        </div>
-                      )}
+                                          <RefreshCw className="mr-2 h-4 w-4" />
+                                          Process return
+                                        </DropdownMenuItem>
+                                      )}
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
                     </div>
-                  </TabsContent>
-                </CardContent>
-              </Tabs>
-            </Card>
+                  )}
+                </div>
+              )}
+
+              {activeTab === "returns" && (
+                <div>
+                  {!canProcessReturn ? (
+                    <div className="am-empty">
+                      <RefreshCw className="am-empty-icon p-3" />
+                      <h3>Return requests hidden</h3>
+                      <p>
+                        You do not have permission to process asset returns.
+                      </p>
+                    </div>
+                  ) : pendingReturnRequests.length === 0 ? (
+                    <div className="am-empty">
+                      <RefreshCw className="am-empty-icon p-3" />
+                      <h3>No pending return requests</h3>
+                      <p>
+                        Employee return requests will appear here for HR review.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="am-list">
+                      {pendingReturnRequests.map((request) => (
+                        <div key={request.id} className="am-listrow">
+                          <span className="am-asset-ic">
+                            <RefreshCw className="h-5 w-5" />
+                          </span>
+                          <div className="am-listrow-main">
+                            <div className="am-listrow-title">
+                              {request.assetName}
+                              {request.assetTag ? (
+                                <span className="am-tag ml-2">
+                                  {request.assetTag}
+                                </span>
+                              ) : null}
+                            </div>
+                            <div className="am-listrow-sub">
+                              Requested by {request.employeeName}
+                              {request.requestedAt
+                                ? ` · ${formatDate(request.requestedAt)}`
+                                : ""}
+                            </div>
+                            {request.notes && (
+                              <div className="am-listrow-sub">
+                                {request.notes}
+                              </div>
+                            )}
+                          </div>
+                          <Badge
+                            variant="outline"
+                            className="bg-amber-100 text-amber-800"
+                          >
+                            Pending review
+                          </Badge>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedReturnRequest(request);
+                              setReturnRejectionReason("");
+                              setIsReturnRequestDetailsOpen(true);
+                            }}
+                          >
+                            Review
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() =>
+                              void approvePendingReturn(request.assignmentId)
+                            }
+                          >
+                            Approve
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === "maintenance" && (
+                <div>
+                  <div className="am-toolbar">
+                    <Tabs
+                      value={maintenanceQueueTab}
+                      onValueChange={(value) =>
+                        setMaintenanceQueueTab(value as MaintenanceQueueTab)
+                      }
+                    >
+                      <TabsList>
+                        {MAINTENANCE_QUEUE_TABS.map((tab) => (
+                          <TabsTrigger key={tab.value} value={tab.value}>
+                            {tab.label}
+                          </TabsTrigger>
+                        ))}
+                      </TabsList>
+                    </Tabs>
+                    <Input
+                      value={maintenanceQueueSearchTerm}
+                      onChange={(event) =>
+                        setMaintenanceQueueSearchTerm(event.target.value)
+                      }
+                      placeholder="Search asset or user"
+                    />
+                    <Select
+                      value={maintenanceQueueTypeFilter}
+                      onValueChange={(value) =>
+                        setMaintenanceQueueTypeFilter(
+                          value as ScheduledMaintenanceType | "all"
+                        )
+                      }
+                    >
+                      <SelectTrigger className="w-full md:w-44">
+                        <SelectValue placeholder="All types" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All types</SelectItem>
+                        {MAINTENANCE_TYPE_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <div className="am-toolbar-spacer" />
+                    {canManageMaintenance && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openMaintenanceForm()}
+                      >
+                        <Wrench className="mr-2 h-4 w-4" />
+                        Schedule maintenance
+                      </Button>
+                    )}
+                  </div>
+
+                  {!hasScheduledMaintenanceAccess ? (
+                    <div className="am-empty">
+                      <Wrench className="am-empty-icon p-3" />
+                      <h3>Maintenance hidden</h3>
+                      <p>
+                        You do not have permission to view scheduled
+                        maintenance.
+                      </p>
+                    </div>
+                  ) : visibleScheduledMaintenance.length === 0 ? (
+                    <div className="am-empty">
+                      <Wrench className="am-empty-icon p-3" />
+                      <h3>No maintenance items</h3>
+                      <p>Matching maintenance items will appear here.</p>
+                    </div>
+                  ) : (
+                    <div className="am-list">
+                      {visibleScheduledMaintenance.map((item) => (
+                        <div key={item.id} className="am-listrow">
+                          <button
+                            type="button"
+                            className="am-asset-ic"
+                            onClick={() => {
+                              const asset = assets.find(
+                                (candidate) => candidate.id === item.asset
+                              );
+                              if (asset) void openAssetDetails(asset);
+                            }}
+                          >
+                            <Wrench className="h-5 w-5" />
+                          </button>
+                          <div className="am-listrow-main">
+                            <div className="am-listrow-title">
+                              {item.asset_details?.name ||
+                                `Asset #${item.asset}`}
+                            </div>
+                            <div className="am-listrow-sub">
+                              {formatMaintenanceType(item.maintenance_type)} ·
+                              Due {formatDate(item.due_date)}
+                              {item.vendor ? ` · ${item.vendor}` : ""}
+                            </div>
+                            <div className="am-listrow-sub">{item.reason}</div>
+                          </div>
+                          <Badge
+                            variant="outline"
+                            className={getMaintenanceStatusBadgeClass(
+                              item.status
+                            )}
+                          >
+                            {formatMaintenanceStatus(item.status)}
+                          </Badge>
+                          <Badge
+                            variant="outline"
+                            className={getMaintenanceDueBadgeClass(
+                              item.due_state
+                            )}
+                          >
+                            {formatDueState(item.due_state)}
+                          </Badge>
+                          {canManageMaintenance &&
+                            item.status === "scheduled" && (
+                              <div className="am-rowactions">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => openCompleteMaintenance(item)}
+                                >
+                                  Complete
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setMaintenanceCancelTarget(item);
+                                    setMaintenanceCancelReason("");
+                                  }}
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === "logs" && (
+                <div>
+                  {inventoryReplacementLogs.length === 0 ? (
+                    <div className="am-empty">
+                      <History className="am-empty-icon p-3" />
+                      <h3>No replacement logs</h3>
+                      <p>
+                        Replacement and write-off events from the API will
+                        appear here.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="am-tablewrap">
+                      <Table className="am-table">
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Asset</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Reason</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Condition</TableHead>
+                            <TableHead>Related asset</TableHead>
+                            <TableHead className="text-right">Cost</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {inventoryReplacementLogs.map((log) => (
+                            <TableRow key={log.id}>
+                              <TableCell>
+                                <button
+                                  type="button"
+                                  className="am-asset-cell text-left"
+                                  onClick={() => {
+                                    const asset = assets.find(
+                                      (candidate) => candidate.id === log.asset
+                                    );
+                                    if (asset) void openAssetDetails(asset);
+                                  }}
+                                >
+                                  <span className="am-asset-ic">
+                                    <History className="h-5 w-5" />
+                                  </span>
+                                  <span className="min-w-0">
+                                    <span className="am-asset-name block">
+                                      {log.asset_details?.name ||
+                                        `Asset #${log.asset}`}
+                                    </span>
+                                    <span className="am-asset-meta block">
+                                      {log.asset_details?.asset_id ||
+                                        log.asset_details?.serial_number ||
+                                        ""}
+                                    </span>
+                                  </span>
+                                </button>
+                              </TableCell>
+                              <TableCell>
+                                {formatReplacementLogDate(
+                                  log.date || log.created_at || ""
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                {log.reason || "Maintenance record"}
+                              </TableCell>
+                              <TableCell>
+                                {formatSnapshotValue(log.asset_status_before)} →{" "}
+                                {formatSnapshotValue(log.asset_status_after)}
+                              </TableCell>
+                              <TableCell>
+                                {formatSnapshotValue(
+                                  log.asset_condition_before
+                                )}{" "}
+                                →{" "}
+                                {formatSnapshotValue(log.asset_condition_after)}
+                              </TableCell>
+                              <TableCell>
+                                {log.replacement_asset_details?.name || "None"}
+                              </TableCell>
+                              <TableCell className="text-right font-mono font-semibold">
+                                {log.cost
+                                  ? formatCurrency(Number(log.cost))
+                                  : "—"}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Quick Actions */}
-            <Card className="border-gray-200 dark:border-gray-700">
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <QuickActionButton
-                  label="Add Asset"
-                  icon={Plus}
+          <div className="am-rail">
+            <div className="am-rail-card">
+              <div className="am-rail-head">
+                <Activity className="h-4 w-4" />
+                Quick actions
+              </div>
+              <div className="am-rail-body">
+                <button
+                  type="button"
+                  className="am-qa am-qa-primary"
                   onClick={() => setIsAddAssetDialogOpen(true)}
-                  variant="primary"
                   disabled={!canCreateAssets}
-                />
-                <QuickActionButton
-                  label="Scan QR Code"
-                  icon={QrCode}
-                  onClick={() => {}}
-                  disabled={!canGenerateQr}
-                />
-                <QuickActionButton
-                  label="Assign Asset"
-                  icon={UserCheck}
-                  onClick={() => {
-                    void openAssignDialog();
-                  }}
-                  disabled={!canAssignAssets || assignableAssets.length === 0}
-                />
-                <QuickActionButton
-                  label="Schedule Maintenance"
-                  icon={Wrench}
+                >
+                  <span className="am-qa-ic">
+                    <Plus className="h-4 w-4" />
+                  </span>
+                  <span>Add new asset</span>
+                </button>
+                <button
+                  type="button"
+                  className="am-qa"
+                  onClick={() => void openAssignDialog()}
+                  disabled={!canAssignAssets}
+                >
+                  <span className="am-qa-ic">
+                    <UserCheck className="h-4 w-4" />
+                  </span>
+                  <span>Assign asset</span>
+                </button>
+                <button
+                  type="button"
+                  className="am-qa"
                   onClick={() => openMaintenanceForm()}
                   disabled={!canManageMaintenance}
-                />
-                {canConfigureAssetTypes && (
-                  <>
-                    <QuickActionButton
-                      label="Generate Report"
-                      icon={FileText}
-                      onClick={() => {}}
-                    />
-                    <QuickActionButton
-                      label="Asset Settings"
-                      icon={Settings}
-                      onClick={() => {}}
-                    />
-                  </>
-                )}
-              </CardContent>
-            </Card>
+                >
+                  <span className="am-qa-ic">
+                    <Wrench className="h-4 w-4" />
+                  </span>
+                  <span>Schedule maintenance</span>
+                </button>
+                <button
+                  type="button"
+                  className="am-qa"
+                  onClick={() => void handleExportAssets()}
+                  disabled={!canExportInventory || isExportingAssets}
+                >
+                  <span className="am-qa-ic">
+                    <Download className="h-4 w-4" />
+                  </span>
+                  <span>Download CSV</span>
+                </button>
+              </div>
+            </div>
 
-            {/* Category Breakdown */}
-            <Card className="border-gray-200 dark:border-gray-700">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="w-5 h-5" />
-                  Categories
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
+            <div className="am-rail-card">
+              <div className="am-rail-head">
+                <AlertTriangle className="h-4 w-4" />
+                Needs attention
+              </div>
+              <div className="am-rail-body">
+                {[
+                  {
+                    title: "Return requests",
+                    sub: "Awaiting review",
+                    count: pendingReturnRequests.length,
+                    icon: RefreshCw,
+                    onClick: () => setActiveTab("returns"),
+                  },
+                  {
+                    title: "Overdue maintenance",
+                    sub: "Past due date",
+                    count: scheduledMaintenance.filter(
+                      (item) =>
+                        item.status === "scheduled" &&
+                        item.due_state === "overdue"
+                    ).length,
+                    icon: AlertCircle,
+                    onClick: () => {
+                      setMaintenanceQueueTab("overdue");
+                      setActiveTab("maintenance");
+                    },
+                  },
+                  {
+                    title: "Lost or damaged",
+                    sub: "Need attention",
+                    count: assets.filter(
+                      (asset) =>
+                        asset.status === "lost" || asset.status === "damaged"
+                    ).length,
+                    icon: AlertTriangle,
+                    onClick: () => {
+                      setStatusFilter("all");
+                      setQuickFilter("issues");
+                      setActiveTab("assets");
+                    },
+                  },
+                ]
+                  .filter((item) => item.count > 0)
+                  .map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <button
+                        key={item.title}
+                        type="button"
+                        className="am-attn"
+                        onClick={item.onClick}
+                      >
+                        <span className="am-attn-dot">
+                          <Icon className="h-4 w-4" />
+                        </span>
+                        <span className="am-attn-txt">
+                          <strong>{item.title}</strong>
+                          <span>{item.sub}</span>
+                        </span>
+                        <span className="am-attn-num">{item.count}</span>
+                      </button>
+                    );
+                  })}
+                {pendingReturnRequests.length === 0 &&
+                  scheduledMaintenance.filter(
+                    (item) =>
+                      item.status === "scheduled" &&
+                      item.due_state === "overdue"
+                  ).length === 0 &&
+                  assets.filter(
+                    (asset) =>
+                      asset.status === "lost" || asset.status === "damaged"
+                  ).length === 0 && (
+                    <div className="px-3 py-4 text-sm text-zinc-500">
+                      No current alerts.
+                    </div>
+                  )}
+              </div>
+            </div>
+
+            <div className="am-rail-card">
+              <div className="am-rail-head">
+                <Package className="h-4 w-4" />
+                Categories
+              </div>
+              <div className="am-rail-body">
                 {categories.map((category) => {
+                  const Icon = category.icon;
                   const count = assets.filter(
                     (asset) => asset.category === category.value
                   ).length;
-                  const Icon = category.icon;
                   return (
-                    <div
+                    <button
                       key={category.value}
-                      className="flex items-center justify-between"
+                      type="button"
+                      className="am-rail-stat w-full"
+                      onClick={() => {
+                        setCategoryFilter(category.value);
+                        setActiveTab("assets");
+                      }}
                     >
-                      <div className="flex items-center gap-2">
-                        <Icon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                      <div className="flex w-full items-center justify-between">
+                        <span className="inline-flex items-center gap-2">
+                          <Icon className="h-4 w-4" />
                           {category.label}
                         </span>
+                        <b>{count}</b>
                       </div>
-                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {count}
-                      </span>
-                    </div>
+                    </button>
                   );
                 })}
-              </CardContent>
-            </Card>
-
-            {/* Alerts */}
-            <Card className="border-amber-200 bg-amber-50">
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-amber-900">
-                      Asset Issues
-                    </p>
-                    <p className="text-xs text-amber-700 mt-1">
-                      {
-                        assets.filter(
-                          (asset) =>
-                            asset.status === "lost" ||
-                            asset.status === "damaged"
-                        ).length
-                      }{" "}
-                      assets need attention
-                    </p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-2 border-amber-300 text-amber-700 hover:bg-amber-100"
-                    >
-                      Review Issues
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Recent Activity */}
-            <Card className="border-gray-200 dark:border-gray-700">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Activity className="w-5 h-5" />
-                  Recent Activity
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                    <div>
-                      <p className="text-sm text-gray-900 dark:text-gray-100">
-                        Asset assigned
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        2 hours ago
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                    <div>
-                      <p className="text-sm text-gray-900 dark:text-gray-100">
-                        New asset added
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        5 hours ago
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-amber-500 rounded-full mt-2"></div>
-                    <div>
-                      <p className="text-sm text-gray-900 dark:text-gray-100">
-                        Asset returned
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        1 day ago
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -3956,11 +4482,14 @@ export function AssetsModule() {
         }}
       >
         <DialogContent
-          className={`max-w-3xl max-h-[90vh] overflow-y-auto ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
+          className={`max-w-3xl max-h-[90vh] gap-5 overflow-y-auto rounded-2xl p-6 ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
           style={FORCED_LIGHT_SURFACE_STYLE}
         >
           <DialogHeader>
-            <DialogTitle className="text-gray-900">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              {formatAssetDetailValue(selectedAssignmentAssetTag)}
+            </p>
+            <DialogTitle className="text-[19px] font-semibold tracking-tight text-gray-900">
               Assignment Details
             </DialogTitle>
             <DialogDescription className="text-gray-700">
@@ -4097,11 +4626,16 @@ export function AssetsModule() {
         }}
       >
         <DialogContent
-          className={`max-w-3xl max-h-[90vh] overflow-y-auto ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
+          className={`max-w-3xl max-h-[90vh] gap-5 overflow-y-auto rounded-2xl p-6 ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
           style={FORCED_LIGHT_SURFACE_STYLE}
         >
           <DialogHeader>
-            <DialogTitle className="text-gray-900">Assignment Form</DialogTitle>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Handover record
+            </p>
+            <DialogTitle className="text-[19px] font-semibold tracking-tight text-gray-900">
+              Assignment Form
+            </DialogTitle>
             <DialogDescription className="text-gray-700">
               Printable asset handover record for employee acknowledgement.
             </DialogDescription>
@@ -4236,12 +4770,15 @@ export function AssetsModule() {
       {/* Return Checklist Dialog */}
       <Dialog open={isReturnDialogOpen} onOpenChange={setIsReturnDialogOpen}>
         <DialogContent
-          className={`max-w-2xl max-h-[90vh] overflow-y-auto ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
+          className={`max-w-2xl max-h-[90vh] gap-5 overflow-y-auto rounded-2xl p-6 ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
           style={FORCED_LIGHT_SURFACE_STYLE}
         >
           <DialogHeader>
-            <DialogTitle className="text-gray-900">
-              Return Asset - {selectedAsset?.name}
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              {formatAssetDetailValue(selectedAsset?.assetTag)}
+            </p>
+            <DialogTitle className="text-[19px] font-semibold tracking-tight text-gray-900">
+              Process return · {selectedAsset?.name}
             </DialogTitle>
             <DialogDescription className="text-gray-700">
               Complete the return checklist to process the asset return for{" "}
@@ -4249,27 +4786,19 @@ export function AssetsModule() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6">
+          <div className="space-y-5">
             {/* Asset Info */}
             {selectedAsset && (
-              <div className="p-4 rounded-lg bg-gray-50">
-                <div className="flex items-center gap-3">
-                  <ImageWithFallback
-                    src={selectedAsset.image}
-                    alt={selectedAsset.name}
-                    className="w-16 h-16 object-cover rounded-lg"
-                  />
-                  <div>
-                    <h4 className="font-medium text-gray-900">
-                      {selectedAsset.name}
-                    </h4>
-                    <p className="text-sm text-gray-700">
-                      {selectedAsset.assetTag} • {selectedAsset.serialNumber}
-                    </p>
-                    <p className="text-sm text-gray-700">
-                      Assigned to {selectedAsset.assignedEmployeeName}
-                    </p>
-                  </div>
+              <div className="flex items-start gap-2.5 rounded-xl border border-blue-200 bg-blue-50 px-3.5 py-3 text-sm leading-relaxed text-blue-700">
+                <User className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                <div>
+                  Currently held by{" "}
+                  <b className="font-semibold">
+                    {selectedAsset.assignedEmployeeName || "—"}
+                  </b>
+                  . Approving releases{" "}
+                  <span className="font-mono">{selectedAsset.assetTag}</span>{" "}
+                  back to inventory.
                 </div>
               </div>
             )}
@@ -4354,34 +4883,34 @@ export function AssetsModule() {
                 className="h-2"
               />
             </div>
-
-            <div className="flex gap-3">
-              <Button
-                onClick={() => {
-                  void returnAsset();
-                }}
-                variant="primary"
-                disabled={
-                  !selectedAsset ||
-                  !canProcessReturnForAsset(selectedAsset) ||
-                  !returnChecklist
-                    .filter((item) => item.required)
-                    .every((item) => item.checked)
-                }
-              >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                {selectedAsset && canApproveReturnForAsset(selectedAsset)
-                  ? "Approve Return"
-                  : "Request Return"}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setIsReturnDialogOpen(false)}
-              >
-                Cancel
-              </Button>
-            </div>
           </div>
+
+          <DialogFooter className="mt-1 flex-row sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setIsReturnDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                void returnAsset();
+              }}
+              variant="primary"
+              disabled={
+                !selectedAsset ||
+                !canProcessReturnForAsset(selectedAsset) ||
+                !returnChecklist
+                  .filter((item) => item.required)
+                  .every((item) => item.checked)
+              }
+            >
+              <CheckCircle className="w-4 h-4 mr-2" />
+              {selectedAsset && canApproveReturnForAsset(selectedAsset)
+                ? "Approve Return"
+                : "Request Return"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -4390,16 +4919,22 @@ export function AssetsModule() {
         open={isAddAssetDialogOpen}
         onOpenChange={setIsAddAssetDialogOpen}
       >
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white text-gray-900 dark:bg-white dark:text-gray-900">
+        <DialogContent className="max-w-3xl max-h-[90vh] gap-5 overflow-y-auto rounded-2xl bg-white p-6 text-gray-900 dark:bg-white dark:text-gray-900">
           <DialogHeader>
-            <DialogTitle>Add New Asset</DialogTitle>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              New asset
+            </p>
+            <DialogTitle className="text-[19px] font-semibold tracking-tight">
+              Add new asset
+            </DialogTitle>
             <DialogDescription>
               Register a new asset in the system with complete details and
               specifications.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6">
+          <div className="space-y-5">
+            {renderFormSection(Tag, "Identification")}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="asset-name">Asset Name *</Label>
@@ -4475,9 +5010,16 @@ export function AssetsModule() {
                   }
                   placeholder="Auto-generated if empty"
                 />
+                <p className="text-xs text-gray-500">
+                  {newAsset.assetTag.trim()
+                    ? "Custom tag"
+                    : `Auto-generates as ${computeNextAssetTag(newAsset.category)}`}
+                </p>
               </div>
             </div>
 
+            <div className="h-px bg-gray-100" />
+            {renderFormSection(CircleDot, "Status & condition")}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="asset-status">Status</Label>
@@ -4541,6 +5083,8 @@ export function AssetsModule() {
               </div>
             </div>
 
+            <div className="h-px bg-gray-100" />
+            {renderFormSection(FileText, "Details")}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="brand">Brand</Label>
@@ -4585,6 +5129,8 @@ export function AssetsModule() {
               />
             </div>
 
+            <div className="h-px bg-gray-100" />
+            {renderFormSection(CalendarDays, "Purchase & warranty")}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_10rem_minmax(0,1fr)]">
               <div className="min-w-0 space-y-2">
                 <Label htmlFor="purchase-date">Purchase Date</Label>
@@ -4635,6 +5181,8 @@ export function AssetsModule() {
               </div>
             </div>
 
+            <div className="h-px bg-gray-100" />
+            {renderFormSection(MapPin, "Location")}
             <div className="space-y-2">
               <Label htmlFor="location">Location</Label>
               <Input
@@ -4648,6 +5196,12 @@ export function AssetsModule() {
               />
             </div>
 
+            <div className="h-px bg-gray-100" />
+            {renderFormSection(
+              List,
+              "Specifications",
+              "Optional key/value pairs — stored as JSON on the asset."
+            )}
             <div className="space-y-2">
               <Label htmlFor="specifications">Specifications (JSON)</Label>
               <Textarea
@@ -4665,30 +5219,42 @@ export function AssetsModule() {
               />
             </div>
 
-            <div className="flex gap-3">
-              <Button
-                onClick={() => {
-                  void addNewAsset();
-                }}
-                disabled={
-                  !canCreateAssets ||
-                  !newAsset.name ||
-                  !newAsset.category ||
-                  !newAsset.serialNumber
-                }
-                variant="primary"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Asset
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setIsAddAssetDialogOpen(false)}
-              >
-                Cancel
-              </Button>
+            <div className="flex items-start gap-2.5 rounded-xl border border-blue-200 bg-blue-50 px-3.5 py-3 text-xs leading-relaxed text-blue-700">
+              <QrCode className="mt-0.5 h-4 w-4 flex-shrink-0" />
+              <span>
+                A scannable QR code is generated automatically once the asset is
+                saved — available from its detail panel.
+              </span>
             </div>
           </div>
+
+          <DialogFooter className="mt-1 flex-row items-center sm:justify-end">
+            <div className="mr-auto flex items-center gap-1.5 text-xs text-gray-500">
+              <AlertCircle className="h-3.5 w-3.5" />
+              Fields marked <span className="text-red-600">*</span> are required
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setIsAddAssetDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                void addNewAsset();
+              }}
+              disabled={
+                !canCreateAssets ||
+                !newAsset.name ||
+                !newAsset.category ||
+                !newAsset.serialNumber
+              }
+              variant="primary"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Asset
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -4704,11 +5270,14 @@ export function AssetsModule() {
         }}
       >
         <DialogContent
-          className={`max-w-2xl max-h-[90vh] overflow-y-auto ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
+          className={`max-w-2xl max-h-[90vh] gap-5 overflow-y-auto rounded-2xl p-6 ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
           style={FORCED_LIGHT_SURFACE_STYLE}
         >
           <DialogHeader>
-            <DialogTitle className="text-gray-900">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Return request
+            </p>
+            <DialogTitle className="text-[19px] font-semibold tracking-tight text-gray-900">
               Return Request Details
             </DialogTitle>
             <DialogDescription className="text-gray-700">
@@ -4841,11 +5410,14 @@ export function AssetsModule() {
         onOpenChange={setIsAssetDetailsDialogOpen}
       >
         <DialogContent
-          className={`max-w-3xl max-h-[90vh] overflow-y-auto ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
+          className={`left-auto top-0 right-0 bottom-0 h-screen min-h-0 max-h-screen w-full max-w-[560px] translate-x-0 translate-y-0 gap-5 overflow-y-auto rounded-none border-l p-6 data-[state=open]:slide-in-from-right-6 data-[state=closed]:slide-out-to-right-6 ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
           style={FORCED_LIGHT_SURFACE_STYLE}
         >
           <DialogHeader>
-            <DialogTitle className="text-black">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              {formatAssetDetailValue(selectedAsset?.assetTag)}
+            </p>
+            <DialogTitle className="text-[19px] font-semibold tracking-tight text-black">
               {selectedAsset?.name || "Asset Details"}
             </DialogTitle>
             <DialogDescription className="text-black">
@@ -4854,207 +5426,270 @@ export function AssetsModule() {
           </DialogHeader>
 
           {selectedAsset && (
-            <div className="space-y-3 text-black">
-              <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_148px] lg:items-start">
-                <div className="space-y-3">
-                  <div className="grid grid-cols-1 gap-x-3 gap-y-2.5 md:grid-cols-2">
-                    <div className="space-y-1">
-                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
-                        Asset Tag
-                      </p>
-                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
-                        {formatAssetDetailValue(selectedAsset.assetTag)}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
-                        Serial Number
-                      </p>
-                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
-                        {formatAssetDetailValue(selectedAsset.serialNumber)}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
-                        Category
-                      </p>
-                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
-                        {formatSnapshotValue(selectedAsset.category)}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>Status</p>
-                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
-                        {formatSnapshotValue(selectedAsset.status)}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>Brand</p>
-                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
-                        {formatAssetDetailValue(selectedAsset.brand)}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
-                        Condition
-                      </p>
-                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
-                        {formatSnapshotValue(selectedAsset.condition)}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>Model</p>
-                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
-                        {formatAssetDetailValue(selectedAsset.model)}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
-                        Assigned To
-                      </p>
-                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
-                        {selectedAssetAssigneeName}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
-                        Assigned Date
-                      </p>
-                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
-                        {selectedAsset.assignedDate
-                          ? formatDate(selectedAsset.assignedDate)
-                          : "Not recorded"}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
-                        Purchase Date
-                      </p>
-                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
-                        {selectedAsset.purchaseDate
-                          ? formatDate(selectedAsset.purchaseDate)
-                          : "Not recorded"}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
-                        Purchase Price
-                      </p>
-                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
-                        {Number.isFinite(selectedAsset.purchasePrice)
-                          ? formatCurrency(selectedAsset.purchasePrice)
-                          : "Not recorded"}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
-                        Warranty Until
-                      </p>
-                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
-                        {formatAssetDetailValue(selectedAsset.warranty)}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
-                        Location
-                      </p>
-                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
-                        {formatAssetDetailValue(selectedAsset.location)}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
-                        Availability
-                      </p>
-                      <p className={ASSET_DETAILS_FIELD_VALUE_CLASS}>
-                        {selectedAsset.isAvailable ? "Available" : "In use"}
-                      </p>
-                    </div>
+            <div className="space-y-5 text-black">
+              {/* Hero */}
+              <div className="flex items-center gap-4 border-b border-gray-100 pb-4">
+                <span className="grid h-14 w-14 flex-shrink-0 place-items-center rounded-2xl border border-gray-100 bg-gray-50 text-gray-700">
+                  {(() => {
+                    const HeroIcon = getCategoryIcon(selectedAsset.category);
+                    return <HeroIcon className="h-7 w-7" />;
+                  })()}
+                </span>
+                <div className="min-w-0">
+                  <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      className={getConditionColor(selectedAsset.condition)}
+                    >
+                      {selectedAsset.condition}
+                    </Badge>
+                    <span className="truncate text-xs text-gray-500">
+                      {selectedAsset.brand} · {selectedAsset.model}
+                    </span>
                   </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-mono text-lg font-semibold text-gray-900">
+                      {Number.isFinite(selectedAsset.purchasePrice)
+                        ? formatCurrency(selectedAsset.purchasePrice)
+                        : "—"}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      purchase value
+                    </span>
+                  </div>
+                </div>
+                <Badge
+                  variant="outline"
+                  className={`ml-auto flex-shrink-0 ${getStatusColor(
+                    selectedAsset.status
+                  )}`}
+                >
+                  {selectedAsset.status}
+                </Badge>
+              </div>
 
-                  <div className="space-y-1">
-                    <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
-                      Description
+              {/* Metadata grid */}
+              <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-gray-100 bg-gray-100">
+                {(
+                  [
+                    ["Category", formatSnapshotValue(selectedAsset.category)],
+                    [
+                      "Serial Number",
+                      formatAssetDetailValue(selectedAsset.serialNumber),
+                      true,
+                    ],
+                    ["Status", formatSnapshotValue(selectedAsset.status)],
+                    ["Condition", formatSnapshotValue(selectedAsset.condition)],
+                    ["Brand", formatAssetDetailValue(selectedAsset.brand)],
+                    ["Model", formatAssetDetailValue(selectedAsset.model)],
+                    [
+                      "Location",
+                      formatAssetDetailValue(selectedAsset.location),
+                    ],
+                    ["Assigned To", selectedAssetAssigneeName],
+                    [
+                      "Assigned Date",
+                      selectedAsset.assignedDate
+                        ? formatDate(selectedAsset.assignedDate)
+                        : "Not recorded",
+                    ],
+                    [
+                      "Purchase Date",
+                      selectedAsset.purchaseDate
+                        ? formatDate(selectedAsset.purchaseDate)
+                        : "Not recorded",
+                    ],
+                    [
+                      "Purchase Price",
+                      Number.isFinite(selectedAsset.purchasePrice)
+                        ? formatCurrency(selectedAsset.purchasePrice)
+                        : "Not recorded",
+                    ],
+                    [
+                      "Warranty Until",
+                      formatAssetDetailValue(selectedAsset.warranty),
+                    ],
+                    [
+                      "Warranty",
+                      selectedAsset.warranty &&
+                      selectedAsset.warranty >= getTodayDateValue()
+                        ? "Active"
+                        : "Expired",
+                    ],
+                    [
+                      "Availability",
+                      selectedAsset.isAvailable ? "Available" : "In use",
+                    ],
+                  ] as [string, string, boolean?][]
+                ).map(([label, value, mono]) => (
+                  <div key={label} className="bg-white px-3.5 py-2.5">
+                    <p className="text-[10.5px] font-semibold uppercase tracking-[0.04em] text-gray-500">
+                      {label}
                     </p>
                     <p
-                      className={`${ASSET_DETAILS_FIELD_VALUE_CLASS} min-h-14`}
+                      className={`mt-0.5 text-sm font-medium text-gray-900 ${
+                        mono ? "font-mono text-[13px]" : ""
+                      }`}
                     >
-                      {formatAssetDetailValue(selectedAsset.description)}
+                      {value}
                     </p>
                   </div>
+                ))}
+              </div>
 
-                  {Object.keys(selectedAsset.specifications || {}).length >
-                    0 && (
-                    <div className="space-y-1">
-                      <p className={ASSET_DETAILS_FIELD_LABEL_CLASS}>
-                        Specifications
-                      </p>
-                      <div className="grid grid-cols-1 gap-1.5 rounded-md border border-gray-300 bg-white p-2 md:grid-cols-2">
-                        {Object.entries(selectedAsset.specifications).map(
-                          ([key, value]) => (
-                            <p
-                              key={key}
-                              className="flex items-center justify-between gap-2 rounded border border-gray-100 bg-gray-50 px-2 py-1 text-xs text-gray-900"
-                            >
-                              <span className="font-semibold">
-                                {formatSnapshotValue(key)}
-                              </span>
-                              <span className="font-normal text-right">
-                                {value}
-                              </span>
-                            </p>
-                          )
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
+              {/* Description */}
+              <div className="space-y-1.5">
+                <h4 className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                  <FileText className="h-4 w-4 text-gray-400" />
+                  Description
+                </h4>
+                <p className="text-sm leading-relaxed text-gray-700">
+                  {formatAssetDetailValue(selectedAsset.description)}
+                </p>
+              </div>
 
-                <div className="rounded-md border border-gray-200 bg-gray-50 p-2 text-center lg:sticky lg:top-0">
-                  <div className="flex items-center justify-center gap-1.5 text-xs font-medium text-black">
-                    <QrCode className="h-3.5 w-3.5" />
-                    QR Code
+              {/* Specifications */}
+              {Object.keys(selectedAsset.specifications || {}).length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                    <List className="h-4 w-4 text-gray-400" />
+                    Specifications
+                  </h4>
+                  <div className="overflow-hidden rounded-xl border border-gray-100">
+                    {Object.entries(selectedAsset.specifications).map(
+                      ([key, value], index, entries) => (
+                        <div
+                          key={key}
+                          className={`flex items-center justify-between gap-3 px-3.5 py-2.5 text-sm ${
+                            index < entries.length - 1
+                              ? "border-b border-gray-100"
+                              : ""
+                          }`}
+                        >
+                          <span className="text-gray-500">
+                            {formatSnapshotValue(key)}
+                          </span>
+                          <span className="text-right font-medium text-gray-900">
+                            {value}
+                          </span>
+                        </div>
+                      )
+                    )}
                   </div>
-                  <div className="mt-2 flex min-h-28 items-center justify-center rounded-md border border-gray-200 bg-white p-1.5">
+                </div>
+              )}
+
+              {/* QR code */}
+              <div className="space-y-2">
+                <h4 className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                  <QrCode className="h-4 w-4 text-gray-400" />
+                  QR Code
+                </h4>
+                <div className="flex gap-4 rounded-xl border border-gray-100 bg-gray-50 p-3.5">
+                  <div className="grid h-[104px] w-[104px] flex-shrink-0 place-items-center rounded-lg border border-gray-200 bg-white p-2">
                     {qrCodePreviewUrl ? (
                       <img
                         src={qrCodePreviewUrl}
                         alt={`${selectedAsset.name} QR code`}
-                        className="h-24 w-24 object-contain"
+                        className="h-full w-full object-contain"
                       />
                     ) : (
-                      <p className="text-xs text-gray-600">
+                      <p className="px-2 text-center text-xs text-gray-500">
                         {isQrCodePreviewLoading
                           ? "Loading QR..."
                           : "QR not available"}
                       </p>
                     )}
                   </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="mt-2 h-8 w-full px-2 text-xs"
-                    disabled={
-                      !selectedAsset.qrCodeUrl ||
-                      downloadingQrCodeAssetId === selectedAsset.id
-                    }
-                    onClick={() => {
-                      void handleDownloadAssetQrCode(selectedAsset);
-                    }}
-                  >
-                    <QrCode className="mr-2 h-4 w-4" />
-                    {downloadingQrCodeAssetId === selectedAsset.id
-                      ? "Downloading..."
-                      : "Download QR"}
-                  </Button>
-                  {qrCodeError && (
-                    <p className="mt-2 text-left text-sm text-red-700">
-                      {qrCodeError}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-gray-500">
+                      Scan to open the asset record
                     </p>
-                  )}
+                    {selectedAsset.qrCodePayload && (
+                      <p className="mt-1 break-all font-mono text-[11px] text-gray-600">
+                        {selectedAsset.qrCodePayload}
+                      </p>
+                    )}
+                    <div className="mt-2.5 flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-8"
+                        disabled={
+                          !selectedAsset.qrCodeUrl ||
+                          downloadingQrCodeAssetId === selectedAsset.id
+                        }
+                        onClick={() => {
+                          void handleDownloadAssetQrCode(selectedAsset);
+                        }}
+                      >
+                        <Download className="mr-2 h-4 w-4" />
+                        {downloadingQrCodeAssetId === selectedAsset.id
+                          ? "Downloading..."
+                          : "Download QR"}
+                      </Button>
+                    </div>
+                    {qrCodeError && (
+                      <p className="mt-2 text-sm text-red-700">{qrCodeError}</p>
+                    )}
+                  </div>
                 </div>
               </div>
+
+              {/* Assignment history */}
+              {(() => {
+                const assetHistory = assignments
+                  .filter((item) => item.assetId === selectedAsset.id)
+                  .slice()
+                  .sort((a, b) =>
+                    (b.assignedDate || "").localeCompare(a.assignedDate || "")
+                  );
+                if (assetHistory.length === 0) {
+                  return null;
+                }
+                return (
+                  <div className="space-y-2">
+                    <h4 className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                      <History className="h-4 w-4 text-gray-400" />
+                      Assignment history
+                    </h4>
+                    <div className="space-y-0">
+                      {assetHistory.map((item, index) => (
+                        <div
+                          key={item.id}
+                          className="relative flex gap-3 pb-4 last:pb-0"
+                        >
+                          {index < assetHistory.length - 1 && (
+                            <span className="absolute left-[13px] top-7 bottom-0 w-px bg-gray-200" />
+                          )}
+                          <span className="z-[1] grid h-7 w-7 flex-shrink-0 place-items-center rounded-full border border-gray-200 bg-gray-50 text-gray-600">
+                            {item.isActive ? (
+                              <UserCheck className="h-3.5 w-3.5" />
+                            ) : (
+                              <RefreshCw className="h-3.5 w-3.5" />
+                            )}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-xs text-gray-500">
+                              {item.isActive ? "Assigned " : "Held "}
+                              {item.assignedDate
+                                ? formatDate(item.assignedDate)
+                                : "—"}
+                              {item.returnedDate
+                                ? ` → returned ${formatDate(item.returnedDate)}`
+                                : " · current holder"}
+                              {item.assignedBy
+                                ? ` · by ${item.assignedBy}`
+                                : ""}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
 
               <div className="rounded-md border border-gray-200 p-2.5">
                 <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -5995,12 +6630,21 @@ export function AssetsModule() {
         onOpenChange={setIsMaintenanceFormOpen}
       >
         <DialogContent
-          className={`max-w-3xl ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
+          className={`max-w-3xl gap-5 rounded-2xl p-6 ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
           style={FORCED_LIGHT_SURFACE_STYLE}
         >
           <DialogHeader>
-            <DialogTitle className="text-gray-900">
-              Schedule Maintenance
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              {maintenanceForm.assetId
+                ? formatAssetDetailValue(
+                    assets.find(
+                      (asset) => String(asset.id) === maintenanceForm.assetId
+                    )?.assetTag
+                  )
+                : "New maintenance"}
+            </p>
+            <DialogTitle className="text-[19px] font-semibold tracking-tight text-gray-900">
+              Schedule maintenance
             </DialogTitle>
             <DialogDescription className="text-gray-700">
               Create planned maintenance for an asset.
@@ -6179,33 +6823,34 @@ export function AssetsModule() {
                 />
               </div>
             </div>
-
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="primary"
-                onClick={() => {
-                  void submitScheduledMaintenance();
-                }}
-                disabled={
-                  isSubmittingMaintenance ||
-                  !maintenanceForm.assetId ||
-                  !maintenanceForm.dueDate ||
-                  !maintenanceForm.reason.trim()
-                }
-              >
-                {isSubmittingMaintenance ? "Scheduling..." : "Schedule"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsMaintenanceFormOpen(false)}
-                disabled={isSubmittingMaintenance}
-              >
-                Cancel
-              </Button>
-            </div>
           </div>
+
+          <DialogFooter className="mt-1 flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsMaintenanceFormOpen(false)}
+              disabled={isSubmittingMaintenance}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => {
+                void submitScheduledMaintenance();
+              }}
+              disabled={
+                isSubmittingMaintenance ||
+                !maintenanceForm.assetId ||
+                !maintenanceForm.dueDate ||
+                !maintenanceForm.reason.trim()
+              }
+            >
+              <CalendarDays className="mr-2 h-4 w-4" />
+              {isSubmittingMaintenance ? "Scheduling..." : "Schedule"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -6219,19 +6864,22 @@ export function AssetsModule() {
         }}
       >
         <DialogContent
-          className={`max-w-2xl ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
+          className={`max-w-2xl gap-5 rounded-2xl p-6 ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
           style={FORCED_LIGHT_SURFACE_STYLE}
         >
           <DialogHeader>
-            <DialogTitle className="text-gray-900">
-              Complete Maintenance
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Maintenance
+            </p>
+            <DialogTitle className="text-[19px] font-semibold tracking-tight text-gray-900">
+              Complete maintenance
             </DialogTitle>
             <DialogDescription className="text-gray-700">
               Complete schedule and create maintenance history.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="mb-3 flex gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+          <div className="flex gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <p>
               Completion creates a history record only. It will not change asset
@@ -6405,32 +7053,33 @@ export function AssetsModule() {
                 );
               })}
             </div>
-
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="primary"
-                onClick={() => {
-                  void submitCompleteMaintenance();
-                }}
-                disabled={
-                  isCompletingMaintenance ||
-                  !maintenanceCompletionForm.date ||
-                  !maintenanceCompletionForm.reason.trim()
-                }
-              >
-                {isCompletingMaintenance ? "Completing..." : "Complete"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setMaintenanceActionTarget(null)}
-                disabled={isCompletingMaintenance}
-              >
-                Cancel
-              </Button>
-            </div>
           </div>
+
+          <DialogFooter className="mt-1 flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setMaintenanceActionTarget(null)}
+              disabled={isCompletingMaintenance}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => {
+                void submitCompleteMaintenance();
+              }}
+              disabled={
+                isCompletingMaintenance ||
+                !maintenanceCompletionForm.date ||
+                !maintenanceCompletionForm.reason.trim()
+              }
+            >
+              <CheckCircle className="mr-2 h-4 w-4" />
+              {isCompletingMaintenance ? "Completing..." : "Complete"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -6444,55 +7093,55 @@ export function AssetsModule() {
         }}
       >
         <DialogContent
-          className={`w-[calc(100vw-2rem)] max-w-sm max-h-[80vh] overflow-y-auto p-4 sm:p-5 ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
+          className={`w-[calc(100vw-2rem)] max-w-sm max-h-[80vh] gap-5 overflow-y-auto rounded-2xl p-5 ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
           style={FORCED_LIGHT_SURFACE_STYLE}
         >
           <DialogHeader>
-            <DialogTitle className="text-gray-900">
-              Cancel Maintenance
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Maintenance
+            </p>
+            <DialogTitle className="text-[19px] font-semibold tracking-tight text-gray-900">
+              Cancel maintenance
             </DialogTitle>
             <DialogDescription className="text-gray-700">
               Add optional reason for cancelling this maintenance.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="maintenance-cancel-reason">Reason</Label>
-              <Textarea
-                id="maintenance-cancel-reason"
-                className={ADD_ASSET_LIGHT_FIELD_CLASS}
-                value={maintenanceCancelReason}
-                onChange={(event) =>
-                  setMaintenanceCancelReason(event.target.value)
-                }
-                rows={2}
-                disabled={isCancellingMaintenance}
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="primary"
-                onClick={() => {
-                  void submitCancelMaintenance();
-                }}
-                disabled={isCancellingMaintenance}
-              >
-                {isCancellingMaintenance
-                  ? "Cancelling..."
-                  : "Cancel Maintenance"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setMaintenanceCancelTarget(null)}
-                disabled={isCancellingMaintenance}
-              >
-                Close
-              </Button>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="maintenance-cancel-reason">Reason</Label>
+            <Textarea
+              id="maintenance-cancel-reason"
+              className={ADD_ASSET_LIGHT_FIELD_CLASS}
+              value={maintenanceCancelReason}
+              onChange={(event) =>
+                setMaintenanceCancelReason(event.target.value)
+              }
+              rows={2}
+              disabled={isCancellingMaintenance}
+            />
           </div>
+
+          <DialogFooter className="mt-1 flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setMaintenanceCancelTarget(null)}
+              disabled={isCancellingMaintenance}
+            >
+              Close
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => {
+                void submitCancelMaintenance();
+              }}
+              disabled={isCancellingMaintenance}
+            >
+              {isCancellingMaintenance ? "Cancelling..." : "Cancel Maintenance"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -6502,17 +7151,23 @@ export function AssetsModule() {
         onOpenChange={setIsEditAssetDialogOpen}
       >
         <DialogContent
-          className={`max-w-2xl ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
+          className={`max-w-2xl gap-5 rounded-2xl p-6 ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
           style={FORCED_LIGHT_SURFACE_STYLE}
         >
           <DialogHeader>
-            <DialogTitle className="text-gray-900">Edit Asset</DialogTitle>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              {formatAssetDetailValue(editAsset.assetTag)}
+            </p>
+            <DialogTitle className="text-[19px] font-semibold tracking-tight text-gray-900">
+              Edit asset
+            </DialogTitle>
             <DialogDescription className="text-gray-700">
               Update existing asset metadata.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="max-h-[75vh] space-y-4 overflow-y-auto pr-1">
+          <div className="max-h-[72vh] space-y-5 overflow-y-auto pr-1">
+            {renderFormSection(Tag, "Identification")}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label
@@ -6594,6 +7249,8 @@ export function AssetsModule() {
               </div>
             </div>
 
+            <div className="h-px bg-gray-100" />
+            {renderFormSection(CircleDot, "Status & condition")}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label
@@ -6741,6 +7398,8 @@ export function AssetsModule() {
               </div>
             </div>
 
+            <div className="h-px bg-gray-100" />
+            {renderFormSection(CalendarDays, "Details & purchase")}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label
@@ -6851,6 +7510,12 @@ export function AssetsModule() {
               />
             </div>
 
+            <div className="h-px bg-gray-100" />
+            {renderFormSection(
+              List,
+              "Specifications",
+              "Key/value pairs stored as JSON on the asset."
+            )}
             <div className="space-y-2">
               <Label
                 htmlFor="edit-asset-specs"
@@ -6871,40 +7536,47 @@ export function AssetsModule() {
                 rows={4}
               />
             </div>
-
-            <div className="flex gap-3">
-              <Button
-                variant="primary"
-                onClick={() => {
-                  void saveAssetEdit();
-                }}
-                disabled={
-                  isActionSubmitting ||
-                  !editAsset.name ||
-                  !editAsset.serialNumber
-                }
-              >
-                Save Changes
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setIsEditAssetDialogOpen(false)}
-              >
-                Cancel
-              </Button>
-            </div>
           </div>
+
+          <DialogFooter className="mt-1 flex-row items-center sm:justify-end">
+            <div className="mr-auto flex items-center gap-1.5 text-xs text-gray-500">
+              <AlertCircle className="h-3.5 w-3.5" />
+              Fields marked <span className="text-red-600">*</span> are required
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setIsEditAssetDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                void saveAssetEdit();
+              }}
+              disabled={
+                isActionSubmitting || !editAsset.name || !editAsset.serialNumber
+              }
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Assign Asset Dialog */}
       <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
         <DialogContent
-          className={`max-w-lg ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
+          className={`max-w-lg gap-5 rounded-2xl p-6 ${ADD_ASSET_LIGHT_SURFACE_CLASS}`}
           style={FORCED_LIGHT_SURFACE_STYLE}
         >
           <DialogHeader>
-            <DialogTitle className="text-gray-900">Assign Asset</DialogTitle>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Assignment
+            </p>
+            <DialogTitle className="text-[19px] font-semibold tracking-tight text-gray-900">
+              Assign asset
+            </DialogTitle>
             <DialogDescription className="text-gray-700">
               Choose an asset and assign it to an employee.
             </DialogDescription>
@@ -6945,6 +7617,14 @@ export function AssetsModule() {
                   ))}
                 </SelectContent>
               </Select>
+              {assignableAssets.length === 0 && (
+                <p className="flex items-start gap-1.5 text-xs text-amber-700">
+                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+                  No assets are available to assign. Every asset is already
+                  assigned, in maintenance, or otherwise unavailable. Add a new
+                  asset or process a return first.
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -7006,30 +7686,31 @@ export function AssetsModule() {
                 {assignmentError}
               </div>
             )}
-
-            <div className="flex gap-3">
-              <Button
-                variant="primary"
-                onClick={() => {
-                  void submitAssignment();
-                }}
-                disabled={
-                  isActionSubmitting ||
-                  isLoadingAssignableUsers ||
-                  !assignmentForm.assetId ||
-                  !assignmentForm.employeeId
-                }
-              >
-                Assign Asset
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setIsAssignDialogOpen(false)}
-              >
-                Cancel
-              </Button>
-            </div>
           </div>
+
+          <DialogFooter className="mt-1 flex-row sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setIsAssignDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                void submitAssignment();
+              }}
+              disabled={
+                isActionSubmitting ||
+                isLoadingAssignableUsers ||
+                !assignmentForm.assetId ||
+                !assignmentForm.employeeId
+              }
+            >
+              <UserCheck className="mr-2 h-4 w-4" />
+              Assign Asset
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

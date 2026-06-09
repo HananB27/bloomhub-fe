@@ -666,11 +666,11 @@ export async function listPendingReturnRequests(
 }
 
 export async function listReplacementLogs(
-  assetId: number,
+  assetId?: number,
   token?: string
 ): Promise<AssetReplacementLogApiItem[]> {
   return requestJson<AssetReplacementLogApiItem[]>(
-    `${REPLACEMENTS_PATH}?asset=${assetId}`,
+    assetId ? `${REPLACEMENTS_PATH}?asset=${assetId}` : REPLACEMENTS_PATH,
     { token }
   );
 }

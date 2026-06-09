@@ -1,11 +1,11 @@
 # Graph Report - bloomhub-fe  (2026-06-09)
 
 ## Corpus Check
-- 512 files · ~332,345 words
+- 512 files · ~331,876 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4104 nodes · 9989 edges · 200 communities (182 shown, 18 thin omitted)
+- 4104 nodes · 9988 edges · 197 communities (181 shown, 16 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 10 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -155,7 +155,6 @@
 - [[_COMMUNITY_Cluster PerformanceReview|Cluster: PerformanceReview]]
 - [[_COMMUNITY_Cluster skeletoncard|Cluster: skeletoncard]]
 - [[_COMMUNITY_Cluster sorttoggle|Cluster: sorttoggle]]
-- [[_COMMUNITY_Community 142|Community 142]]
 - [[_COMMUNITY_Community 143|Community 143]]
 - [[_COMMUNITY_Cluster employees|Cluster: employees]]
 - [[_COMMUNITY_Cluster countbadge|Cluster: countbadge]]
@@ -172,10 +171,8 @@
 - [[_COMMUNITY_Community 157|Community 157]]
 - [[_COMMUNITY_Cluster vacations|Cluster: vacations]]
 - [[_COMMUNITY_Cluster eslintconfig|Cluster: eslintconfig]]
-- [[_COMMUNITY_Community 160|Community 160]]
 - [[_COMMUNITY_Cluster readme|Cluster: readme]]
 - [[_COMMUNITY_Cluster readme|Cluster: readme]]
-- [[_COMMUNITY_Community 164|Community 164]]
 - [[_COMMUNITY_Cluster documentsendpoints|Cluster: documentsendpoints]]
 - [[_COMMUNITY_Cluster agents|Cluster: agents]]
 - [[_COMMUNITY_Cluster component|Cluster: component]]
@@ -191,6 +188,7 @@
 - [[_COMMUNITY_Community 182|Community 182]]
 - [[_COMMUNITY_Community 184|Community 184]]
 - [[_COMMUNITY_Community 191|Community 191]]
+- [[_COMMUNITY_Community 195|Community 195]]
 - [[_COMMUNITY_Community 197|Community 197]]
 - [[_COMMUNITY_Community 201|Community 201]]
 - [[_COMMUNITY_Community 213|Community 213]]
@@ -218,13 +216,13 @@
   src/components/hr-dashboard/dashboard/widgets/LeaveTypeTag.tsx → src/types/vacations.ts
 - `Field()` --calls--> `cn()`  [EXTRACTED]
   src/components/hr-dashboard/employee-profiles/AddEmployeeDialog.tsx → src/components/hr-dashboard/ui/utils.ts
-- `EmployeesListGridProps` --references--> `EmployeeProfileData`  [EXTRACTED]
-  src/components/hr-dashboard/employee-profiles/EmployeesListGrid.tsx → src/lib/api/helpers/transformers.ts
+- `SectionTitle()` --calls--> `cn()`  [EXTRACTED]
+  src/components/hr-dashboard/employee-profiles/ExportEmployeesDialog.tsx → src/components/hr-dashboard/ui/utils.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (200 total, 18 thin omitted)
+## Communities (197 total, 16 thin omitted)
 
 ### Community 0 - "Project Member Avatars"
 Cohesion: 0.02
@@ -235,16 +233,16 @@ Cohesion: 0.03
 Nodes (72): ActiveAllocationAssignment, ActiveAllocationFilters, ActiveAllocations, AllocationStatus, ApprovalQueueFilters, DocumentColumnMappingPayload, ImportHistoryFilters, ImportValidationMessage (+64 more)
 
 ### Community 2 - "Project Atoms"
-Cohesion: 0.09
-Nodes (46): ALL_DEPARTMENTS, CompensationFilterBar(), CompensationFilterBarProps, CompensationFilters, DepartmentFilter, STATUS_OPTIONS, StatusFilter, BONUS_TYPES (+38 more)
+Cohesion: 0.13
+Nodes (37): ALL_DEPARTMENTS, CompensationFilterBar(), CompensationFilterBarProps, CompensationFilters, DepartmentFilter, STATUS_OPTIONS, StatusFilter, BONUS_TYPES (+29 more)
 
 ### Community 3 - "Templates Rich Text Editor"
-Cohesion: 0.10
-Nodes (23): celebrationsApi, UpcomingCelebration, timeTrackingApi, UpcomingCelebrationsWidget(), UpcomingCelebrationsWidgetProps, WidgetVariant, ExchangeState, ExchangeState (+15 more)
+Cohesion: 0.09
+Nodes (27): ApiJobApplication, ApiJobListing, ApiJobListingDetail, jobListingsApi, transformListing(), transformListingDetail(), ALL_APPLICATION_STATUSES, ALL_JOB_LISTING_STATUSES (+19 more)
 
 ### Community 4 - "Performance Reviews API"
 Cohesion: 0.07
-Nodes (32): policyApi, CvPreviewDialog(), buildLocalEmployeeExport(), buildPdfEmployeeExport(), buildXlsxEmployeeExport(), EMPLOYEE_EXPORT_COLUMN_LABELS, employeeExportPdfStyles, EMPTY_INTRO_DRAFT (+24 more)
+Nodes (25): policyApi, CvPreviewDialog(), buildLocalEmployeeExport(), buildPdfEmployeeExport(), buildXlsxEmployeeExport(), EMPLOYEE_EXPORT_COLUMN_LABELS, employeeExportPdfStyles, EMPTY_INTRO_DRAFT (+17 more)
 
 ### Community 5 - "Package Dependencies"
 Cohesion: 0.06
@@ -255,8 +253,8 @@ Cohesion: 0.04
 Nodes (57): dependencies, class-variance-authority, clsx, cmdk, date-fns, embla-carousel-react, heic2any, html-to-image (+49 more)
 
 ### Community 7 - "Assets API"
-Cohesion: 0.08
-Nodes (41): fetchWithAuthRetry(), downloadTimesheetExport(), notificationMarkReadPath(), userTemplateSnippetPath(), TRAINING_BUDGETS_API_BASE_PATH, TRAINING_BUDGETS_ME_PATH, trainingBudgetDetailPath(), Department (+33 more)
+Cohesion: 0.15
+Nodes (26): fetchWithAuthRetry(), downloadTimesheetExport(), userTemplateSnippetPath(), ApiError, ApiRequestError, buildQueryString(), del(), extractErrorMessage() (+18 more)
 
 ### Community 8 - "Caveman Compress Scripts"
 Cohesion: 0.05
@@ -276,15 +274,15 @@ Nodes (40): benchmark_pair(), count_tokens(), main(), print_table(), main(), pri
 
 ### Community 12 - "Permissions API"
 Cohesion: 0.07
-Nodes (52): DOCUMENT_ACCESS_ROLE_DESCRIPTIONS, DOCUMENT_ACCESS_ROLE_LABELS, DocumentAccessRole, DocumentCategory, parseDocumentTags(), DEFAULT_UPLOAD_VISIBILITY, DocumentUploadModal(), EMPTY_UPLOAD_FORM (+44 more)
+Nodes (46): DocumentAccessRole, DocumentCategory, parseDocumentTags(), DEFAULT_UPLOAD_VISIBILITY, DocumentUploadModal(), EMPTY_UPLOAD_FORM, UploadForm, CUSTOM_PRESET_HELPER_TEXT (+38 more)
 
 ### Community 13 - "Documents Helpers"
 Cohesion: 0.08
 Nodes (34): _normalizeByType(), TECHNOLOGY_TAG_NAME_BY_ID, transformLeaveAnalyticsDepartmentRow(), transformLeaveAnalyticsDepartmentRowList(), transformLeaveAnalyticsEmployeeHistory(), transformLeaveAnalyticsEmployeeSummary(), transformLeaveAnalyticsEmployeeSummaryList(), transformLeaveAnalyticsMonthRow() (+26 more)
 
 ### Community 14 - "Project Drawer Helpers"
-Cohesion: 0.05
-Nodes (40): ReviewRow(), ToggleBtn(), EmptyState(), EmptyStateProps, AlertDialogOverlay(), BreadcrumbEllipsis(), BreadcrumbItem(), BreadcrumbLink() (+32 more)
+Cohesion: 0.04
+Nodes (49): ReviewRow(), ToggleBtn(), EmptyState(), EmptyStateProps, Button, buttonVariants, Textarea, AccordionContent() (+41 more)
 
 ### Community 15 - "Admin Module Seed Data"
 Cohesion: 0.08
@@ -319,8 +317,8 @@ Cohesion: 0.06
 Nodes (32): createActionPoint(), deleteActionPoint(), deleteAttachment(), deleteReviewNote(), fetchActionPoints(), fetchAttachments(), fetchReviewNotes(), fetchUserProfiles() (+24 more)
 
 ### Community 23 - "Peer Sessions API"
-Cohesion: 0.12
-Nodes (12): AddEmployeeDialog(), AVATAR_COLORS, defaultIntroTitle(), EmployeeProjectOption, Field(), FormState, INITIAL_FORM, IntroAnnouncementFields() (+4 more)
+Cohesion: 0.11
+Nodes (14): AddEmployeeDialog(), AddEmployeeDialogProps, AVATAR_COLORS, defaultIntroTitle(), EmployeeProjectOption, Field(), FormState, INITIAL_FORM (+6 more)
 
 ### Community 24 - "Review Detail Drawer"
 Cohesion: 0.21
@@ -335,8 +333,8 @@ Cohesion: 0.07
 Nodes (27): UserProfile, ACTION_STATUS_OPTIONS, ActionsPanelProps, AgendaPanelProps, AttachmentsPanelProps, DRAWER_TABS, DrawerFooterProps, DrawerHeaderProps (+19 more)
 
 ### Community 27 - "Profile Atoms"
-Cohesion: 0.09
-Nodes (21): AddChip(), AddChipProps, Chip(), CHIP_VARIANT_CLASSES, ChipProps, ChipVariant, CountBadge(), CountBadgeProps (+13 more)
+Cohesion: 0.06
+Nodes (40): AddChip(), AddChipProps, Chip(), CHIP_VARIANT_CLASSES, ChipProps, ChipVariant, CountBadge(), CountBadgeProps (+32 more)
 
 ### Community 28 - "Confirm Dialogs"
 Cohesion: 0.06
@@ -347,12 +345,12 @@ Cohesion: 0.13
 Nodes (29): API_BASE_URL, ApiRegistration, authHeaders(), buildFilterQuery(), buildPayload(), createConferenceCourseRegistration(), deleteConferenceCourseRegistration(), extractErrorMessage() (+21 more)
 
 ### Community 30 - "Cluster: editmodepill"
-Cohesion: 0.10
-Nodes (30): AnnouncementItem, HeadcountRow, MyLeaveBalance, MyLeaveRequest, MyProjectRow, MyTrainingBudget, MyTrainingItem, OutTodayItem (+22 more)
+Cohesion: 0.11
+Nodes (28): AnnouncementItem, HeadcountRow, MyProjectRow, MyTrainingBudget, MyTrainingItem, OnboardingItem, TeamTimeRow, AnnouncementsWidget() (+20 more)
 
 ### Community 31 - "Cluster: bonus"
-Cohesion: 0.05
-Nodes (45): ActionDialogProps, DialogProps, COLUMNS, DEFAULT_COLUMNS, ExportFormat, ExportProjectsDialogProps, ExportScope, FormatTile() (+37 more)
+Cohesion: 0.06
+Nodes (30): celebrationsApi, UpcomingCelebration, buildEmployeeDisplayName(), SelectedSigner, toSelectedSigner(), UpcomingCelebrationsWidget(), UpcomingCelebrationsWidgetProps, WidgetVariant (+22 more)
 
 ### Community 32 - "Cluster: documentattentionstrips"
 Cohesion: 0.08
@@ -367,8 +365,8 @@ Cohesion: 0.13
 Nodes (30): fetchPerformanceReviews(), fetchLeaveBalances(), fetchLeaveRequests(), fetchPendingApprovals(), fetchVacationTeamMembers(), _availabilityWindow(), DashboardCtx, DashboardCtxProject (+22 more)
 
 ### Community 35 - "Cluster: options"
-Cohesion: 0.19
-Nodes (12): ProgressBar(), ProgressBarProps, PROJECT_ACTIVITY, PROJECT_DOCUMENTS, SEED_PROJECTS, STATUS_META, StatusVisual, ProjectCreateInput (+4 more)
+Cohesion: 0.07
+Nodes (34): ProgressBar(), ProgressBarProps, API_STATUS_TO_UI, CODE_STOP_WORDS, consonants(), CreateProjectDrawerProps, deriveProjectCode(), EMPTY (+26 more)
 
 ### Community 36 - "Cluster: personavatar"
 Cohesion: 0.06
@@ -383,16 +381,16 @@ Cohesion: 0.12
 Nodes (22): documentArchivePath(), documentDownloadPath(), documentPreviewPath(), documentReminderPath(), documentResetSignaturesPath(), documentSignaturePath(), documentSignaturesPath(), documentSignPath() (+14 more)
 
 ### Community 39 - "Cluster: tsx"
-Cohesion: 0.12
-Nodes (23): BENEFIT_TYPES, BenefitsCatalogSubTab(), fmtBam(), todayIso(), RowDraft, PoliciesSubTab(), todayIso(), cpfLevelsApi (+15 more)
+Cohesion: 0.06
+Nodes (54): BENEFIT_TYPES, BenefitsCatalogSubTab(), fmtBam(), todayIso(), RowDraft, ANNOUNCEMENT_TYPES, DiscordAnnouncementChannelsTab(), EMPTY_FORM (+46 more)
 
 ### Community 40 - "Cluster: orgchartemployeesheet"
 Cohesion: 0.11
 Nodes (20): AIAssistantProps, HRDashboardApp(), HRDashboardAppProps, CollapsibleSidebar(), CollapsibleSidebarProps, NavItem, primaryItems, getModuleById() (+12 more)
 
 ### Community 41 - "Cluster: fetchleavebalances"
-Cohesion: 0.04
-Nodes (41): ApplicantRow(), applicationStatusStyle(), CPFEmployeeOption, extractListingFormErrors(), getListingActionError(), JobCard(), ListingFormErrors, listingStatusPill() (+33 more)
+Cohesion: 0.05
+Nodes (20): ApplicantRow(), applicationStatusStyle(), CPFEmployeeOption, extractListingFormErrors(), getListingActionError(), JobCard(), ListingFormErrors, listingStatusPill() (+12 more)
 
 ### Community 42 - "Cluster: ts"
 Cohesion: 0.11
@@ -407,16 +405,16 @@ Cohesion: 0.15
 Nodes (24): bam(), CompensationReportsTab(), csvCell(), DepartmentRow, docParagraph(), docSection(), docTable(), downloadBlob() (+16 more)
 
 ### Community 45 - "Cluster: url"
-Cohesion: 0.17
-Nodes (11): DEFAULT_OPTIONS, PROFILE_VIEWER_ROLE_LABELS, ProfileViewerRole, RoleSwitch(), RoleSwitchProps, ACCESS_MAP, EMPLOYEE_ACCESS, FieldVisibility (+3 more)
+Cohesion: 0.12
+Nodes (21): DEFAULT_OPTIONS, PROFILE_VIEWER_ROLE_LABELS, ProfileViewerRole, RoleSwitch(), RoleSwitchProps, ProfileEmergencyContactSection(), ProfileEmergencyContactSectionProps, defaultIntroTitle() (+13 more)
 
 ### Community 46 - "Cluster: ts"
 Cohesion: 0.09
 Nodes (22): useLeaveAnalyticsData(), useTeamAvailability(), UseTeamAvailabilityResult, ALL_TYPE_IDS, AnalyticsModule(), AnalyticsModuleProps, _availabilityWindow(), MONTH_OPTIONS (+14 more)
 
 ### Community 47 - "Cluster: devdependencies"
-Cohesion: 0.11
-Nodes (28): ProjectActionMenuProps, AddMemberDialogProps, ConfirmActionDialogProps, EditAssignmentDialogProps, EditProjectDialogProps, EndAssignmentDialogProps, ProjectDocumentUploadDialogProps, ProjectCardProps (+20 more)
+Cohesion: 0.18
+Nodes (12): ProjectDetailHeader(), ProjectDetailHeaderProps, ProjectDetailView(), ProjectRail(), ProjectRailProps, fmtDate(), ProjectActivityEvent, ProjectActivitySection() (+4 more)
 
 ### Community 48 - "Cluster: compileroptions"
 Cohesion: 0.16
@@ -431,20 +429,20 @@ Cohesion: 0.22
 Nodes (14): AiChatApiError, AiChatHistoryMessage, AiChatRequest, AiChatResponse, AiChatSessionDetail, AiChatSessionSummary, baseUrl(), deleteAiChatSession() (+6 more)
 
 ### Community 51 - "Cluster: applicationstab"
-Cohesion: 0.07
-Nodes (29): AdminCompensationTab(), CPFLevelsSubTab(), AdminDepartmentsTab(), AssetData, INITIAL_ASSETS, INITIAL_ROLES, RoleData, UserData (+21 more)
+Cohesion: 0.13
+Nodes (16): AdminCompensationTab(), CPFLevelsSubTab(), AdminDepartmentsTab(), AssetData, INITIAL_ASSETS, INITIAL_ROLES, RoleData, UserData (+8 more)
 
 ### Community 52 - "Cluster: collapsiblesidebar"
 Cohesion: 0.07
 Nodes (26): mockApproveAssetReturn, mockAssignAssetToEmployee, mockCancelScheduledMaintenance, mockCompleteScheduledMaintenance, mockCreateAsset, mockCreateReplacementLog, mockCreateScheduledMaintenance, mockDownloadAssetQrCode (+18 more)
 
 ### Community 53 - "Cluster: calendar"
-Cohesion: 0.32
-Nodes (11): DOCUMENT_CATEGORY_COLORS, DocumentCategoryBadge(), DocumentExpiryCell(), DocumentFileTile(), DocumentSignatureCell(), documentUploaderFirstName(), DocumentVersionBadge(), formatDocumentDate() (+3 more)
+Cohesion: 0.26
+Nodes (13): DOCUMENT_CATEGORY_COLORS, DocumentCategoryBadge(), DocumentExpiryCell(), DocumentFileTile(), DocumentSignatureCell(), documentUploaderFirstName(), DocumentVersionBadge(), formatDocumentDate() (+5 more)
 
 ### Community 54 - "Cluster: employeeavatar"
 Cohesion: 0.09
-Nodes (27): EMPLOYEE_STATUS_VISUALS, EmployeeStatusKey, getEmployeeStatusVisual(), StatusVisual, ProfilesListView, ViewToggle(), ViewToggleProps, applyEmployeesListPipeline() (+19 more)
+Nodes (26): EMPLOYEE_STATUS_VISUALS, EmployeeStatusKey, getEmployeeStatusVisual(), StatusVisual, ProfilesListView, ViewToggle(), ViewToggleProps, applyEmployeesListPipeline() (+18 more)
 
 ### Community 55 - "Cluster: getuserpermissions"
 Cohesion: 0.16
@@ -455,16 +453,16 @@ Cohesion: 0.08
 Nodes (24): AIAssistant.tsx, AnalyticsModule.tsx, AnnouncementsModule.tsx, App.tsx, AssetsModule.tsx, Button categories reference, By file, Category definitions (+16 more)
 
 ### Community 57 - "Cluster: ts"
-Cohesion: 0.14
-Nodes (24): DocumentDrawer(), SignedDocumentPreviewSurface(), documentInlinePreviewPresentation, DocumentsListSource, buildGeneratedTableRow(), buildMergedTableRows(), buildUploadTableRow(), DocumentDrawerPreviewChrome (+16 more)
+Cohesion: 0.11
+Nodes (32): DocumentDrawer(), DocumentsListSource, filterDocumentsByAccess(), SessionUserRoleFlags, DocumentStats(), SignatureDialog(), SignatureRequestDialog(), SortKey (+24 more)
 
 ### Community 58 - "Cluster: ts"
 Cohesion: 0.11
 Nodes (21): CHART_PADDING, formatLongDate(), Props, Series, SeriesPoint, DepartmentBreakdown(), Props, MONTH_LABELS (+13 more)
 
 ### Community 59 - "Cluster: certificatelist"
-Cohesion: 0.13
-Nodes (15): MemberAvatar(), MemberAvatarProps, PALETTE, MemberStack(), MemberStackProps, ProjectIcon(), ProjectIconProps, SIZES (+7 more)
+Cohesion: 0.14
+Nodes (14): MemberAvatar(), MemberAvatarProps, PALETTE, MemberStack(), ProjectIcon(), ProjectIconProps, SIZES, SkeletonProjectCard() (+6 more)
 
 ### Community 60 - "Cluster: certificatesapi"
 Cohesion: 0.10
@@ -487,8 +485,8 @@ Cohesion: 0.11
 Nodes (18): compensationApi, bam(), CompensationModule(), CompensationModuleProps, DEFAULT_FILTERS, pctLabel(), roleFrom(), TabId (+10 more)
 
 ### Community 65 - "Cluster: signaturestatus"
-Cohesion: 0.15
-Nodes (16): DocumentFileDisplayType, SignatureStatus, DocumentSignaturePanel(), DocumentSignaturePanelProps, formatSignatureDate(), EditVisibilityDialogProps, EmployeeDocument, SignatureActionButton() (+8 more)
+Cohesion: 0.14
+Nodes (17): DocumentAttentionStrips(), DocumentFileDisplayType, SignatureStatus, DocumentSignaturePanel(), DocumentSignaturePanelProps, formatSignatureDate(), EditVisibilityDialogProps, EmployeeDocument (+9 more)
 
 ### Community 66 - "Cluster: tsx"
 Cohesion: 0.05
@@ -499,8 +497,8 @@ Cohesion: 0.17
 Nodes (19): EmployeeBudgetCard(), EmployeeBudgetCardProps, TrainingBudgetFormProps, BUDGET_STATE_BAR_COLORS, BUDGET_STATE_BG_COLORS, BUDGET_STATE_LABELS, BUDGET_STATE_TEXT_COLORS, BudgetState (+11 more)
 
 ### Community 68 - "Cluster: deletebuttons"
-Cohesion: 0.07
-Nodes (22): Employee, fetchEmployees(), FetchEmployeesOptions, ColumnGroup(), DEFAULT_COLUMNS, EXPORT_COLUMNS, ExportColumn, ExportEmployeesDialog() (+14 more)
+Cohesion: 0.09
+Nodes (22): COLUMNS, DEFAULT_COLUMNS, ExportFormat, ExportProjectsDialogProps, ExportScope, FormatTile(), FormatTileProps, ScopeRow() (+14 more)
 
 ### Community 69 - "Cluster: tsx"
 Cohesion: 0.12
@@ -511,28 +509,28 @@ Cohesion: 0.14
 Nodes (22): MOCK_DEPARTMENTS, MOCK_EMPLOYEES, MOCK_PROJECTS, MOCK_RECENT_UPDATES, Props, Props, Props, AvatarProps (+14 more)
 
 ### Community 71 - "Cluster: barrel"
-Cohesion: 0.21
-Nodes (8): addPermission(), EMPLOYEE_PERMISSIONS, getBitValue(), getPermissionBits(), hasPermission(), PERMISSION_REQUIREMENTS, removePermission(), canViewProfileHistoryForEmployee()
+Cohesion: 0.08
+Nodes (24): addPermission(), EMPLOYEE_PERMISSIONS, getBitValue(), getPermissionBits(), hasPermission(), PERMISSION_REQUIREMENTS, removePermission(), CV_ADD_MODE_OPTIONS (+16 more)
 
 ### Community 72 - "Cluster: tsx"
 Cohesion: 0.13
 Nodes (7): detectRelationKind(), humanizeKey(), AnySchema, buildUiSchema(), SchemaForm(), widgets, PERMISSIONS_LIST
 
 ### Community 73 - "Cluster: tsx"
-Cohesion: 0.11
-Nodes (27): CompensationPolicy, Field(), FieldEmpty(), FieldProps, FieldRestricted(), FieldRestrictedProps, FieldValue(), FieldValueProps (+19 more)
+Cohesion: 0.29
+Nodes (4): ApiCertificate, certificateDetailPath(), certificateDownloadPath(), resolveApiMediaUrl()
 
 ### Community 74 - "Cluster: buildquerystring"
-Cohesion: 0.12
-Nodes (26): ANNOUNCEMENT_TYPES, DiscordAnnouncementChannelsTab(), EMPTY_FORM, EnabledFilter, formatType(), FormErrors, FormState, AnnouncementType (+18 more)
+Cohesion: 0.08
+Nodes (34): ProfileDialogSaveControlsProps, ANNOUNCEMENT_TYPES, AnnouncementsModule(), applyReactionToggle(), EMPTY_FORM, engagementFor(), formatDateTime(), getStatus() (+26 more)
 
 ### Community 75 - "Cluster: savefooter"
 Cohesion: 0.09
 Nodes (22): devDependencies, @commitlint/cli, eslint, eslint-config-next, eslint-config-prettier, husky, jsdom, lint-staged (+14 more)
 
 ### Community 76 - "Cluster: styles"
-Cohesion: 0.14
-Nodes (17): AVATAR_PALETTE, EmployeeAvatar(), EmployeeAvatarProps, pickPalette(), SignerAvatar(), EmployeeCard(), EmployeeCardProps, EmployeesListGrid() (+9 more)
+Cohesion: 0.10
+Nodes (28): AVATAR_PALETTE, EmployeeAvatar(), EmployeeAvatarProps, pickPalette(), SignerAvatar(), EmployeeCard(), EmployeeCardProps, EmployeesListGrid() (+20 more)
 
 ### Community 77 - "Cluster: builddocumentallowedroles"
 Cohesion: 0.11
@@ -551,8 +549,8 @@ Cohesion: 0.10
 Nodes (20): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+12 more)
 
 ### Community 81 - "Cluster: allactions"
-Cohesion: 0.13
-Nodes (15): ANNOUNCEMENT_TYPES, AnnouncementsModule(), applyReactionToggle(), EMPTY_FORM, engagementFor(), formatDateTime(), getStatus(), getTypeMeta() (+7 more)
+Cohesion: 0.12
+Nodes (11): ContextMenu(), ContextMenuCheckboxItem(), ContextMenuContent(), ContextMenuItem(), ContextMenuLabel(), ContextMenuRadioItem(), ContextMenuSeparator(), ContextMenuShortcut() (+3 more)
 
 ### Community 82 - "Cluster: columngroup"
 Cohesion: 0.18
@@ -575,24 +573,24 @@ Cohesion: 0.13
 Nodes (10): isFutureDate(), isPastDate(), isValidDate(), isValidDateRange(), validateFile(), validateFileSize(), validateFileType(), ValidationResult (+2 more)
 
 ### Community 87 - "Cluster: segmented"
-Cohesion: 0.14
-Nodes (16): OnboardingItem, ReviewsDueItem, TeamTimeRow, InitialsAvatar(), initialsOf(), PALETTE, pickPalette(), Props (+8 more)
+Cohesion: 0.29
+Nodes (8): ReviewsDueItem, InitialsAvatar(), initialsOf(), PALETTE, pickPalette(), Props, Props, ReviewsDueWidget()
 
 ### Community 88 - "Cluster: employeeslistheader"
 Cohesion: 0.19
 Nodes (11): projectApi, AssignmentTableProps, DropdownMenu(), DropdownMenuCheckboxItem(), DropdownMenuContent(), DropdownMenuItem(), DropdownMenuSeparator(), DropdownMenuShortcut() (+3 more)
 
 ### Community 89 - "Cluster: options"
-Cohesion: 0.11
-Nodes (25): getUserPermissions(), CPFLevel, AddEmployeeDialogProps, EmployeesTableSectionProps, ProfilePageHeaderProps, ProfilesDetailViewProps, EmployeeModalFetchResult, fetchLegacyProfilesPageSnapshot() (+17 more)
+Cohesion: 0.09
+Nodes (26): CompensationPolicy, getUserPermissions(), CPFLevel, EmployeeCVVersion, CvDeleteDialogProps, ProfileCvSectionProps, ProfilesDetailViewProps, sortCvVersionsDesc() (+18 more)
 
 ### Community 90 - "Cluster: path"
 Cohesion: 0.14
 Nodes (17): TimeEntry, addDays(), canDeleteGridEntry(), canEditGridEntry(), decimalHours(), displayCalendarTime(), emptyEntryForm(), formatWeekRange() (+9 more)
 
 ### Community 91 - "Cluster: tsx"
-Cohesion: 0.23
-Nodes (8): StatusEditorDialogProps, ProjectStageTrack(), ProjectStageTrackProps, STAGE_ICONS, ProjectStageId, FieldProps, ProjectOverviewSectionProps, SectionProps
+Cohesion: 0.13
+Nodes (19): MemberStackProps, AddMemberDialogProps, ConfirmActionDialogProps, EditAssignmentDialogProps, EditProjectDialogProps, EndAssignmentDialogProps, ProjectDocumentUploadDialogProps, StatusEditorDialogProps (+11 more)
 
 ### Community 92 - "Cluster: tsx"
 Cohesion: 0.12
@@ -607,16 +605,16 @@ Cohesion: 0.13
 Nodes (10): ExtendedSession, formatLocalDate(), TEMPO_SYNC_STATUS_CLASSES, TEMPO_SYNC_STATUS_LABELS, VacationsModule(), VacationsModuleProps, Alert(), AlertDescription() (+2 more)
 
 ### Community 95 - "Community 95"
-Cohesion: 0.09
-Nodes (22): DocumentAttentionStrips(), DOCUMENT_ACCESS_ROLE_RANK, DOCUMENT_CATEGORIES, DocumentCategoryOption, DocumentType, FilterableDocument, filterDocumentsByAccess(), getDocumentUserRole() (+14 more)
+Cohesion: 0.11
+Nodes (15): SignedDocumentPreviewSurface(), DOCUMENT_ACCESS_ROLE_DESCRIPTIONS, DOCUMENT_ACCESS_ROLE_LABELS, DOCUMENT_ACCESS_ROLE_RANK, DocumentCategoryOption, documentInlinePreviewPresentation, DocumentType, FilterableDocument (+7 more)
 
 ### Community 96 - "Community 96"
 Cohesion: 0.12
 Nodes (15): API Helpers Directory Structure, Authentication, Benefits Summary, Creating Data, Deleting Data, Error Handling, Fetching Data, `httpClient.ts` - HTTP Communication Layer (+7 more)
 
 ### Community 97 - "Cluster: buttons"
-Cohesion: 0.29
-Nodes (8): ProfileHistorySection(), ProfileHistorySectionProps, EmployeeProfileChangeHistoryItem, PROFILE_HISTORY_FIELD_LABELS, ProfileHistoryField, profileHistoryFieldLabel(), profileHistoryValueText(), TRACKED_PROFILE_HISTORY_FIELDS
+Cohesion: 0.14
+Nodes (15): Employee, fetchEmployees(), FetchEmployeesOptions, ProfileHistorySection(), ProfileHistorySectionProps, EmployeeEmailAvailability, EmployeeExportResult, EmployeeExportScope (+7 more)
 
 ### Community 98 - "Cluster: component"
 Cohesion: 0.23
@@ -691,16 +689,16 @@ Cohesion: 0.11
 Nodes (12): bonusApi, BonusRecord, BonusTypeId, AVATAR_PALETTE, BONUS_TYPE_FILTERS, BonusIncentivesTab(), BonusIncentivesTabProps, TYPE_PILL_STYLES (+4 more)
 
 ### Community 117 - "Cluster: test"
-Cohesion: 0.21
-Nodes (10): SkeletonCard(), SkeletonCardProps, SkeletonRow(), EmployeesListHeader(), EmployeesListHeaderProps, uniqueDepartments(), EmployeesListPage(), EmployeesListPageProps (+2 more)
+Cohesion: 0.36
+Nodes (3): Department, DepartmentPayload, departmentsApi
 
 ### Community 118 - "Cluster: consumeopenemployeereques"
-Cohesion: 0.16
-Nodes (11): EmployeeCVVersion, CvDeleteDialogProps, CV_ADD_MODE_OPTIONS, CvAddMode, CvFilePickerProps, CvLinkPickerProps, CvRow(), CvRowProps (+3 more)
+Cohesion: 0.32
+Nodes (6): notificationMarkReadPath(), handleListResponse(), ApiNotification, isNotificationType(), mapNotification(), NotificationType
 
 ### Community 119 - "Cluster: timetrackingmodule"
-Cohesion: 0.26
-Nodes (11): ProjectActionMenu(), ProjectCard(), fmtRelative(), ProjectsListGrid(), ProjectsListHeader(), ProjectsListHeaderProps, ProjectsListPage(), ProjectsListState (+3 more)
+Cohesion: 0.18
+Nodes (17): ProjectActionMenu(), ProjectActionMenuProps, ProjectCard(), ProjectCardProps, fmtRelative(), ProjectsListGrid(), ProjectsListGridProps, ProjectsListHeader() (+9 more)
 
 ### Community 120 - "Cluster: component"
 Cohesion: 0.23
@@ -719,8 +717,8 @@ Cohesion: 0.22
 Nodes (8): ChartConfig, ChartContainer(), ChartContext, ChartContextProps, ChartLegendContent(), ChartTooltipContent(), THEMES, useChart()
 
 ### Community 124 - "Community 124"
-Cohesion: 0.29
-Nodes (6): ApiPromotionRecord, promotionsApi, CreatePromotionPayload, PromotionFilters, PromotionRecord, UpdatePromotionPayload
+Cohesion: 0.39
+Nodes (6): TRAINING_BUDGETS_API_BASE_PATH, TRAINING_BUDGETS_ME_PATH, trainingBudgetDetailPath(), ApiTrainingBudget, toNumber(), transformTrainingBudget()
 
 ### Community 125 - "Cluster: ApiError"
 Cohesion: 0.15
@@ -731,8 +729,8 @@ Cohesion: 0.20
 Nodes (9): 1. Models, 2. Resolution helpers (`core/services/compensation_service.py`), 3. Endpoints, 4. Serializer additions, 5. Migrations, 6. Tests (`tests/test_compensation_admin_api.py`), 7. Out of scope, 8. Frontend expectations (+1 more)
 
 ### Community 127 - "Cluster: component"
-Cohesion: 0.22
-Nodes (9): NavigationMenu(), NavigationMenuContent(), NavigationMenuIndicator(), NavigationMenuItem(), NavigationMenuLink(), NavigationMenuList(), NavigationMenuTrigger(), navigationMenuTriggerStyle (+1 more)
+Cohesion: 0.20
+Nodes (3): EditableField, EmployeeProfileFormData, ProfileFieldErrors
 
 ### Community 128 - "Cluster: ts"
 Cohesion: 0.32
@@ -743,8 +741,8 @@ Cohesion: 0.20
 Nodes (9): 1. Unused imports (fastest), 2. Unused variables, 3. `<img>` tags → `next/image`, 4. React Hook exhaustive-deps, 5. Unused type definitions, Current Warning Breakdown (36 total), Diagnostic, Fix Order (+1 more)
 
 ### Community 130 - "Community 130"
-Cohesion: 0.40
-Nodes (3): AccordionContent(), AccordionItem(), AccordionTrigger()
+Cohesion: 0.47
+Nodes (4): asString(), CPFLevelUpdate, normalizeLevel(), normalizeLevelList()
 
 ### Community 131 - "Community 131"
 Cohesion: 0.17
@@ -763,8 +761,8 @@ Cohesion: 0.25
 Nodes (4): geistMono, geistSans, metadata, Toaster()
 
 ### Community 136 - "Community 136"
-Cohesion: 0.40
-Nodes (3): InputOTP(), InputOTPGroup(), InputOTPSlot()
+Cohesion: 0.22
+Nodes (10): MyLeaveBalance, MyLeaveRequest, OutTodayItem, LEAVE_TYPE_BADGE_COLORS, LeaveTypeTag(), Props, MyTimeOffWidget(), Props (+2 more)
 
 ### Community 137 - "Cluster: module"
 Cohesion: 0.25
@@ -815,8 +813,8 @@ Cohesion: 0.43
 Nodes (5): ToggleGroup(), ToggleGroupContext, ToggleGroupItem(), Toggle(), toggleVariants
 
 ### Community 151 - "Cluster: module"
-Cohesion: 0.05
-Nodes (30): LoginCredentials, logoutUser(), RegistrationPayload, CelebrationAccessDeniedError, CelebrationEmployee, CelebrationEventType, CelebrationTypeFilter, UpcomingCelebrationsParams (+22 more)
+Cohesion: 0.06
+Nodes (23): LoginCredentials, logoutUser(), RegistrationPayload, CelebrationAccessDeniedError, CelebrationEmployee, CelebrationEventType, CelebrationTypeFilter, UpcomingCelebrationsParams (+15 more)
 
 ### Community 152 - "Cluster: filterchip"
 Cohesion: 0.33
@@ -881,16 +879,16 @@ Nodes (6): DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogO
 ## Knowledge Gaps
 - **1099 isolated node(s):** `eslintConfig`, `nextConfig`, `name`, `version`, `private` (+1094 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **18 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **16 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `cn()` connect `Project Drawer Helpers` to `Project Atoms`, `Community 130`, `Performance Reviews API`, `Templates Rich Text Editor`, `Cluster: strips`, `Community 136`, `Caveman Compress Scripts`, `Sidebar & Sheet UI`, `Permissions API`, `Community 142`, `Cluster: component`, `Cluster: sidebar`, `Peer Sessions API`, `Profile Atoms`, `Confirm Dialogs`, `Cluster: bonus`, `Cluster: eslintconfig`, `Community 160`, `Cluster: options`, `Community 163`, `Community 164`, `Cluster: tsx`, `Cluster: component`, `Cluster: url`, `Cluster: applicationstab`, `Cluster: employeeavatar`, `Cluster: certificatelist`, `Community 190`, `Cluster: signaturestatus`, `Cluster: tsx`, `Cluster: deletebuttons`, `Community 198`, `Cluster: tsx`, `Cluster: buildquerystring`, `Community 201`, `Cluster: styles`, `Community 206`, `Cluster: text`, `Community 208`, `Cluster: tsx`, `Community 213`, `Cluster: employeeslistheader`, `Cluster: tsx`, `Cluster: config`, `Cluster: component`, `Cluster: cancelbutton`, `Cluster: countByField`, `Cluster: leavebalanceadjustpath`, `Cluster: adminaccessresult`, `Cluster: test`, `Cluster: timetrackingmodule`, `Cluster: component`, `Cluster: test`, `Cluster: component`?**
+- **Why does `cn()` connect `Project Drawer Helpers` to `Project Atoms`, `Performance Reviews API`, `Cluster: strips`, `Caveman Compress Scripts`, `Sidebar & Sheet UI`, `Cluster: component`, `Cluster: sidebar`, `Peer Sessions API`, `Profile Atoms`, `Confirm Dialogs`, `Cluster: eslintconfig`, `Cluster: bonus`, `Cluster: options`, `Cluster: tsx`, `Cluster: component`, `Cluster: url`, `Cluster: applicationstab`, `Cluster: employeeavatar`, `Cluster: certificatelist`, `Community 190`, `Cluster: signaturestatus`, `Cluster: tsx`, `Cluster: deletebuttons`, `Community 198`, `Community 201`, `Cluster: buildquerystring`, `Cluster: styles`, `Community 206`, `Cluster: text`, `Community 208`, `Cluster: allactions`, `Cluster: tsx`, `Community 213`, `Cluster: employeeslistheader`, `Cluster: tsx`, `Cluster: config`, `Cluster: component`, `Cluster: cancelbutton`, `Cluster: countByField`, `Cluster: leavebalanceadjustpath`, `Cluster: adminaccessresult`, `Cluster: timetrackingmodule`, `Cluster: component`, `Cluster: test`?**
   _High betweenness centrality (0.124) - this node is a cross-community bridge._
-- **Why does `Button` connect `Cluster: tsx` to `Project Member Avatars`, `Cluster: ts`, `Project Atoms`, `Templates Rich Text Editor`, `Performance Reviews API`, `Caveman Compress Scripts`, `Sidebar & Sheet UI`, `Project Drawer Helpers`, `Status Pill Atom`, `Auth API`, `Documents Display`, `Peer Sessions API`, `Export Projects Dialog`, `Confirm Dialogs`, `Employees API`, `Cluster: bonus`, `Cluster: documentattentionstrips`, `Cluster: announcementsmodule`, `Cluster: orgchartemployeesheet`, `Cluster: fetchleavebalances`, `Cluster: ts`, `Cluster: devdependencies`, `Cluster: employeestablesection`, `Cluster: applicationstab`, `Cluster: orgcanvasapi`, `Cluster: employeeprofilepage`, `Cluster: signaturestatus`, `Cluster: tsx`, `Cluster: apijobapplication`, `Cluster: deletebuttons`, `Cluster: buildquerystring`, `Cluster: styles`, `Cluster: url`, `Cluster: allactions`, `Cluster: columngroup`, `Cluster: url`, `Cluster: employeeslistheader`, `Cluster: tsx`, `Cluster: config`, `Cluster: cancelbutton`, `Cluster: countByField`, `Cluster: test`, `Cluster: consumeopenemployeereques`, `Cluster: timetrackingmodule`?**
+- **Why does `Button` connect `Cluster: buildquerystring` to `Project Member Avatars`, `Cluster: ts`, `Project Atoms`, `Performance Reviews API`, `Caveman Compress Scripts`, `Sidebar & Sheet UI`, `Project Drawer Helpers`, `Status Pill Atom`, `Auth API`, `Documents Display`, `Peer Sessions API`, `Export Projects Dialog`, `Confirm Dialogs`, `Employees API`, `Cluster: bonus`, `Cluster: documentattentionstrips`, `Cluster: options`, `Cluster: announcementsmodule`, `Cluster: tsx`, `Cluster: orgchartemployeesheet`, `Cluster: fetchleavebalances`, `Cluster: ts`, `Cluster: devdependencies`, `Cluster: employeestablesection`, `Cluster: applicationstab`, `Cluster: orgcanvasapi`, `Cluster: employeeprofilepage`, `Cluster: signaturestatus`, `Cluster: tsx`, `Community 195`, `Cluster: deletebuttons`, `Cluster: apijobapplication`, `Cluster: barrel`, `Cluster: styles`, `Cluster: url`, `Cluster: columngroup`, `Cluster: url`, `Cluster: employeeslistheader`, `Cluster: tsx`, `Cluster: config`, `Cluster: cancelbutton`, `Cluster: countByField`, `Cluster: timetrackingmodule`?**
   _High betweenness centrality (0.052) - this node is a cross-community bridge._
-- **Why does `EmployeeProfileData` connect `Cluster: options` to `Project Member Avatars`, `Project Atoms`, `Cluster: deletebuttons`, `Performance Reviews API`, `Cluster: tsx`, `Cluster: cancelbutton`, `Cluster: tsx`, `Assets API`, `Sidebar & Sheet UI`, `Cluster: styles`, `Documents Helpers`, `Skills Lock Hashes`, `Cluster: test`, `Cluster: employeeavatar`, `Peer Sessions API`, `Cluster: employeeslistheader`, `Cluster: bonus`?**
+- **Why does `EmployeeProfileData` connect `Cluster: styles` to `Project Member Avatars`, `Project Atoms`, `Performance Reviews API`, `Assets API`, `Sidebar & Sheet UI`, `Documents Helpers`, `Skills Lock Hashes`, `Peer Sessions API`, `Profile Atoms`, `Cluster: bonus`, `Cluster: options`, `Cluster: tsx`, `Cluster: url`, `Cluster: employeeavatar`, `Cluster: deletebuttons`, `Cluster: barrel`, `Cluster: employeeslistheader`, `Cluster: options`, `Cluster: cancelbutton`, `Cluster: component`?**
   _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **Are the 3 inferred relationships involving `cn()` (e.g. with `StatusPill()` and `EmptyState()`) actually correct?**
   _`cn()` has 3 INFERRED edges - model-reasoned connections that need verification._

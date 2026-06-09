@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Download, UserPlus, PlusCircle } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -22,6 +23,7 @@ import { BonusIncentivesTab } from "./BonusIncentivesTab";
 import { SalaryBandsTab } from "./SalaryBandsTab";
 import { computeSalaryBands, toLegacyBands } from "./salaryBands";
 import { exportCompensationCsv } from "./exportCompensationCsv";
+import { isHrLikeRole } from "@/lib/permissions/assets-permissions";
 import "./compensation.css";
 
 type TabId = "overview" | "bands" | "bonuses" | "reports";
@@ -49,6 +51,17 @@ function pctLabel(value: number, suffix: string): string {
   return `— 0.00%${suffix ? "" : ""}`;
 }
 
+function roleFrom(value: unknown): string | null {
+  if (!value) return null;
+  if (typeof value === "string") return value;
+  if (typeof value === "object") {
+    const candidate = value as { name?: unknown; role?: unknown };
+    if (typeof candidate.name === "string") return candidate.name;
+    if (typeof candidate.role === "string") return candidate.role;
+  }
+  return null;
+}
+
 interface CompensationModuleProps {
   onNavigate?: (moduleId: string) => void;
 }
@@ -57,6 +70,22 @@ export function CompensationModule({
   onNavigate,
 }: CompensationModuleProps = {}) {
   const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
+  const sessionUser = (
+    session as {
+      user?: {
+        role?: unknown;
+        career_level?: unknown;
+        is_staff?: boolean | null;
+        is_superuser?: boolean | null;
+      };
+    } | null
+  )?.user;
+  const role =
+    roleFrom(sessionUser?.role) ?? roleFrom(sessionUser?.career_level);
+  const canAccessCompensation = Boolean(
+    sessionUser?.is_staff || sessionUser?.is_superuser || isHrLikeRole(role)
+  );
   const [overview, setOverview] = useState<CompensationOverview | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -102,12 +131,20 @@ export function CompensationModule({
   }, []);
 
   useEffect(() => {
+    if (sessionStatus === "loading") return;
+    if (!canAccessCompensation) {
+      setOverview(null);
+      setError(null);
+      setIsLoading(false);
+      return;
+    }
+
     const signal = { cancelled: false };
     loadOverview(signal);
     return () => {
       signal.cancelled = true;
     };
-  }, [loadOverview]);
+  }, [canAccessCompensation, loadOverview, sessionStatus]);
 
   const filteredRows = useMemo(() => {
     if (!overview) return [];
@@ -160,8 +197,21 @@ export function CompensationModule({
     return mins === 1 ? "Updated 1 min ago" : `Updated ${mins} min ago`;
   }, [updatedAt, now]);
 
-  if (isLoading && !overview) {
+  if (sessionStatus === "loading" || (isLoading && !overview)) {
     return <CompensationSkeleton />;
+  }
+
+  if (!canAccessCompensation) {
+    return (
+      <div className="mx-auto max-w-[1480px] px-7 pb-12 pt-6">
+        <div className="rounded-xl border border-[#e5e7eb] bg-white px-5 py-6 text-sm text-[#52525b]">
+          <div className="mb-1 text-base font-semibold text-[#171717]">
+            HR-only view
+          </div>
+          Compensation data is available to HR and administrators only.
+        </div>
+      </div>
+    );
   }
 
   if (error && !overview) {

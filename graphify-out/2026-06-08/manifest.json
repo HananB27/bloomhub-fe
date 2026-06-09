@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/AssetsModule.tsx": {
-    "mtime": 1780998002.844701,
-    "ast_hash": "b85e8f7dbfdb5a9fbd6a5fc81d5eaff4",
+    "mtime": 1780952040.5735962,
+    "ast_hash": "d88c985b177cc0c22eca13241efc9de2",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/CollapsibleSidebar.tsx": {
@@ -380,8 +380,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/compensation/CompensationModule.tsx": {
-    "mtime": 1780953315.4184647,
-    "ast_hash": "420f6b88ed68b1be289aedbcb94721f3",
+    "mtime": 1780357045.768335,
+    "ast_hash": "1329a8538e16b6b413b241f038c06de8",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/compensation/CompensationPlaceholderTab.tsx": {
@@ -2235,8 +2235,8 @@
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/tests/components/hr-dashboard/AssetsModule.test.tsx": {
-    "mtime": 1780993367.1860409,
-    "ast_hash": "f1c416ff6f6e80c851336e842d4db51f",
+    "mtime": 1780384494.3056192,
+    "ast_hash": "c1f6a0fc269bdfe15e978b9bbe9040b2",
     "semantic_hash": ""
   },
   "/home/macatop/WebstormProjects/bloomhub-fe/tests/components/hr-dashboard/CollapsibleSidebar.test.tsx": {
@@ -2604,6 +2604,151 @@
     "ast_hash": "a2760511c65806022ad20adf74370ff3",
     "semantic_hash": ""
   },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/asset-management-redesign/add-asset.jsx": {
+    "mtime": 1780950517.0,
+    "ast_hash": "03ea933d89bd6a61ee0f2e31716cc36b",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/asset-management-redesign/app.jsx": {
+    "mtime": 1780950517.0,
+    "ast_hash": "56663735ccbbe1df1fe1b11fb57d1eef",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/asset-management-redesign/data.js": {
+    "mtime": 1780950517.0,
+    "ast_hash": "88e0ab8ac4228ccdb284a0205d0c9697",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/asset-management-redesign/dialogs.jsx": {
+    "mtime": 1780950517.0,
+    "ast_hash": "b5dc7298ef903c3f9365a034bdb34fab",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/asset-management-redesign/inventory.jsx": {
+    "mtime": 1780950517.0,
+    "ast_hash": "2e61272418c694c173ffb30c4aa421e4",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/asset-management-redesign/panels.jsx": {
+    "mtime": 1780950517.0,
+    "ast_hash": "f5131f90d79462a7b097129c52899579",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/asset-management-redesign/shell.jsx": {
+    "mtime": 1780950517.0,
+    "ast_hash": "ef09c7a1c66c68dc7480350870b2c077",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/asset-management-redesign/ui.jsx": {
+    "mtime": 1780950517.0,
+    "ast_hash": "70da7a4a6269bf597859665f67e1f0ba",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/assets.ts": {
+    "mtime": 1780950517.0,
+    "ast_hash": "83a58a878c295edd37747bed6402a8ff",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/AssetsModule.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "e4db507f5552f7fb8a3d11a870d68956",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/DatePicker.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "2e4f17a6b70a268ece8779419129dbee",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/QuickActionButton.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "c9fbcad423a9f859ae523a3316784169",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/figma/ImageWithFallback.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "28e3aa5cdcd4cdf75814f968c2d9b073",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/ui/alert-dialog.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "12ffc12ac28564e1aacd3a91d0486768",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/ui/avatar.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "667e95d55321b271cdeae21dfe8094b3",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/ui/badge.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "dce7387b7e0207cf0e725412da743f88",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/ui/button.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "57a7cf542ca1fb36af129ce2221edc79",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/ui/card.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "1b28ae8a623bd6c66fd09d9c3c4598af",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/ui/checkbox.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "8e19e4617563fa7bcbcfe101182368ed",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/ui/dialog.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "3b8cc1aac2df3897b980a10e5375525c",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/ui/dropdown-menu.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "a3f54c82a6ecb132a1be7f989900fcae",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/ui/input.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "56cad6396818abf82b6df01bf67b2ff1",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/ui/label.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "1b414a4920a58f4f6fdd70c4ef09b66c",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/ui/progress.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "f443b0f6f0e59d6b1a52c24721e6e224",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/ui/select.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "69731b213f48e7a3e530c541021c100c",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/ui/table.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "0b1878bd4754a21bce32704223483888",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/ui/tabs.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "64214ca4214423b8bd0d99489742083e",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/ui/textarea.tsx": {
+    "mtime": 1780950518.0,
+    "ast_hash": "848ff303b00d828b14fd71d1c0ecc214",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/components/hr-dashboard/ui/utils.ts": {
+    "mtime": 1780950518.0,
+    "ast_hash": "d9837f38cc05303254571985e3164050",
+    "semantic_hash": ""
+  },
   "/home/macatop/WebstormProjects/bloomhub-fe/src/components/hr-dashboard/admin/CPFLevelsSubTab.tsx": {
     "mtime": 1780390289.8957715,
     "ast_hash": "aaf10e6f458c2e91482eb78af05b1136",
@@ -2612,6 +2757,56 @@
   "/home/macatop/WebstormProjects/bloomhub-fe/GARDENER.md": {
     "mtime": 1780950573.5839427,
     "ast_hash": "041bf6db1de25a5a0bc3ea87f3333555",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/asset-management-redesign/Asset Management.html": {
+    "mtime": 1780950517.0,
+    "ast_hash": "eeeb6814e30ede3f915734a1b2b19286",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/asset-management/BRIEF.md": {
+    "mtime": 1780950517.0,
+    "ast_hash": "cc86bfd80437e651e56ba6ec6d550f69",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/asset-management-redesign/screens/01-inventory-table.png": {
+    "mtime": 1780950517.0,
+    "ast_hash": "ecae86422aaa831fde2e2ab647ca849c",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/asset-management-redesign/screens/02-table.png": {
+    "mtime": 1780950517.0,
+    "ast_hash": "ecae86422aaa831fde2e2ab647ca849c",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/asset-management-redesign/screens/03-table.png": {
+    "mtime": 1780950517.0,
+    "ast_hash": "c32272c493cc434b97a3945b69db5f4e",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/asset-management-redesign/screens/04-table.png": {
+    "mtime": 1780950517.0,
+    "ast_hash": "530f4d078f36f1d123d7c00ab3d34242",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/asset-management-redesign/screens/05-drawer.png": {
+    "mtime": 1780950517.0,
+    "ast_hash": "c32272c493cc434b97a3945b69db5f4e",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/asset-management-redesign/screens/06-add-asset.png": {
+    "mtime": 1780950517.0,
+    "ast_hash": "bdb4e8504abba1ad5a9c4e10c4a008af",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/pasted-1780948034416-0.png": {
+    "mtime": 1780950518.0,
+    "ast_hash": "453f1b87ea449ba6895069cd7b77e45f",
+    "semantic_hash": ""
+  },
+  "/home/macatop/WebstormProjects/bloomhub-fe/claude-design-bundle/Bloomhub/uploads/pasted-1780948088016-0.png": {
+    "mtime": 1780950518.0,
+    "ast_hash": "0a2184f426befe8299417dc6bf7dce45",
     "semantic_hash": ""
   }
 }
