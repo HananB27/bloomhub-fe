@@ -12,16 +12,17 @@
 - Capability: Conduct structured performance evaluations with audit trails and feedback.
 - Capability: Log training entries and certificates.
 - Capability: Track training budgets with filtering by type and year.
-- Capability: Admin bulk permission upload.
-- Capability: Modular DRY code with shared helpers and hooks.
+- Capability: Admin bulk permission upload (via backend integration).
+- Capability: Modular DRY code architecture with shared helpers and hooks.
 - Capability: React/TypeScript patterns with API consistency.
-- Capability: Lint and unit test enforcement.
-- Capability: Commit hygiene with conventional commits.
+- Capability: Lint and unit test enforcement for code quality.
+- Capability: Commit hygiene with conventional commit format.
 
 ## Out-of-Domain Examples
 
 - Real-time chat or messaging system
-- E-commerce product catalog and checkout
-- Social media feed or content publishing
-- IoT device monitoring dashboard
-- Financial trading or portfolio management
+- E-commerce or payment processing
+- Project management or task boards
+- Data analytics or business intelligence dashboards
+- Mobile or desktop native applications
+- AI model training or inference pipeline
