@@ -4,7 +4,7 @@
 ## Product Purpose
 
 - Maintained repository: `HananB27/bloomhub-fe`.
-- BloomHub frontend is a Next.js web application providing an HR dashboard for managing employee profiles, vacations, performance reviews, and training records. (auto-detected, confidence 90%; verify)
+- BloomHub frontend is a Next.js web application providing an HR dashboard with modules for employee profiles, vacation management, performance reviews, and training & development. (auto-detected, confidence 90%; verify)
 - Review and edit this draft before merging; merging makes these rules source truth.
 
 ## Constitution Files
