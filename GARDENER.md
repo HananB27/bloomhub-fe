@@ -4,7 +4,7 @@
 ## Product Purpose
 
 - Maintained repository: `HananB27/bloomhub-fe`.
-- cavecrew Decision guide. (auto-detected, confidence 30%; verify)
+- BloomHub FE is the frontend repository for a human resources dashboard application, providing a web interface for managing employee profiles, vacations, performance reviews, and training records. (auto-detected, confidence 85%; verify)
 - Review and edit this draft before merging; merging makes these rules source truth.
 
 ## Constitution Files
