@@ -58,7 +58,7 @@
 ## Health Priorities
 
 - Current entropy classification: `no_autonomy`.
-- Current entropy score: `55.3`.
+- Current entropy score: `54.6`.
 - Prefer focused, reviewable maintenance PRs.
 
 ## Trigger and PR Preferences
