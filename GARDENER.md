@@ -4,69 +4,12 @@
 ## Product Purpose
 
 - Maintained repository: `HananB27/bloomhub-fe`.
+- cavecrew Decision guide. (auto-detected, confidence 30%; verify)
 - Review and edit this draft before merging; merging makes these rules source truth.
 
-## Protected Modules
+## Constitution Files
 
-- `src/app/**` because it appears security-sensitive or business-critical.
-- `src/lib/**` because it appears security-sensitive or business-critical.
+Read only the file relevant to the task to keep context small.
 
-## Never-Touch Paths
-
-- `**/.env*` because secrets must never be modified by Gardener.
-- `**/secrets/**` because secret material requires human handling.
-- `**/migrations/**` because database migrations require explicit review.
-
-## Autonomous Fixes Allowed
-
-- documentation updates
-- lint and format-only changes
-- dependency patch updates with passing checks
-
-## Assisted Fixes Allowed
-
-- tests
-- dead code removal
-- complexity reduction
-- layer violation repair
-
-## Advisory-Only Areas
-
-- auth
-- permissions
-- tenancy
-- payroll
-- credentials
-- security-sensitive code
-- migrations
-
-## Architecture Boundaries
-
-- Runtime code must not import from `tests/**`.
-- Presentation/API layers must not bypass service/domain modules for persistence behavior.
-
-## Test Rules
-
-- Run the repository's default backend test suite before backend changes.
-- Run relevant targeted tests for changed modules.
-
-## Ignored Paths
-
-- `.repowise/**`
-- `.venv/**`
-- `node_modules/**`
-- `dist/**`
-- `build/**`
-- `staticfiles/**`
-- `media/**`
-
-## Health Priorities
-
-- Current entropy classification: `no_autonomy`.
-- Current entropy score: `59.8`.
-- Prefer focused, reviewable maintenance PRs.
-
-## Trigger and PR Preferences
-
-- Prefer small PRs scoped to one maintenance category.
-- Do not auto-merge Gardener PRs.
+- `gardener/domain.md`: project domain and out-of-domain examples (domain-drift guard anchor).
+- `gardener/rules.md`: protected paths, allowed fixes, and PR rules.
