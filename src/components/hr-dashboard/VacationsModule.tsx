@@ -33,7 +33,6 @@ import {
   TableRow,
 } from "./ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Progress } from "./ui/progress";
 import { DatePicker } from "./DatePicker";
 import {
   Calendar as CalendarIcon,
@@ -51,6 +50,14 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
+  Search,
+  Users,
+  Inbox,
+  Clock,
+  LayoutGrid,
+  SlidersHorizontal,
+  Sun,
+  CheckCircle2,
 } from "lucide-react";
 import { formatDate } from "@/utils";
 import { format } from "date-fns";
@@ -67,9 +74,9 @@ import type {
 } from "@/types/vacations";
 import {
   LEAVE_TYPE_LABELS,
-  LEAVE_TYPE_COLORS,
   LEAVE_STATUS_LABELS,
   LEAVE_STATUS_BADGE_COLORS,
+  LEAVE_TYPE_BADGE_COLORS,
   ALL_LEAVE_TYPES,
   DEFAULT_VACATION_CAPABILITIES,
 } from "@/types/vacations";
@@ -139,9 +146,6 @@ const parseLocalDate = (value: string): Date | undefined => {
 const isLowBalance = (balance: LeaveBalance): boolean =>
   balance.remaining <= LOW_BALANCE_THRESHOLD_DAYS;
 
-const isPartiallyUsedBalance = (balance: LeaveBalance): boolean =>
-  balance.used > 0 && balance.used < balance.allocated;
-
 const getEmployeeInitials = (name: string): string => {
   const parts = name.trim().split(/\s+/);
   const first = parts[0]?.[0] ?? "";
@@ -183,6 +187,393 @@ function TempoSyncBadge({ status }: { status?: TempoSyncStatus | null }) {
   );
 }
 
+// Vibrant per-type hex used by the big-number balance cards and the who's-out
+// timeline bars. Purely presentational — mirrors the redesign palette.
+const LEAVE_TYPE_HEX: Record<LeaveType, string> = {
+  vacation: "#2563eb",
+  sick: "#e11d48",
+  wfh: "#0d9488",
+  personal: "#7c3aed",
+  maternity: "#db2777",
+  paternity: "#4f46e5",
+  bereavement: "#475569",
+  unpaid: "#d97706",
+};
+
+const AVATAR_PALETTE = [
+  "#2563eb",
+  "#0d9488",
+  "#7c3aed",
+  "#db2777",
+  "#d97706",
+  "#0ea5e9",
+  "#16a34a",
+  "#e11d48",
+  "#4f46e5",
+  "#0891b2",
+  "#9333ea",
+  "#ca8a04",
+];
+
+const getAvatarColor = (name: string): string => {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  }
+  return AVATAR_PALETTE[hash % AVATAR_PALETTE.length];
+};
+
+function LeaveTypeChip({ type }: { type: LeaveType }) {
+  return (
+    <Badge className={LEAVE_TYPE_BADGE_COLORS[type]}>
+      {LEAVE_TYPE_LABELS[type]}
+    </Badge>
+  );
+}
+
+const TIMELINE_DOW = ["S", "M", "T", "W", "T", "F", "S"];
+
+interface TimelineBar extends TeamCalendarEvent {
+  clampStart: number;
+  clampEnd: number;
+  continuesBefore: boolean;
+  continuesAfter: boolean;
+}
+interface TimelineRow {
+  employeeId: string;
+  employeeName: string;
+  bars: TimelineBar[];
+}
+
+/**
+ * Horizontal "who's out" Gantt of the whole company for the selected month.
+ * Presentation only — consumes the same `teamEvents` the module already loads.
+ */
+function TeamTimeline({
+  teamEvents,
+  calendarMonth,
+  setCalendarMonth,
+}: {
+  teamEvents: TeamCalendarEvent[];
+  calendarMonth: Date;
+  setCalendarMonth: (date: Date) => void;
+}) {
+  const [search, setSearch] = useState("");
+
+  const year = calendarMonth.getFullYear();
+  const monthIndex = calendarMonth.getMonth();
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+  const today = new Date();
+  const isThisMonth =
+    today.getFullYear() === year && today.getMonth() === monthIndex;
+  const todayDay = today.getDate();
+
+  const dayCols = Array.from({ length: daysInMonth }, (_, i) => {
+    const d = i + 1;
+    const dow = new Date(year, monthIndex, d).getDay();
+    return {
+      d,
+      dow,
+      weekend: dow === 0 || dow === 6,
+      today: isThisMonth && d === todayDay,
+    };
+  });
+
+  const rows = useMemo<TimelineRow[]>(() => {
+    const monthStart = new Date(year, monthIndex, 1);
+    const monthEnd = new Date(year, monthIndex, daysInMonth);
+    const byEmployee = new Map<string, TimelineRow>();
+
+    teamEvents.forEach((event) => {
+      const start = parseLocalDate(event.startDate);
+      const end = parseLocalDate(event.endDate);
+      if (!start || !end) return;
+      if (end < monthStart || start > monthEnd) return;
+
+      const clampStart = start < monthStart ? 1 : start.getDate();
+      const clampEnd = end > monthEnd ? daysInMonth : end.getDate();
+
+      const group = byEmployee.get(event.employeeId) ?? {
+        employeeId: event.employeeId,
+        employeeName: event.employeeName?.trim() || "Employee",
+        bars: [],
+      };
+      group.bars.push({
+        ...event,
+        clampStart,
+        clampEnd,
+        continuesBefore: start < monthStart,
+        continuesAfter: end > monthEnd,
+      });
+      byEmployee.set(event.employeeId, group);
+    });
+
+    let list = Array.from(byEmployee.values());
+    const normalized = search.trim().toLowerCase();
+    if (normalized) {
+      list = list.filter((row) =>
+        row.employeeName.toLowerCase().includes(normalized)
+      );
+    }
+    list.forEach((row) => row.bars.sort((a, b) => a.clampStart - b.clampStart));
+    list.sort(
+      (a, b) =>
+        Math.min(...a.bars.map((x) => x.clampStart)) -
+          Math.min(...b.bars.map((x) => x.clampStart)) ||
+        a.employeeName.localeCompare(b.employeeName)
+    );
+    return list;
+  }, [teamEvents, year, monthIndex, daysInMonth, search]);
+
+  const typesPresent = useMemo(() => {
+    const set = new Set<LeaveType>();
+    rows.forEach((row) => row.bars.forEach((bar) => set.add(bar.leaveType)));
+    return Array.from(set);
+  }, [rows]);
+
+  const totalOut = rows.length;
+  const totalDaysOut = rows.reduce(
+    (sum, row) =>
+      sum +
+      row.bars.reduce((m, bar) => m + (bar.clampEnd - bar.clampStart + 1), 0),
+    0
+  );
+
+  const shiftMonth = (offset: number) =>
+    setCalendarMonth(new Date(year, monthIndex + offset, 1));
+
+  return (
+    <Card className="overflow-hidden border-gray-200">
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center gap-3 border-b border-gray-100 p-4">
+        <div className="flex items-center gap-1.5">
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => shiftMonth(-1)}
+            aria-label="Previous month"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="min-w-32 text-center text-sm font-semibold text-gray-900">
+            {format(calendarMonth, "MMMM yyyy")}
+          </span>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => shiftMonth(1)}
+            aria-label="Next month"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-1 text-xs"
+            onClick={() => setCalendarMonth(new Date())}
+          >
+            Today
+          </Button>
+        </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Input
+            placeholder="Search people"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="h-9 w-56 pl-9"
+          />
+        </div>
+        <div className="ml-auto flex items-center gap-2 text-sm text-gray-500">
+          <Users className="h-4 w-4" />
+          <span>
+            <b className="font-semibold text-gray-900 tabular-nums">
+              {totalOut}
+            </b>{" "}
+            out ·{" "}
+            <b className="font-semibold text-gray-900 tabular-nums">
+              {totalDaysOut}
+            </b>{" "}
+            days off
+          </span>
+        </div>
+      </div>
+
+      {/* Legend */}
+      {typesPresent.length > 0 && (
+        <div className="flex flex-wrap items-center gap-3 border-b border-gray-100 px-4 py-3">
+          {typesPresent.map((type) => (
+            <span
+              key={type}
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500"
+            >
+              <span
+                className="h-2.5 w-2.5 rounded-sm"
+                style={{ background: LEAVE_TYPE_HEX[type] }}
+              />
+              {LEAVE_TYPE_LABELS[type]}
+            </span>
+          ))}
+          <span className="ml-auto inline-flex items-center gap-1.5 text-xs font-medium text-gray-500">
+            <span
+              className="h-2.5 w-2.5 rounded-sm"
+              style={{
+                background: "#94a3b8",
+                backgroundImage:
+                  "repeating-linear-gradient(45deg, rgba(255,255,255,.5) 0 3px, transparent 3px 6px)",
+              }}
+            />
+            Pending approval
+          </span>
+        </div>
+      )}
+
+      {/* Grid */}
+      {rows.length === 0 ? (
+        <div className="px-6 py-12 text-center">
+          <Sun className="mx-auto mb-2 h-6 w-6 text-gray-400" />
+          <div className="font-medium text-gray-700">Nobody scheduled off</div>
+          <div className="mt-0.5 text-sm text-gray-500">
+            No approved or pending leave overlaps{" "}
+            {format(calendarMonth, "MMMM yyyy")}.
+          </div>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <div
+            className="grid w-full min-w-[860px]"
+            style={{
+              gridTemplateColumns: "216px minmax(0, 1fr)",
+            }}
+          >
+            {/* Header row */}
+            <div className="sticky left-0 z-30 flex h-12 items-center border-b border-r border-gray-200 bg-gray-50 px-4 text-xs font-semibold text-gray-500">
+              Employee
+            </div>
+            <div
+              className="grid border-b border-gray-200 bg-gray-50"
+              style={{
+                gridTemplateColumns: `repeat(${daysInMonth}, minmax(0, 1fr))`,
+              }}
+            >
+              {dayCols.map((col) => (
+                <div
+                  key={col.d}
+                  className={`border-r border-gray-100 py-1.5 text-center ${
+                    col.weekend ? "bg-blue-100/70" : ""
+                  }`}
+                >
+                  <div
+                    className={`text-[10px] uppercase tracking-wide ${
+                      col.today
+                        ? "font-bold text-blue-600"
+                        : col.weekend
+                          ? "font-semibold text-blue-500"
+                          : "text-gray-400"
+                    }`}
+                  >
+                    {TIMELINE_DOW[col.dow]}
+                  </div>
+                  {col.today ? (
+                    <div className="mx-auto mt-0.5 grid h-[22px] w-[22px] place-items-center rounded-md bg-blue-600 text-[13px] font-semibold text-white">
+                      {col.d}
+                    </div>
+                  ) : (
+                    <div
+                      className={`text-[13px] font-semibold ${
+                        col.weekend ? "text-blue-700" : "text-gray-700"
+                      }`}
+                    >
+                      {col.d}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Employee rows */}
+            {rows.map((row) => (
+              <div key={row.employeeId} className="contents">
+                <div className="sticky left-0 z-20 flex h-[46px] items-center gap-2.5 border-b border-r border-gray-100 bg-white px-4">
+                  <Avatar className="h-7 w-7">
+                    <AvatarFallback
+                      className="text-[11px] font-semibold text-white"
+                      style={{ background: getAvatarColor(row.employeeName) }}
+                    >
+                      {getEmployeeInitials(row.employeeName)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="truncate text-[13px] font-semibold text-gray-900">
+                    {row.employeeName}
+                  </span>
+                </div>
+                <div
+                  className="relative grid h-[46px] border-b border-gray-100"
+                  style={{
+                    gridTemplateColumns: `repeat(${daysInMonth}, minmax(0, 1fr))`,
+                  }}
+                >
+                  {dayCols.map((col) => (
+                    <div
+                      key={col.d}
+                      className={`border-r border-gray-100 ${
+                        col.today
+                          ? "bg-blue-50"
+                          : col.weekend
+                            ? "bg-blue-100/50"
+                            : ""
+                      }`}
+                    />
+                  ))}
+                  {row.bars.map((bar, i) => {
+                    const span = bar.clampEnd - bar.clampStart + 1;
+                    const leftPct = ((bar.clampStart - 1) / daysInMonth) * 100;
+                    const widthPct = (span / daysInMonth) * 100;
+                    const isPending =
+                      bar.status === "pending" ||
+                      bar.status === "lead_approved";
+                    const showLabel = span > 1;
+                    return (
+                      <div
+                        key={i}
+                        className="absolute top-[9px] flex h-7 items-center overflow-hidden whitespace-nowrap px-2 text-xs font-semibold text-white shadow-sm"
+                        style={{
+                          left: `calc(${leftPct}% + 3px)`,
+                          width: `calc(${widthPct}% - 6px)`,
+                          background: LEAVE_TYPE_HEX[bar.leaveType],
+                          borderRadius: bar.continuesBefore
+                            ? "0 8px 8px 0"
+                            : "8px",
+                          backgroundImage: isPending
+                            ? "repeating-linear-gradient(45deg, rgba(255,255,255,.16) 0 6px, transparent 6px 12px)"
+                            : undefined,
+                        }}
+                        title={`${row.employeeName} · ${LEAVE_TYPE_LABELS[bar.leaveType]} · ${bar.startDate} → ${bar.endDate}${
+                          bar.status !== "approved"
+                            ? ` (${bar.status.replace("_", " ")})`
+                            : ""
+                        }`}
+                      >
+                        {showLabel && (
+                          <span className="overflow-hidden text-ellipsis">
+                            {LEAVE_TYPE_LABELS[bar.leaveType]}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
 interface VacationsModuleProps {
   addNotification?: (
     module: "vacations",
@@ -217,7 +608,7 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
   const canHrApprove = capabilities.canHrApprove;
   const canAdjustBalances = capabilities.canAdjustBalances;
   const canConfigureLeaveTypes = capabilities.canConfigureLeaveTypes;
-  const showAdminTabs = canAdjustBalances || canConfigureLeaveTypes;
+  const showApprovalsTab = canApproveRequests || canHrApprove;
 
   // Data states - initialize as empty, will be populated from API
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
@@ -265,44 +656,6 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
     isSubmitting: false,
   });
 
-  const COMMENT_DIALOG_COPY: Record<
-    CommentDialogKind,
-    {
-      title: string;
-      description: string;
-      label: string;
-      placeholder: string;
-      confirmLabel: string;
-      requireText: boolean;
-    }
-  > = {
-    lead: {
-      title: "Approve leave request",
-      description: "Add optional approval comments before forwarding to HR.",
-      label: "Approval comments",
-      placeholder: "Optional comments...",
-      confirmLabel: "Approve",
-      requireText: false,
-    },
-    hr: {
-      title: "Final approve leave request",
-      description:
-        "Add optional HR approval comments. This deducts the balance.",
-      label: "HR approval comments",
-      placeholder: "Optional comments...",
-      confirmLabel: "Approve",
-      requireText: false,
-    },
-    reject: {
-      title: "Reject leave request",
-      description: "Provide a reason — the employee will see this.",
-      label: "Reason for rejection",
-      placeholder: "Reason...",
-      confirmLabel: "Reject",
-      requireText: true,
-    },
-  };
-
   // Team calendar month navigation state
   const [calendarMonth, setCalendarMonth] = useState(new Date());
 
@@ -317,8 +670,17 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
     () => leaveBalances.filter((b) => b.employeeId === currentUserEmployeeId),
     [currentUserEmployeeId, leaveBalances]
   );
+  // Show every allocated leave type the user has (ordered), so the balance
+  // strip stays full even when only one type has been used.
   const myVisibleBalances = useMemo(
-    () => myBalances.filter(isPartiallyUsedBalance),
+    () =>
+      myBalances
+        .filter((b) => b.allocated > 0)
+        .sort(
+          (a, b) =>
+            ALL_LEAVE_TYPES.indexOf(a.leaveType) -
+            ALL_LEAVE_TYPES.indexOf(b.leaveType)
+        ),
     [myBalances]
   );
   const displayedBalances = canConfigureLeaveTypes ? leaveBalances : myBalances;
@@ -442,7 +804,10 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
     if (activeTab === "admin" && !canAdjustBalances) {
       setActiveTab("request");
     }
-  }, [activeTab, canAdjustBalances, canConfigureLeaveTypes]);
+    if (activeTab === "approvals" && !showApprovalsTab) {
+      setActiveTab("request");
+    }
+  }, [activeTab, canAdjustBalances, canConfigureLeaveTypes, showApprovalsTab]);
 
   const calculateDays = (start?: Date, end?: Date): number => {
     if (!start || !end) return 0;
@@ -508,13 +873,16 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
     }
   };
 
-  const openCommentDialog = (kind: CommentDialogKind, id: string) => {
+  // Opens the request-detail dialog in review mode. The Approve / Decline
+  // actions live inside that dialog (see runDecision).
+  const openReviewDialog = (id: string) => {
     const request = leaveRequests.find((r) => r.id === id);
     if (!request) return;
     setAdminActionError(null);
     setCommentDialog({
       open: true,
-      kind,
+      // approve path resolves to HR when the request already cleared the lead.
+      kind: request.status === "lead_approved" ? "hr" : "lead",
       requestId: id,
       employeeName: request.employeeName,
       comment: "",
@@ -526,15 +894,11 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
     setCommentDialog((prev) => ({ ...prev, open: false }));
   };
 
-  const handleLeadApprove = (id: string) => openCommentDialog("lead", id);
-  const handleHrApprove = (id: string) => openCommentDialog("hr", id);
-  const handleReject = (id: string) => openCommentDialog("reject", id);
-
-  const confirmCommentDialog = async () => {
-    const { kind, requestId, comment, employeeName } = commentDialog;
+  const runDecision = async (kind: CommentDialogKind) => {
+    const { requestId, comment, employeeName } = commentDialog;
     const trimmed = comment.trim();
-    if (COMMENT_DIALOG_COPY[kind].requireText && !trimmed) {
-      setAdminActionError("A reason is required to reject the request.");
+    if (kind === "reject" && !trimmed) {
+      setAdminActionError("A reason is required to decline the request.");
       return;
     }
 
@@ -714,6 +1078,12 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
     );
   };
 
+  const pendingApprovalRequests = leaveRequests.filter((r) => {
+    if (canApproveRequests && r.status === "pending") return true;
+    if (canHrApprove && r.status === "lead_approved") return true;
+    return false;
+  });
+
   // Show loading state
   if (isLoading) {
     return (
@@ -743,102 +1113,173 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      {/* Page header */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Leave Management</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+            Leave Management
+          </h1>
           <p className="text-gray-600">
-            Manage vacation requests, track leave balances, and view team
-            availability
+            Request time off, track balances, and see who&apos;s away across the
+            company.
           </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setActiveTab("calendar")}>
+            <CalendarIcon className="h-4 w-4" />
+            Who&apos;s out
+          </Button>
+          <Button
+            className="bg-blue-600 hover:bg-blue-700"
+            onClick={() => setActiveTab("request")}
+          >
+            <Plus className="h-4 w-4" />
+            Request leave
+          </Button>
         </div>
       </div>
 
-      <Card className="border-gray-200">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold text-gray-950">
-            My Leave Policies
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {myVisibleBalances.length === 0 ? (
-            <p className="text-sm text-gray-500">
-              No leave types currently in use.
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-              {myVisibleBalances.map((balance) => (
-                <div
-                  key={balance.id}
-                  className="rounded-lg border border-gray-200 p-3"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      {getLeaveTypeIcon(balance.leaveType)}
-                      <h3 className="text-sm font-medium text-gray-900">
-                        {LEAVE_TYPE_LABELS[balance.leaveType]}
-                      </h3>
-                    </div>
-                    <span
-                      className={`text-sm font-semibold ${isLowBalance(balance) ? "text-red-600" : "text-green-600"}`}
-                    >
-                      {balance.remaining}
-                    </span>
-                  </div>
-                  <Progress
-                    value={getBalanceUsagePercent(balance)}
-                    className="mt-3 h-1.5"
-                  />
-                  <div className="mt-2 flex justify-between text-xs text-gray-500">
-                    <span>{balance.used} used</span>
-                    <span>{balance.allocated} allocated</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
+      {/* Tabs — segmented control */}
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
         className="space-y-6"
       >
-        <TabsList
-          className={`grid w-full ${
-            showAdminTabs
-              ? canAdjustBalances && canConfigureLeaveTypes
-                ? "grid-cols-4"
-                : "grid-cols-3"
-              : "grid-cols-2"
-          }`}
-        >
-          <TabsTrigger value="request">Request Leave</TabsTrigger>
-          <TabsTrigger value="calendar">Team Calendar</TabsTrigger>
+        <TabsList className="h-auto w-fit justify-start gap-1 rounded-xl border border-gray-200 bg-white p-1.5">
+          <TabsTrigger
+            value="request"
+            className="gap-2 rounded-lg px-5 py-2.5 text-[15px] font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 data-[state=active]:border-transparent data-[state=active]:bg-[#171717] data-[state=active]:text-white data-[state=active]:hover:bg-[#171717] data-[state=active]:shadow-none"
+          >
+            <Plus className="h-4 w-4" />
+            Request leave
+          </TabsTrigger>
+          <TabsTrigger
+            value="calendar"
+            className="gap-2 rounded-lg px-5 py-2.5 text-[15px] font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 data-[state=active]:border-transparent data-[state=active]:bg-[#171717] data-[state=active]:text-white data-[state=active]:hover:bg-[#171717] data-[state=active]:shadow-none"
+          >
+            <CalendarIcon className="h-4 w-4" />
+            Team calendar
+          </TabsTrigger>
+          {showApprovalsTab && (
+            <TabsTrigger
+              value="approvals"
+              className="gap-2 rounded-lg px-5 py-2.5 text-[15px] font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 data-[state=active]:border-transparent data-[state=active]:bg-[#171717] data-[state=active]:text-white data-[state=active]:hover:bg-[#171717] data-[state=active]:shadow-none"
+            >
+              <Inbox className="h-4 w-4" />
+              Approvals
+              {pendingApprovalRequests.length > 0 && (
+                <span className="ml-1 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-amber-100 px-1.5 text-[11px] font-bold text-amber-700">
+                  {pendingApprovalRequests.length}
+                </span>
+              )}
+            </TabsTrigger>
+          )}
           {canConfigureLeaveTypes && (
-            <TabsTrigger value="policies">Leave Policies</TabsTrigger>
+            <TabsTrigger
+              value="policies"
+              className="gap-2 rounded-lg px-5 py-2.5 text-[15px] font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 data-[state=active]:border-transparent data-[state=active]:bg-[#171717] data-[state=active]:text-white data-[state=active]:hover:bg-[#171717] data-[state=active]:shadow-none"
+            >
+              <LayoutGrid className="h-4 w-4" />
+              Leave policies
+            </TabsTrigger>
           )}
           {canAdjustBalances && (
-            <TabsTrigger value="admin">Admin Panel</TabsTrigger>
+            <TabsTrigger
+              value="admin"
+              className="gap-2 rounded-lg px-5 py-2.5 text-[15px] font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 data-[state=active]:border-transparent data-[state=active]:bg-[#171717] data-[state=active]:text-white data-[state=active]:hover:bg-[#171717] data-[state=active]:shadow-none"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              Admin panel
+            </TabsTrigger>
           )}
         </TabsList>
 
+        {/* Request leave */}
         <TabsContent value="request" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* My balances — compact strip (request tab only) */}
+          <div>
+            <div className="mb-3 flex items-center gap-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                My balances
+              </span>
+              <span className="text-xs text-gray-400">· Resets Jan 1</span>
+            </div>
+            {myVisibleBalances.length === 0 ? (
+              <Card className="border-gray-200">
+                <CardContent className="py-6">
+                  <p className="text-sm text-gray-500">
+                    No leave types currently in use.
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="flex gap-2">
+                {myVisibleBalances.map((balance) => {
+                  const hex = LEAVE_TYPE_HEX[balance.leaveType];
+                  const pct = getBalanceUsagePercent(balance);
+                  const low = isLowBalance(balance);
+                  return (
+                    <div
+                      key={balance.id}
+                      className="min-w-0 flex-1 rounded-lg border border-gray-200 bg-white p-2.5"
+                      title={`${balance.used} used · ${balance.carryOver} carried`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className="grid h-5 w-5 flex-none place-items-center rounded-md [&_svg]:h-3 [&_svg]:w-3"
+                          style={{ background: `${hex}1f`, color: hex }}
+                        >
+                          {getLeaveTypeIcon(balance.leaveType)}
+                        </span>
+                        <span className="truncate text-sm font-medium text-gray-600">
+                          {LEAVE_TYPE_LABELS[balance.leaveType]}
+                        </span>
+                      </div>
+                      <div className="mt-1 flex items-baseline gap-1">
+                        <span
+                          className={`text-xl font-bold leading-none tabular-nums ${
+                            low ? "text-red-600" : "text-gray-900"
+                          }`}
+                        >
+                          {balance.remaining}
+                        </span>
+                        <span className="text-[11px] text-gray-400 tabular-nums">
+                          / {balance.allocated}
+                        </span>
+                      </div>
+                      <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-gray-100">
+                        <div
+                          className="h-full rounded-full"
+                          style={{ width: `${pct}%`, background: hex }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <Card className="border-gray-200">
-                <CardHeader>
-                  <CardTitle>Submit Leave Request</CardTitle>
+                <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
+                  <CardTitle className="text-lg font-semibold text-gray-950">
+                    Submit a leave request
+                  </CardTitle>
+                  <span className="text-xs font-medium text-gray-600">
+                    Routed to your team lead, then HR
+                  </span>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardContent className="space-y-5">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label>Leave Type *</Label>
                       <Select
                         value={leaveType}
                         onValueChange={(v) => setLeaveType(v as LeaveType)}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="border-gray-300 bg-white shadow-sm">
                           <SelectValue placeholder="Select leave type" />
                         </SelectTrigger>
                         <SelectContent>
@@ -857,7 +1298,7 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                         onValueChange={setCoveringEmployee}
                         disabled={teamMembers.length === 0}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="border-gray-300 bg-white shadow-sm">
                           <SelectValue
                             placeholder={
                               teamMembers.length === 0
@@ -877,57 +1318,71 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label>Start Date *</Label>
-                      <DatePicker
-                        key={`start-${selectedStartDate ? formatLocalDate(selectedStartDate) : "empty"}`}
-                        mode="single"
-                        value={
-                          selectedStartDate
-                            ? formatLocalDate(selectedStartDate)
-                            : ""
-                        }
-                        onChange={(date) =>
-                          setSelectedStartDate(parseLocalDate(date))
-                        }
-                        placeholder="Pick a date"
-                      />
+                      <div className="[&_button]:border-gray-300 [&_button]:shadow-sm">
+                        <DatePicker
+                          key={`start-${selectedStartDate ? formatLocalDate(selectedStartDate) : "empty"}`}
+                          mode="single"
+                          value={
+                            selectedStartDate
+                              ? formatLocalDate(selectedStartDate)
+                              : ""
+                          }
+                          onChange={(date) =>
+                            setSelectedStartDate(parseLocalDate(date))
+                          }
+                          placeholder="Pick a date"
+                        />
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label>End Date *</Label>
-                      <DatePicker
-                        key={`end-${selectedEndDate ? formatLocalDate(selectedEndDate) : "empty"}`}
-                        mode="single"
-                        value={
-                          selectedEndDate
-                            ? formatLocalDate(selectedEndDate)
-                            : ""
-                        }
-                        onChange={(date) =>
-                          setSelectedEndDate(parseLocalDate(date))
-                        }
-                        placeholder="Pick a date"
-                      />
+                      <div className="[&_button]:border-gray-300 [&_button]:shadow-sm">
+                        <DatePicker
+                          key={`end-${selectedEndDate ? formatLocalDate(selectedEndDate) : "empty"}`}
+                          mode="single"
+                          value={
+                            selectedEndDate
+                              ? formatLocalDate(selectedEndDate)
+                              : ""
+                          }
+                          onChange={(date) =>
+                            setSelectedEndDate(parseLocalDate(date))
+                          }
+                          placeholder="Pick a date"
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Total Days</Label>
-                    <Input
-                      value={calculateDays(selectedStartDate, selectedEndDate)}
-                      readOnly
-                      className="bg-gray-50"
-                    />
+                  <div className="flex items-end gap-4">
+                    <div className="w-36 space-y-2">
+                      <Label>Total Days</Label>
+                      <Input
+                        value={calculateDays(
+                          selectedStartDate,
+                          selectedEndDate
+                        )}
+                        readOnly
+                        className="border-gray-300 bg-gray-50 text-lg font-semibold tabular-nums shadow-sm"
+                      />
+                    </div>
+                    <p className="flex-1 pb-2 text-xs text-gray-500">
+                      Weekends and public holidays are handled by HR on
+                      approval.
+                    </p>
                   </div>
 
                   <div className="space-y-2">
                     <Label>Reason for Leave *</Label>
                     <Textarea
-                      placeholder="Please provide details..."
-                      rows={4}
+                      placeholder="A short note for your approver..."
+                      rows={3}
                       value={reason}
                       onChange={(e) => setReason(e.target.value)}
+                      className="border-gray-300 bg-white shadow-sm placeholder:text-gray-500"
                     />
                   </div>
 
@@ -941,17 +1396,17 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
 
                   <Button
                     onClick={handleSubmitRequest}
-                    className="w-full"
+                    className="w-full bg-blue-600 hover:bg-blue-700"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <Loader2 className="h-4 w-4 animate-spin" />
                         Submitting...
                       </>
                     ) : (
                       <>
-                        <Plus className="w-4 h-4 mr-2" />
+                        <Plus className="h-4 w-4" />
                         Submit Request
                       </>
                     )}
@@ -962,45 +1417,55 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
 
             <div className="space-y-6">
               <Card className="border-gray-200">
-                <CardHeader>
+                <CardHeader className="pb-3">
                   <CardTitle className="text-lg font-semibold text-gray-950">
-                    Quick Stats
+                    This year
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">
-                      Total Requests
-                    </span>
-                    <span className="font-medium">{leaveRequests.length}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Pending</span>
-                    <span className="font-medium text-amber-600">
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {[
                       {
-                        leaveRequests.filter((r) => r.status === "pending")
-                          .length
-                      }
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Lead Approved</span>
-                    <span className="font-medium text-blue-600">
+                        label: "Total requests",
+                        value: leaveRequests.length,
+                        color: "text-gray-900",
+                      },
                       {
-                        leaveRequests.filter(
+                        label: "Pending",
+                        value: leaveRequests.filter(
+                          (r) => r.status === "pending"
+                        ).length,
+                        color: "text-amber-600",
+                      },
+                      {
+                        label: "Lead approved",
+                        value: leaveRequests.filter(
                           (r) => r.status === "lead_approved"
-                        ).length
-                      }
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Approved</span>
-                    <span className="font-medium text-green-600">
+                        ).length,
+                        color: "text-blue-600",
+                      },
                       {
-                        leaveRequests.filter((r) => r.status === "approved")
-                          .length
-                      }
-                    </span>
+                        label: "Approved",
+                        value: leaveRequests.filter(
+                          (r) => r.status === "approved"
+                        ).length,
+                        color: "text-green-600",
+                      },
+                    ].map((stat) => (
+                      <div
+                        key={stat.label}
+                        className="rounded-lg border border-gray-200 bg-gray-50 p-3"
+                      >
+                        <div
+                          className={`text-2xl font-extrabold tabular-nums ${stat.color}`}
+                        >
+                          {stat.value}
+                        </div>
+                        <div className="mt-0.5 text-xs text-gray-500">
+                          {stat.label}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
@@ -1008,10 +1473,10 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
               <Card className="border-gray-200">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg font-semibold text-gray-950">
-                    Recent Requests
+                    Recent requests
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-2.5">
                   {leaveRequests.slice(0, 5).length === 0 ? (
                     <p className="text-sm text-gray-500">
                       No leave requests yet.
@@ -1020,28 +1485,39 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                     leaveRequests.slice(0, 5).map((request) => (
                       <div
                         key={request.id}
-                        className="space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-3"
+                        className="space-y-2.5 rounded-xl border border-gray-200 p-3 transition-colors hover:border-gray-300"
                       >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="font-medium text-gray-900">
+                        <div className="flex items-start gap-2.5">
+                          <Avatar className="h-7 w-7">
+                            <AvatarFallback
+                              className="text-[11px] font-semibold text-white"
+                              style={{
+                                background: getAvatarColor(
+                                  request.employeeName
+                                ),
+                              }}
+                            >
+                              {getEmployeeInitials(request.employeeName)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-semibold text-gray-900">
                               {request.employeeName}
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-500 tabular-nums">
                               {formatDate(request.startDate)} to{" "}
                               {formatDate(request.endDate)} · {request.days}{" "}
-                              days
+                              {request.days === 1 ? "day" : "days"}
                             </p>
                           </div>
                           {getStatusBadge(request.status)}
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <Badge>{LEAVE_TYPE_LABELS[request.leaveType]}</Badge>
+                          <LeaveTypeChip type={request.leaveType} />
                           <TempoSyncBadge status={request.tempo_sync_status} />
-                          <span className="text-xs text-gray-500">
+                          <span className="text-[11px] text-gray-400 tabular-nums">
                             {request.tempo_synced_days ?? 0} synced ·{" "}
-                            {request.tempo_failed_days ?? 0} failed ·{" "}
-                            {request.tempo_sync_error_count ?? 0} errors
+                            {request.tempo_failed_days ?? 0} failed
                           </span>
                         </div>
                       </div>
@@ -1053,162 +1529,177 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
           </div>
         </TabsContent>
 
+        {/* Team calendar — who's-out timeline */}
         <TabsContent value="calendar" className="space-y-6">
-          <Card className="border-gray-200">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Team Leave Calendar</CardTitle>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      setCalendarMonth(
-                        new Date(
-                          calendarMonth.getFullYear(),
-                          calendarMonth.getMonth() - 1,
-                          1
-                        )
-                      )
-                    }
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <span className="text-sm font-medium min-w-32 text-center">
-                    {format(calendarMonth, "MMMM yyyy")}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      setCalendarMonth(
-                        new Date(
-                          calendarMonth.getFullYear(),
-                          calendarMonth.getMonth() + 1,
-                          1
-                        )
-                      )
-                    }
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setCalendarMonth(new Date())}
-                    className="ml-2 text-xs"
-                  >
-                    Today
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-7 gap-2 text-sm font-medium text-gray-500">
-                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
-                    (day) => (
-                      <div key={day} className="p-2 text-center">
-                        {day}
-                      </div>
-                    )
-                  )}
-                </div>
-                <div className="grid grid-cols-7 gap-2">
-                  {(() => {
-                    const firstDay = new Date(
-                      calendarMonth.getFullYear(),
-                      calendarMonth.getMonth(),
-                      1
-                    );
-                    const startOffset = firstDay.getDay(); // Day of week (0-6)
-                    const today = new Date();
-                    return Array.from({ length: 35 }, (_, i) => {
-                      const date = new Date(
-                        calendarMonth.getFullYear(),
-                        calendarMonth.getMonth(),
-                        i - startOffset + 1
-                      );
-                      const dayEvents = teamEvents.filter((event) => {
-                        const start = new Date(event.startDate);
-                        const end = new Date(event.endDate);
-
-                        // Normalize all dates to midnight for accurate day comparison
-                        const dateAtMidnight = new Date(
-                          date.getFullYear(),
-                          date.getMonth(),
-                          date.getDate()
-                        );
-                        const startAtMidnight = new Date(
-                          start.getFullYear(),
-                          start.getMonth(),
-                          start.getDate()
-                        );
-                        const endAtMidnight = new Date(
-                          end.getFullYear(),
-                          end.getMonth(),
-                          end.getDate()
-                        );
-
-                        return (
-                          dateAtMidnight >= startAtMidnight &&
-                          dateAtMidnight <= endAtMidnight
-                        );
-                      });
-                      const isCurrentMonth =
-                        date.getMonth() === calendarMonth.getMonth();
-                      const isToday =
-                        date.toDateString() === today.toDateString();
-                      return (
-                        <div
-                          key={i}
-                          className={`min-h-24 p-1 border rounded ${
-                            isToday
-                              ? "border-blue-500 bg-blue-50"
-                              : !isCurrentMonth
-                                ? "bg-gray-50 border-gray-200"
-                                : "border-gray-200"
-                          }`}
-                        >
-                          <div
-                            className={`text-sm mb-1 ${
-                              isToday
-                                ? "text-blue-600 font-semibold"
-                                : !isCurrentMonth
-                                  ? "text-gray-400"
-                                  : "text-gray-600"
-                            }`}
-                          >
-                            {date.getDate()}
-                          </div>
-                          <div className="space-y-1">
-                            {dayEvents.map((event) => (
-                              <div
-                                key={event.id}
-                                className={`text-xs p-1 rounded text-white ${LEAVE_TYPE_COLORS[event.leaveType]}`}
-                                title={`${event.employeeName} - ${LEAVE_TYPE_LABELS[event.leaveType]}`}
-                              >
-                                {event.employeeName.split(" ")[0] || "Employee"}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    });
-                  })()}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <TeamTimeline
+            teamEvents={teamEvents}
+            calendarMonth={calendarMonth}
+            setCalendarMonth={setCalendarMonth}
+          />
         </TabsContent>
 
+        {/* Pending approvals — own tab */}
+        {showApprovalsTab && (
+          <TabsContent value="approvals" className="space-y-6">
+            <Card className="border-gray-200">
+              <CardHeader className="flex flex-row items-center gap-3 space-y-0 bg-gradient-to-b from-blue-50/60 to-transparent">
+                <span className="grid h-9 w-9 place-items-center rounded-lg bg-blue-100 text-blue-700">
+                  <Inbox className="h-[18px] w-[18px]" />
+                </span>
+                <div className="flex-1">
+                  <CardTitle className="text-lg font-semibold text-gray-950">
+                    Pending approvals
+                  </CardTitle>
+                  <p className="text-sm text-gray-500">
+                    {pendingApprovalRequests.length
+                      ? `${pendingApprovalRequests.length} request${
+                          pendingApprovalRequests.length > 1 ? "s" : ""
+                        } awaiting your decision`
+                      : "You're all caught up"}
+                  </p>
+                </div>
+                {pendingApprovalRequests.length > 0 && (
+                  <Badge className="border-amber-200 bg-amber-100 text-amber-700">
+                    <Clock className="h-3 w-3" />
+                    {pendingApprovalRequests.length} waiting
+                  </Badge>
+                )}
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {adminActionError && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Action failed</AlertTitle>
+                    <AlertDescription>{adminActionError}</AlertDescription>
+                  </Alert>
+                )}
+
+                {pendingApprovalRequests.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <CheckCircle2 className="mx-auto mb-2 h-6 w-6 text-green-600" />
+                    <p className="text-sm text-gray-500">
+                      No requests pending your approval.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Employee</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Dates</TableHead>
+                          <TableHead>Days</TableHead>
+                          <TableHead>Reason</TableHead>
+                          <TableHead>Stage</TableHead>
+                          <TableHead className="text-center">Review</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {pendingApprovalRequests.map((request) => {
+                          const hrStage = request.status === "lead_approved";
+                          return (
+                            <TableRow key={request.id}>
+                              <TableCell>
+                                <div className="flex items-center gap-3">
+                                  <Avatar className="h-8 w-8">
+                                    <AvatarFallback
+                                      className="text-xs font-semibold text-white"
+                                      style={{
+                                        background: getAvatarColor(
+                                          request.employeeName
+                                        ),
+                                      }}
+                                    >
+                                      {getEmployeeInitials(
+                                        request.employeeName
+                                      )}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <p className="whitespace-nowrap font-medium">
+                                    {request.employeeName}
+                                  </p>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <LeaveTypeChip type={request.leaveType} />
+                              </TableCell>
+                              <TableCell className="whitespace-nowrap text-sm tabular-nums">
+                                {formatDate(request.startDate)} to{" "}
+                                {formatDate(request.endDate)}
+                              </TableCell>
+                              <TableCell className="tabular-nums">
+                                {request.days}
+                              </TableCell>
+                              <TableCell className="max-w-xs">
+                                <p className="whitespace-normal break-words text-sm text-gray-700">
+                                  {request.reason?.trim() ||
+                                    "No reason provided"}
+                                </p>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                                  <span
+                                    className={`grid h-[18px] w-[18px] place-items-center rounded-full text-[10px] font-bold ${
+                                      hrStage
+                                        ? "bg-green-100 text-green-700"
+                                        : "bg-blue-600 text-white"
+                                    }`}
+                                  >
+                                    {hrStage ? (
+                                      <Check className="h-2.5 w-2.5" />
+                                    ) : (
+                                      "1"
+                                    )}
+                                  </span>
+                                  <span className="h-0.5 w-3.5 bg-gray-200" />
+                                  <span
+                                    className={`grid h-[18px] w-[18px] place-items-center rounded-full text-[10px] font-bold ${
+                                      hrStage
+                                        ? "bg-blue-600 text-white"
+                                        : "bg-gray-200 text-gray-500"
+                                    }`}
+                                  >
+                                    2
+                                  </span>
+                                  <span className="ml-1">
+                                    {hrStage ? "HR" : "Lead"}
+                                  </span>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="outline"
+                                  onClick={() => openReviewDialog(request.id)}
+                                  className="h-11 w-full gap-2 text-[15px] font-semibold"
+                                >
+                                  <Eye className="h-[18px] w-[18px]" />
+                                  View details
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
+
+        {/* Leave policies */}
         {canConfigureLeaveTypes && (
           <TabsContent value="policies" className="space-y-6">
             <Card className="border-gray-200">
-              <CardHeader className="pb-3">
+              <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0 pb-3">
                 <CardTitle className="text-lg font-semibold text-gray-950">
-                  Employee Leave Policies
+                  Employee leave policies
                 </CardTitle>
+                <span className="text-sm text-gray-500 tabular-nums">
+                  {groupedDisplayedBalances.length} employees
+                </span>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_220px_180px]">
@@ -1216,14 +1707,18 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                     <Label htmlFor="policy-employee-search">
                       Search employees
                     </Label>
-                    <Input
-                      id="policy-employee-search"
-                      placeholder="Search by employee name"
-                      value={policyEmployeeSearch}
-                      onChange={(event) =>
-                        setPolicyEmployeeSearch(event.target.value)
-                      }
-                    />
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                      <Input
+                        id="policy-employee-search"
+                        placeholder="Search by name"
+                        value={policyEmployeeSearch}
+                        onChange={(event) =>
+                          setPolicyEmployeeSearch(event.target.value)
+                        }
+                        className="pl-9"
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label>Leave type</Label>
@@ -1283,7 +1778,6 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                       const lowBalanceCount = group.balances.filter((balance) =>
                         isLowBalance(balance)
                       ).length;
-
                       const employeeAvatar = group.balances.find(
                         (b) => b.employeeAvatar
                       )?.employeeAvatar;
@@ -1294,12 +1788,19 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                           className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between"
                         >
                           <div className="flex items-center gap-3">
-                            <Avatar className="h-8 w-8">
+                            <Avatar className="h-9 w-9">
                               <AvatarImage
                                 src={employeeAvatar}
                                 alt={group.employeeName}
                               />
-                              <AvatarFallback className="text-xs">
+                              <AvatarFallback
+                                className="text-xs font-semibold text-white"
+                                style={{
+                                  background: getAvatarColor(
+                                    group.employeeName
+                                  ),
+                                }}
+                              >
                                 {getEmployeeInitials(group.employeeName)}
                               </AvatarFallback>
                             </Avatar>
@@ -1307,15 +1808,54 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                               <h2 className="font-medium text-gray-900">
                                 {group.employeeName}
                               </h2>
-                              <p className="text-sm text-gray-500">
+                              <p className="text-sm text-gray-500 tabular-nums">
                                 {group.balances.length} leave types ·{" "}
                                 {totalRemaining}/{totalAllocated} days remaining
                               </p>
                             </div>
                           </div>
                           <div className="flex items-center gap-3">
+                            {/* Usage fingerprint */}
+                            <div className="hidden items-center gap-1 sm:flex">
+                              {(
+                                [
+                                  "vacation",
+                                  "sick",
+                                  "wfh",
+                                  "personal",
+                                ] as LeaveType[]
+                              ).map((type) => {
+                                const balance = group.balances.find(
+                                  (b) => b.leaveType === type
+                                );
+                                if (!balance) {
+                                  return (
+                                    <div
+                                      key={type}
+                                      className="h-1.5 w-6 rounded-full bg-gray-200"
+                                    />
+                                  );
+                                }
+                                const ratio = balance.allocated
+                                  ? balance.remaining / balance.allocated
+                                  : 0;
+                                return (
+                                  <div
+                                    key={type}
+                                    title={`${LEAVE_TYPE_LABELS[type]}: ${balance.remaining}/${balance.allocated}`}
+                                    className="h-1.5 w-6 rounded-full"
+                                    style={{
+                                      background: `color-mix(in srgb, ${LEAVE_TYPE_HEX[type]} ${Math.max(
+                                        18,
+                                        ratio * 100
+                                      )}%, #e5e7eb)`,
+                                    }}
+                                  />
+                                );
+                              })}
+                            </div>
                             {lowBalanceCount > 0 && (
-                              <Badge className="bg-red-100 text-red-800 border-red-200">
+                              <Badge className="border-red-200 bg-red-100 text-red-800">
                                 {lowBalanceCount} low
                               </Badge>
                             )}
@@ -1326,8 +1866,8 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                                 setSelectedPolicyEmployeeId(group.employeeId)
                               }
                             >
-                              <Eye className="mr-2 h-4 w-4" />
-                              View Details
+                              <Eye className="h-4 w-4" />
+                              View details
                             </Button>
                           </div>
                         </div>
@@ -1344,7 +1884,7 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                 if (!open) setSelectedPolicyEmployeeId(null);
               }}
             >
-              <DialogContent className="max-w-2xl grid-rows-[auto_minmax(0,1fr)]">
+              <DialogContent className="grid-rows-[auto_minmax(0,1fr)] max-w-2xl">
                 <DialogHeader>
                   <DialogTitle>
                     {selectedPolicyEmployee?.employeeName ?? "Leave policies"}
@@ -1353,61 +1893,82 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                     Allocations, usage, and remaining days by leave type.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="min-h-0 space-y-3 overflow-y-auto pr-2">
-                  {selectedPolicyEmployee?.balances.map((balance) => (
-                    <div
-                      key={balance.id}
-                      className="rounded-lg border border-gray-200 p-4"
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex items-center gap-2">
-                          {getLeaveTypeIcon(balance.leaveType)}
-                          <h3 className="font-medium text-gray-900">
-                            {LEAVE_TYPE_LABELS[balance.leaveType]}
-                          </h3>
+                <div className="grid min-h-0 grid-cols-1 gap-2.5 overflow-y-auto pr-1 sm:grid-cols-2">
+                  {selectedPolicyEmployee?.balances.map((balance) => {
+                    const hex = LEAVE_TYPE_HEX[balance.leaveType];
+                    const low = isLowBalance(balance);
+                    return (
+                      <div
+                        key={balance.id}
+                        className="rounded-lg border border-gray-200 p-3"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex min-w-0 items-center gap-2">
+                            <span
+                              className="grid h-6 w-6 flex-none place-items-center rounded-md"
+                              style={{ background: `${hex}24`, color: hex }}
+                            >
+                              {getLeaveTypeIcon(balance.leaveType)}
+                            </span>
+                            <h3 className="truncate text-sm font-semibold text-gray-900">
+                              {LEAVE_TYPE_LABELS[balance.leaveType]}
+                            </h3>
+                          </div>
+                          <span
+                            className={`flex-none text-sm font-bold tabular-nums ${
+                              low ? "text-red-600" : "text-green-600"
+                            }`}
+                          >
+                            {balance.remaining} left
+                          </span>
                         </div>
-                        <span
-                          className={`text-sm font-medium ${isLowBalance(balance) ? "text-red-600" : "text-green-600"}`}
-                        >
-                          {balance.remaining} remaining
-                        </span>
+                        <div className="mt-2.5 flex items-center gap-4 text-xs tabular-nums">
+                          <span className="text-gray-500">
+                            Allocated{" "}
+                            <b className="font-semibold text-gray-900">
+                              {balance.allocated}d
+                            </b>
+                          </span>
+                          <span className="text-gray-500">
+                            Used{" "}
+                            <b className="font-semibold text-gray-900">
+                              {balance.used}d
+                            </b>
+                          </span>
+                          <span className="text-gray-500">
+                            Carryover{" "}
+                            <b className="font-semibold text-gray-900">
+                              {balance.carryOver}d
+                            </b>
+                          </span>
+                        </div>
+                        <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${getBalanceUsagePercent(balance)}%`,
+                              background: hex,
+                            }}
+                          />
+                        </div>
                       </div>
-                      <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
-                        <div>
-                          <p className="text-gray-500">Allocated</p>
-                          <p className="font-medium">
-                            {balance.allocated} days
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-gray-500">Used</p>
-                          <p className="font-medium">{balance.used} days</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-500">Carryover</p>
-                          <p className="font-medium">
-                            {balance.carryOver} days
-                          </p>
-                        </div>
-                      </div>
-                      <Progress
-                        value={getBalanceUsagePercent(balance)}
-                        className="mt-3 h-2"
-                      />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </DialogContent>
             </Dialog>
           </TabsContent>
         )}
 
+        {/* Admin panel */}
         {canAdjustBalances && (
           <TabsContent value="admin" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <Card className="border-gray-200">
                 <CardHeader>
-                  <CardTitle>Adjust Leave Balance</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-gray-950">
+                    Adjust leave balance
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {adminActionError && (
@@ -1461,7 +2022,7 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                   <div className="space-y-2">
                     <Label>Reason for Change *</Label>
                     <Textarea
-                      placeholder="e.g., Annual policy update, special allocation, correction..."
+                      placeholder="Annual policy update, special allocation, correction..."
                       rows={3}
                       value={adminBalanceForm.reason}
                       onChange={(e) =>
@@ -1473,8 +2034,11 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
                     />
                   </div>
 
-                  <Button onClick={handleUpdateBalance} className="w-full">
-                    <Edit className="w-4 h-4 mr-2" />
+                  <Button
+                    onClick={handleUpdateBalance}
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Edit className="h-4 w-4" />
                     Update Balance
                   </Button>
                 </CardContent>
@@ -1482,28 +2046,39 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
 
               <Card className="border-gray-200">
                 <CardHeader>
-                  <CardTitle>Current Leave Allocations</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-gray-950">
+                    Current leave allocations
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     {leaveBalances
                       .filter((b) => b.employeeId === currentUserEmployeeId)
-                      .map((balance) => (
-                        <div
-                          key={balance.id}
-                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                        >
-                          <div className="flex items-center gap-2">
-                            {getLeaveTypeIcon(balance.leaveType)}
-                            <span className="font-medium">
+                      .map((balance) => {
+                        const hex = LEAVE_TYPE_HEX[balance.leaveType];
+                        return (
+                          <div
+                            key={balance.id}
+                            className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5"
+                          >
+                            <span
+                              className="grid h-7 w-7 place-items-center rounded-lg"
+                              style={{ background: `${hex}1f`, color: hex }}
+                            >
+                              {getLeaveTypeIcon(balance.leaveType)}
+                            </span>
+                            <span className="text-sm font-medium">
                               {LEAVE_TYPE_LABELS[balance.leaveType]}
                             </span>
+                            <span className="ml-auto text-sm text-gray-500 tabular-nums">
+                              {balance.remaining} left of
+                            </span>
+                            <span className="text-sm font-semibold tabular-nums">
+                              {balance.allocated}d
+                            </span>
                           </div>
-                          <span className="font-semibold">
-                            {balance.allocated} days
-                          </span>
-                        </div>
-                      ))}
+                        );
+                      })}
                   </div>
                 </CardContent>
               </Card>
@@ -1511,7 +2086,9 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
 
             <Card className="border-gray-200">
               <CardHeader>
-                <CardTitle>Recent Balance Adjustments</CardTitle>
+                <CardTitle className="text-lg font-semibold text-gray-950">
+                  Recent balance adjustments
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3 text-sm text-gray-600">
@@ -1523,163 +2100,134 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
         )}
       </Tabs>
 
-      {(canApproveRequests || canHrApprove) &&
-        (() => {
-          const pendingApprovalRequests = leaveRequests.filter((r) => {
-            if (canApproveRequests && r.status === "pending") return true;
-            if (canHrApprove && r.status === "lead_approved") return true;
-            return false;
-          });
-
-          return (
-            <Card className="border-gray-200">
-              <CardHeader>
-                <CardTitle>Pending Approvals</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {adminActionError && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Action failed</AlertTitle>
-                    <AlertDescription>{adminActionError}</AlertDescription>
-                  </Alert>
-                )}
-
-                {pendingApprovalRequests.length === 0 ? (
-                  <p className="text-sm text-gray-500 text-center py-6">
-                    No requests pending your approval.
-                  </p>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Employee</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Dates</TableHead>
-                        <TableHead>Days</TableHead>
-                        <TableHead>Reason</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {pendingApprovalRequests.map((request) => (
-                        <TableRow key={request.id}>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <Avatar className="w-8 h-8">
-                                {request.employeeAvatar && (
-                                  <img
-                                    src={request.employeeAvatar}
-                                    alt={request.employeeName}
-                                  />
-                                )}
-                                <AvatarFallback>
-                                  {request.employeeName
-                                    .split(" ")
-                                    .map((n) => n[0])
-                                    .join("")}
-                                </AvatarFallback>
-                              </Avatar>
-                              <p className="font-medium">
-                                {request.employeeName}
-                              </p>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge>
-                              {LEAVE_TYPE_LABELS[request.leaveType]}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <span className="text-sm">
-                              {formatDate(request.startDate)} to{" "}
-                              {formatDate(request.endDate)}
-                            </span>
-                          </TableCell>
-                          <TableCell>{request.days}</TableCell>
-                          <TableCell className="max-w-sm">
-                            <p className="whitespace-normal break-words text-sm text-gray-700">
-                              {request.reason?.trim() || "No reason provided"}
-                            </p>
-                          </TableCell>
-                          <TableCell>
-                            {getStatusBadge(request.status)}
-                          </TableCell>
-                          <TableCell>
-                            {request.status === "pending" &&
-                              canApproveRequests && (
-                                <div className="flex gap-2">
-                                  <Button
-                                    size="sm"
-                                    onClick={() =>
-                                      handleLeadApprove(request.id)
-                                    }
-                                  >
-                                    <Check className="w-4 h-4" />
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    onClick={() => handleReject(request.id)}
-                                  >
-                                    <X className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              )}
-                            {request.status === "lead_approved" &&
-                              canHrApprove && (
-                                <div className="flex gap-2">
-                                  <Button
-                                    size="sm"
-                                    onClick={() => handleHrApprove(request.id)}
-                                  >
-                                    <Check className="w-4 h-4" />
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    onClick={() => handleReject(request.id)}
-                                  >
-                                    <X className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })()}
-
+      {/* Request review dialog — approve or decline */}
       <Dialog
         open={commentDialog.open}
         onOpenChange={(open) => {
           if (!open && !commentDialog.isSubmitting) closeCommentDialog();
         }}
       >
-        <DialogContent className="max-w-md min-h-0 gap-3 p-6">
+        <DialogContent className="min-h-0 max-w-lg gap-4 p-6">
           <DialogHeader className="gap-1">
-            <DialogTitle>
-              {COMMENT_DIALOG_COPY[commentDialog.kind].title}
-            </DialogTitle>
+            <DialogTitle>Review leave request</DialogTitle>
             <DialogDescription>
-              {COMMENT_DIALOG_COPY[commentDialog.kind].description}
+              Review the details below, then approve or decline this request.
             </DialogDescription>
           </DialogHeader>
+
+          {(() => {
+            const dialogRequest = leaveRequests.find(
+              (r) => r.id === commentDialog.requestId
+            );
+            if (!dialogRequest) return null;
+            const hrStage = dialogRequest.status === "lead_approved";
+            return (
+              <div className="space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                {/* Who + type */}
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-9 w-9">
+                    <AvatarFallback
+                      className="text-xs font-semibold text-white"
+                      style={{
+                        background: getAvatarColor(dialogRequest.employeeName),
+                      }}
+                    >
+                      {getEmployeeInitials(dialogRequest.employeeName)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold text-gray-900">
+                      {dialogRequest.employeeName}
+                    </p>
+                    <p className="text-xs text-gray-500 tabular-nums">
+                      {formatDate(dialogRequest.startDate)} to{" "}
+                      {formatDate(dialogRequest.endDate)} · {dialogRequest.days}{" "}
+                      {dialogRequest.days === 1 ? "day" : "days"}
+                    </p>
+                  </div>
+                  <LeaveTypeChip type={dialogRequest.leaveType} />
+                </div>
+
+                {/* Detail grid */}
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3 border-t border-gray-200 pt-3 text-sm">
+                  <div>
+                    <p className="text-xs text-gray-500">Dates</p>
+                    <p className="font-medium text-gray-900 tabular-nums">
+                      {formatDate(dialogRequest.startDate)} –{" "}
+                      {formatDate(dialogRequest.endDate)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Working days</p>
+                    <p className="font-medium text-gray-900 tabular-nums">
+                      {dialogRequest.days}{" "}
+                      {dialogRequest.days === 1 ? "day" : "days"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Submitted</p>
+                    <p className="font-medium text-gray-900 tabular-nums">
+                      {dialogRequest.submittedDate
+                        ? formatDate(dialogRequest.submittedDate)
+                        : "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Covering colleague</p>
+                    <p className="font-medium text-gray-900">
+                      {dialogRequest.coveringEmployeeName?.trim() || "—"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Approval stage */}
+                <div className="flex items-center gap-2 border-t border-gray-200 pt-3">
+                  <span className="text-xs text-gray-500">Stage</span>
+                  <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                    <span
+                      className={`grid h-[18px] w-[18px] place-items-center rounded-full text-[10px] font-bold ${
+                        hrStage
+                          ? "bg-green-100 text-green-700"
+                          : "bg-blue-600 text-white"
+                      }`}
+                    >
+                      {hrStage ? <Check className="h-2.5 w-2.5" /> : "1"}
+                    </span>
+                    <span className="text-gray-700">Lead</span>
+                    <span className="h-0.5 w-4 bg-gray-200" />
+                    <span
+                      className={`grid h-[18px] w-[18px] place-items-center rounded-full text-[10px] font-bold ${
+                        hrStage
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-200 text-gray-500"
+                      }`}
+                    >
+                      2
+                    </span>
+                    <span className={hrStage ? "text-gray-700" : ""}>HR</span>
+                  </div>
+                  <div className="ml-auto">
+                    {getStatusBadge(dialogRequest.status)}
+                  </div>
+                </div>
+
+                {/* Reason */}
+                <div className="border-t border-gray-200 pt-3">
+                  <p className="text-xs text-gray-500">Reason</p>
+                  <p className="mt-0.5 whitespace-pre-wrap break-words text-sm text-gray-700">
+                    {dialogRequest.reason?.trim() || "No reason provided"}
+                  </p>
+                </div>
+              </div>
+            );
+          })()}
+
           <div className="space-y-1.5">
-            <Label htmlFor="vacation-comment">
-              {COMMENT_DIALOG_COPY[commentDialog.kind].label}
-              {COMMENT_DIALOG_COPY[commentDialog.kind].requireText && " *"}
-            </Label>
+            <Label htmlFor="vacation-comment">Comment</Label>
             <Textarea
               id="vacation-comment"
               rows={3}
-              placeholder={COMMENT_DIALOG_COPY[commentDialog.kind].placeholder}
+              placeholder="Add an optional comment (required when declining)..."
               value={commentDialog.comment}
               onChange={(e) =>
                 setCommentDialog((prev) => ({
@@ -1689,10 +2237,6 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
               }
               disabled={commentDialog.isSubmitting}
             />
-            <p className="text-xs text-gray-500">
-              For request from{" "}
-              <span className="font-medium">{commentDialog.employeeName}</span>.
-            </p>
           </div>
           <div className="flex justify-end gap-2">
             <Button
@@ -1703,15 +2247,24 @@ export function VacationsModule({ addNotification }: VacationsModuleProps) {
               Cancel
             </Button>
             <Button
-              variant={
-                commentDialog.kind === "reject" ? "destructive" : "default"
-              }
-              onClick={confirmCommentDialog}
+              variant="destructive"
+              onClick={() => runDecision("reject")}
               disabled={commentDialog.isSubmitting}
             >
+              <X className="h-4 w-4" />
+              {commentDialog.isSubmitting ? "Processing..." : "Decline"}
+            </Button>
+            <Button
+              className="bg-green-600 hover:bg-green-700"
+              onClick={() => runDecision(commentDialog.kind)}
+              disabled={commentDialog.isSubmitting}
+            >
+              <Check className="h-4 w-4" />
               {commentDialog.isSubmitting
                 ? "Processing..."
-                : COMMENT_DIALOG_COPY[commentDialog.kind].confirmLabel}
+                : commentDialog.kind === "hr"
+                  ? "Approve request"
+                  : "Approve & send to HR"}
             </Button>
           </div>
         </DialogContent>
